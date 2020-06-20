@@ -1,0 +1,15 @@
+{
+  "name": "middleman",
+  "version": "1.0.0",
+  "description": "Reverse (transparent) proxy that captures, edits and replays HTTP requests.",
+  "main": "public/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dave Christenson",
+  "license": "ISC",
+  "dependencies": {
+    "decompress-response": "^3.3.0",
+    "socket.io": "^2.0.4"
+  }
+}

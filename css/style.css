@@ -1,0 +1,280 @@
+button:disabled {
+	background: #dddddd;
+}
+
+
+pre {
+	background-color: #f9f9f9!important;
+	border: solid thin #e7e2e2!important;
+	border-radius: 8px !important;
+	padding-left: 20px !important;
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.modal-dialog{
+    position: relative;
+    display: table; /* This is important */ 
+    overflow-y: auto;    
+    overflow-x: auto;    
+}
+.center {
+	text-align: center;
+	vertical-align: middle;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.error {
+	color: red;
+}
+
+.resend-icon {
+  	margin: 5px 0 0 5px;
+  	font-size:30px;  	
+}
+.header__container .resend-icon {
+  	margin: 7px 0 0 5px !important;   	
+}
+
+.header__container {
+	z-index: 99;
+	position: absolute;
+	top: 0;
+	background-color: #e7f5fe;
+/* 	border-bottom: solid grey medium; */
+	width: 100%;		
+}
+
+.header__title {
+	margin-left: 5px;
+	margin-bottom: 0;
+	color: blue;
+	float: left;
+	cursor: pointer;
+	vertical-align: middle;
+	font-size: large;
+	font-weight: 900;	
+	line-height: 30px;	
+}
+
+.header__auto-scroll-container {
+	margin-left: 10px;
+	float: left;
+}
+.header__auto-scroll-checkbox {
+	
+}
+.header__auto-scroll-label {
+	vertical-align: middle;
+	line-height: 30px;
+}
+
+.header__filter-icon {
+	float: left;
+	margin: 7px 0 0 5px;
+	color: grey;
+	cursor: pointer;	
+}
+.header__filter-icon.active {
+	color: red;	
+}
+
+.header__input-filter-container {	
+	float: left;	
+}
+.header__input-filter {
+	float: left;  
+	margin: 3px 0 0 0;	
+	padding-left: 2px;
+	width: 300px;
+	height: 20px;	
+	background-color: whitesmoke;
+	z-index: 999;
+	position: absolute;	
+}
+
+.header__host-path-container {
+	float: left;
+	margin-left: 10px;
+}
+.header__hostname {
+	float: left;
+	margin: 0 5px 0 5px;
+	vertical-align: middle;
+	line-height: 30px;		
+}
+.header__status,
+.header__settings {
+	float: right;
+	margin: 10px 5px 0 5px;
+	cursor: pointer;		
+}
+.header__settings {
+	color: blue;
+}
+.header__status {
+	color: red;		
+}
+
+.request-response__container {
+	margin: 35px 0 0 0;
+	display: -webkit-flex; /* Safari */
+  	display: flex;  	
+}
+
+.request__container {	
+	padding-right: 5px;
+	overflow-y: auto;	
+	width: 600px;
+	height: calc(100vh - 40px);
+	max-height: calc(100vh - 40px);
+	resize: both;
+	border-right: solid grey;
+	margin: 0 15px 0 0;
+}
+
+.request__url-container {
+	margin: 0 0 0 0;
+	white-space: nowrap;		
+}
+.request__url-seqno-container {
+	margin: 0 0 0 5px;
+	padding: 2px;	
+	float: left;
+	background-color: whitesmoke;
+	width: 7ch;	
+	text-align: right;	
+}
+.request__url-seqno-container.active {
+	background-color: lightgrey;
+}
+.request__url-seqno {
+	margin-right: 2px;
+}
+.request__url {	
+	cursor: pointer;
+	margin: 0;
+	padding: 2px;
+}
+.request__url.active {
+	background-color: yellow;
+}
+.request__endpoint {
+	color: green;
+}
+
+.request__body {
+	margin: 0 0 0 5px;		
+	width: auto;	
+}
+
+.response__container {		
+	height: calc(100vh - 40px);
+	max-height: calc(100vh - 40px);	
+	overflow-y: auto;
+	-webkit-flex: 1;
+    flex: 1;
+}
+
+.response__data-container {
+	margin: 0 0 0 0;
+	white-space: nowrap;		
+}
+
+.request__headers,
+.response__headers,
+.request__query-params,
+.response__body {
+	display: none;		
+}
+.request__headers.active,
+.response__headers.active,
+.request__query-params.active,
+.response__body.active {
+	display: block;
+	margin: 0 10px 5px 0;
+}
+
+.request__headers-twisty,
+.response__headers-twisty,
+.request__query-params-twisty,
+.response__body-twisty {
+	width: 0; 
+  	height: 0; 
+  	border-top: 5px solid transparent;
+  	border-bottom: 5px solid transparent;
+  	border-left: 5px solid;
+  	float: left;
+  	margin: 5px 2px 0 0;
+  	cursor: pointer;
+}
+.request__headers-twisty.active,
+.response__headers-twisty.active,
+.request__query-params-twisty.active,
+.response__body-twisty.active {
+	width: 0; 
+  	height: 0; 
+  	border-left: 5px solid transparent;
+  	border-right: 5px solid transparent;
+  	border-top: 5px solid;
+  	float: left;
+  	margin: 6px 0 0 0 !important;
+}
+
+.twisty-label {
+	cursor: pointer;
+}
+
+.http-message__url {
+	cursor: pointer;
+}
+
+.resend-modal__url-container,
+.resend-modal__body-container {
+	display: table;
+	width: calc(100vw - 100px);	
+}
+.resend-modal__url,
+.resend-modal__body {
+	display: table-row;	
+}
+
+.settings-modal__error-message,
+.resend-modal__error-message {
+	float: left;
+	color: red;
+}
+
+.settings-modal__input-path-container,
+.settings-modal__input-url-container {
+	padding-right: 10px;
+	width: 33% !important;
+	min-width: 400px;
+}
+
+.settings-modal__input-path,
+.settings-modal__input-host {
+	
+}
+.settings-modal__add-button-container {	
+}
+
+.settings-modal__proxy-path,
+.settings-modal__proxy-host {
+	padding-top: 7px;
+	width: 33% !important;
+	min-width: 400px !important;
+	border: none;
+}
+
+.settings-modal__label-max-messages {
+	padding-right: 10px;	
+}
+.settings-modal__input-max-messages {
+	width: 12ch !important;
+}
