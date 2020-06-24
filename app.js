@@ -56,6 +56,8 @@ else {
 
 var socketConfigs = []; // { socket: [socket], proxyConfig: {path: [path], url: [url]} }
 
+console.log('Listening on port '+listenPort)
+
 socketio.listen(httpServer).on('connection', socketConnection);
 
 function socketConnection(socket) {
