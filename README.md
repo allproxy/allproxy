@@ -3,6 +3,23 @@
 
 ## Setup and configuration
 
+### Install packages
+```
+~/git/middleman-proxy$ npm install
+```
+
+#### Help
+```
+Usage: node app.js [--listen [host:]port] [--ssl]
+
+Options:
+	--ssl - Listen for SSL (https) connections only
+	--port - Port to listen on.  Default is port 8888.
+
+Example: node app.js --listen localhost:3000 --ssl
+
+```
+
 ### Start the middleman proxy
 
    ```
