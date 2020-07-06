@@ -44,6 +44,18 @@ Resend an HTTP requests:
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-proxy-resend.png)
 
+## Run in Docker container
+
+Build an image from a Dockerfile:
+```
+~/git/middleman-proxy$ docker build -t middleman .
+```
+
+Run middleman in container:
+```
+$ docker run -p 8888:8888 middleman
+```
+
 ## License
 
   This code is licensed under the [MIT License](https://opensource.org/licenses/MIT).
