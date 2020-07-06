@@ -34,7 +34,7 @@ function usage() {
 	console.log('\nUsage: node app.js [--listen [host:]port] [--ssl]');
 	console.log('\nOptions:');
 	console.log('\t--ssl - Listen for SSL (https) connections only');
-	console.log('\t--port - Port to listen on.  Default is port 8888.');
+	console.log('\t--listen - Host (IP) and port to listen on.  Default is localhost:8888.');
 	console.log('\nExample: node app.js --listen localhost:3000 --ssl');
 }
 

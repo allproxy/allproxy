@@ -4,6 +4,7 @@
   "description": "Reverse (transparent) proxy that captures, edits and replays HTTP requests.",
   "main": "public/app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Dave Christenson",

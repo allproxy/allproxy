@@ -3,6 +3,23 @@
 
 ## Setup and configuration
 
+### Install packages
+```
+~/git/middleman-proxy$ npm install
+```
+
+#### Help
+```
+Usage: node app.js [--listen [host:]port] [--ssl]
+
+Options:
+	--ssl - Listen for SSL (https) connections only
+	--port - Port to listen on.  Default is port 8888.
+
+Example: node app.js --listen localhost:3000 --ssl
+
+```
+
 ### Start the middleman proxy
 
    ```
@@ -26,6 +43,18 @@ Enter localhost:8888 in browser to launch application.  The Middleman proxy app 
 Resend an HTTP requests:
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-proxy-resend.png)
+
+## Run in Docker container
+
+Build an image from a Dockerfile:
+```
+~/git/middleman-proxy$ docker build -t middleman .
+```
+
+Run middleman in container:
+```
+$ docker run -p 8888:8888 middleman
+```
 
 ## License
 
