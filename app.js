@@ -172,7 +172,7 @@ function onRequest(client_req, client_res) {
 
 		client_req.on('close', function() {
 			console.log(sequenceNumber, 'Client closed connection');
-			sendErrorResponse(499, "Client closed connection", undefined, proxyConfig.path);
+			//sendErrorResponse(499, "Client closed connection", undefined, proxyConfig.path);
 		})
 
 		client_req.on('error', function(error) {
