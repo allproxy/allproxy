@@ -196,7 +196,7 @@ function onRequest(client_req, client_res) {
 		var options = {
 			protocol : proxyConfig.protocol,
 			hostname : proxyConfig.hostname,
-			port : proxyConfig.port ? proxyConfig.port : proxyConfig.protocol === 'http' ? 80 : 443,
+			port : proxyConfig.port ? proxyConfig.port : proxyConfig.protocol === 'https:' ? 443 : 80,
 			path : client_req.url,
 			method : method,
 			headers : headers
@@ -250,7 +250,8 @@ function onRequest(client_req, client_res) {
 			sendErrorResponse(404, "Proxy connect error", error, proxyConfig.path);
 		})
 
-		var partialUrl = proxyConfig.path.length > 1 ? client_req.url.replace(proxyConfig.path, '...') : client_req.url;
+		var partialUrl = proxyConfig.path.length > 1 && client_req.url !== proxyConfig.path ? 
+								client_req.url.replace(proxyConfig.path, '...') : client_req.url;
 		var host = proxyConfig.hostname;
 		if(proxyConfig.port) host += ':' + proxyConfig.port;
 		parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, partialUrl, proxyConfig.path);

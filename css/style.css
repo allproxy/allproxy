@@ -35,10 +35,10 @@ pre {
 
 .resend-icon {
   	margin: 5px 0 0 5px;
-  	font-size:30px;  	
+  	font-size:35px;  	
 }
 .header__container .resend-icon {
-  	margin: 7px 0 0 5px !important;   	
+  	margin: 10px 0 0 5px !important;   	
 }
 
 .header__container {
@@ -61,22 +61,30 @@ pre {
 	font-weight: 900;	
 	line-height: 30px;	
 }
-
+.header__trash {
+	float: left;
+	margin: 10px 5px 0 5px;
+	cursor: pointer;
+	font-size: 35;
+	color: blue;		
+}
 .header__auto-scroll-container {
 	margin-left: 10px;
+	margin-bottom: 0;
 	float: left;
+	vertical-align: middle;
 }
 .header__auto-scroll-checkbox {
 	
 }
 .header__auto-scroll-label {
 	vertical-align: middle;
-	line-height: 30px;
+	line-height: 35px;
 }
 
 .header__filter-icon {
 	float: left;
-	margin: 7px 0 0 5px;
+	margin: 10px 0 0 5px;
 	color: grey;
 	cursor: pointer;	
 }
@@ -106,7 +114,7 @@ pre {
 	float: left;
 	margin: 0 5px 0 5px;
 	vertical-align: middle;
-	line-height: 30px;		
+	line-height: 35px;		
 }
 .header__status,
 .header__settings {
