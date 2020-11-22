@@ -11,7 +11,7 @@ var settings = (function(){
 	x.getMaxMessages = function() {
 		
 		if(localStorage.maxNumberOfMessages == undefined) {
-			var MAX_REQUESTS = 1000;	
+			var MAX_REQUESTS = 100;	
 			localStorage.maxNumberOfMessages = MAX_REQUESTS;
 		}
 		return localStorage.maxNumberOfMessages;

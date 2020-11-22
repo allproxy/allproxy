@@ -73,11 +73,11 @@ $(document).ready(function() {
         	var c = json.status < 400 ? '' : ' error';
         	        	
         	var planeClass = json.requestHeaders['proxyviewer'] == 'resend' ? 'fa-paper-plane-o' : 'fa-paper-plane';
-        	
+        
         	var api = json.partialUrl.split('?')[0];
         	var tokens = api.split('/');
         	api = tokens[tokens.length-1];
-        	
+        	console.log(json)
         	var $url = $(          			
         			'<div class="request__url-seqno-container"><span class="request__url-seqno">'+json.sequenceNumber+'</span></div>' +
         			'<div title="Resend request" class="fa '+planeClass+' resend-icon" style="cursor: pointer; float: left; color: '+color+'"></div>' +
@@ -87,7 +87,7 @@ $(document).ready(function() {
         	$url.siblings('.request__url').attr('title', url);
         	$url.data(json);
         	var $requestBody = '';
-			if(json.requestBody) $requestBody = $('<pre class="request__body" hidden></pre>').text(JSON.stringify(json.requestBody, null, 2));
+			if(json.requestBody) $requestBody = $('<pre class="request__body" hidden></pre>').text(JSON.stringify(json.requestBody, null, 2).replaceAll('\\n', '\n'));
 			//if(json.requestBody) $requestBody = $('<pre class="request__body" hidden></pre>').jsonViewer(json.requestBody);
         	 
           	var hidden = isUrlFiltered($url) ? 'hidden' : '';
@@ -144,7 +144,7 @@ $(document).ready(function() {
 		        	}	
 	        	}
 	        	
-	        	// Only display the last 10,000 requests	        	  	
+	        	// Only display the last 100 requests	        	  	
 	        	if($('.request__container').children().length > settings.getMaxMessages()) {	        		
 	        		$('.request__container').children().first().remove();
 	        	}
@@ -174,7 +174,7 @@ $(document).ready(function() {
     /**
      * Click on title to clear all captured requests
      */
-    $('.header__title').click(function(e) {
+    $('.header__title, .header__trash').click(function(e) {
     	$('.request__container').empty();
     	requests = [];
     	$('.response__container').empty();
