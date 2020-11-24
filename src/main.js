@@ -77,7 +77,7 @@ $(document).ready(function() {
         	var api = json.partialUrl.split('?')[0];
         	var tokens = api.split('/');
         	api = tokens[tokens.length-1];
-        	console.log(json)
+        	
         	var $url = $(          			
         			'<div class="request__url-seqno-container"><span class="request__url-seqno">'+json.sequenceNumber+'</span></div>' +
         			'<div title="Resend request" class="fa '+planeClass+' resend-icon" style="cursor: pointer; float: left; color: '+color+'"></div>' +
@@ -174,10 +174,8 @@ $(document).ready(function() {
     /**
      * Click on title to clear all captured requests
      */
-    $('.header__title, .header__trash').click(function(e) {
-    	$('.request__container').empty();
-    	requests = [];
-    	$('.response__container').empty();
+    $('.header__title, .header__trash').click(function(e) {					
+		window.location.reload();
     })
     
     /**

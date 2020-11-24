@@ -31,6 +31,7 @@ var settings = (function(){
 			x.save = false;
 			
 			$('.settings-modal__save').prop('disabled', true);
+			$('.settings-modal__cancel').prop('disabled', false);
 			$('.settings-modal__table').hide();
 			$('.settings-modal__add-button').prop('disabled', true);
 			$('.settings-modal__input-path').val('');						
@@ -50,7 +51,7 @@ var settings = (function(){
 				addRow(path, host);
 			})	
 																		
-			$('#settingsModal').modal('show');
+			$('#settingsModal').modal({backdrop: 'static', keyboard: false});
 			
 			$('#settingsModal').on('hidden.bs.modal', function (e) {
 				
@@ -94,6 +95,10 @@ var settings = (function(){
 			})			
 		});
 	}
+
+	$('.settings-modal__cancel').click(function(e) {
+		x.save = false;
+	})
 	
 	$('.settings-modal__save').click(function(e) {
 		x.save = true;
