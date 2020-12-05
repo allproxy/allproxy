@@ -76,7 +76,16 @@ $(document).ready(function() {
         
         	var api = json.partialUrl.split('?')[0];
         	var tokens = api.split('/');
-        	api = tokens[tokens.length-1];
+			api = tokens[tokens.length-1];			
+			if(api === 'graphql') {				
+				if(json.requestBody && Array.isArray(json.requestBody)) {					
+					json.requestBody.forEach((entry) => {						
+						if(entry.operationName) {							
+							api = entry.operationName;
+						}
+					})
+				}
+			}
         	
         	var $url = $(          			
         			'<div class="request__url-seqno-container"><span class="request__url-seqno">'+json.sequenceNumber+'</span></div>' +
