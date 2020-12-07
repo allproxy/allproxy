@@ -4,7 +4,6 @@ const https = require('https');
 const ProxyConfigs = require('./server/src/ProxyConfigs');
 const HttpProxy = require('./HttpProxy');
 const PassthruProxy = require('./server/src/PassthruProxy');
-//const { exit } = require('process');
 
 var listenPort = 8888;
 var useSsl = false;
