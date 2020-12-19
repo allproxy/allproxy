@@ -12,11 +12,13 @@
 
 <body>
 	<div class= "header__container">
-		<label class="header__title" title="Clear">Middleman</label>
+		<label class="header__title">Middleman</label>
 		<div class="header__trash fa fa-trash" title="Clear log"></div>
 		<div class="header__auto-scroll-container">
 			<input type=checkbox class="header__auto-scroll-checkbox">
 			<label class="header__auto-scroll-label">Auto scroll</label>
+			<input type=checkbox class="header__freeze-checkbox">
+			<label class="header__freeze-label">Freeze</label>
 		</div>
 		<div class="header__settings fa fa-cog" title="Settings"></div>
 		<div class="header__status fa fa-circle" title="Status"></div>			
@@ -76,7 +78,8 @@
 	        		<thead>
 	        			<tr>
 	        				<td></td>
-	        				<td class="text-primary"><label>Path</label></td>
+							<td class="text-primary"><label>Path or Port</label></td>
+							<td class="text-primary"><label>Protocol</label></td>
 	        				<td class="text-primary"><label>Target Host</label></td>
 	        			</tr>
 	        		</thead>
@@ -87,7 +90,14 @@
 	        	<table>
 		        	<tr>		        		
 		        		<td class="settings-modal__input-path-container">
-		    				<input type="text" class="form-control settings-modal__input-path" placeholder="Enter path (e.g., '/xxx/yyy')">
+		    				<input type="text" class="form-control settings-modal__input-path" placeholder="Enter URI as route (e.g., '/xxx/yyy')">
+						</td>
+						<td class="settings-modal__select-protocol-container">
+		    				<select class="form-control settings-modal__select-protocol">
+								<option>http:</option>
+								<option>https:</option>
+								<option>any:</option>
+							</select>
 		    			</td>
 		    			<td class="settings-modal__input-url-container">
 		    				<input type="text" class="form-control settings-modal__input-host" placeholder="Enter target host (e.g., 'localhost:8000')">
@@ -130,7 +140,8 @@
 <script type="text/javascript" src="packages/jquery.json-viewer-master/json-viewer/jquery.json-viewer.js"></script>
 
 <script type="text/javascript" src="client/src/main.js"></script>
-<script type="text/javascript" src="client/src/resend.js"></script>
-<script type="text/javascript" src="client/src/settings.js"></script>
+<script type="text/javascript" src="client/src/Dashboard.js"></script>
+<script type="text/javascript" src="client/src/ResendModal.js"></script>
+<script type="text/javascript" src="client/src/SettingsModal.js"></script>
 
 </html>

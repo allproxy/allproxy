@@ -5,12 +5,16 @@
   "main": "public/app.js",
   "scripts": {
     "start": "node app.js",
+    "startforever": "./scripts/startForever.sh",
+    "stopforever": "./scripts/stopForever.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Dave Christenson",
   "license": "ISC",
   "dependencies": {
     "decompress-response": "^3.3.0",
-    "socket.io": "^2.0.4"
+    "forever": "^3.0.4",
+    "socket.io": "^2.0.4",
+    "sql-formatter": "^2.3.3"
   }
 }

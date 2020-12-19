@@ -33,11 +33,11 @@ pre {
 	color: red;
 }
 
-.resend-icon {
+.request__msg-icon {
   	margin: 5px 0 0 5px;
   	font-size:35px;  	
 }
-.header__container .resend-icon {
+.header__container-host-icon {
   	margin: 10px 0 0 5px !important;   	
 }
 
@@ -51,11 +51,10 @@ pre {
 }
 
 .header__title {
-	margin-left: 5px;
+	margin: 5px 0 5px 0;
 	margin-bottom: 0;
 	color: blue;
-	float: left;
-	cursor: pointer;
+	float: left;	
 	vertical-align: middle;
 	font-size: large;
 	font-weight: 900;	
@@ -63,10 +62,9 @@ pre {
 }
 .header__trash {
 	float: left;
-	margin: 10px 5px 0 5px;
+	margin: 10px 0px 0 10px;
 	cursor: pointer;
-	font-size: 35;
-	color: blue;		
+	font-size: large !important;			
 }
 .header__auto-scroll-container {
 	margin-left: 10px;
@@ -78,6 +76,13 @@ pre {
 	
 }
 .header__auto-scroll-label {
+	vertical-align: middle;
+	line-height: 35px;
+}
+.header__freeze-label.active {
+	color: red;
+}
+.header__freeze-label {
 	vertical-align: middle;
 	line-height: 35px;
 }
@@ -120,7 +125,8 @@ pre {
 .header__settings {
 	float: right;
 	margin: 10px 5px 0 5px;
-	cursor: pointer;		
+	cursor: pointer;
+	font-size: large !important;		
 }
 .header__settings {
 	color: blue;
@@ -137,20 +143,21 @@ pre {
 
 .request__container {	
 	padding-right: 5px;
-	overflow-y: auto;	
+	overflow-y: auto;
 	width: 600px;
 	height: calc(100vh - 40px);
 	max-height: calc(100vh - 40px);
 	resize: both;
 	border-right: solid grey;
-	margin: 0 15px 0 0;
+	margin: 0 15px 0 0;	
 }
 
-.request__url-container {
+.request__msg-container {
 	margin: 0 0 0 0;
-	white-space: nowrap;		
+	white-space: nowrap;
+	width: 100%;			
 }
-.request__url-seqno-container {
+.request__msg-seqno-container {
 	margin: 0 0 0 5px;
 	padding: 2px;	
 	float: left;
@@ -158,27 +165,33 @@ pre {
 	width: 7ch;	
 	text-align: right;	
 }
-.request__url-seqno-container.active {
+.request__msg-seqno-container.active {
 	background-color: lightgrey;
 }
-.request__url-seqno {
+.request__msg-seqno {
 	margin-right: 2px;
 }
-.request__url {	
+.request__msg {
+	display: inline-block;
 	cursor: pointer;
 	margin: 0;
 	padding: 2px;
+	width: calc(100% - 72px);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
 }
-.request__url.active {
+.request__msg.active {
 	background-color: yellow;
 }
 .request__endpoint {
 	color: green;
 }
 
-.request__body {
-	margin: 0 0 0 5px;		
-	width: auto;	
+.request__body {	
+	margin: 0 0 0 5px;
+	width: auto;
+	white-space: pre;			
 }
 
 .response__container {		
@@ -252,6 +265,14 @@ pre {
 	display: table-row;	
 }
 
+.modal-content {
+	width: 1200px;
+}
+
+.table settings-modal__table {
+	white-space: nowrap;
+}
+
 .settings-modal__error-message,
 .resend-modal__error-message {
 	float: left;
@@ -260,23 +281,25 @@ pre {
 
 .settings-modal__input-path-container,
 .settings-modal__input-url-container {
-	padding-right: 10px;
-	width: 33% !important;
-	min-width: 400px;
+	padding-right: 10px;	
+	width: 40% !important;	
+}
+.settings-modal__select-protocol-container {
+}
+.settings-modal__input-path,
+.settings-modal__input-url {
+	width: 500px !important;
+}
+.settings-modal__select-protocol {
+	width: 80px !important;
 }
 
-.settings-modal__input-path,
-.settings-modal__input-host {
-	
-}
-.settings-modal__add-button-container {	
-}
+
 
 .settings-modal__proxy-path,
+.settings-modal__proxy-protocol,
 .settings-modal__proxy-host {
-	padding-top: 7px;
-	width: 33% !important;
-	min-width: 400px !important;
+	padding-top: 7px;	
 	border: none;
 }
 

@@ -1,9 +1,10 @@
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
+const Global = require('./server/src/Global');
 const ProxyConfigs = require('./server/src/ProxyConfigs');
 const HttpProxy = require('./HttpProxy');
-const PassthruProxy = require('./server/src/PassthruProxy');
+const AnyProxy = require('./server/src/AnyProxy');
 
 var listenPort = 8888;
 var useSsl = false;
@@ -37,14 +38,18 @@ function usage() {
 	console.log('\nExample: node app.js --listen localhost:3000 --ssl');
 }
 
-const proxyConfigs = new ProxyConfigs();
-const httpProxy = new HttpProxy(proxyConfigs);
+/**
+ * Exception handler.
+ */
+process.on('uncaughtException', (err) => {
+	console.error(err.stack);
+	process.exit();
+})
+
+Global.proxyConfigs = new ProxyConfigs();
+const httpProxy = new HttpProxy(Global.proxyConfigs);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // trust all certificates
-
-//const passthruProxy = new PassthruProxy(listenPort, 3000, 'localhost');
-
-//return;
 
 if(useSsl) {
 	var httpsOptions = {
@@ -60,4 +65,4 @@ else {
 
 console.log('Listening on port '+listenPort);
 
-proxyConfigs.setHttpServer(httpServer);
+Global.proxyConfigs.setHttpServer(httpServer);
