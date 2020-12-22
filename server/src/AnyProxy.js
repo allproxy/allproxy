@@ -41,7 +41,7 @@ module.exports = class AnyProxy{
             server = net.createServer(onConnect);
         }
 
-        server.listen(sourcePort, '0.0.0.0', function(){console.log("Listening on port "+sourcePort)});
+        server.listen(sourcePort, '0.0.0.0', function(){console.log("Listening on port "+sourcePort+ " for target host "+targetHost+":"+targetPort)});
         proxyConfig.server = server;
 
         // Create server (source) socket

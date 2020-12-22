@@ -18,6 +18,14 @@ module.exports = class ProxyConfigs {
             console.log('ProxyConfigs: proxy config received', 
                         socket.conn.id, 
                         proxyConfigs);
+            
+            // Make sure all matching 'any:' protocol servers are closed.
+            for(const proxyConfig of proxyConfigs) {
+                console.log(proxyConfig);
+                if(proxyConfig.protocol === 'any:') {
+                    this.closeAnyServerWithPort(proxyConfig.port);
+                }                                  
+            }
 
             for(const proxyConfig of proxyConfigs) {
                 if(proxyConfig.protocol === 'any:') {
@@ -30,17 +38,33 @@ module.exports = class ProxyConfigs {
 
         socket.on('disconnect', () => {
             console.log('ProxyConfigs: socket disconnect', socket.conn.id);
-            for(const key in this.proxyConfigs) { 
-                if(key !== socket.conn.id) continue;               
-                for(const proxyConfig of this.proxyConfigs[key].configs) {
-                    console.log(proxyConfig);
-                    if(proxyConfig.protocol === 'any:') {
-                        AnyProxy.destructor(proxyConfig);
-                    }                                  
-                }
-            }
+            this.closeAnyServersWithSocket(socket);
             delete this.proxyConfigs[socket.conn.id];            
         })
+    }
+
+    // Close 'any:' protocol servers that are running for the browser owning the socket
+    closeAnyServersWithSocket(socket) {
+        for(const key in this.proxyConfigs) { 
+            if(socket && key !== socket.conn.id) continue;               
+            for(const proxyConfig of this.proxyConfigs[key].configs) {
+                console.log(proxyConfig);
+                if(proxyConfig.protocol === 'any:') {
+                    AnyProxy.destructor(proxyConfig);
+                }                                  
+            }
+        }
+    }
+
+    // Close 'any:' protocol servers the specified listening port
+    closeAnyServerWithPort(port) {
+        for(const key in this.proxyConfigs) {
+            for(const proxyConfig of this.proxyConfigs[key].configs) {               
+                if(proxyConfig.protocol === 'any:' && proxyConfig.port === port ) {
+                    AnyProxy.destructor(proxyConfig);
+                }                                  
+            }
+        }
     }
 
     /**
