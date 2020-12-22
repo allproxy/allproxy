@@ -120,10 +120,10 @@ var SettingsModal = (function(){
 	$('.settings-modal__select-protocol').change(function(e) {
 		$('.settings-modal__error-message').text('');
 		if(this.value === 'any:') {
-			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number as route');			
+			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
 		}
 		else {
-			$('.settings-modal__input-path').attr('placeholder', 'Enter URI as route (e.g., /xxx/yyy)');			
+			$('.settings-modal__input-path').attr('placeholder', 'Enter path (e.g., /xxx/yyy)');			
 		}
 	})
 	
@@ -135,12 +135,12 @@ var SettingsModal = (function(){
 		
 		if(protocol === 'any:') {
 			if(parseInt(path) === 'NaN') {
-				$('.settings-modal__error-message').text('When protocol "any:" is selected the route must be a port number');				
+				$('.settings-modal__error-message').text('When protocol "any:" is selected port number is requied');				
 				error = true;
 			}
 		} else {
 			if(!path.startsWith('/')) {
-				$('.settings-modal__error-message').text(`When protocol "${protocol}" is selected the route must be a URI beginning with "/"`);				
+				$('.settings-modal__error-message').text(`When protocol "${protocol}" is selected the path must begin with "/"`);				
 				error = true;
 			}
 		} 
