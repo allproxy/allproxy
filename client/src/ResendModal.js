@@ -1,4 +1,4 @@
-var resend = (function(){
+var ResendModal = (function(){
 
 	var x = {send : false};
 
@@ -19,7 +19,7 @@ var resend = (function(){
 			
 			$('#editorModal').on('hidden.bs.modal', function (e) {
 				
-				if(x.send == true) {
+				if(x.send == true) {					
 					var method = 'GET';
 					var url;
 					var body;
@@ -47,7 +47,8 @@ var resend = (function(){
 						body: body
 					};
 					//console.log(JSON.stringify(output, null, 2));
-					resolve(output);					
+					resolve(output);
+					x.send = false;					
 				}
 				else {					
 					reject('canceled');

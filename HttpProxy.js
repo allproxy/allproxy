@@ -4,18 +4,17 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const socketMessage = require('./server/src/SocketIoMessage.js');
+const Global = require('./server/src/Global.js');
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 module.exports = class HttpProxy {
-    constructor(proxyConfigs) {        
-        HttpProxy.proxyConfigs = proxyConfigs; 
-        HttpProxy.nextSequenceNumber = 0;
+    constructor() {
     }
 
     onRequest(client_req, client_res) {
-        var sequenceNumber = ++HttpProxy.nextSequenceNumber;
+        var sequenceNumber = ++Global.nextSequenceNumber;
         var remoteAddress = client_req.socket.remoteAddress;
         console.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
 
@@ -65,7 +64,7 @@ module.exports = class HttpProxy {
                 client_res.end(fs.readFileSync(__dirname + reqUrl.pathname));
             } else {
                 // Find matching proxy configuration
-                proxyConfig = HttpProxy.proxyConfigs.findProxyConfig(reqUrl);		
+                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);		
 
                 if(proxyConfig == undefined) {
                     sendErrorResponse(404, 'No matching proxy configuration found!');
@@ -134,7 +133,7 @@ module.exports = class HttpProxy {
                     });
     
                     parseResponsePromise.then(function(message) {					
-                        HttpProxy.proxyConfigs.emitMessageToBrowser(message, proxyConfig.path);					
+                        Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig.path);					
                     })
                     .catch(function(error) {
                         console.log(sequenceNumber, 'Parse response promise emit error:', error);
@@ -151,11 +150,9 @@ module.exports = class HttpProxy {
                 sendErrorResponse(404, "Proxy connect error", error, proxyConfig.path);
             })
     
-            var partialUrl = proxyConfig.path.length > 1 && client_req.url !== proxyConfig.path ? 
-                                    client_req.url.replace(proxyConfig.path, '...') : client_req.url;
             var host = proxyConfig.hostname;
             if(proxyConfig.port) host += ':' + proxyConfig.port;
-            parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, partialUrl, proxyConfig.path);
+            parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, proxyConfig.path);
     
             client_req.pipe(proxy, {
                 end : true
@@ -166,7 +163,7 @@ module.exports = class HttpProxy {
             console.log(sequenceNumber, 'sendErrorResponse', responseMessage);
             if(parseRequestPromise == undefined) {
                 var host = 'error';
-                parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, client_req.url, path);
+                parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, path);
             }
     
             parseRequestPromise.then(function(message) {
@@ -179,7 +176,7 @@ module.exports = class HttpProxy {
                 }
                 message.status = status;
     
-                HttpProxy.proxyConfigs.emitMessageToBrowser(message); // Send error to all browsers		
+                Global.proxyConfigs.emitMessageToBrowser(message); // Send error to all browsers		
     
                 if(responseMessage != 'Client closed connection') {
                     client_res.on('error', function(error) {

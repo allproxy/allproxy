@@ -1,0 +1,24 @@
+version: '3.3'
+
+networks:
+  sharpspring_default:
+    external: true
+
+services:
+  middleman:   
+    container_name: middleman
+    build: .    
+    networks:
+      sharpspring_default:
+        aliases:
+          - middleman
+    ports:
+      - target: 8888
+        published: 8888
+        protocol: tcp
+        mode: host
+      - target: 33306
+      - "33306:33306"
+      - "5052:5052"
+      - "5053:5053"
+    command: 'yarn start --ssl'

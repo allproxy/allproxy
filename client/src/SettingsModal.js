@@ -1,4 +1,4 @@
-var settings = (function(){
+var SettingsModal = (function(){
 
 	var x = {
 		$rows: $('.settings-modal__table').find('tbody'),
@@ -34,7 +34,8 @@ var settings = (function(){
 			$('.settings-modal__cancel').prop('disabled', false);
 			$('.settings-modal__table').hide();
 			$('.settings-modal__add-button').prop('disabled', true);
-			$('.settings-modal__input-path').val('');						
+			$('.settings-modal__input-path').val('');
+			$('.settings-modal__input-protocol').val('');						
 			$('.settings-modal__input-host').val('');
 			$('.settings-modal__input-path').css('background-color', '');	
 			$('.settings-modal__input-host').css('background-color', '');
@@ -46,9 +47,9 @@ var settings = (function(){
 			}			
 			proxyDirectives.forEach(function(config) {
 				var path = config.path;
-				var host = config.protocol+'//'+config.hostname;
+				var host = config.hostname;
 				if(config.port) host += ':'+config.port;
-				addRow(path, host);
+				addRow(path, config.protocol, host);
 			})	
 																		
 			$('#settingsModal').modal({backdrop: 'static', keyboard: false});
@@ -61,21 +62,18 @@ var settings = (function(){
 					
 					$('.settings-modal__proxy-row').each(function() {
 						var path = $(this).find('.settings-modal__proxy-path').val();
+						var protocol = $(this).find('.settings-modal__proxy-protocol option:selected').text();
 						var host = $(this).find('.settings-modal__proxy-host').val();
-
-						if(!host.startsWith('http') && !host.startsWith('https')) {
-							host = 'http://' + host;
-						}
 												
-						var url = new URL(host);						
+										
 						var config = {							
 							path: path,
-							protocol: url.protocol,
-							hostname: url.hostname,
-							port: url.port.length === 0 ? undefined : url.port
+							protocol: protocol,
+							hostname: host.split(':')[0],
+							port: host.split(':')[1]
 						};
 						proxyDirectives.push(config);
-					})
+					})					
 					
 					console.log('save', JSON.stringify(proxyDirectives,null,2));
 					localStorage.proxyDirectives = JSON.stringify(proxyDirectives);
@@ -106,6 +104,7 @@ var settings = (function(){
 	
 	$('.settings-modal__input-path, .settings-modal__input-host').on('input', function(e) {
 		var path = $('.settings-modal__input-path').val();
+		var protocol = $('.settings-modal__select-protocol option:selected').text();
 		var host = $('.settings-modal__input-host').val();
 		
 		$('.settings-modal__error-message').text('');
@@ -117,19 +116,50 @@ var settings = (function(){
 			$('.settings-modal__add-button').prop('disabled', false);					
 		}
 	})
+
+	$('.settings-modal__select-protocol').change(function(e) {
+		$('.settings-modal__error-message').text('');
+		if(this.value === 'any:') {
+			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number as route');			
+		}
+		else {
+			$('.settings-modal__input-path').attr('placeholder', 'Enter URI as route (e.g., /xxx/yyy)');			
+		}
+	})
 	
 	$('.settings-modal__add-button').click(function() {		
 		var path = $('.settings-modal__input-path').val();
+		var protocol = $('.settings-modal__select-protocol option:selected').text();
 		var host = $('.settings-modal__input-host').val();
 		var error = false;
 		
-		if(!path.startsWith('/')) {
-			$('.settings-modal__error-message').text('The path must begin with a "/"');	
-			error = true;
-		}
-		
+		if(protocol === 'any:') {
+			if(parseInt(path) === 'NaN') {
+				$('.settings-modal__error-message').text('When protocol "any:" is selected the route must be a port number');				
+				error = true;
+			}
+		} else {
+			if(!path.startsWith('/')) {
+				$('.settings-modal__error-message').text(`When protocol "${protocol}" is selected the route must be a URI beginning with "/"`);				
+				error = true;
+			}
+		} 
+
+		if(!error) {
+			try {
+				const url = new URL(host);
+				if(url.port === undefined) {
+					$('.settings-modal__error-message').text(`The port number must be specified in the target host (e.g., localhost:80)`);			
+					error = true;
+				}
+			} catch(e) {
+				$('.settings-modal__error-message').text(`Invalid target host name (e.g., localhost:80)`)
+				error = true;
+			}	
+		}	
+				
 		if(!error) {				
-			addRow(path, host);
+			addRow(path, protocol, host);
 			$('.settings-modal__add-button').prop('disabled', true);
 			$('.settings-modal__save').prop('disabled', false);			
 			$('.settings-modal__input-path').val('');						
@@ -155,8 +185,12 @@ var settings = (function(){
 		$('.settings-modal__save').prop('disabled', false);		
 	})	
 	
-	function addRow(path, host) {
+	function addRow(path, protocol, host) {
 		if(host.split(':').length == 1) host += ':80';
+		let options = ['<option>http:</option>', '<option>https:</option>', '<option>any:</option>'];
+		if(protocol === 'http:') options.unshift(options.splice(0,1)[0]);
+		else if(protocol === 'https') options.unshift(options.splice(1,1)[0]);
+		else if(protocol === 'any:') options.unshift(options.splice(2,1)[0]);
 		var row = 
 			'<tr class="settings-modal__proxy-row">' +				
 				'<td>' +
@@ -164,6 +198,11 @@ var settings = (function(){
 				'</td>' +				
 				'<td class="settings-modal__proxy-path-container">' +
 					'<input class="settings-modal__proxy-path" value="'+path+'">' +
+				'</td>' +
+				'<td class="settings-modal__proxy-protocol-container">' +
+					'<select class="settings-modal__proxy-protocol">' +
+						options.join('') +
+					'<select/>' +
 				'</td>' +
 				'<td class="settings-modal__proxy-host-container">' +
 					'<input class="settings-modal__proxy-host" value="'+host+'">' +

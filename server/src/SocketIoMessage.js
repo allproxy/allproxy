@@ -5,7 +5,7 @@ module.exports = {
 	/**
 	 * Parse request data
 	 */
-	parseRequest : function(client_req, startTime, sequenceNumber, host, partialUrl, path) {	
+	parseRequest : function(client_req, startTime, sequenceNumber, host, path) {	
 		
 		return new Promise(function(resolve, reject) {
 			
@@ -22,24 +22,42 @@ module.exports = {
 					requestBody = JSON.parse(rawData)
 				} catch (e) {
 					//console.error(e.message);
-				}	
+				}
+
+				var endpoint = client_req.url.split('?')[0];
+				var tokens = endpoint.split('/');
+				endpoint = tokens[tokens.length-1];	
+									
+				if(client_req.url === '/graphql') {
+					if(requestBody && Array.isArray(requestBody)) {					
+						requestBody.forEach((entry) => {						
+							if(entry.operationName) {							
+								endpoint = entry.operationName;
+							}							
+						})
+					}
+				}
+				if('/'+endpoint === client_req.url) endpoint = '';					
 				
-				var message = {
-						sequenceNumber : sequenceNumber,
-						requestHeaders : client_req.headers,
-						method : client_req.method,
-						url : client_req.url,
-						partialUrl : partialUrl,
-						requestBody : requestBody,
-						host : host,
-						path : path, 
-						elapsedTime : Date.now() - startTime
-				};	
+				let message = buildRequest(sequenceNumber,											
+											client_req.headers, 
+											client_req.method,
+											client_req.url,
+											endpoint, 
+											requestBody, 
+											client_req.connection.remoteAddress,
+											host, // server host
+											path, 
+											Date.now() - startTime);	
 				
 				resolve(message);
 			});						
 			
 		});
+	},
+
+	buildRequest : function(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
+		return buildRequest(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
 	},
 	
 	/**
@@ -87,15 +105,42 @@ module.exports = {
 					parsedData = {
 						body : rawData
 					};
-				}
+				}				
 				
-				message.responseHeaders = proxyRes.headers;
-				message.responseBody = parsedData;
-				message.status = proxyRes.statusCode
-				message.elapsedTime = Date.now() - startTime;
+				appendResponse(message, proxyRes.headers, parsedData, proxyRes.statusCode, Date.now() - startTime);
 								
 				resolve(message);
 			});	
 		});						
-	}
+	},
+
+	appendResponse(message, responseHeaders, responseBody, status, elapsedTime) {
+		appendResponse(message, responseHeaders, responseBody, status, elapsedTime);
+	},
+
 };
+
+function buildRequest(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
+	var message = {
+		sequenceNumber,		
+		requestHeaders,
+		method,
+		url,
+		endpoint,
+		requestBody,
+		clientIp,
+		serverHost,
+		path, 
+		elapsedTime
+	};	
+	
+	return message;
+}
+
+function appendResponse(message, responseHeaders, responseBody, status, elapsedTime) {
+	message.responseHeaders = responseHeaders;
+	message.responseBody = responseBody;
+	message.status = status;
+	message.elapsedTime = elapsedTime;
+	return message;
+}
