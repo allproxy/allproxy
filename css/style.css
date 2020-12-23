@@ -15,6 +15,11 @@ pre {
 	word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
+.spinner {
+	font-size: 48px !important;
+	color: blue;
+}
+
 .modal-dialog{
     position: relative;
     display: table; /* This is important */ 
@@ -194,6 +199,7 @@ pre {
 	white-space: pre;			
 }
 
+.response__loading,
 .response__container {		
 	height: calc(100vh - 40px);
 	max-height: calc(100vh - 40px);	

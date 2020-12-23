@@ -205,9 +205,17 @@ const Dashboard = (function(){
                     $activeUrl = undefined;				
                 }
                 else {		
-                    //console.log($activeUrl, $element)		
+                    //console.log($activeUrl, $element)	
+                    $('.response__container').hide();
+                    $('.response__loading').show();
+                    	
                     var json = $element.data();
                     
+                    $element.addClass('active');
+                    $element.parent().find('.request__msg-seqno-container').addClass('active');
+                    $element.next().show();
+                    $activeUrl = $element;                    
+                                                        
                     // Format query parameters
                     var queryParams;
                     if(json.url.indexOf('?') != -1) {
@@ -226,7 +234,7 @@ const Dashboard = (function(){
                     var $responseBody = $('<pre class="response__body active"></pre>').text(JSON.stringify(json.responseBody,null,2)
                                                 .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
                     //var $responseBody = $('<pre class="response__body active"></pre>').jsonViewer(json.responseBody);
-                    $('.response__container').empty();				
+                    $('.response__container').empty();
                     var c = json.status < 300  ? '' : ' class="error"';
                     $('.response__container').append('<div'+c+'><label>Status:&nbsp;</label>'+json.status+'</div>');
                     $('.response__container').append('<div><label>Elapsed time:&nbsp;</label>'+json.elapsedTime+' ms</div>');
@@ -236,10 +244,8 @@ const Dashboard = (function(){
                         $('.response__container').append('<div class="request__query-params-twisty twisty"></div><div><label class="twisty-label">Query Parameters:</label></div>').append($queryParams);
                     }
                     $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
-                    $element.addClass('active');
-                    $element.parent().find('.request__msg-seqno-container').addClass('active');
-                    $element.next().show();
-                    $activeUrl = $element;					
+                    $('.response__container').show();
+                    $('.response__loading').hide();		
                 }					
             }
             else if($element.hasClass('resend-icon')) {
