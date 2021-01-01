@@ -17,6 +17,7 @@ var ResendModal = (function(){
 			
 			$('#editorModal').modal('show');
 			
+			$('#editorModal').unbind('hidden.bs.modal');
 			$('#editorModal').on('hidden.bs.modal', function (e) {
 				
 				if(x.send == true) {					
@@ -83,11 +84,13 @@ var ResendModal = (function(){
 		return true;
 	}
 	
+	$('.resend-modal__indent-button').unbind('click');
 	$('.resend-modal__indent-button').click(function(e) {
 		var body = $('.resend-modal__body').val();
 		$('.resend-modal__body').val(JSON.stringify(JSON.parse(body),null,4));
 	})
 	
+	$('.resend-modal__send').unbind('click');
 	$('.resend-modal__send').click(function(e) {
 		x.send = true;
 		
@@ -96,6 +99,7 @@ var ResendModal = (function(){
 		//}
 	})
 	
+	$('.resend-modal__body').unbind('input');
 	$('.resend-modal__body').on('input', function(e) {
 		validateBody();				
 	})

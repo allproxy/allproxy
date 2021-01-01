@@ -20,10 +20,12 @@ $(document).ready(function() {
     /**
      * Click on title to clear all captured requests
      */
+	$('.header__trash').unbind('click');
     $('.header__trash').click(function(e) {					
 		window.location.reload();
 	})
 			
+	$('.header__settings').unbind('click');
 	$('.header__settings').click(function(e) {		
 		SettingsModal.open(iosocket)
 		.then(function(proxyDirectives) {
