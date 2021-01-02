@@ -54,6 +54,7 @@ var SettingsModal = (function(){
 																		
 			$('#settingsModal').modal({backdrop: 'static', keyboard: false});
 			
+			$('#settingsModal').unbind('hidden.bs.modal');
 			$('#settingsModal').on('hidden.bs.modal', function (e) {
 				
 				if(x.save) {
@@ -94,14 +95,17 @@ var SettingsModal = (function(){
 		});
 	}
 
+	$('.settings-modal__cancel').unbind('click');
 	$('.settings-modal__cancel').click(function(e) {
 		x.save = false;
 	})
 	
+	$('.settings-modal__save').unbind('click');
 	$('.settings-modal__save').click(function(e) {
 		x.save = true;
 	})
 	
+	$('.settings-modal__input-path, .settings-modal__input-host').unbind('input');
 	$('.settings-modal__input-path, .settings-modal__input-host').on('input', function(e) {
 		var path = $('.settings-modal__input-path').val();
 		var protocol = $('.settings-modal__select-protocol option:selected').text();
@@ -167,6 +171,7 @@ var SettingsModal = (function(){
 		}		
 	})
 	
+	$('.settings-modal__table').unbind('click');
 	$('.settings-modal__table').click(function(e) {
 		var $element = $(e.target);
 		if($element.hasClass('settings-modal__proxy-delete-button')) {
@@ -175,12 +180,14 @@ var SettingsModal = (function(){
 		}
 	})	
 	
+	$('.settings-modal__table').unbind('input');
 	$('.settings-modal__table').on('input', function(e) {
 		var $element = $(e.target);
 		$('.settings-modal__error-message').text('');
 		$('.settings-modal__save').prop('disabled', false);		
 	})	
 	
+	$('.settings-modal__input-max-messages').unbind('input');
 	$('.settings-modal__input-max-messages').on('input', function(e) {		
 		$('.settings-modal__save').prop('disabled', false);		
 	})	

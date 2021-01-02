@@ -7,8 +7,8 @@ const Dashboard = (function(){
 	var hostColor = {}; // key=json.serverHost[json.path]
 	var hostFilter = {}; // key=json.serverHost[json.path]
    
-    x.start = (iosocket) => {
-    
+    x.start = (iosocket) => {    
+        
         iosocket.on('message', function(message) {
             if(isStopped()) {
                 return; // Do not record this message
@@ -160,6 +160,7 @@ const Dashboard = (function(){
     		/**
     		 * Filter
     		 */
+            $inputFilter.unbind('input');
     		$inputFilter.on('input', function(e) {
     			filter();
     			if($(this).val() == '') {
@@ -169,7 +170,8 @@ const Dashboard = (function(){
     				$(this).parent().prev('.header__filter-icon').addClass('active');
     			}
     		})
-    		
+            
+            $inputFilter.unbind('focusout');
     		$inputFilter.focusout(function(e) {
     			$(this).hide();
     		})   		
@@ -177,6 +179,7 @@ const Dashboard = (function(){
     		/**
 			 * Filter requests
 			 */
+            $filterIcon.unbind('click');
 			$filterIcon.click(function(e) {	
 				$inputFilter.show();
 				$inputFilter.focus();
@@ -188,6 +191,7 @@ const Dashboard = (function(){
         /**
          * Click event handler in request container
          */
+        $('.request__container').unbind('click');
         $('.request__container').click(function(e) {
             var $element = $(e.target);	
             if($element.parent().hasClass('request__msg')) $element = $element.parent();
@@ -290,6 +294,7 @@ const Dashboard = (function(){
         /**
          * Click event handler in response container
          */
+        $('.response__container').unbind('click');
         $('.response__container').click(function(e) {
             var $element = $(e.target);
             if($element.hasClass('twisty') || $element.hasClass('twisty-label')) {
