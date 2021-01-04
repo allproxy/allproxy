@@ -1,5 +1,5 @@
 const socketio = require('socket.io');
-const AnyProxy = require('./AnyProxy');
+const NonHttpProxy = require('./NonHttpProxy');
 
 module.exports = class ProxyConfigs {
 
@@ -17,19 +17,22 @@ module.exports = class ProxyConfigs {
         socket.on('proxy config', (proxyConfigs) => {
             console.log('ProxyConfigs: proxy config received', 
                         socket.conn.id, 
-                        proxyConfigs);
+                        proxyConfigs); 
             
             // Make sure all matching 'any:' protocol servers are closed.
             for(const proxyConfig of proxyConfigs) {
                 console.log(proxyConfig);
-                if(proxyConfig.protocol === 'any:') {
+                proxyConfig.isHttpOrHttps = proxyConfig.protocol === 'http:' 
+                                            || proxyConfig.protocol === 'https:';
+                
+                if(!proxyConfig.isHttpOrHttps) {
                     this.closeAnyServerWithPort(proxyConfig.port);
-                }                                  
+                }
             }
 
             for(const proxyConfig of proxyConfigs) {
-                if(proxyConfig.protocol === 'any:') {
-                    new AnyProxy(proxyConfig);
+                if(!proxyConfig.isHttpOrHttps) {
+                    new NonHttpProxy(proxyConfig);
                 }
             }
 
@@ -49,8 +52,8 @@ module.exports = class ProxyConfigs {
             if(socket && key !== socket.conn.id) continue;               
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 console.log(proxyConfig);
-                if(proxyConfig.protocol === 'any:') {
-                    AnyProxy.destructor(proxyConfig);
+                if(!proxyConfig.isHttpOrHttps) {
+                    NonHttpProxy.destructor(proxyConfig);
                 }                                  
             }
         }
@@ -60,8 +63,8 @@ module.exports = class ProxyConfigs {
     closeAnyServerWithPort(port) {
         for(const key in this.proxyConfigs) {
             for(const proxyConfig of this.proxyConfigs[key].configs) {               
-                if(proxyConfig.protocol === 'any:' && proxyConfig.port === port ) {
-                    AnyProxy.destructor(proxyConfig);
+                if(!proxyConfig.isHttpOrHttps && proxyConfig.port === port ) {
+                    NonHttpProxy.destructor(proxyConfig);
                 }                                  
             }
         }
@@ -77,7 +80,7 @@ module.exports = class ProxyConfigs {
         // Find matching proxy configuration
         for(const key in this.proxyConfigs) {            
             for(const proxyConfig of this.proxyConfigs[key].configs) {
-                if(proxyConfig.protocol === 'any:') continue;
+                if(!proxyConfig.isHttpOrHttps) continue;
                 if(reqUrl.pathname.startsWith(proxyConfig.path)) {
                     if(matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
                         matchingProxyConfig = proxyConfig;
@@ -94,13 +97,13 @@ module.exports = class ProxyConfigs {
      * @param {*} path - optional path to match
      */
     emitMessageToBrowser(message, path) {
-        console.log('emitMessageToBrowser()')        
+        console.log('emitMessageToBrowser()', path)        
         let done = false;        
         const json = JSON.stringify(message, null, 2);       
         for(const key in this.proxyConfigs) {                  
             for(const proxyConfig of this.proxyConfigs[key].configs) {
-                if(proxyConfig.protocol === 'any:' && path === undefined 
-                    || proxyConfig.protocol !== 'any:' && proxyConfig.path === path) {
+                if(!proxyConfig.isHttpOrHttps && path === undefined 
+                    || proxyConfig.isHttpOrHttps && proxyConfig.path === path) {
 
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
                     this.proxyConfigs[key].socket.emit('message', json);

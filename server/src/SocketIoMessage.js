@@ -29,10 +29,12 @@ module.exports = {
 				endpoint = tokens[tokens.length-1];	
 									
 				if(client_req.url === '/graphql') {
+					endpoint = '';
 					if(requestBody && Array.isArray(requestBody)) {					
 						requestBody.forEach((entry) => {						
-							if(entry.operationName) {							
-								endpoint = entry.operationName;
+							if(entry.operationName) {
+								if(endpoint.length > 0) endpoint += ', '					
+								endpoint += entry.operationName;
 							}							
 						})
 					}
