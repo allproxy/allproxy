@@ -196,7 +196,8 @@ pre {
 .request__body {	
 	margin: 0 0 0 5px;
 	width: auto;
-	white-space: pre;			
+	white-space: pre;
+	font-family: 'Courier New', Courier, monospace;			
 }
 
 .response__loading,
@@ -211,6 +212,10 @@ pre {
 .response__data-container {
 	margin: 0 0 0 0;
 	white-space: nowrap;		
+}
+
+.response__body {
+	font-family: 'Courier New', Courier, monospace;
 }
 
 .request__headers,
