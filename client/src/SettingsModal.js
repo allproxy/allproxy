@@ -23,7 +23,7 @@ var SettingsModal = (function(){
 			proxyDirectives = JSON.parse(localStorage.proxyDirectives);
 			proxyDirectives.forEach(proxyConfig => {
 				// backwards compatible with previously supported 'any:'
-				if(proxyConfig.protocol === 'any:') proxyConfig.protocol = 'hex:';
+				if(proxyConfig.protocol === 'any:') proxyConfig.protocol = 'other:';
 			});
 			iosocket.emit('proxy config', proxyDirectives);	
 		}			
@@ -198,8 +198,8 @@ var SettingsModal = (function(){
 	
 	function addRow(path, protocol, host) {
 		if(host.split(':').length == 1) host += ':80';
-		if(protocol === 'any:') protocol = 'hex:'; // backwards compatible with previously supported 'any:'
-		let protocols = ['http:', 'https:', 'sql:', 'grpc:', 'hex:'];		
+		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
+		let protocols = ['http:', 'https:', 'sql:', 'grpc:', 'other:'];		
 		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
 		var row = 
 			'<tr class="settings-modal__proxy-row">' +				
