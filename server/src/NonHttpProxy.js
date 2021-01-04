@@ -5,14 +5,14 @@ const Global = require('./Global');
 const SocketIoMessage = require('./SocketIoMessage');
 const sqlFormatter = require('sql-formatter');
 
-module.exports = class AnyProxy{
+module.exports = class NonHttpProxy {
     constructor(proxyConfig) {
-        //console.log('AnyProxy.ctor', proxyConfig);
+        //console.log('NonHttpProxy.ctor', proxyConfig);
         this.startProxy(proxyConfig);
     }
 
     static destructor(proxyConfig) {
-        //console.log('AnyProxy.dtor', proxyConfig);       
+        //console.log('NonHttpProxy.dtor', proxyConfig);       
         if(proxyConfig.server) proxyConfig.server.close();
     }
 
@@ -60,11 +60,11 @@ module.exports = class AnyProxy{
             });
 
             sourceSocket.on('error', (err) => {
-                console.error(`AnyProxy client error ${sourcePort}: ${err}`);
+                console.error(`NonHttpProxy client error ${sourcePort}: ${err}`);
             })
 
             targetSocket.on('error', (err) => {
-                console.error(`AnyProxy server error ${sourcePort}: ${err}`);
+                console.error(`NonHttpProxy server error ${sourcePort}: ${err}`);
             })
 
             // Handle data from source (client)
@@ -86,19 +86,30 @@ module.exports = class AnyProxy{
 
             // Handle source socket closed
             sourceSocket.on('close', () => {
-                console.log(`AnyProxy client closed ${sourcePort} source connection`);
+                console.log(`NonHttpProxy client closed ${sourcePort} source connection`);
                 targetSocket.end();                            
             });
 
             // Handle target socket closed
             targetSocket.on('close', () => {
-                console.log(`AnyProxy server ${targetPort} closed target connection`);
+                console.log(`NonHttpProxy server ${targetPort} closed target connection`);
                 sourceSocket.end();               
             });
             
             function processData() {
-                const requestString = bufToStr(true, request);
-                const responseString = bufToStr(false, response);
+                let requestString = '';                
+                let responseString = '';
+                switch(proxyConfig.protocol) {
+                    case 'sql:':
+                        requestString = bufferToSql(true, request);
+                        responseString = bufferToSql(false, response);
+                        break;
+                    default:
+                        requestString = bufferToHex(true, request);
+                        responseString = bufferToHex(false, response);
+                        break;
+                }
+
                 if(requestString.length > 0) {
                     //console.log('processData', sequenceNumber);
                     const endpoint = '';
@@ -127,7 +138,7 @@ module.exports = class AnyProxy{
                 request = response = '';                
             }
 
-            function bufToStr(isRequest, buffer) {
+            function bufferToSql(isRequest, buffer) {
                 let str = buffer.toString('utf8').replace(/\n/g, '\\n');
                 if(str.replace(/[^\x20-\x7E]/g, '').length === 0) {
                     return '';
@@ -149,7 +160,19 @@ module.exports = class AnyProxy{
                 
                 return isRequest ? sqlFormatter.format(str.split('\\n').join(' ')).split('\n').join('\\n') : str;
             }
-            
+
+            function bufferToHex(isRequest, buffer) {
+                let str = buffer.toString('hex');
+                let strWithNewline = '';
+                let i = 0;
+                for(; i + 16 < str.length; i += 16) {
+                    strWithNewline += str.substring(i, i+16) + ' ';
+                    if(i%64 === 0) strWithNewline += '\\n';                    
+                }
+                strWithNewline += str.substring(i,str.length);
+
+                return strWithNewline;
+            }             
         }        
     }
 

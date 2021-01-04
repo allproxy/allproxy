@@ -21,6 +21,10 @@ var SettingsModal = (function(){
 		var proxyDirectives = [];
 		if(localStorage.proxyDirectives) {
 			proxyDirectives = JSON.parse(localStorage.proxyDirectives);
+			proxyDirectives.forEach(proxyConfig => {
+				// backwards compatible with previously supported 'any:'
+				if(proxyConfig.protocol === 'any:') proxyConfig.protocol = 'hex:';
+			});
 			iosocket.emit('proxy config', proxyDirectives);	
 		}			
 	}
@@ -123,11 +127,11 @@ var SettingsModal = (function(){
 
 	$('.settings-modal__select-protocol').change(function(e) {
 		$('.settings-modal__error-message').text('');
-		if(this.value === 'any:') {
-			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
+		if(this.value === 'http:' || this.value === 'https:') {
+			$('.settings-modal__input-path').attr('placeholder', 'Enter path (e.g., /xxx/yyy)');						
 		}
 		else {
-			$('.settings-modal__input-path').attr('placeholder', 'Enter path (e.g., /xxx/yyy)');			
+			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
 		}
 	})
 	
@@ -137,14 +141,14 @@ var SettingsModal = (function(){
 		var host = $('.settings-modal__input-host').val();
 		var error = false;
 		
-		if(protocol === 'any:') {
-			if(parseInt(path) === 'NaN') {
-				$('.settings-modal__error-message').text('When protocol "any:" is selected port number is requied');				
-				error = true;
-			}
-		} else {
+		if(protocol === 'http:' || protocol === 'https:') {
 			if(!path.startsWith('/')) {
 				$('.settings-modal__error-message').text(`When protocol "${protocol}" is selected the path must begin with "/"`);				
+				error = true;
+			}
+		} else {		
+			if(parseInt(path) === 'NaN') {
+				$('.settings-modal__error-message').text(`'When protocol "${protocol}" is selected port number must be specified`);				
 				error = true;
 			}
 		} 
@@ -194,10 +198,9 @@ var SettingsModal = (function(){
 	
 	function addRow(path, protocol, host) {
 		if(host.split(':').length == 1) host += ':80';
-		let options = ['<option>http:</option>', '<option>https:</option>', '<option>any:</option>'];
-		if(protocol === 'http:') options.unshift(options.splice(0,1)[0]);
-		else if(protocol === 'https') options.unshift(options.splice(1,1)[0]);
-		else if(protocol === 'any:') options.unshift(options.splice(2,1)[0]);
+		if(protocol === 'any:') protocol = 'hex:'; // backwards compatible with previously supported 'any:'
+		let protocols = ['http:', 'https:', 'sql:', 'grpc:', 'hex:'];		
+		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
 		var row = 
 			'<tr class="settings-modal__proxy-row">' +				
 				'<td>' +
@@ -208,7 +211,7 @@ var SettingsModal = (function(){
 				'</td>' +
 				'<td class="settings-modal__proxy-protocol-container">' +
 					'<select class="settings-modal__proxy-protocol">' +
-						options.join('') +
+						protocols.map(protocol => `<option>${protocol}</option>`).join('') +
 					'<select/>' +
 				'</td>' +
 				'<td class="settings-modal__proxy-host-container">' +
