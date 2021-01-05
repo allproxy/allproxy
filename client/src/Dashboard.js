@@ -29,10 +29,19 @@ const Dashboard = (function(){
             if(json.method) {
                 tooltip = 'Click to resend request';
                 iconClass = json.requestHeaders['middleman_proxy'] == 'resend' ? 'fa-paper-plane-o' : 'fa-paper-plane';
-                iconClass += ' resend-icon';
+                iconClass += ' resend-icon';                
             }
             else {
-                iconClass = 'fa-square';
+                switch(json.protocol) {
+                    case 'sql:':
+                        iconClass = 'fa-database'; 
+                        break;
+                    case 'grpc:':
+                        iconClass = 'fa-asterisk'; 
+                        break;
+                    default:
+                        iconClass = 'fa-square'; 
+                }           
             }
             
             const tcpIp = resolveHost(json.clientIp)+'->'+getHostPort(json.serverHost);
