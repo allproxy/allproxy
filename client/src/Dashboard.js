@@ -4,8 +4,7 @@ const Dashboard = (function(){
     let requests = []; // Array of out of order requests or last in order request
 
     var colors = ['blue', 'green', 'darkorange','purple', 'slateblue','darkred'];
-	var hostColor = {}; // key=json.serverHost[json.path]
-	var hostFilter = {}; // key=json.serverHost[json.path]
+	var hostColor = {}; // key=json.serverHost[json.path]	
    
     x.start = (iosocket) => {    
         
@@ -17,8 +16,9 @@ const Dashboard = (function(){
             var json = JSON.parse(message);			
                         
             var hostPath = json.serverHost+(json.path?json.path:'');
-            
-            x.addHost(json.serverHost, json.path);
+            if(hostColor[hostPath] == undefined) {
+                hostColor[hostPath] = hostPath == 'error' ? 'red' : colors.splice(0,1)[0];                
+            }
                         
             var color = hostColor[hostPath];
             var c = json.status < 400 ? '' : ' error';   
@@ -49,7 +49,7 @@ const Dashboard = (function(){
                     '<div title="'+tooltip+'" class="fa '+iconClass+' request__msg-icon" style="cursor: pointer; float: left; color: '+color+'"></div>' +
                     '&nbsp<div class="request__msg'+c+'">'+json.method+' <span style="color: '+color+';">'+endpoint+'</span> ('+tcpIp+') '+url+'</div>');
                 
-            let body = json.method.length > 0 ? url+'\\n' : '';
+            let body = json.method.length > 0 ? url+'\n' : '';
             
             let jsonData;
             if(json.requestBody) {
@@ -73,8 +73,8 @@ const Dashboard = (function(){
             }
 
             
-            var hidden = isUrlFiltered($request) ? 'hidden' : '';
-            var $newRequest = $(`<div '+hidden+' class="request__msg-container"></div>`).append($request).append($requestBody);
+            var hidden = isFiltered(json) ? 'hidden' : '';
+            var $newRequest = $(`<div ${hidden} class="request__msg-container"></div>`).append($request).append($requestBody);
                         
             json = $newRequest.find('.request__msg').data();    				
             if(requests.length == 0) {      					
@@ -144,186 +144,137 @@ const Dashboard = (function(){
                 $('.request__container').scrollTop(totalHeight); 
             }
         });
-    }    
-				
-	x.addHost = (host, path) => {
-		var hostPath = host+(path?path:'');
-		if(hostColor[hostPath] == undefined) {		
-			var $hostPathDiv = $('<div class="header__host-path-container"></div>');			
-			$('.header__container').append($hostPathDiv);
-			
-    		hostColor[hostPath] = hostPath == 'error' ? 'red' : colors.splice(0,1)[0];
-    		   				
-    		$hostPathDiv.append('<div class="fa fa-square header__container-host-icon" style="float: left; color: '+hostColor[hostPath]+'"></div>');
-    		
-    		var $filterIcon = $('<div class="header__filter-icon fa fa-filter" title="Filter"></div>');
-    		$hostPathDiv.append($filterIcon);    		
-    		
-    		var $inputFilter = $('<input hidden type="text" class="header__input-filter" placeholder="Filter '+hostPath+'">');    		
-    		$hostPathDiv.append($('<div class="header__input-filter-container"></div>').append($inputFilter));    
-    		hostFilter[hostPath] = $inputFilter;
-    		
-    		$hostPathDiv.append('<label class="header__hostname">'+hostPath+'</label>');
-    		
-    		/**
-    		 * Filter
-    		 */
-            $inputFilter.unbind('input');
-    		$inputFilter.on('input', function(e) {
-    			filter();
-    			if($(this).val() == '') {
-    				$(this).parent().prev('.header__filter-icon').removeClass('active');
-    			}
-    			else {
-    				$(this).parent().prev('.header__filter-icon').addClass('active');
-    			}
-    		})
-            
-            $inputFilter.unbind('focusout');
-    		$inputFilter.focusout(function(e) {
-    			$(this).hide();
-    		})   		
-    		
-    		/**
-			 * Filter requests
-			 */
-            $filterIcon.unbind('click');
-			$filterIcon.click(function(e) {	
-				$inputFilter.show();
-				$inputFilter.focus();
-			})
-        }        
+    }
         
-        var $activeUrl;
-    
-        /**
-         * Click event handler in request container
-         */
-        $('.request__container').unbind('click');
-        $('.request__container').click(function(e) {
-            var $element = $(e.target);	
-            if($element.parent().hasClass('request__msg')) $element = $element.parent();
-            if($element.hasClass('request__msg')) {
-                var thisSeqNo = $element.data().sequenceNumber;
-                var activeSeqNo;
-                if($activeUrl) {
-                    $activeUrl.removeClass('active');
-                    $activeUrl.parent().find('.request__msg-seqno-container').removeClass('active');
-                    $activeUrl.next().hide();
-                    activeSeqNo = $activeUrl.data().sequenceNumber;						
-                }
+    var $activeUrl;
 
-                if(activeSeqNo == thisSeqNo) {
-                    $activeUrl = undefined;				
-                }
-                else {		
-                    //console.log($activeUrl, $element)	
-                    $('.response__container').hide();
-                    $('.response__loading').show();
-                    	
-                    var json = $element.data();
-                    
-                    $element.addClass('active');
-                    $element.parent().find('.request__msg-seqno-container').addClass('active');
-                    $element.next().show();
-                    $activeUrl = $element;                    
-                                                        
-                    // Format query parameters
-                    var queryParams;
-                    if(json.url.indexOf('?') != -1) {
-                        queryParams = [];
-                        var temp = json.url.split('?')[1];
-                        temp.split('&').forEach(function(param) {
-                            var keyValue = param.split('=');
-                            var value = keyValue.length > 1 ? unescape(keyValue[1]) : undefined;						
-                            queryParams.push(keyValue[0]+' = '+value);
-                        })
-                    }
-                                
-                    var $requestHeaders = $('<pre class="request__headers"></pre>').jsonViewer(json.requestHeaders);
-                    var $responseHeaders = $('<pre class="response__headers"></pre>').jsonViewer(json.responseHeaders);
-                    var $queryParams = $('<pre class="request__query-params"></pre>').jsonViewer(queryParams);
-                    var $responseBody = $('<pre class="response__body active"></pre>');
-                    if(json.responseHeaders['content-type'] === "application/json") {
-                        $responseBody.jsonViewer(json.responseBody);
-                    } else {
-                        $responseBody.text(JSON.stringify(json.responseBody,null,2)
-                                                .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
-                    }
-                    //var $responseBody = $('<pre class="response__body active"></pre>').jsonViewer(json.responseBody);
-                    $('.response__container').empty();
-                    var c = json.status < 300  ? '' : ' class="error"';
-                    $('.response__container').append('<div'+c+'><label>Status:&nbsp;</label>'+json.status+'</div>');
-                    $('.response__container').append('<div><label>Elapsed time:&nbsp;</label>'+json.elapsedTime+' ms</div>');
-                    $('.response__container').append('<div class="request__headers-twisty twisty"></div><div><label class="twisty-label">Request Headers:</label></div>').append($requestHeaders);
-                    $('.response__container').append('<div class="response__headers-twisty twisty"></div><div><label class="twisty-label">Response Headers:</label></div>').append($responseHeaders);
-                    if(queryParams) {
-                        $('.response__container').append('<div class="request__query-params-twisty twisty"></div><div><label class="twisty-label">Query Parameters:</label></div>').append($queryParams);
-                    }
-                    $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
-                    $('.response__container').show();
-                    $('.response__loading').hide();		
-                }					
+    /**
+     * Click event handler in request container
+     */
+    $('.request__container').unbind('click');
+    $('.request__container').click(function(e) {
+        var $element = $(e.target);	
+        if($element.parent().hasClass('request__msg')) $element = $element.parent();
+        if($element.hasClass('request__msg')) {
+            var thisSeqNo = $element.data().sequenceNumber;
+            var activeSeqNo;
+            if($activeUrl) {
+                $activeUrl.removeClass('active');
+                $activeUrl.parent().find('.request__msg-seqno-container').removeClass('active');
+                $activeUrl.next().hide();
+                activeSeqNo = $activeUrl.data().sequenceNumber;						
             }
-            else if($element.hasClass('resend-icon')) {
+
+            if(activeSeqNo == thisSeqNo) {
+                $activeUrl = undefined;				
+            }
+            else {		
+                //console.log($activeUrl, $element)	
+                $('.response__container').hide();
+                $('.response__loading').show();
+                    
                 var json = $element.data();
                 
-                ResendModal.open(json)
-                .then(function(results) {                                  
-                    var method = (results.body ? 'POST' : results.method);
-                    var headers = {};
-                    var unsafeHeaders = ['host', 'connection', 'content-length', 'origin', 'user-agent', 'referer', 'accept-encoding', 'cookie'];
-                    for(var header in json.requestHeaders) {
-                        if(unsafeHeaders.indexOf(header) == -1) {
-                            headers[header] = json.requestHeaders[header];
-                        }
-                    }
-                    
-                    headers['middleman_proxy'] = 'resend';
-                    
-                    var data = (results.body ? results.body : undefined);
-                    
-                    var protocolHost = document.location.protocol+'//'+document.location.host;
-                
-                    //console.log(JSON.stringify(json, null, 2));
-                    $.ajax(
-                    {
-                        type: method,
-                        method: method,
-                        url : protocolHost+results.url,
-                        headers : headers,				
-                        data : data				
-                    }).done(function(results) {	
-                        
-                    }).fail(function(jqXHR, textStatus, errorThrown) {
-                        console.log(JSON.stringify(jqXHR));
-                    }).catch(function(error) {
-                        
+                $element.addClass('active');
+                $element.parent().find('.request__msg-seqno-container').addClass('active');
+                $element.next().show();
+                $activeUrl = $element;                    
+                                                    
+                // Format query parameters
+                var queryParams;
+                if(json.url.indexOf('?') != -1) {
+                    queryParams = [];
+                    var temp = json.url.split('?')[1];
+                    temp.split('&').forEach(function(param) {
+                        var keyValue = param.split('=');
+                        var value = keyValue.length > 1 ? unescape(keyValue[1]) : undefined;						
+                        queryParams.push(keyValue[0]+' = '+value);
                     })
-                })		
-            }		
-        })
-        
-        /**
-         * Click event handler in response container
-         */
-        $('.response__container').unbind('click');
-        $('.response__container').click(function(e) {
-            var $element = $(e.target);
-            if($element.hasClass('twisty') || $element.hasClass('twisty-label')) {
-                var $twisty = $element.hasClass('twisty') ? $element : $element.parent().prev();
-                var $jsonViewer = $twisty.next().next();
-                if($twisty.hasClass('active')) {
-                    $twisty.removeClass('active');
-                    $jsonViewer.removeClass('active');
                 }
-                else {
-                    $twisty.addClass('active');
-                    $jsonViewer.addClass('active');
-                }		
+                            
+                var $requestHeaders = $('<pre class="request__headers"></pre>').jsonViewer(json.requestHeaders);
+                var $responseHeaders = $('<pre class="response__headers"></pre>').jsonViewer(json.responseHeaders);
+                var $queryParams = $('<pre class="request__query-params"></pre>').jsonViewer(queryParams);
+                var $responseBody = $('<pre class="response__body active"></pre>');
+                if(json.responseHeaders['content-type'] === "application/json") {
+                    $responseBody.jsonViewer(json.responseBody);
+                } else {
+                    $responseBody.text(JSON.stringify(json.responseBody,null,2)
+                                            .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
+                }
+                //var $responseBody = $('<pre class="response__body active"></pre>').jsonViewer(json.responseBody);
+                $('.response__container').empty();
+                var c = json.status < 300  ? '' : ' class="error"';
+                $('.response__container').append('<div'+c+'><label>Status:&nbsp;</label>'+json.status+'</div>');
+                $('.response__container').append('<div><label>Elapsed time:&nbsp;</label>'+json.elapsedTime+' ms</div>');
+                $('.response__container').append('<div class="request__headers-twisty twisty"></div><div><label class="twisty-label">Request Headers:</label></div>').append($requestHeaders);
+                $('.response__container').append('<div class="response__headers-twisty twisty"></div><div><label class="twisty-label">Response Headers:</label></div>').append($responseHeaders);
+                if(queryParams) {
+                    $('.response__container').append('<div class="request__query-params-twisty twisty"></div><div><label class="twisty-label">Query Parameters:</label></div>').append($queryParams);
+                }
+                $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
+                $('.response__container').show();
+                $('.response__loading').hide();		
+            }					
+        }
+        else if($element.hasClass('resend-icon')) {
+            var json = $element.data();
+            
+            ResendModal.open(json)
+            .then(function(results) {                                  
+                var method = (results.body ? 'POST' : results.method);
+                var headers = {};
+                var unsafeHeaders = ['host', 'connection', 'content-length', 'origin', 'user-agent', 'referer', 'accept-encoding', 'cookie'];
+                for(var header in json.requestHeaders) {
+                    if(unsafeHeaders.indexOf(header) == -1) {
+                        headers[header] = json.requestHeaders[header];
+                    }
+                }
+                
+                headers['middleman_proxy'] = 'resend';
+                
+                var data = (results.body ? results.body : undefined);
+                
+                var protocolHost = document.location.protocol+'//'+document.location.host;
+            
+                //console.log(JSON.stringify(json, null, 2));
+                $.ajax(
+                {
+                    type: method,
+                    method: method,
+                    url : protocolHost+results.url,
+                    headers : headers,				
+                    data : data				
+                }).done(function(results) {	
+                    
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    console.log(JSON.stringify(jqXHR));
+                }).catch(function(error) {
+                    
+                })
+            })		
+        }		
+    })
+    
+    /**
+     * Click event handler in response container
+     */
+    $('.response__container').unbind('click');
+    $('.response__container').click(function(e) {
+        var $element = $(e.target);
+        if($element.hasClass('twisty') || $element.hasClass('twisty-label')) {
+            var $twisty = $element.hasClass('twisty') ? $element : $element.parent().prev();
+            var $jsonViewer = $twisty.next().next();
+            if($twisty.hasClass('active')) {
+                $twisty.removeClass('active');
+                $jsonViewer.removeClass('active');
+            }
+            else {
+                $twisty.addClass('active');
+                $jsonViewer.addClass('active');
             }		
-        })
-    }
+        }		
+    })
 
     $('.header__freeze-checkbox').click((e) => { 
         if($('.header__freeze-checkbox').prop('checked')) {                          
@@ -364,28 +315,35 @@ const Dashboard = (function(){
         }
         return false;
     }
+
+    $('.header__filter-input').on('input', function(e) {
+        filter();
+    })
+
+    function isMatch(needle, haystack) {
+        if(needle === needle.toLowerCase()) {
+            haystack = haystack.toLowerCase();
+        }
+        return (haystack && haystack.indexOf(needle) !== -1);
+    }
     
-    function isUrlFiltered($request) {
-    	var json = $request.data();	
+    function isFiltered(json) {        
+        const value = $('.header__filter-input').val();        
+        
+        if(isMatch(value, json.url)) return false;
+        if(isMatch(value, json.clientIp)) return false;
+        if(isMatch(value, json.endpoint)) return false;
+        if(json.requestBody && isMatch(value, JSON.stringify(json.requestBody))) return false;
+        if(json.responseHeaders && isMatch(value, JSON.stringify(json.responseBody))) return false;
 		
-		var hostPath = json.serverHost+(json.path?json.path:'');
-		var val = hostFilter[hostPath].val();	
-		
-    	var hide; 
-		if(val.startsWith('!')) {				
-			hide = $request.text().search(val.substring(1)) != -1;
-		}
-		else {
-			hide = $request.text().search(val) == -1;
-		}
-		return hide;
+		return true;
 	}
 	
 	function filter() {		
 		$('.request__container').children().each(function(i, request) {	
-			var $request = $(request).find('.request__msg');						
+            var $request = $(request).find('.request__msg');
 			
-			if(isUrlFiltered($request)) {				
+			if(isFiltered($request.data())) {				
 				$(request).hide();
 				if($request.hasClass('active')) {
 					$request.removeClass('active')
