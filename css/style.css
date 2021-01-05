@@ -94,7 +94,8 @@ pre {
 }
 .header__filter-input {
 	margin: 12px 0 0 10px;
-	height: 20px;	
+	height: 20px;
+	width: 300px;	
 }
 
 .header__status,
