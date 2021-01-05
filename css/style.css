@@ -56,7 +56,7 @@ pre {
 }
 
 .header__title {
-	margin: 5px 0 5px 0;
+	margin: 7px 0 5px 5px;
 	margin-bottom: 0;
 	color: blue;
 	float: left;	
@@ -67,20 +67,17 @@ pre {
 }
 .header__trash {
 	float: left;
-	margin: 10px 0px 0 10px;
+	margin: 12px 0px 0 10px;
 	cursor: pointer;
 	font-size: large !important;			
 }
-.header__auto-scroll-container {
+.header__checkbox-container {
 	margin-left: 10px;
-	margin-bottom: 0;
-	float: left;
-	vertical-align: middle;
-}
-.header__auto-scroll-checkbox {
-	
+	padding-top: 5px;	
+	float: left;		
 }
 .header__auto-scroll-label {
+	margin-right: 5px;
 	vertical-align: middle;
 	line-height: 35px;
 }
@@ -92,44 +89,18 @@ pre {
 	line-height: 35px;
 }
 
-.header__filter-icon {
-	float: left;
-	margin: 10px 0 0 5px;
-	color: grey;
-	cursor: pointer;	
-}
-.header__filter-icon.active {
-	color: red;	
-}
-
-.header__input-filter-container {	
+.header__filter {
 	float: left;	
 }
-.header__input-filter {
-	float: left;  
-	margin: 3px 0 0 0;	
-	padding-left: 2px;
-	width: 300px;
+.header__filter-input {
+	margin: 12px 0 0 10px;
 	height: 20px;	
-	background-color: whitesmoke;
-	z-index: 999;
-	position: absolute;	
 }
 
-.header__host-path-container {
-	float: left;
-	margin-left: 10px;
-}
-.header__hostname {
-	float: left;
-	margin: 0 5px 0 5px;
-	vertical-align: middle;
-	line-height: 35px;		
-}
 .header__status,
 .header__settings {
 	float: right;
-	margin: 10px 5px 0 5px;
+	margin: 12px 5px 0 5px;
 	cursor: pointer;
 	font-size: large !important;		
 }
@@ -141,7 +112,7 @@ pre {
 }
 
 .request-response__container {
-	margin: 35px 0 0 0;
+	margin: 48px 0 0 0;
 	display: -webkit-flex; /* Safari */
   	display: flex;  	
 }
