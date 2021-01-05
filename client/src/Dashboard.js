@@ -51,21 +51,29 @@ const Dashboard = (function(){
                 
             let body = json.method.length > 0 ? url+'\\n' : '';
             
+            let jsonData;
             if(json.requestBody) {
                 let jsonBody = json.requestBody;
                 if(jsonBody.middleman_passthru) {
                     body += jsonBody.middleman_passthru;
                 }
                 else {
+                    jsonData = json.requestBody;
                     body += JSON.stringify(json.requestBody, null, 2); 
                 }               
                 body = fixNewlines(body);  
             }                                                                	
             $request.siblings('.request__msg').attr('title', body);
             $request.data(json);			
-            var $requestBody = $(`<div class="request__body" hidden>${body}</div>`);
+            var $requestBody = $(`<div class="request__body" hidden></div>`);
+            if(jsonData) {
+                $requestBody.jsonViewer(jsonData);
+            } else {
+                $requestBody.text(body);
+            }
+
             
-                var hidden = isUrlFiltered($request) ? 'hidden' : '';
+            var hidden = isUrlFiltered($request) ? 'hidden' : '';
             var $newRequest = $(`<div '+hidden+' class="request__msg-container"></div>`).append($request).append($requestBody);
                         
             json = $newRequest.find('.request__msg').data();    				
@@ -235,8 +243,13 @@ const Dashboard = (function(){
                     var $requestHeaders = $('<pre class="request__headers"></pre>').jsonViewer(json.requestHeaders);
                     var $responseHeaders = $('<pre class="response__headers"></pre>').jsonViewer(json.responseHeaders);
                     var $queryParams = $('<pre class="request__query-params"></pre>').jsonViewer(queryParams);
-                    var $responseBody = $('<pre class="response__body active"></pre>').text(JSON.stringify(json.responseBody,null,2)
+                    var $responseBody = $('<pre class="response__body active"></pre>');
+                    if(json.responseHeaders['content-type'] === "application/json") {
+                        $responseBody.jsonViewer(json.responseBody);
+                    } else {
+                        $responseBody.text(JSON.stringify(json.responseBody,null,2)
                                                 .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
+                    }
                     //var $responseBody = $('<pre class="response__body active"></pre>').jsonViewer(json.responseBody);
                     $('.response__container').empty();
                     var c = json.status < 300  ? '' : ' class="error"';
