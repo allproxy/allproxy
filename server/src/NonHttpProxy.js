@@ -121,7 +121,8 @@ module.exports = class NonHttpProxy {
                         url = requestString.substring(0, Math.min(requestString.indexOf('\\n'), requestString.length));
                         if(url.length < 10) url = requestString.substring(0, Math.min(requestString.indexOf('\\n', url.length+1), requestString.length));
                     }
-                    const message = SocketIoMessage.buildRequest(sequenceNumber,
+                    let message = SocketIoMessage.buildRequest(                        
+                                                    sequenceNumber,                                                    
                                                     {}, // headers 
                                                     '', // method 
                                                     url, // url
@@ -130,8 +131,9 @@ module.exports = class NonHttpProxy {
                                                     sourceSocket.remoteAddress, // clientIp
                                                     targetHost+':'+targetPort, // serverHost
                                                     '', // path
-                                                    Date.now() - startTime);
+                                                    Date.now() - startTime);                                        
                     SocketIoMessage.appendResponse(message, {}, '['+responseString+']', 0, Date.now() - startTime);
+                    message.protocol = proxyConfig.protocol;
                     Global.proxyConfigs.emitMessageToBrowser(message);
                 }
 
