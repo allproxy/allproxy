@@ -321,10 +321,18 @@ const Dashboard = (function(){
     })
 
     function isMatch(needle, haystack) {
+        if(haystack === undefined) return false;
+
         if(needle === needle.toLowerCase()) {
             haystack = haystack.toLowerCase();
         }
-        return (haystack && haystack.indexOf(needle) !== -1);
+        
+        if(needle.indexOf('.*') !== -1) {
+            return haystack.search(needle) !== -1;
+        }
+        else {
+            return haystack.indexOf(needle) !== -1;
+        }
     }
     
     function isFiltered(json) {        
