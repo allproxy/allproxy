@@ -5,6 +5,8 @@ $(document).ready(function() {
 	iosocket.on('connect', function () {
     	
 		$('.header__status').css('color', 'green');
+		$('.header__status').addClass('fa-circle');
+		$('.header__status').removeClass('fa-exclamation-triangle');
 		$('.header__status').attr('title', 'proxy connected');
 
 		SettingsModal.load(iosocket);
@@ -14,6 +16,8 @@ $(document).ready(function() {
 
 	iosocket.on('disconnect', function() {
 		$('.header__status').css('color', 'red');
+		$('.header__status').removeClass('fa-circle');
+		$('.header__status').addClass('fa-exclamation-triangle');
 		$('.header__status').attr('title', 'proxy unreachable');
 	});
     
