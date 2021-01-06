@@ -3,7 +3,7 @@ const Dashboard = (function(){
 
     let requests = []; // Array of out of order requests or last in order request
 
-    var colors = ['blue', 'green', 'darkorange','purple', 'slateblue','darkred'];
+    var colors = ['blue', 'green', 'darkorange','purple', 'brown', 'grey', 'slateblue','darkred'];
 	var hostColor = {}; // key=json.serverHost[json.path]	
    
     x.start = (iosocket) => {    
@@ -15,7 +15,7 @@ const Dashboard = (function(){
 
             var json = JSON.parse(message);			
                         
-            var hostPath = json.serverHost+(json.path?json.path:'');
+            var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
             if(hostColor[hostPath] == undefined) {
                 hostColor[hostPath] = hostPath == 'error' ? 'red' : colors.splice(0,1)[0];                
             }
