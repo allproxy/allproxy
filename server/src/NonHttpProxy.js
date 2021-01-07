@@ -4,6 +4,7 @@ const fs = require('fs');
 const Global = require('./Global');
 const SocketIoMessage = require('./SocketIoMessage');
 const sqlFormatter = require('sql-formatter');
+const { assert } = require('console');
 
 module.exports = class NonHttpProxy {
     constructor(proxyConfig) {
@@ -103,7 +104,7 @@ module.exports = class NonHttpProxy {
                     case 'sql:':
                         requestString = bufferToSql(true, request);
                         responseString = bufferToSql(false, response);
-                        break;
+                        break;                        
                     default:
                         requestString = bufferToHex(true, request);
                         responseString = bufferToHex(false, response);
@@ -164,14 +165,31 @@ module.exports = class NonHttpProxy {
             }
 
             function bufferToHex(isRequest, buffer) {
-                let str = buffer.toString('hex');
+                let hexStr = buffer.toString('hex');
+                let utf8Str = buffer.toString('utf8');
+                utf8Str = utf8Str.replace(/[^\x20-\x7E]/g, '.')
                 let strWithNewline = '';
                 let i = 0;
-                for(; i + 16 < str.length; i += 16) {
-                    strWithNewline += str.substring(i, i+16) + ' ';
-                    if(i%64 === 0) strWithNewline += '\\n';                    
+                let j = 0;
+                let displayable = '';
+                for(; i + 8 < hexStr.length; i += 8, j += 4) {
+                    strWithNewline += hexStr.substring(i, i+8) + ' ';
+                    displayable += utf8Str.substring(j, j+4);
+                    if(i > 0 && (i+8)%32 === 0) {
+                        strWithNewline += '  ' + displayable;
+                        displayable = '';
+                        strWithNewline += '\\n';
+                    }                  
                 }
-                strWithNewline += str.substring(i,str.length);
+
+                if(i < hexStr.length) {                    
+                    strWithNewline += hexStr.substring(i, hexStr.length);
+                    if(hexStr.length  % 32 !== 0) {
+                        const pad = 32 - hexStr.length%32;
+                        strWithNewline += (' '.repeat(pad + Math.ceil((pad)/8)));
+                    }
+                    strWithNewline += ('  ' + displayable + utf8Str.substring(j, utf8Str.length));                  
+                }
 
                 return strWithNewline;
             }             
