@@ -3,8 +3,8 @@ const tls = require('tls');
 const fs = require('fs');
 const Global = require('./Global');
 const SocketIoMessage = require('./SocketIoMessage');
-const sqlFormatter = require('sql-formatter');
-const { assert } = require('console');
+const HexFormatter = require('./HexFormatter');
+const SqlFormatter = require('./SqlFormatter');
 
 module.exports = class NonHttpProxy {
     constructor(proxyConfig) {
@@ -102,12 +102,12 @@ module.exports = class NonHttpProxy {
                 let responseString = '';
                 switch(proxyConfig.protocol) {
                     case 'sql:':
-                        requestString = bufferToSql(true, request);
-                        responseString = bufferToSql(false, response);
+                        requestString = SqlFormatter.query(request);
+                        responseString = SqlFormatter.results(response);
                         break;                        
                     default:
-                        requestString = bufferToHex(true, request);
-                        responseString = bufferToHex(false, response);
+                        requestString = HexFormatter.format(request);
+                        responseString = HexFormatter.format(response);
                         break;
                 }
 
@@ -139,61 +139,7 @@ module.exports = class NonHttpProxy {
                 }
 
                 request = response = '';                
-            }
-
-            function bufferToSql(isRequest, buffer) {
-                let str = buffer.toString('utf8').replace(/\n/g, '\\n');
-                if(str.replace(/[^\x20-\x7E]/g, '').length === 0) {
-                    return '';
-                }
-                else {
-                    str = str.replace(/[^\x21-\x7E]+/g, '\\n'); 
-                    str = str.split('\\n\\n').join('\\n') // remove consecutive line breaks
-                }
-                
-                try {
-                    str = JSON.parse(str);
-                    str = JSON.stringify(str, null, 2);                                         
-                }
-                catch(e) {                  
-                }                
-                //str = str.split(',').join(',\\n'); // SQL is more readable if there is a line break after each comma
-                str = str.trim();
-                while(str.startsWith('\\n')) str = str.replace('\\n','');                
-                
-                return isRequest ? sqlFormatter.format(str.split('\\n').join(' ')).split('\n').join('\\n') : str;
-            }
-
-            function bufferToHex(isRequest, buffer) {
-                let hexStr = buffer.toString('hex');
-                let utf8Str = buffer.toString('utf8');
-                utf8Str = utf8Str.replace(/[^\x20-\x7E]/g, '.')
-                let strWithNewline = '';
-                let i = 0;
-                let j = 0;
-                let displayable = '';
-                for(; i + 8 < hexStr.length; i += 8, j += 4) {
-                    strWithNewline += hexStr.substring(i, i+8) + ' ';
-                    displayable += utf8Str.substring(j, j+4);
-                    if(i > 0 && (i+8)%32 === 0) {
-                        strWithNewline += '  ' + displayable;
-                        displayable = '';
-                        strWithNewline += '\\n';
-                    }                  
-                }
-
-                if(i < hexStr.length) {                    
-                    strWithNewline += hexStr.substring(i, hexStr.length);
-                    if(hexStr.length  % 32 !== 0) {
-                        const pad = 32 - hexStr.length%32;
-                        strWithNewline += (' '.repeat(pad + Math.ceil((pad)/8)));
-                    }
-                    strWithNewline += ('  ' + displayable + utf8Str.substring(j, utf8Str.length));                  
-                }
-
-                return strWithNewline;
-            }             
+            }   
         }        
     }
-
 }
