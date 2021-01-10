@@ -82,7 +82,9 @@ module.exports = class NonHttpProxy {
                 //console.log('response'); 
                 response = data;
                 sourceSocket.write(data); 
-                processData();                               
+                if(request.length > 0) {
+                    processData(); 
+                }                              
             });
 
             // Handle source socket closed
@@ -102,8 +104,9 @@ module.exports = class NonHttpProxy {
                 let responseString = '';
                 switch(proxyConfig.protocol) {
                     case 'sql:':
-                        requestString = SqlFormatter.query(request);
-                        responseString = SqlFormatter.results(response);
+                        const sqlFormatter = new SqlFormatter(request, response);
+                        requestString = sqlFormatter.getQuery();
+                        responseString = sqlFormatter.getResults();
                         break;                        
                     default:
                         requestString = HexFormatter.format(request);
@@ -119,8 +122,8 @@ module.exports = class NonHttpProxy {
                         url = requestString;
                     }
                     else {
-                        url = requestString.substring(0, Math.min(requestString.indexOf('\\n'), requestString.length));
-                        if(url.length < 10) url = requestString.substring(0, Math.min(requestString.indexOf('\\n', url.length+1), requestString.length));
+                        url = requestString.substring(0, Math.min(requestString.indexOf('\n'), requestString.length));
+                        if(url.length < 10) url = requestString.substring(0, Math.min(requestString.indexOf('\n', url.length+1), requestString.length));
                     }
                     let message = SocketIoMessage.buildRequest(                        
                                                     sequenceNumber,                                                    
