@@ -102,29 +102,35 @@ module.exports = class NonHttpProxy {
             function processData() {
                 let requestString = '';                
                 let responseString = '';
+                let url = '';
                 switch(proxyConfig.protocol) {
                     case 'sql:':
                         const sqlFormatter = new SqlFormatter(request, response);
                         requestString = sqlFormatter.getQuery();
                         responseString = sqlFormatter.getResults();
+                        for(let line of requestString.split('\n')) {
+                            if(line.indexOf('/*') !== -1) continue;
+                            url += line + ' ';
+                            if(url.length >= 64) break;
+                        }
                         break;                        
                     default:
                         requestString = HexFormatter.format(request);
                         responseString = HexFormatter.format(response);
+                        if(requestString.length <= 64) {
+                            url = requestString;
+                        }
+                        else {
+                            url = requestString.substring(0, Math.min(requestString.indexOf('\n'), requestString.length));
+                            if(url.length < 16) url = requestString.substring(0, Math.min(requestString.indexOf('\n', url.length+1), requestString.length));
+                        }
                         break;
                 }
 
                 if(requestString.length > 0) {
                     //console.log('processData', sequenceNumber);
-                    const endpoint = '';
-                    let url;
-                    if(requestString.length <= 64) {
-                        url = requestString;
-                    }
-                    else {
-                        url = requestString.substring(0, Math.min(requestString.indexOf('\n'), requestString.length));
-                        if(url.length < 10) url = requestString.substring(0, Math.min(requestString.indexOf('\n', url.length+1), requestString.length));
-                    }
+                    const endpoint = '';                 
+                   
                     let message = SocketIoMessage.buildRequest(                        
                                                     sequenceNumber,                                                    
                                                     {}, // headers 
