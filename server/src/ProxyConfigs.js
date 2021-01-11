@@ -3,11 +3,11 @@ const NonHttpProxy = require('./NonHttpProxy');
 
 module.exports = class ProxyConfigs {
 
-    constructor() {        
+    constructor() {
+        this.proxyConfigs = {}; // key=socket.conn.id       
     }
 
-    setHttpServer(httpServer) {
-        this.proxyConfigs = {}; // key=socket.conn.id
+    addHttpServer(httpServer) {
         socketio.listen(httpServer).on('connection', (socket) => this._socketConnection(socket));
     }
 

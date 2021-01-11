@@ -136,7 +136,7 @@ class MySqlPacket {
 		this.offset = offset;
 		this.packetLength = this.toUInt24(offset);
 		this.packetNumber = this.buf.readUInt8(offset+3);
-		console.log(`Payload Packet: number=${this.packetNumber} length=${this.packetOffset}`);
+		//console.log(`Payload Packet: number=${this.packetNumber} length=${this.packetOffset}`);
 
 		return offset;
 	}
