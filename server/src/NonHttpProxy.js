@@ -144,7 +144,7 @@ module.exports = class NonHttpProxy {
                                                     Date.now() - startTime);                                        
                     SocketIoMessage.appendResponse(message, {}, '['+responseString+']', 0, Date.now() - startTime);
                     message.protocol = proxyConfig.protocol;
-                    Global.proxyConfigs.emitMessageToBrowser(message);
+                    Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig.path);
                 }
 
                 request = response = '';                

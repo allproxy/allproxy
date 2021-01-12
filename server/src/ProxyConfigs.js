@@ -94,21 +94,17 @@ module.exports = class ProxyConfigs {
     /**
      * Emit message to browser.
      * @param {*} message 
-     * @param {*} path - optional path to match
+     * @param {*} path - HTTP URI or port
      */
     emitMessageToBrowser(message, path) {
-        console.log('emitMessageToBrowser()', path)        
-        let done = false;        
+        console.log('emitMessageToBrowser()', path);
         const json = JSON.stringify(message, null, 2);       
         for(const key in this.proxyConfigs) {                  
             for(const proxyConfig of this.proxyConfigs[key].configs) {
-                if(!proxyConfig.isHttpOrHttps && path === undefined 
-                    || proxyConfig.isHttpOrHttps && proxyConfig.path === path) {
+                if(proxyConfig.path === path) {
 
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
-                    this.proxyConfigs[key].socket.emit('message', json);
-                    if(path === undefined) return;
-                    done = true;
+                    this.proxyConfigs[key].socket.emit('message', json);                    
                 }
             }            
         }

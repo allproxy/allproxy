@@ -1,5 +1,6 @@
 const sqlFormatter = require('sql-formatter');
 const HexFormatter = require('./HexFormatter');
+const SqlCommand = require('./SqlCommand');
 
 module.exports = class SqlFormatter{
 	constructor(reqBuf, rspBuf) {		
@@ -28,67 +29,68 @@ module.exports = class SqlFormatter{
 			this.command = 'Login Request';
 		} else {
 			const command = buf.readUInt8(4);
-			switch(command) {
-				case 1:
-					this.command = 'Quit';
-					break;
-				case 2:
-					this.command = 'Use Database';
-					break;
-				case 3:
-					this.command = 'Query';
-					const str = buf.toString('utf8', 5);					
-					return sqlFormatter.format(str.split('\\n').join(' '));			
-			}
+			this.command = SqlCommand.toString(command);
+			if(this.command === 'Query') {
+				const str = buf.toString('utf8', 5); // query string
+				return sqlFormatter.format(str.split('\\n').join(' '));
+			}			
 		}
 
 		return this.command +'\n' + HexFormatter.format(buf);		
-	}
+	}	
 
 	_formatResults(buf) {
-		const packet = new MySqlPacket(buf); // keep track of Payload Packet offset
+		try {
+			const packet = new MySqlPacket(buf); // keep track of Payload Packet offset
 
-		let formattedResults = '\n';
-		let pktOffset = packet.nextOffset(); // get next (second) payload packet
-		if(pktOffset === null) return '\\n' + HexFormatter.format(buf) + '\\n'; // must not be a SELECT
+			let formattedResults = '\n';
+			let pktOffset = packet.nextOffset(); // get next (second) payload packet
+			
+			const rowCount = buf.readUInt8(4); // number of rows	
 
-		const rowCount = buf.readUInt8(4); // number of rows	
+			let colNames = [];
+			for(let i = 0; i < rowCount; ++i) {											
+				let subCvOffset = pktOffset + 4; // offset to data in payload packet		
+				for(let j = 0; j < 5; ++j) { // 5th sub payload packet is column name
+					subCvOffset += buf.readUInt8(subCvOffset) + 1; // next sub payload packet
+				}
+				colNames.push(buf.toString('utf8', subCvOffset+1, subCvOffset+1+buf.readUInt8(subCvOffset)));
 
-		let colNames = [];
-		for(let i = 0; i < rowCount; ++i) {									
-			let subCvOffset = pktOffset + 4; // offset to data in payload packet		
-			for(let j = 0; j < 5; ++j) { // 5th sub payload packet is column name
-				subCvOffset += buf.readUInt8(subCvOffset) + 1; // next sub payload packet
+				pktOffset = packet.nextOffset(); // next payload packet			
 			}
-			colNames.push(buf.toString('utf8', subCvOffset+1, subCvOffset+1+buf.readUInt8(subCvOffset)));
-
-			pktOffset = packet.nextOffset(); // next payload packet			
-		}
-		//console.log(colNames);
-		
-		// Skip EOF markers
-		for(let len = buf.readUInt8(pktOffset + 4); 
-			len === 254; 
-			pktOffset = packet.nextOffset(), len = buf.readUInt8(pktOffset + 4));
-
-		// Get values for each columns		
-		let subCvOffset = pktOffset + 4; // offset to first sub payload packet
-		for(let i = 0; i < rowCount; ++i) {
-						
-			const len = buf.readUInt8(subCvOffset);	
-			const isNull = (len === 251);
+			//console.log(colNames);
 			
-			subCvOffset += 1; // value after length
+			// Skip EOF markers
+			for(let len = buf.readUInt8(pktOffset + 4); 
+				len === 254; 
+				pktOffset = packet.nextOffset(), len = buf.readUInt8(pktOffset + 4));
 
-			const colName = colNames[i];
-			const fieldValue = isNull ? 'NULL' : buf.toString('utf8', subCvOffset, subCvOffset+len);
-			//console.log(colName, '=', fieldValue);					
+			if(pktOffset >= buf.length) {
+				formattedResults += 'No matching rows found';
+			}
+			else {
+				// Get values for each columns		
+				let subCvOffset = pktOffset + 4; // offset to first sub payload packet
+				for(let i = 0; i < rowCount; ++i) {
+								
+					const len = buf.readUInt8(subCvOffset);	
+					const isNull = (len === 251);
+					
+					subCvOffset += 1; // value after length
+
+					const colName = colNames[i];
+					const fieldValue = isNull ? 'NULL' : buf.toString('utf8', subCvOffset, subCvOffset+len);
+					//console.log(colName, '=', fieldValue);					
+					
+					formattedResults += `${colName} = ${fieldValue}\n`;
+					if(!isNull) subCvOffset += len;
+				}
+			}
 			
-			formattedResults += `${colName} = ${fieldValue}\n`;
-			if(!isNull) subCvOffset += len;
-		}
-		
-		return JSON.stringify(formattedResults,null,2).replace(/\n/g, '\n');	
+			return JSON.stringify(formattedResults,null,2).replace(/\n/g, '\n');
+		} catch(e) {
+			return '\\n' + HexFormatter.format(buf) + '\\n'; // must not be a SELECT
+		}	
 	}
 
 	static _format(buf) {
