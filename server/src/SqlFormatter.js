@@ -40,13 +40,15 @@ module.exports = class SqlFormatter{
 	}	
 
 	_formatResults(buf) {
+		let formattedResults = [];
+		let fieldCount = 0;
+		let rowCount = 0;
+		let truncated = false;
 		try {
 			const packet = new MySqlPacket(buf); // keep track of Payload Packet offset
-
-			let formattedResults = [];
 			let pktOffset = packet.nextOffset(); // get next (second) payload packet
 			
-			const fieldCount = buf.readUInt8(4); // number of rows	
+			fieldCount = buf.readUInt8(4); // number of rows	
 
 			let colNames = [];
 			for(let i = 0; i < fieldCount; ++i) {											
@@ -58,8 +60,7 @@ module.exports = class SqlFormatter{
 
 				pktOffset = packet.nextOffset(); // next payload packet			
 			}
-			//console.log(colNames);
-			let rowCount = 0;
+			//console.log(colNames);			
 			for(; pktOffset !== null; pktOffset = packet.nextOffset(), ++rowCount) {
 				// Skip EOF markers
 				for(let len = buf.readUInt8(pktOffset + 4); 
@@ -70,7 +71,11 @@ module.exports = class SqlFormatter{
 					// Get values for each columns		
 					let subCvOffset = pktOffset + 4; // offset to first sub payload packet
 					for(let i = 0; i < fieldCount; ++i) {
-									
+						if(subCvOffset >= buf.length) {
+							truncated = true;
+							break;
+						} 
+
 						const len = buf.readUInt8(subCvOffset);	
 						const isNull = (len === 251);
 						
@@ -84,17 +89,26 @@ module.exports = class SqlFormatter{
 						if(!isNull) subCvOffset += len;
 					}					
 				}
-			}
+			}				
 
-			for(let i = 0; i < rowCount-1; ++i) {
-				formattedResults.splice(i*fieldCount+(i*2), 0, `{ /* ${i+1} of ${rowCount-1} */`);
-				formattedResults.splice((i+1)*fieldCount+(i*2)+1, 0, `}`);					
+			return stringifyResults() + (truncated ? '\\nResults are truncated\\n' : '');
+		} catch(e) {			
+			if(formattedResults.length > 0) {
+				return stringifyResults() + '\\n' + e + '\\n'; // + new Error().stack.replace(/\n/g, '\\n');
 			}
-			
+			else {
+				'\\n' + HexFormatter.format(buf) + '\\n';
+			}
+		}
+		
+		function stringifyResults() {
+			const totalCount = (rowCount - 1) + (truncated ? ' (partial results)' : '');
+			for(let i = 0; i < rowCount-1; ++i) {
+				formattedResults.splice(i*fieldCount+(i*2), 0, `{ /* ${i+1} of ${totalCount} */`);
+				formattedResults.splice((i+1)*fieldCount+(i*2)+1, 0, `}`);					
+			}	
 			return JSON.stringify('\n'+formattedResults.join('\n')+'\n',null,2).replace(/\n/g, '\n');
-		} catch(e) {
-			return '\\n' + HexFormatter.format(buf) + '\\n'; // must not be a SELECT
-		}	
+		}
 	}
 
 	static _format(buf) {
@@ -137,7 +151,7 @@ class MySqlPacket {
 	// Move offset to next packet
 	nextOffset() {
 		const offset = this.offset + this.toUInt24(this.offset) + 4;
-		if(offset >= this.buf.length) return null;
+		if(offset+4 >= this.buf.length) return null;
 		
 		this.offset = offset;
 		this.packetLength = this.toUInt24(offset);
