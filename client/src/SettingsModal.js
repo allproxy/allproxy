@@ -26,11 +26,11 @@ var SettingsModal = (function(){
 				if(proxyConfig.protocol === 'any:') proxyConfig.protocol = 'other:';
 			});
 			iosocket.emit('proxy config', proxyDirectives);	
-		}			
+		}	
 	}
 
 	x.open = function(iosocket) {		
-		
+		$('.settings-modal__input-max-messages').val(x.getMaxMessages());
 		return new Promise(function(resolve, reject) {
 			x.save = false;
 			
@@ -85,7 +85,7 @@ var SettingsModal = (function(){
 					
 					var number = $('.settings-modal__input-max-messages').val();					
 					localStorage.maxNumberOfMessages = number;
-					if(number < 100) number = 100;
+					
 					iosocket.emit('proxy config', proxyDirectives);
 					
 					//console.log(JSON.stringify(output, null, 2));
