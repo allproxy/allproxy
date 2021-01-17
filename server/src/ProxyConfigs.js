@@ -1,5 +1,5 @@
 const socketio = require('socket.io');
-const NonHttpProxy = require('./NonHttpProxy');
+const TcpProxy = require('./TcpProxy');
 
 module.exports = class ProxyConfigs {
 
@@ -32,7 +32,7 @@ module.exports = class ProxyConfigs {
 
             for(const proxyConfig of proxyConfigs) {
                 if(!proxyConfig.isHttpOrHttps) {
-                    new NonHttpProxy(proxyConfig);
+                    new TcpProxy(proxyConfig);
                 }
             }
 
@@ -53,7 +53,7 @@ module.exports = class ProxyConfigs {
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 console.log(proxyConfig);
                 if(!proxyConfig.isHttpOrHttps) {
-                    NonHttpProxy.destructor(proxyConfig);
+                    TcpProxy.destructor(proxyConfig);
                 }                                  
             }
         }
@@ -64,7 +64,7 @@ module.exports = class ProxyConfigs {
         for(const key in this.proxyConfigs) {
             for(const proxyConfig of this.proxyConfigs[key].configs) {               
                 if(!proxyConfig.isHttpOrHttps && proxyConfig.port === port ) {
-                    NonHttpProxy.destructor(proxyConfig);
+                    TcpProxy.destructor(proxyConfig);
                 }                                  
             }
         }

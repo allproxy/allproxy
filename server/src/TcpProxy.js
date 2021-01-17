@@ -5,15 +5,16 @@ const Global = require('./Global');
 const SocketIoMessage = require('./SocketIoMessage');
 const HexFormatter = require('./HexFormatter');
 const SqlFormatter = require('./SqlFormatter');
+const MongoFormatter = require('./MongoFormatter');
 
-module.exports = class NonHttpProxy {
+module.exports = class TcpProxy {
     constructor(proxyConfig) {
-        //console.log('NonHttpProxy.ctor', proxyConfig);
+        //console.log('TcpProxy.ctor', proxyConfig);
         this.startProxy(proxyConfig);
     }
 
     static destructor(proxyConfig) {
-        //console.log('NonHttpProxy.dtor', proxyConfig);       
+        //console.log('TcpProxy.dtor', proxyConfig);       
         if(proxyConfig.server) proxyConfig.server.close();
     }
 
@@ -61,11 +62,11 @@ module.exports = class NonHttpProxy {
             });
 
             sourceSocket.on('error', (err) => {
-                console.error(`NonHttpProxy client error ${sourcePort}: ${err}`);
+                console.error(`TcpProxy client error ${sourcePort}: ${err}`);
             })
 
             targetSocket.on('error', (err) => {
-                console.error(`NonHttpProxy server error ${sourcePort}: ${err}`);
+                console.error(`TcpProxy server error ${sourcePort}: ${err}`);
             })
 
             // Handle data from source (client)
@@ -89,13 +90,13 @@ module.exports = class NonHttpProxy {
 
             // Handle source socket closed
             sourceSocket.on('close', () => {
-                console.log(`NonHttpProxy client closed ${sourcePort} source connection`);
+                console.log(`TcpProxy client closed ${sourcePort} source connection`);
                 targetSocket.end();                            
             });
 
             // Handle target socket closed
             targetSocket.on('close', () => {
-                console.log(`NonHttpProxy server ${targetPort} closed target connection`);
+                console.log(`TcpProxy server ${targetPort} closed target connection`);
                 sourceSocket.end();               
             });
             
@@ -110,6 +111,15 @@ module.exports = class NonHttpProxy {
                         responseString = sqlFormatter.getResults();
                         for(let line of requestString.split('\n')) {
                             if(line.indexOf('/*') !== -1) continue;
+                            url += line + ' ';
+                            if(url.length >= 64) break;
+                        }
+                        break;
+                    case 'mongo:':
+                        const mongoFormatter = new MongoFormatter(request, response);
+                        requestString = mongoFormatter.getRequest();
+                        responseString = mongoFormatter.getResponse();
+                        for(let line of requestString.split('\n')) {                            
                             url += line + ' ';
                             if(url.length >= 64) break;
                         }

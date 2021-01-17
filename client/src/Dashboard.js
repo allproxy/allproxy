@@ -36,6 +36,9 @@ const Dashboard = (function(){
                     case 'sql:':
                         iconClass = 'fa-database'; 
                         break;
+                    case 'mongo:':
+                        iconClass = 'fa-envira'; 
+                        break;
                     case 'grpc:':
                         iconClass = 'fa-asterisk'; 
                         break;
