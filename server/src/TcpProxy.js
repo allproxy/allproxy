@@ -119,10 +119,7 @@ module.exports = class TcpProxy {
                         const mongoFormatter = new MongoFormatter(request, response);
                         requestString = mongoFormatter.getRequest();
                         responseString = mongoFormatter.getResponse();
-                        for(let line of requestString.split('\n')) {                            
-                            url += line + ' ';
-                            if(url.length >= 64) break;
-                        }
+                        url = requestString.split('\\n')[0];                        
                         break;                        
                     default:
                         requestString = HexFormatter.format(request);

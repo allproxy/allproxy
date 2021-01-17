@@ -5,7 +5,7 @@ const MongoOpCode = require('./MongoOpCode');
 module.exports = class SqlFormatter{
 	constructor(reqBuf, rspBuf) {		
 		this.formattedRequest = this._formatRequest(reqBuf);
-		this.formattedResponse = '\\n' + HexFormatter.format(rspBuf) + '\\n';
+		this.formattedResponse = this._formatResponse(rspBuf);
 		this.command = 'Request unknown';
 	}
 
@@ -23,10 +23,18 @@ module.exports = class SqlFormatter{
 
 	_formatRequest(buf) {	
 		const packet = new MongoPacket(buf);
-		const opCode = MongoOpCode.toString(packet.getOpCode());
+		const opCode = packet.getOpCode();
 		const requestID = packet.getRequestID();
-		return opCode + ' id=' + requestID + '\\n' + HexFormatter.format(buf) + '\\n';
-	}	
+		const details = packet.getDetails();
+		return opCode + ' id=' + requestID + ' ' + details + '\\n' + HexFormatter.format(buf) + '\\n';
+	}
+
+	_formatResponse(buf) {
+		const packet = new MongoPacket(buf);
+		const flags = packet.getResponseFlags();
+		const numberReturned = packet.getNumberReturned();		
+		return `\\nflags=${flags} documents=${numberReturned}\\n\\n${HexFormatter.format(buf)}\\n`;
+	}
 }
 
 // Keep track of Mongo packets
@@ -37,7 +45,44 @@ class MongoPacket {
 		this.messageLength = buf.readInt32LE(0);
 		this.requestID = buf.readInt32LE(4);
 		this.responseTo = buf.readInt32LE(8);
-		this.opCode = buf.readInt32LE(12);			
+		this.opCode = MongoOpCode.toString(buf.readInt32LE(12));
+
+		this.details = '';
+		switch(this.opCode) {
+			case MongoOpCode.OP_UPDATE:
+			case MongoOpCode.OP_INSERT:
+			case MongoOpCode.OP_QUERY:
+			case MongoOpCode.OP_GET_MORE:
+			case MongoOpCode.OP_DELETE:
+				this.details = cstring(20); // fullCollectionName
+				break;
+			case MongoOpCode.OP_REPLAY:
+				this.responseFlags = 'none';				
+				const flags = buf.readInt32LE(16);
+				switch(flags) {
+					case 0:
+						this.responseFlags = 'CursorNotFound';
+						break;
+					case 1:
+						this.responseFlags = 'QueryFailure';
+						break;
+					case 2:
+						this.responseFlags = 'ShardConfigState';
+						break;
+					case 3:
+						this.responseFlags = 'AwaitCapable';
+						break;
+				}
+				this.numberReturned = buf.readInt32LE(32);				
+				break;			
+		}
+
+		function cstring(start) {
+			let end = start;
+			for(; buf.readUInt8(end) !== 0; ++end);
+			const str = buf.toString('utf8', start, end);			
+			return str;
+		}
 	}
 	
 	getOffset = () => this.offset;
@@ -50,4 +95,9 @@ class MongoPacket {
 
 	getOpCode = () => this.opCode;
 
+	getDetails = () => this.details;
+
+	getResponseFlags = () => this.responseFlags;
+
+	getNumberReturned = () => this.numberReturned;
 }
