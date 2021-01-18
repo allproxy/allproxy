@@ -53,7 +53,8 @@ var SettingsModal = (function(){
 				var path = config.path;
 				var host = config.hostname;
 				if(config.port) host += ':'+config.port;
-				addRow(path, config.protocol, host);
+				const record = config.record === true || config.record === undefined ? true : false;				
+				addRow(path, config.protocol, host, record);
 			})	
 																		
 			$('#settingsModal').modal({backdrop: 'static', keyboard: false});
@@ -69,13 +70,14 @@ var SettingsModal = (function(){
 						var path = $(this).find('.settings-modal__proxy-path').val();
 						var protocol = $(this).find('.settings-modal__proxy-protocol option:selected').text();
 						var host = $(this).find('.settings-modal__proxy-host').val();
-												
+						const record = $(this).find('.settings-modal__record-checkbox').is(':checked');												
 										
 						var config = {							
 							path: path,
 							protocol: protocol,
 							hostname: host.split(':')[0],
-							port: host.split(':')[1]
+							port: host.split(':')[1],
+							record
 						};
 						proxyDirectives.push(config);
 					})					
@@ -133,7 +135,7 @@ var SettingsModal = (function(){
 		else {
 			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
 		}
-	})
+	})	
 	
 	$('.settings-modal__add-button').click(function() {		
 		var path = $('.settings-modal__input-path').val();
@@ -167,7 +169,7 @@ var SettingsModal = (function(){
 		}	
 				
 		if(!error) {				
-			addRow(path, protocol, host);
+			addRow(path, protocol, host, true);
 			$('.settings-modal__add-button').prop('disabled', true);
 			$('.settings-modal__save').prop('disabled', false);			
 			$('.settings-modal__input-path').val('');						
@@ -193,34 +195,45 @@ var SettingsModal = (function(){
 	
 	$('.settings-modal__input-max-messages').unbind('input');
 	$('.settings-modal__input-max-messages').on('input', function(e) {		
-		$('.settings-modal__save').prop('disabled', false);		
+		$('.settings-modal__save').prop('record', false);		
 	})	
 	
-	function addRow(path, protocol, host) {
+	function addRow(path, protocol, host, record) {
 		if(host.split(':').length == 1) host += ':80';
 		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
 		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'redis:', 'grpc:', 'other:'];		
 		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
+		const recordChecked = record ? 'checked' : '';
+		const recordClass = record ? '' : 'disabled';
 		var row = 
 			'<tr class="settings-modal__proxy-row">' +				
 				'<td>' +
 					'<button class="settings-modal__proxy-delete-button btn btn-sm btn-danger">X</button>' +
 				'</td>' +				
 				'<td class="settings-modal__proxy-path-container">' +
-					'<input class="settings-modal__proxy-path" value="'+path+'">' +
+					'<input class="settings-modal__proxy-path '+recordClass+'" value="'+path+'">' +
 				'</td>' +
 				'<td class="settings-modal__proxy-protocol-container">' +
-					'<select class="settings-modal__proxy-protocol">' +
+					'<select class="settings-modal__proxy-protocol '+recordClass+'">' +
 						protocols.map(protocol => `<option>${protocol}</option>`).join('') +
 					'<select/>' +
 				'</td>' +
 				'<td class="settings-modal__proxy-host-container">' +
-					'<input class="settings-modal__proxy-host" value="'+host+'">' +
+					'<input class="settings-modal__proxy-host '+recordClass+'" value="'+host+'">' +
+				'</td>' +
+				'<td class="settings-modal__record-container">' +
+					'<input type="checkbox" class="settings-modal__record-checkbox" '+recordChecked+'>' +
 				'</td>' +
 			'</tr>';
 			var $table = $('.settings-modal__table');
 			$table.find('tbody').append(row);
 			$table.show();
+
+			$('.settings-modal__record-checkbox').unbind();
+			$('.settings-modal__record-checkbox').change(function(e) {				
+				$(this).closest('tr').find('input,select').toggleClass('disabled', !this.checked);
+				$(this).removeClass('disabled');
+			})
 	}
 	
 	return x;

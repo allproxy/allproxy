@@ -13,7 +13,11 @@ const Dashboard = (function(){
                 return; // Do not record this message
             }
 
-            var json = JSON.parse(message);			
+            var json = JSON.parse(message);	
+            
+            if(!json.proxyConfig.record) {
+                return; // Do not record this message
+            }
                         
             var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
             if(hostColor[hostPath] == undefined) {

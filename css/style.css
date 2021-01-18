@@ -33,6 +33,14 @@ pre {
 	top: 50%;
 	transform: translateY(-50%);
 }
+.align-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.disabled {
+	opacity: .25;
+}
 
 .error {
 	color: red;
@@ -284,6 +292,13 @@ pre {
 .settings-modal__proxy-host {
 	padding-top: 7px;	
 	border: none;
+}
+.settings-modal__record-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.settings-modal__record-checkbox {
 }
 
 .settings-modal__label-max-messages {
