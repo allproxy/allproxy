@@ -97,13 +97,13 @@ module.exports = class ProxyConfigs {
      * @param {*} path - HTTP URI or port
      */
     emitMessageToBrowser(message, path) {
-        console.log('emitMessageToBrowser()', path);
-        const json = JSON.stringify(message, null, 2);       
+        console.log('emitMessageToBrowser()', path);               
         for(const key in this.proxyConfigs) {                  
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(proxyConfig.path === path) {
-
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
+                    message.proxyConfig = proxyConfig;
+                    const json = JSON.stringify(message, null, 2);                   
                     this.proxyConfigs[key].socket.emit('message', json);                    
                 }
             }            

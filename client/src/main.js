@@ -33,9 +33,7 @@ $(document).ready(function() {
 	$('.header__settings').click(function(e) {		
 		SettingsModal.open(iosocket)
 		.then(function(proxyDirectives) {
-			proxyDirectives.forEach(function(config) {
-				Dashboard.addHost(config.hostname+":"+config.port, config.path);
-			})			
+			// nothing to do				
 		})
 	})	
 })
