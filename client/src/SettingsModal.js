@@ -199,7 +199,7 @@ var SettingsModal = (function(){
 	function addRow(path, protocol, host) {
 		if(host.split(':').length == 1) host += ':80';
 		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
-		let protocols = ['http:', 'https:', 'sql:', 'grpc:', 'other:'];		
+		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'grpc:', 'other:'];		
 		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
 		var row = 
 			'<tr class="settings-modal__proxy-row">' +				

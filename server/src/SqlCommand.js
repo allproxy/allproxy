@@ -99,7 +99,7 @@ module.exports = class SqlCommand {
 				str = 'Reset Connection';
 				break;
 			default:
-				str = "Unkown Command";
+				str = "Unknown Command";
 				break;						
 		}
 		return str;
