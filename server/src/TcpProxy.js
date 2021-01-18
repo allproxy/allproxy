@@ -6,6 +6,7 @@ const SocketIoMessage = require('./SocketIoMessage');
 const HexFormatter = require('./HexFormatter');
 const SqlFormatter = require('./SqlFormatter');
 const MongoFormatter = require('./MongoFormatter');
+const RedisFormatter = require('./RedisFormatter');
 
 module.exports = class TcpProxy {
     constructor(proxyConfig) {
@@ -120,10 +121,19 @@ module.exports = class TcpProxy {
                         requestString = mongoFormatter.getRequest();
                         responseString = mongoFormatter.getResponse();
                         url = requestString.split('\\n')[0];                        
-                        break;                        
+                        break;
+                    case 'redis:':
+                        const redisFormatter = new RedisFormatter(request, response);
+                        requestString = redisFormatter.getRequest();
+                        responseString = redisFormatter.getResponse();
+                        for(let line of requestString.split('\n')) {                            
+                            url += line + ' ';
+                            if(url.length >= 64) break;
+                        }
+                        break;                                               
                     default:
                         requestString = HexFormatter.format(request);
-                        responseString = HexFormatter.format(response);
+                        responseString = '\\n'+HexFormatter.format(response)+'\\n';
                         if(requestString.length <= 64) {
                             url = requestString;
                         }
