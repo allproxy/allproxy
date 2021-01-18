@@ -11,7 +11,7 @@ var SettingsModal = (function(){
 	x.getMaxMessages = function() {
 		
 		if(localStorage.maxNumberOfMessages == undefined) {
-			var MAX_REQUESTS = 100;	
+			var MAX_REQUESTS = 1000; // default	
 			localStorage.maxNumberOfMessages = MAX_REQUESTS;
 		}
 		return localStorage.maxNumberOfMessages;
@@ -199,7 +199,7 @@ var SettingsModal = (function(){
 	function addRow(path, protocol, host) {
 		if(host.split(':').length == 1) host += ':80';
 		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
-		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'grpc:', 'other:'];		
+		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'redis:', 'grpc:', 'other:'];		
 		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
 		var row = 
 			'<tr class="settings-modal__proxy-row">' +				

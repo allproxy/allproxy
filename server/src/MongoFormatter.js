@@ -1,4 +1,3 @@
-const sqlFormatter = require('sql-formatter');
 const HexFormatter = require('./HexFormatter');
 const MongoOpCode = require('./MongoOpCode');
 

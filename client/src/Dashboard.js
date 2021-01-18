@@ -39,6 +39,9 @@ const Dashboard = (function(){
                     case 'mongo:':
                         iconClass = 'fa-envira'; 
                         break;
+                    case 'redis:':
+                        iconClass = 'fa-cube'; 
+                        break;
                     case 'grpc:':
                         iconClass = 'fa-asterisk'; 
                         break;
@@ -139,7 +142,7 @@ const Dashboard = (function(){
                     }	
                 }
                 
-                // Only display the last 100 requests	        	  	
+                // Only display the last "n" requests	        	  	
                 if($('.request__container').children().length > SettingsModal.getMaxMessages()) {	        		
                     $('.request__container').children().first().remove();
                 }
