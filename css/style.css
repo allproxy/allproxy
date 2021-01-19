@@ -39,7 +39,7 @@ pre {
 	justify-content: center;
 }
 .disabled {
-	opacity: .25;
+	opacity: .50;
 }
 
 .error {
@@ -257,7 +257,7 @@ pre {
 }
 
 .modal-content {
-	width: 1200px;
+	width: 90vw;
 }
 
 .table settings-modal__table {
@@ -285,7 +285,9 @@ pre {
 	width: 80px !important;
 }
 
-
+.settings-modal__proxy-delete-button {
+	margin-top: 5px;
+}
 
 .settings-modal__proxy-path,
 .settings-modal__proxy-protocol,
@@ -293,12 +295,12 @@ pre {
 	padding-top: 7px;	
 	border: none;
 }
-.settings-modal__record-container {
+.settings-modal__recording-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
-.settings-modal__record-checkbox {
+.settings-modal__recording-checkbox {
 }
 
 .settings-modal__label-max-messages {
