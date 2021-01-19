@@ -10,13 +10,13 @@ const Dashboard = (function(){
         
         iosocket.on('message', function(message) {
             if(isStopped()) {
-                return; // Do not record this message
+                return; // Do not recording this message
             }
 
             var json = JSON.parse(message);	
             
-            if(!json.proxyConfig.record) {
-                return; // Do not record this message
+            if(!json.proxyConfig.recording) {
+                return; // Do not recording this message
             }
                         
             var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
