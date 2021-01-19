@@ -33,7 +33,7 @@ $(document).ready(function() {
 	$('.header__settings').click(function(e) {		
 		SettingsModal.open(iosocket)
 		.then(function(proxyDirectives) {
-			// nothing to do				
+			Dashboard.filter();				
 		})
 	})	
 })

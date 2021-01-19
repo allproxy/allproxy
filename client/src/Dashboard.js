@@ -164,6 +164,13 @@ const Dashboard = (function(){
             }
         });
     }
+
+    /**
+     * Filter messages.
+     */
+    x.filter = () => {
+        filter();
+    }
         
     var $activeUrl;
 
@@ -357,6 +364,9 @@ const Dashboard = (function(){
     function isFiltered(json) {        
         const value = $('.header__filter-input').val();        
         
+        const proxyConfig = SettingsModal.getProxyConfigByPath(json.proxyConfig.path);
+        if(proxyConfig === null || !proxyConfig.recording) return true;
+
         if(isMatch(value, json.url)) return false;
         if(isMatch(value, json.clientIp)) return false;
         if(isMatch(value, json.endpoint)) return false;

@@ -16,6 +16,23 @@ var SettingsModal = (function(){
 		}
 		return localStorage.maxNumberOfMessages;
 	}
+
+	/**
+	 * Get the proxy config with match path
+	 * @param {*} path 
+	 */
+	x.getProxyConfigByPath = function(path) {
+		var proxyDirectives = [];
+		if(localStorage.proxyDirectives) {
+			proxyDirectives = JSON.parse(localStorage.proxyDirectives);
+		}			
+		for(let config of proxyDirectives) {			
+			if(path === config.path) {
+				return config;
+			}
+		}
+		return null;
+	}
 	
 	x.load = function(iosocket) {
 		var proxyDirectives = [];
