@@ -15,6 +15,10 @@ pre {
 	word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
+td input {
+	width: 100%;
+}
+
 .spinner {
 	font-size: 48px !important;
 	color: blue;

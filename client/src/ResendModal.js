@@ -5,7 +5,7 @@ var ResendModal = (function(){
 	x.open = function(json) {	
 		x.send = false;
 		
-		return new Promise(function(resolve, reject) {			
+		return new Promise(function(resolve) {			
 			
 			$('.resend-modal__url').val('');
 			$('.resend-modal__url').val(json.method+' '+unescape(json.url));
@@ -52,7 +52,7 @@ var ResendModal = (function(){
 					x.send = false;					
 				}
 				else {					
-					reject('canceled');
+					resolve(null);
 				}
 			})		
 		});
