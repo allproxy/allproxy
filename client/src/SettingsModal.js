@@ -48,7 +48,7 @@ var SettingsModal = (function(){
 
 	x.open = function(iosocket) {		
 		$('.settings-modal__input-max-messages').val(x.getMaxMessages());
-		return new Promise(function(resolve, reject) {
+		return new Promise(function(resolve) {
 			x.save = false;
 			
 			$('.settings-modal__save').prop('disabled', true);
@@ -65,7 +65,8 @@ var SettingsModal = (function(){
 			var proxyDirectives = [];
 			if(localStorage.proxyDirectives) {
 				proxyDirectives = JSON.parse(localStorage.proxyDirectives);
-			}			
+			}
+			proxyDirectives.sort((a,b) => a.path.localeCompare(b.path));		
 			proxyDirectives.forEach(function(config) {
 				var path = config.path;
 				var host = config.hostname;
@@ -99,7 +100,7 @@ var SettingsModal = (function(){
 						proxyDirectives.push(config);
 					})					
 					
-					console.log('save', JSON.stringify(proxyDirectives,null,2));
+					//console.log('save', JSON.stringify(proxyDirectives,null,2));
 					localStorage.proxyDirectives = JSON.stringify(proxyDirectives);
 					
 					var number = $('.settings-modal__input-max-messages').val();					
@@ -108,11 +109,10 @@ var SettingsModal = (function(){
 					iosocket.emit('proxy config', proxyDirectives);
 					
 					//console.log(JSON.stringify(output, null, 2));
-					resolve(proxyDirectives);
+					resolve(true);
 				}
-				else {	
-					console.log('canceled');
-					reject('no save');
+				else {
+					resolve(false);
 				}
 			})			
 		});

@@ -247,37 +247,47 @@ const Dashboard = (function(){
             var json = $element.data();
             
             ResendModal.open(json)
-            .then(function(results) {                                  
-                var method = (results.body ? 'POST' : results.method);
-                var headers = {};
-                var unsafeHeaders = ['host', 'connection', 'content-length', 'origin', 'user-agent', 'referer', 'accept-encoding', 'cookie'];
-                for(var header in json.requestHeaders) {
-                    if(unsafeHeaders.indexOf(header) == -1) {
-                        headers[header] = json.requestHeaders[header];
+            .then(function(results) {
+                if(results !== null) {                                 
+                    var method = (results.body ? 'POST' : results.method);
+                    var headers = {};
+                    var unsafeHeaders = ['host', 
+                                         'connection', 
+                                         'content-length', 
+                                         'origin', 'user-agent', 
+                                         'referer', 
+                                         'accept-encoding', 
+                                         'cookie',
+                                         'sec-fetch-dest'
+                                        ];
+                    for(var header in json.requestHeaders) {
+                        if(unsafeHeaders.indexOf(header) == -1) {
+                            headers[header] = json.requestHeaders[header];
+                        }
                     }
+                    
+                    headers['middleman_proxy'] = 'resend';
+                    
+                    var data = (results.body ? results.body : undefined);
+                    
+                    var protocolHost = document.location.protocol+'//'+document.location.host;
+                
+                    //console.log(JSON.stringify(json, null, 2));
+                    $.ajax(
+                    {
+                        type: method,
+                        method: method,
+                        url : protocolHost+results.url,
+                        headers : headers,				
+                        data : data				
+                    }).done(function(results) {	
+                        
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        console.log(JSON.stringify(jqXHR));
+                    }).catch(function(error) {
+                        
+                    })
                 }
-                
-                headers['middleman_proxy'] = 'resend';
-                
-                var data = (results.body ? results.body : undefined);
-                
-                var protocolHost = document.location.protocol+'//'+document.location.host;
-            
-                //console.log(JSON.stringify(json, null, 2));
-                $.ajax(
-                {
-                    type: method,
-                    method: method,
-                    url : protocolHost+results.url,
-                    headers : headers,				
-                    data : data				
-                }).done(function(results) {	
-                    
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                    console.log(JSON.stringify(jqXHR));
-                }).catch(function(error) {
-                    
-                })
             })		
         }		
     })
