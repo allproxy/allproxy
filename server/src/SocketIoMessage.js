@@ -87,27 +87,15 @@ module.exports = {
 			});
 			proxyRes.on('end', function() {	
 				var parsedData;
-				var elasticsearch;
-				if(proxyRes.headers['content-type'] &&
-						proxyRes.headers['content-type'].indexOf('application/json') != -1) {
-					try {
-						parsedData = JSON.parse(rawData);
-						if(parsedData._shards) {								
-							elasticsearch = 'yes';
-						}
-					}
-					catch(e) {
-						console.log('JSON.parse exception');
-						parsedData = {
-							raw_json : rawData
-						};
-					}
+				try {
+					parsedData = JSON.parse(rawData); // assume JSON					
 				}
-				else {				
+				catch(e) {
+					console.log('JSON.parse exception');
 					parsedData = {
-						body : rawData
+						body : rawData.replace(/\\n/g, '\\n')
 					};
-				}				
+				}							
 				
 				appendResponse(message, proxyRes.headers, parsedData, proxyRes.statusCode, Date.now() - startTime);
 								
