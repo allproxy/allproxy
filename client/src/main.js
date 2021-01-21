@@ -32,8 +32,10 @@ $(document).ready(function() {
 	$('.header__settings').unbind('click');
 	$('.header__settings').click(function(e) {		
 		SettingsModal.open(iosocket)
-		.then(function(proxyDirectives) {
-			Dashboard.filter();				
+		.then(function(updated) {
+			if(updated) {
+				Dashboard.filter();	
+			}			
 		})
 	})	
 })
