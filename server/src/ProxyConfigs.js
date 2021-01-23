@@ -76,12 +76,13 @@ module.exports = class ProxyConfigs {
      * @returns ProxyConfig
      */
     findProxyConfigMatchingURL(reqUrl) {
+        const reqUrlPath = reqUrl = reqUrl.pathname.replace(/\/\//g, '/');
         let matchingProxyConfig = undefined;
         // Find matching proxy configuration
         for(const key in this.proxyConfigs) {            
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(!proxyConfig.isHttpOrHttps) continue;
-                if(reqUrl.pathname.startsWith(proxyConfig.path)) {
+                if(reqUrlPath.startsWith(proxyConfig.path)) {
                     if(matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
                         matchingProxyConfig = proxyConfig;
                     }
