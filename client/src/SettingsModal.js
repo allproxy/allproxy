@@ -46,7 +46,8 @@ var SettingsModal = (function(){
 		}	
 	}
 
-	x.open = function(iosocket) {		
+	x.open = function(iosocket) {	
+		$('.settings-modal__table').hide();	
 		$('.settings-modal__input-max-messages').val(x.getMaxMessages());
 		return new Promise(function(resolve) {
 			x.save = false;
@@ -216,6 +217,7 @@ var SettingsModal = (function(){
 	})	
 	
 	function addRow(path, protocol, host, recording) {
+		$('.settings-modal__table').show();
 		if(host.split(':').length == 1) host += ':80';
 		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
 		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'redis:', 'grpc:', 'other:'];		
@@ -226,14 +228,14 @@ var SettingsModal = (function(){
 			'<tr class="settings-modal__proxy-row">' +				
 				'<td>' +
 					'<button class="settings-modal__proxy-delete-button btn btn-xs btn-danger">X</button>' +
-				'</td>' +				
-				'<td class="settings-modal__proxy-path-container">' +
-					'<input class="settings-modal__proxy-path '+recordingClass+'" value="'+path+'">' +
 				'</td>' +
 				'<td class="settings-modal__proxy-protocol-container">' +
 					'<select class="settings-modal__proxy-protocol '+recordingClass+'">' +
 						protocols.map(protocol => `<option>${protocol}</option>`).join('') +
 					'<select/>' +
+				'</td>' +
+				'<td class="settings-modal__proxy-path-container">' +
+					'<input class="settings-modal__proxy-path '+recordingClass+'" value="'+path+'">' +
 				'</td>' +
 				'<td class="settings-modal__proxy-host-container">' +
 					'<input class="settings-modal__proxy-host '+recordingClass+'" value="'+host+'">' +

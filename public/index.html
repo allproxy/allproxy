@@ -84,9 +84,9 @@
 	        	<table class="table settings-modal__table">
 	        		<thead>
 	        			<tr>
-	        				<td></td>
-							<td class="text-primary"><label>Path or Port</label></td>
+							<td></td>
 							<td class="text-primary"><label>Protocol</label></td>
+							<td class="text-primary"><label>Path or Port</label></td>						
 							<td class="text-primary"><label>Target Host</label></td>
 							<td class="align-center text-primary"><label>Recording</label></td>
 	        			</tr>
@@ -96,10 +96,7 @@
 	        	</table>        	
 	        	
 	        	<table>
-		        	<tr>		        		
-		        		<td class="settings-modal__input-path-container">
-		    				<input type="text" class="form-control settings-modal__input-path" placeholder="Enter URI as route (e.g., '/xxx/yyy')">
-						</td>
+		        	<tr>
 						<td class="settings-modal__select-protocol-container">
 		    				<select class="form-control settings-modal__select-protocol">
 								<option>http:</option>
@@ -110,12 +107,15 @@
 								<option>redis:</option>								
 								<option>other:</option>
 							</select>
-		    			</td>
+		    			</td>		        		
+		        		<td class="settings-modal__input-path-container">
+		    				<input type="text" class="form-control settings-modal__input-path" placeholder="Enter path (e.g., /xxx/yyy)">
+						</td>						
 		    			<td class="settings-modal__input-url-container">
-		    				<input type="text" class="form-control settings-modal__input-host" placeholder="Enter target host (e.g., 'localhost:8000')">
+		    				<input type="text" class="form-control settings-modal__input-host" placeholder="Enter target host (e.g., localhost:8000)">
 		    			</td>
 		    			<td class="settings-modal__add-button-container">
-		       				<button class="settings-modal__add-button btn btn-primary">Add Directive</button>
+		       				<button class="settings-modal__add-button btn btn-primary">Add</button>
 						</td>					 
 	       			</tr>
        			</table>   

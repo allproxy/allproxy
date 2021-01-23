@@ -9,11 +9,14 @@ let listen = []; // {protocol, host, port}
 
 for(var i = 2; i < process.argv.length; ++i) {
 	switch(process.argv[i]) {
+		case '--help':
+			usage();
+			return;
 		case '--listen':
 		case '--listenHttps':
 			if(i + 1 >= process.argv.length) {
 				usage();
-				console.log('\nMissing --listen value.');
+				console.error('\nMissing --listen value.');
 			}
 
 			const protocol = process.argv[i] === '--listenHttps' ? 'https:' : 'http:';
@@ -34,20 +37,19 @@ for(var i = 2; i < process.argv.length; ++i) {
 			break;
 		default:
 			usage();
-			console.log('\nInvalid option: '+process.argv[i]);
-			return;
-			break;
+			console.error('\nInvalid option: '+process.argv[i]);
+			return;			
 	}
 }
 
 if(listen.length === 0) listen.push({port: 8888});
 
 function usage() {
-	console.log('\nUsage: yarn start [--listen [host:]port] [--listenHttps [host:]port]');
+	console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port]');
 	console.log('\nOptions:');	
 	console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
 	console.log('\t--listenHttps - listen for incoming https connections.');	
-	console.log('\nExample: yarn start --listen localhost:3000 --listenHttps 3001');
+	console.log('\nExample: npm start --listen localhost:3000 --listenHttps 3001');
 }
 
 /**
@@ -69,7 +71,7 @@ const httpsOptions = {
 };
 
 for(let entry of listen) {	
-	let protocol = entry.protocol;
+	let protocol = entry.protocol ? entry.protocol : 'http:';
 	let host = entry.host;
 	let port = entry.port;	
 
@@ -80,7 +82,8 @@ for(let entry of listen) {
 		httpServer = http.createServer(
 			(client_req, client_res) => httpProxy.onRequest(client_req, client_res)).listen(port, host);
 	}
-	console.log(`Listening on ${protocol?protocol:''} ${host?host:''} ${port}`);
+	console.log(`Listening on ${protocol} ${host?host:''} ${port}`);
+	console.log(`Open browser to ${protocol}//localhost:${port}/middleman\n`);
 
 	Global.proxyConfigs.addHttpServer(httpServer);
 }
