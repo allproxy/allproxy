@@ -253,7 +253,10 @@ td input {
 .resend-modal__url-container,
 .resend-modal__body-container {
 	display: table;
-	width: calc(100vw - 100px);	
+	width: calc(100%);	
+}
+.resend-modal__body {
+	height: 90vh;
 }
 .resend-modal__url,
 .resend-modal__body {
