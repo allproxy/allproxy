@@ -87,17 +87,25 @@ Now we clone and install the example iTunes app:
 
 ```sh
 $ git clone git@github.com:davechri/itunes.git
+
+# Install server
 $ cd itunes
-itunes$ npm install 
+itunes$ npm install
+
+# Install client
+itunes$ cd client
+itunes/client$ npm install
 ```
 The example iTunes app uses the http://itunes.apple.com/search API to search for albums.  We want to record all the iTunes API request/response messages sent by the example iTunes app.  The example iTunes app uses a *.env* file to configure the iTunes URL endpoint.  Normally, it would be set the URL to http://itunes.apple.com, but we need to route the API messages through the Middleman proxy, so we set the ITUNES_URL environment variable to point at the Middleman proxy.  
 ```sh
+# Make sure the current directory is iTunes app root directory
 itunes$ echo 'ITUNES_URL=http://localhost:8888' > .env
 ```
 
 We are now ready to start up the iTunes app.  The app is started in development mode so that it will automatically open a browser tab in a Chrome browser with URL http://localhost:3000.
 ```sh
-npm run start:dev
+# Start the server and client from iTunes app root directory
+itunes$ npm run start:dev
 ```
 
 After the iTunes app has loaded in your Chrome browser, type an artist name (e.g., John Denver), and press enter to start search for albums produced by the artist.
@@ -126,10 +134,10 @@ After clicking **Add**, the new MySQL route is added to the settings.  You then 
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-save.png)
 
-Now we need to start the an SQL Tool (e.g., DBeaver) and create a DB connection to the Middleman proxy listening on port 33306.  The SQL Tool will connect to localhost:33306, and all SQL requests and responses will be recorded by the Middleman proxy.  
+Now we need to start the SQL Tool (e.g., DBeaver) and create a DB connection to the Middleman proxy listening on port 33306.  The SQL Tool will connect to localhost:33306, and all SQL requests and responses will be recorded by the Middleman proxy.  
 
-I have created a [sample MySQL employees database](https://dev.mysql.com/doc/employee/en/employees-installation.html).   The following query is send by the SQL Tool to the Middleman proxy (listening on port 33306).
-```sh
+I have created a [sample MySQL employees database](https://dev.mysql.com/doc/employee/en/employees-installation.html).   The following query will be sent by the SQL Tool to the Middleman proxy listening on port 33306.
+```sql
 SELECT * FROM employees
 ```
 
@@ -140,11 +148,11 @@ Go to the Middleman dashboard you opened earlier, and click on the recorded SQL 
 The Middleman proxy provides a number of features that help you analysis protcol messages.
 
 These features will be discussed:
-[Filtering](#filtering)
-[Freezing Recording](#freezing-recording)
-[Multiple Dashboards](#multiple-dashboards)
+* [Filtering Protocol Messages](#filtering-protocol-messages)
+* [Freezing Recording](#freezing-recording)
+* [Multiple Dashboards](#multiple-dashboards)
 
-### Filtering
+### Filtering Protocol Messages
 
 ### Freezing Recording
 To be completed...
