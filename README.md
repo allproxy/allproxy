@@ -166,11 +166,21 @@ Here is an example of unfiltered protocol messages.  No data is intentionally sh
 Typing into the input filter only shows the protocol message that match the typed filter.  In this case, only those protocol messages that contain the word "google" (case insensitive) are considered matches.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-filtered.png)
 
+Filtering by protocol message type is also possible, by simply uncheck a *Recording* checkbox in the *Settings* modal.  The unchecked route will instantly filter the associated protocol messages from the Dashboard.  However, subsequent protocol messages that arrive when the  associated *Recording* checkbox is unchecked will not be recorded.  This is an easy way to filter out protocol messages you may not be interested in seeing, and then uncheck *Recording* checkbox when you want to see those protocol messages again.  In the screenshot below, the *MongoDB* and *Redis* protocol message are unchecked and will not be shown in the Dashboard.
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-uncheck-recording.png)
+
 ### Freezing Recording
-To be completed...
+The recording of protocol messages can be temporarily stopped, to allow time to examine the protocol messages without the log wrapping, and overlaying relevant protocol messages.  A typical approach is to recreate a problem by executing a specific function of the app being debugged, and than checking the *Freeze* checkbox to freeze the recording while the log is examined, as shown in this screenshot.
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-freeze.png)
 
 ### Multiple Dashboards
-To be completed...
+Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record protocol messages.  Recording the same protocol messages in separate Dashboard instances is of little value.
+
+However, it can be useful to *Freeze* the recording in one Dashboard instance to keep a snapshot of protocol messages, and then go to another Dashboard instance and *Clear* the log, and then wait for additional protocol messages to be recorded, and again *Freeze* the recording.  In this way multiple different snapshots can be be recorded in different Dashboard instances.  After recording multiple snapshots, the snapshots can be analyzed in each of the Dashboard instances as required.
+
+Each Dashboard instance keeps its own copy of the protocol messages, so clearing or freezing recording in one Dashboard instance, does not affect another other Dashboard instances.
 
 ## Certificates for HTTPS Connections 
 To be completed...
