@@ -54,7 +54,7 @@ const Dashboard = (function(){
                 }           
             }
             
-            const tcpIp = resolveHost(json.clientIp)+'->'+getHostPort(json.serverHost);
+            const tcpIp = resolveHost(json.clientIp)+'->'+json.serverHost;
 
             var url = json.url.indexOf('?') != -1 ? json.url.split('?')[0] : json.url;
             url = unescape(url); 

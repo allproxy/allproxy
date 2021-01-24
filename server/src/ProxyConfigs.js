@@ -76,7 +76,7 @@ module.exports = class ProxyConfigs {
      * @returns ProxyConfig
      */
     findProxyConfigMatchingURL(reqUrl) {
-        const reqUrlPath = reqUrl = reqUrl.pathname.replace(/\/\//g, '/');
+        const reqUrlPath = reqUrl.pathname.replace(/\/\//g, '/');
         let matchingProxyConfig = undefined;
         // Find matching proxy configuration
         for(const key in this.proxyConfigs) {            
