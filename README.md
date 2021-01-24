@@ -54,7 +54,7 @@ Click the *Settings* icon in the upper right corner, and open the Settings modal
 
 Recorded HTTP and HTTPS requests can be modified and resent.  Click on the *paper plane* icon for to select a request to resend.  A modal will open to allow the request to be optionally modified, and resent.
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-proxy-resend.png)
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-resend.png)
 
 ## Examples
 Some simple examples are illustrated to provide step by step details on how to setup and use the Middleman proxy.
