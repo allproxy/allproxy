@@ -67,7 +67,7 @@ module.exports = class HttpProxy {
                 proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);		
 
                 if(proxyConfig == undefined) {
-                    sendErrorResponse(404, 'No matching proxy configuration found!');
+                    sendErrorResponse(404, 'No matching proxy configuration found for '+reqUrl.pathname);
                 }
                 else {
                     proxyRequest();
@@ -113,7 +113,7 @@ module.exports = class HttpProxy {
             var proxy;
             if(proxyConfig.protocol == 'https:') {
                 //options.cert: fs.readFileSync('/home/davidchr/imlTrust.pem');
-                options.headers.Authorization = 'Basic ' + new Buffer('elastic:imliml').toString('base64'); // hardcoded authentication
+                options.headers.Authorization = 'Basic ' + new Buffer.from('elastic:imliml').toString('base64'); // hardcoded authentication
                 proxy = https.request(options, proxyRequest);
             }
             else {

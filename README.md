@@ -153,6 +153,18 @@ These features will be discussed:
 * [Multiple Dashboards](#multiple-dashboards)
 
 ### Filtering Protocol Messages
+Filtering is a powerful feature that allows you to find protocol messages matching your search filter, and hide unmatched protocol messages.  The entire protocol message is search for a match.  The filter may be *case insensitive*, *case sensitive*, or a *regular expression*.
+
+Types of filters:
+* **case insensitive** - If the filter only contains lower case characters, a *case insensitive* match is performed. 
+* **case ensensitive** - If the filter contains upper and lower case characters, a *case insensitive* match is performed.
+* **regular expression** - If the filter includes ".*", a *regular express* match is performed.
+
+Here is an example of unfiltered protocol messages.  No data is intentionally shown on the left, since it may contain private data.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-unfiltered.png)
+
+Typing into the input filter only shows the protocol message that match the typed filter.  In this case, only those protocol messages that contain the word "google" (case insensitive) are considered matches.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-filtered.png)
 
 ### Freezing Recording
 To be completed...
