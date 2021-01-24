@@ -71,7 +71,7 @@ First we need to start the middleman proxy server.  By default the server will l
 $ cd middleman-proxy
 middleman-proxy$ npm start
 ```
-Open browser to http://localhost:8888
+Then, open your browser to http://localhost:8888/middleman
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-launch.png)
 
@@ -79,7 +79,7 @@ Add route for protocol=*https*, path=*/search*, and host=*itunes.apple.com*.
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-settings.png)
 
-Click **Add**, and **Save* the configuration.
+After clicking **Add**, the new iTunes route is added to the settings.  You then need to click **Save** to save the iTunes route and send the updated configuration to the Middleman server.
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-save.png)
 
@@ -103,15 +103,57 @@ npm run start:dev
 After the iTunes app has loaded in your Chrome browser, type an artist name (e.g., John Denver), and press enter to start search for albums produced by the artist.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-search.png)
 
-Go to the Middleman dashboard you opened earlier, and click on the HTTPS iTunes endpoint request, to see its associated response.
+Go to the Middleman dashboard you opened earlier, and click on the HTTPS iTunes endpoint request on the left side of the dashboard, and the response will render on the right side.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-dashboard.png)
 
 ### Recording MySQL Messages
+This is an example illustrating how MySQL messages can be recorded.  The DBeaver (Linux) or Sequel Pro SQL Tools (MacOS) can be used to send an SQL query to the MySQL server via the Middleman proxy. In a more realistic development setup, a backend service would send the SQL query, but since I don't have a non-production service to use for this example, I'm just using an SQL Tool.
+
+First we need to start the middleman proxy server.    
+```sh
+$ cd middleman-proxy
+middleman-proxy$ npm start
+```
+Then open your browser to http://localhost:8888/middleman
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-launch.png)
+
+Add route for protocol=*sql*, port=*33306*, and host=*localhost:3306*.  The Middleman proxy will listen for incoming TCP connections on port 33306, and proxy SQL requests to the MySQL server listening on port 3306.   In this example, we will be running the MySQL server locally on port 3306.
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-settings.png)
+
+After clicking **Add**, the new MySQL route is added to the settings.  You then need to click **Save** to save the MySQL route and send the updated configuration to the Middleman server.
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-save.png)
+
+Now we need to start the an SQL Tool (e.g., DBeaver) and create a DB connection to the Middleman proxy listening on port 33306.  The SQL Tool will connect to localhost:33306, and all SQL requests and responses will be recorded by the Middleman proxy.  
+
+I have created a [sample MySQL employees database](https://dev.mysql.com/doc/employee/en/employees-installation.html).   The following query is send by the SQL Tool to the Middleman proxy (listening on port 33306).
+```sh
+SELECT * FROM employees
+```
+
+Go to the Middleman dashboard you opened earlier, and click on the recorded SQL query on the left side of the dashboard, and the SQL response will render on the right side.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-dashboard.png)
+
+## Features
+The Middleman proxy provides a number of features that help you analysis protcol messages.
+
+These features will be discussed:
+[Filtering](#filtering)
+[Freezing Recording](#freezing-recording)
+[Multiple Dashboards](#multiple-dashboards)
+
+### Filtering
+
+### Freezing Recording
+To be completed...
+
+### Multiple Dashboards
 To be completed...
 
 ## Certificates for HTTPS Connections 
 To be completed...
-
 
 ## License
 
