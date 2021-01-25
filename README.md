@@ -183,7 +183,23 @@ However, it can be useful to *Freeze* the recording in one Dashboard instance to
 Each Dashboard instance keeps its own copy of the protocol messages, so clearing or freezing recording in one Dashboard instance, does not affect another other Dashboard instances.
 
 ## Certificates for HTTPS Connections 
-To be completed...
+The Middleman proxy can be started with one or more HTTPS servers that listen for incoming HTTPS connections.  The --listenHttps option is used to start and HTTPS server.  The following start command will start an HTTPS server on port 9999.
+
+```sh
+middleman-proxy$ npm start --listenHttps 9999
+```
+
+An HTTPS server is started with a private key and public certificate.  The Middleman proxy repo includes a self-signed certificate and private key that will be used by default for TLS authentication.  Since it is self-signed it will not be trusted by your browser, and your browser will warn you that "Your connection is not private". Most browsers will than allow you to proceed to connect to the un-trusted server.
+
+If your security policy does not allow the use of self-signed certificates, you can replace the self-signed certificate and private key with your own CA signed certificate and private key.  Just copy your CA signed certificate and private key to the *server.crt* and *server.key* files, respectively.  The *server.crt* and *server.key* files are located in the *private/keys* directory as shown below.
+
+```sh
+middleman-proxy$
+private
+└── keys
+    ├── server.crt
+    └── server.key
+```
 
 ## License
 

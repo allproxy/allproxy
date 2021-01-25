@@ -353,6 +353,11 @@ const Dashboard = (function(){
     }
 
     $('.header__filter-input').on('input', function(e) {
+        if($('.header__filter-input').val().length === 0) {
+            $('.header__filter-input').removeClass('active');
+        } else {
+            $('.header__filter-input').addClass('active');
+        }
         filter();
     })
 
