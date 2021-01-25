@@ -109,6 +109,9 @@ td input {
 	height: 20px;
 	width: 300px;	
 }
+.header__filter-input.active {
+	background-color: lightyellow;	
+}
 
 .header__status,
 .header__settings {
@@ -118,7 +121,7 @@ td input {
 	font-size: large !important;		
 }
 .header__settings {
-	color: blue;
+	color: blue;	
 }
 .header__status {
 	color: red;		
