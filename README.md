@@ -1,11 +1,27 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
-This repo implements a reverse proxy supporting **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other request/response protocols.  The protocol messages are recorded by the browser UI using a layout similar to the Kibana Dev Tools.
+This repo implements a reverse proxy supporting **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other request/response protocols.  This tool is ideal for debugging distributed applications and containers.  The protocol messages are recorded by the browser UI using a layout similar to the Kibana Dev Tools.
 
 Implementation:
 - **HTTP proxy** - The *http* and https node packages are used to proxy HTTP and HTTPS messages.
 - **TCP proxy** - The *net* node package is used to listen a non-HTTP/HTTPS TCP port, and proxy the protocol messages to the target host.
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
+
+### Table of Contents
+
+* [Quick Start](quick-start)
+  * [Install MiddlemanProxy](install-middleman-proxy)   
+  * [Start the Server](start-the-server)
+  * [Open Dashboard in Browser](open-dashboard-in-browser)
+* [Examples](examples)
+  * [Recording HTTPS iTunes API Messages](recording-https-itunes-api-messages)
+  * [Recording MySQL Messages](recording-mysql-messages)
+* [Features](features)
+  * [Resending HTTP Requests](resending-http-requests)
+  * [Filtering Protocol Messages](#filtering-protocol-messages)
+  * [Freezing Recording](#freezing-recording)
+  * [Multiple Dashboards](#multiple-dashboards)
+* [Certificates for HTTPS Connections](certificates-for-https-connections)
 
 ## Quick Start
 
@@ -49,12 +65,6 @@ Click the *Settings* icon in the upper right corner, and open the Settings modal
 3. Enter a target host (e.g., localhost:80).
 4. Click **Add**.
 5. Click **Save**.
-
-## Resending HTTP Requests
-
-Recorded HTTP and HTTPS requests can be modified and resent.  Click on the *paper plane* icon for to select a request to resend.  A modal will open to allow the request to be optionally modified, and resent.
-
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-resend.png)
 
 ## Examples
 Some simple examples are illustrated to provide step by step details on how to setup and use the Middleman proxy.
@@ -147,10 +157,16 @@ Go to the Middleman dashboard you opened earlier, and click on the recorded SQL 
 ## Features
 The Middleman proxy provides a number of features that help you analysis protcol messages.
 
-These features will be discussed:
+* [Resending HTTP Requests](resending-http-requests)
 * [Filtering Protocol Messages](#filtering-protocol-messages)
 * [Freezing Recording](#freezing-recording)
 * [Multiple Dashboards](#multiple-dashboards)
+
+### Resending HTTP Requests
+
+Recorded HTTP and HTTPS requests can be modified and resent.  Click on the *paper plane* icon for to select a request to resend.  A modal will open to allow the request to be optionally modified, and resent.
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-resend.png)
 
 ### Filtering Protocol Messages
 Filtering is a powerful feature that allows you to find protocol messages matching your search filter, and hide unmatched protocol messages.  The entire protocol message is search for a match.  The filter may be *case insensitive*, *case sensitive*, or a *regular expression*.
