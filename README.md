@@ -9,19 +9,19 @@ Implementation:
 
 ### Table of Contents
 
-* [Quick Start](quick-start)
-  * [Install MiddlemanProxy](install-middleman-proxy)   
-  * [Start the Server](start-the-server)
-  * [Open Dashboard in Browser](open-dashboard-in-browser)
-* [Examples](examples)
-  * [Recording HTTPS iTunes API Messages](recording-https-itunes-api-messages)
-  * [Recording MySQL Messages](recording-mysql-messages)
-* [Features](features)
-  * [Resending HTTP Requests](resending-http-requests)
+* [Quick Start](#quick-start)
+  * [Install MiddlemanProxy](#install-middleman-proxy)   
+  * [Start the Server](#start-the-server)
+  * [Open Dashboard in Browser](#open-dashboard-in-browser)
+* [Examples](#examples)
+  * [Recording HTTPS iTunes API Messages](#recording-https-itunes-api-messages)
+  * [Recording MySQL Messages](#recording-mysql-messages)
+* [Features](#features)
+  * [Resending HTTP Requests](#resending-http-requests)
   * [Filtering Protocol Messages](#filtering-protocol-messages)
   * [Freezing Recording](#freezing-recording)
   * [Multiple Dashboards](#multiple-dashboards)
-* [Certificates for HTTPS Connections](certificates-for-https-connections)
+* [Certificates for HTTPS Connections](#certificates-for-https-connections)
 
 ## Quick Start
 
