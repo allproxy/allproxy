@@ -137,7 +137,7 @@ var SettingsModal = (function(){
 		
 		$('.settings-modal__error-message').text('');
 		
-		if(path.length == 0 || host.length == 0) {
+		if(path.length == 0 || (host.length == 0 && protocol !== 'proxy:')) {
 			$('.settings-modal__add-button').prop('disabled', true);
 		}
 		else {			
@@ -147,11 +147,19 @@ var SettingsModal = (function(){
 
 	$('.settings-modal__select-protocol').change(function(e) {
 		$('.settings-modal__error-message').text('');
-		if(this.value === 'http:' || this.value === 'https:') {
+		if(this.value === 'http:' || this.value === 'https:' || this.value === 'proxy:') {
 			$('.settings-modal__input-path').attr('placeholder', 'Enter path (e.g., /xxx/yyy)');						
 		}
 		else {
 			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
+		}
+		
+		if(this.value === 'proxy:') {
+			$('.settings-modal__input-host').attr('disabled', true);
+			$('.settings-modal__input-host').attr('placeholder', '');
+		} else {
+			$('.settings-modal__input-host').attr('disabled', false);
+			$('.settings-modal__input-host').attr('placeholder', '"Enter target host (e.g., localhost:8000)"');
 		}
 	})	
 	
@@ -161,7 +169,7 @@ var SettingsModal = (function(){
 		var host = $('.settings-modal__input-host').val();
 		var error = false;
 		
-		if(protocol === 'http:' || protocol === 'https:') {
+		if(protocol === 'http:' || protocol === 'https:' || protocol === 'proxy:') {
 			if(!path.startsWith('/')) {
 				$('.settings-modal__error-message').text(`When protocol "${protocol}" is selected the path must begin with "/"`);				
 				error = true;
@@ -173,7 +181,7 @@ var SettingsModal = (function(){
 			}
 		} 
 
-		if(!error) {
+		if(!error && protocol !== 'proxy:') {
 			try {
 				const url = new URL(host);
 				if(url.port === undefined) {
@@ -217,10 +225,10 @@ var SettingsModal = (function(){
 	})	
 	
 	function addRow(path, protocol, host, recording) {
-		$('.settings-modal__table').show();
-		if(host.split(':').length == 1) host += ':80';
+		$('.settings-modal__table').show();		
 		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
-		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'redis:', 'grpc:', 'other:'];		
+		const hostDisabled = protocol === 'proxy:' ? 'disabled' : '';
+		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'proxy:', 'redis:', 'grpc:', 'other:'];		
 		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
 		const recordingChecked = recording ? 'checked' : '';
 		const recordingClass = recording ? '' : 'disabled';
@@ -236,9 +244,9 @@ var SettingsModal = (function(){
 				'</td>' +
 				'<td class="settings-modal__proxy-path-container">' +
 					'<input class="settings-modal__proxy-path '+recordingClass+'" value="'+path+'">' +
-				'</td>' +
-				'<td class="settings-modal__proxy-host-container">' +
-					'<input class="settings-modal__proxy-host '+recordingClass+'" value="'+host+'">' +
+				'</td>' +				
+				'<td class="settings-modal__proxy-host-container">' +					
+					'<input class="settings-modal__proxy-host '+recordingClass+'" value="'+host+'" '+hostDisabled+'>' +
 				'</td>' +
 				'<td class="settings-modal__recording-container">' +
 					'<input type="checkbox" class="settings-modal__recording-checkbox" '+recordingChecked+'>' +

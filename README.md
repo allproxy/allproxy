@@ -1,6 +1,8 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
-This repo implements a reverse proxy supporting **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other request/response protocols.  This tool is ideal for debugging distributed applications and containers.  The protocol messages are recorded by the browser UI using a layout similar to the Kibana Dev Tools.
+This is a reverse proxy supporting **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other request/response protocols.  This tool is ideal for debugging distributed applications and containers.  The protocol messages are recorded by the browser UI using a layout similar to the Kibana Dev Tools.
+
+A forward proxy is also supported, by simply configuring your browser to send all HTTP requests thru the Middleman proxy.
 
 Implementation:
 - **HTTP proxy** - The *http* and https node packages are used to proxy HTTP and HTTPS messages.
@@ -155,7 +157,7 @@ Go to the Middleman dashboard you opened earlier, and click on the recorded SQL 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-dashboard.png)
 
 ## Features
-The Middleman proxy provides a number of features that help you analysis protcol messages.
+The Middleman proxy provides a number of features that help you debug distributed applications.
 
 * [Resending HTTP Requests](resending-http-requests)
 * [Filtering Protocol Messages](#filtering-protocol-messages)

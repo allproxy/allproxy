@@ -11,6 +11,7 @@
 
 <body>
 	<div class= "header__container">
+		<div class="header__status fa fa-circle" title="Status"></div>
 		<label class="header__title">Middleman</label>
 		<div class="header__trash fa fa-trash" title="Clear log"></div>
 		<div class="header__checkbox-container">
@@ -22,8 +23,7 @@
 		<div class="header__filter">
 			<input class="header__filter-input" type="text" placeholder="Filter (regex with '.*' is supported)"/>
 		</div>
-		<div class="header__settings fa fa-cog" title="Settings"></div>
-		<div class="header__status fa fa-circle" title="Status"></div>			
+		<div class="header__settings fa fa-cog" title="Settings"></div>					
 	</div>
 	<div class="request-response__container">
 		<div class="request__container">			
@@ -103,6 +103,7 @@
 								<option>https:</option>
 								<option>grpc:</option>
 								<option>mongo:</option>
+								<option>proxy:</option>
 								<option>sql:</option>								
 								<option>redis:</option>								
 								<option>other:</option>
