@@ -114,13 +114,16 @@ td input {
 }
 
 .header__status,
-.header__settings {
-	float: right;
+.header__settings {	
 	margin: 12px 5px 0 5px;
 	cursor: pointer;
 	font-size: large !important;		
 }
+.header__status {
+	float: left;
+}
 .header__settings {
+	float: right;
 	color: blue;	
 }
 .header__status {

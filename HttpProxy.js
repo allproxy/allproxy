@@ -32,7 +32,8 @@ module.exports = class HttpProxy {
             client_res.end(fs.readFileSync(__dirname + '/public/index.html'));
         } else {
             // File exists locally?
-            if(fs.existsSync(__dirname + reqUrl.pathname) && fs.lstatSync(__dirname + reqUrl.pathname).isFile()) {
+            if(reqUrl.protocol === null &&
+                 fs.existsSync(__dirname + reqUrl.pathname) && fs.lstatSync(__dirname + reqUrl.pathname).isFile()) {
                 var extname = path.extname(reqUrl.pathname);
                 var contentType = 'text/html';
                 switch (extname) {
@@ -64,7 +65,17 @@ module.exports = class HttpProxy {
                 client_res.end(fs.readFileSync(__dirname + reqUrl.pathname));
             } else {
                 // Find matching proxy configuration
-                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);		
+                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);
+                // Always proxy forward proxy requests
+                if(proxyConfig === undefined && reqUrl.protocol !== null) {            
+                    proxyConfig = {
+                        path: reqUrl.pathname,
+                        protocol: reqUrl.protocol,
+                        hostname: reqUrl.hostname,
+                        port: reqUrl.port === null ? reqUrl.protocol === 'http:' ? 80 : 443 : reqUrl.port,
+                        recording: false
+                    }
+                }		
 
                 if(proxyConfig == undefined) {
                     sendErrorResponse(404, 'No matching proxy configuration found for '+reqUrl.pathname);
@@ -102,14 +113,14 @@ module.exports = class HttpProxy {
             //headers.Connection = 'close';
     
             var options = {
-                protocol : proxyConfig.protocol,
+                protocol : proxyConfig.protocol === 'proxy:' ? reqUrl.protocol : proxyConfig.protocol,
                 hostname : proxyConfig.hostname,
                 port : proxyConfig.port ? proxyConfig.port : proxyConfig.protocol === 'https:' ? 443 : 80,
                 path : client_req.url,
                 method : method,
                 headers : headers
             };
-            
+                    
             var proxy;
             if(proxyConfig.protocol == 'https:') {
                 //options.cert: fs.readFileSync('/home/davidchr/imlTrust.pem');
@@ -131,9 +142,8 @@ module.exports = class HttpProxy {
                     proxyRes.pipe(client_res, {
                         end : true
                     });
-    
                     parseResponsePromise.then(function(message) {					
-                        Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig.path);					
+                        Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);					
                     })
                     .catch(function(error) {
                         console.log(sequenceNumber, 'Parse response promise emit error:', error);
@@ -147,7 +157,7 @@ module.exports = class HttpProxy {
             proxy.on('error', function(error) {
                 error.config = proxyConfig; // Include the proxy config in error response
                 console.log(sequenceNumber, 'Proxy connect error', JSON.stringify(error));
-                sendErrorResponse(404, "Proxy connect error", error, proxyConfig.path);
+                sendErrorResponse(404, "Proxy connect error", error, proxyConfig);
             })
     
             var host = proxyConfig.hostname;
@@ -159,8 +169,9 @@ module.exports = class HttpProxy {
             });        
         }   
         
-        function sendErrorResponse(status, responseMessage, jsonData, path) {
+        function sendErrorResponse(status, responseMessage, jsonData, proxyConfig) {
             console.log(sequenceNumber, 'sendErrorResponse', responseMessage);
+            const path = proxyConfig ? proxyConfig.path : undefined;
             if(parseRequestPromise == undefined) {
                 var host = 'error';
                 parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, path);
@@ -169,14 +180,14 @@ module.exports = class HttpProxy {
             parseRequestPromise.then(function(message) {
                 message.responseHeaders = {};
                 message.responseBody = {error: responseMessage};
-                if(jsonData) {
+                if(jsonData && typeof jsonData === 'object') {
                     for(key in jsonData) {
                         message.responseBody[key] = jsonData[key];
                     }
                 }
                 message.status = status;
     
-                Global.proxyConfigs.emitMessageToBrowser(message); // Send error to all browsers		
+                Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig); // Send error to all browsers		
     
                 if(responseMessage != 'Client closed connection') {
                     client_res.on('error', function(error) {

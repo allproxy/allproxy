@@ -23,7 +23,8 @@ module.exports = class ProxyConfigs {
             for(const proxyConfig of proxyConfigs) {
                 console.log(proxyConfig);
                 proxyConfig.isHttpOrHttps = proxyConfig.protocol === 'http:' 
-                                            || proxyConfig.protocol === 'https:';
+                                            || proxyConfig.protocol === 'https:'
+                                            || proxyConfig.protocol === 'proxy:';
                 
                 if(!proxyConfig.isHttpOrHttps) {
                     this.closeAnyServerWithPort(proxyConfig.port);
@@ -77,12 +78,15 @@ module.exports = class ProxyConfigs {
      */
     findProxyConfigMatchingURL(reqUrl) {
         const reqUrlPath = reqUrl.pathname.replace(/\/\//g, '/');
+        const isForwardProxy = reqUrl.protocol !== null;
+
         let matchingProxyConfig = undefined;
         // Find matching proxy configuration
         for(const key in this.proxyConfigs) {            
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(!proxyConfig.isHttpOrHttps) continue;
-                if(reqUrlPath.startsWith(proxyConfig.path)) {
+                if(reqUrlPath.startsWith(proxyConfig.path) && 
+                    isForwardProxy === (proxyConfig.protocol === 'proxy:')) {
                     if(matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
                         matchingProxyConfig = proxyConfig;
                     }
@@ -95,17 +99,20 @@ module.exports = class ProxyConfigs {
     /**
      * Emit message to browser.
      * @param {*} message 
-     * @param {*} path - HTTP URI or port
+     * @param {*} proxyConfig
      */
-    emitMessageToBrowser(message, path) {
-        console.log('emitMessageToBrowser()', path);               
-        for(const key in this.proxyConfigs) {                  
+    emitMessageToBrowser(message, proxyConfig) {
+        const path = proxyConfig ? proxyConfig.path : '';        
+        //console.log('emitMessageToBrowser()', proxyConfig);
+        
+        for(const key in this.proxyConfigs) {                
             for(const proxyConfig of this.proxyConfigs[key].configs) {
-                if(proxyConfig.path === path) {
+                if(proxyConfig === undefined || proxyConfig.path === path) {                    
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
                     message.proxyConfig = proxyConfig;
                     const json = JSON.stringify(message, null, 2);                   
-                    this.proxyConfigs[key].socket.emit('message', json);                    
+                    this.proxyConfigs[key].socket.emit('message', json);
+                    if(proxyConfig === undefined) break;                  
                 }
             }            
         }
