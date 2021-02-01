@@ -46,7 +46,8 @@ var SettingsModal = (function(){
 		}	
 	}
 
-	x.open = function(iosocket) {	
+	x.open = function(iosocket) {
+		initModalForProtocol();
 		$('.settings-modal__table').hide();	
 		$('.settings-modal__input-max-messages').val(x.getMaxMessages());
 		return new Promise(function(resolve) {
@@ -147,21 +148,26 @@ var SettingsModal = (function(){
 
 	$('.settings-modal__select-protocol').change(function(e) {
 		$('.settings-modal__error-message').text('');
-		if(this.value === 'http:' || this.value === 'https:' || this.value === 'proxy:') {
+		initModalForProtocol();
+	})
+	
+	function initModalForProtocol() {
+		const protocol = $('.settings-modal__select-protocol option:selected').text();
+		if(protocol === 'http:' || protocol === 'https:' || protocol === 'proxy:') {
 			$('.settings-modal__input-path').attr('placeholder', 'Enter path (e.g., /xxx/yyy)');						
 		}
 		else {
 			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
 		}
 		
-		if(this.value === 'proxy:') {
+		if(protocol === 'proxy:') {
 			$('.settings-modal__input-host').attr('disabled', true);
 			$('.settings-modal__input-host').attr('placeholder', '');
 		} else {
 			$('.settings-modal__input-host').attr('disabled', false);
 			$('.settings-modal__input-host').attr('placeholder', '"Enter target host (e.g., localhost:8000)"');
 		}
-	})	
+	}
 	
 	$('.settings-modal__add-button').click(function() {		
 		var path = $('.settings-modal__input-path').val();

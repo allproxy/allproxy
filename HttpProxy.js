@@ -78,7 +78,11 @@ module.exports = class HttpProxy {
                 }		
 
                 if(proxyConfig == undefined) {
-                    sendErrorResponse(404, 'No matching proxy configuration found for '+reqUrl.pathname);
+                    let msg = 'No matching proxy configuration found for '+reqUrl.pathname;
+                    if(reqUrl.pathname === '/') {
+                        msg += ' (If you are trying to access the Middleman Dashboard, use /middleman)'
+                    }
+                    sendErrorResponse(404, msg);
                 }
                 else {
                     proxyRequest();
@@ -122,7 +126,7 @@ module.exports = class HttpProxy {
             };
                     
             var proxy;
-            if(proxyConfig.protocol == 'https:') {
+            if(options.protocol === 'https:') {
                 //options.cert: fs.readFileSync('/home/davidchr/imlTrust.pem');
                 options.headers.Authorization = 'Basic ' + new Buffer.from('elastic:imliml').toString('base64'); // hardcoded authentication
                 proxy = https.request(options, proxyRequest);

@@ -1,12 +1,14 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
-This is a reverse proxy supporting **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other request/response protocols.  This tool is ideal for debugging distributed applications and containers.  The protocol messages are recorded by the browser UI using a layout similar to the Kibana Dev Tools.
+This project provides both a forward and reverse proxy for debugging distributed applications.
+- **Forward Proxy** - Record HTTP messages sent by your frontend application.
+- **Reverse Proxy** - Record **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other protocol messages used to communicate with your backend services.
 
-A forward proxy is also supported, by simply configuring your browser to send all HTTP requests thru the Middleman proxy.
+A browser UI configures, filters, and displays the recorded protcol messages.
 
 Implementation:
 - **HTTP proxy** - The *http* and https node packages are used to proxy HTTP and HTTPS messages.
-- **TCP proxy** - The *net* node package is used to listen a non-HTTP/HTTPS TCP port, and proxy the protocol messages to the target host.
+- **TCP proxy** - The *net* node package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
 
 ### Table of Contents
@@ -15,7 +17,11 @@ Implementation:
   * [Install MiddlemanProxy](#install-middleman-proxy)   
   * [Start the Server](#start-the-server)
   * [Open Dashboard in Browser](#open-dashboard-in-browser)
-* [Examples](#examples)
+* [Forward Proxy](#forward-proxy)
+  * [Forward Proxy Paths for Recording HTTP Messages](#forward-proxy-paths-for-recorcing-http-messages)
+  * [Setting up a Forward Proxy on MacOS](#setting-up-a-forward-proxy-on-macos)
+  * [Setting up a Forward Proxy on Linux](#setting-up-a-forward-proxy-on-linux)
+* [Reverse Proxy](#reverse-proxy)
   * [Recording HTTPS iTunes API Messages](#recording-https-itunes-api-messages)
   * [Recording MySQL Messages](#recording-mysql-messages)
 * [Features](#features)
@@ -62,16 +68,46 @@ Click the *Settings* icon in the upper right corner, and open the Settings modal
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-settings.png)
 
-1. Select a protocol: *http, https, grpc, mongodb, sql, rdis or other*.
+1. Select a protocol: *http, https, grpc, mongodb, proxy, sql, rdis or other*.
 2. Enter a path for http/https, or a port number for non http/https protocols.
 3. Enter a target host (e.g., localhost:80).
 4. Click **Add**.
 5. Click **Save**.
 
-## Examples
-Some simple examples are illustrated to provide step by step details on how to setup and use the Middleman proxy.
+## Forward Proxy
+This section illustrates how to record HTTP messages that originate from your frontend application.
 
-These examples are illustrated below:
+Only two steps are required to setup the forward proxy:
+1. Add a *path* for each HTTP request URI you would like to have recorded by the Middleman Proxy.
+2. Configure your browser to proxy all HTTP requests to the Middleman Proxy.
+
+### Forward Proxy Paths for Recording HTTP Messages
+To record HTTP requests go to the Dashboard settings (click gear icon is upper right corner), and add one or more *paths* matching the HTTP requests you'd like to record, as shown below.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-forward-proxy-settings.png)
+
+### Setting up a Forward Proxy on MacOS
+To setup your Chrome browser on MacOS to proxy all HTTP requests through the Middleman proxy:
+1. Select **Preferences** from the **Chrome** menu. 
+2. Search for *proxy*.
+3. Click *Open your computer's proxy settings*, to open the proxy settings modal.
+4. Check the *Web Proxy (HTTP)* checkbox.
+5. Set the host and port to host localhost and port 8888.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-macos-forward-proxy.png)
+
+### Setting up a Forward Proxy on Linux
+On Linux for Chrome and Chromium, the *--proxy-server* command line option is used to configure  the browser to use the Middleman proxy.
+```sh
+$ chromium-browser --http://proxy-server=localhost:8888
+```
+
+## Reverse Proxy
+This section illustrates how to record protocol messages used to communicate with backend services using a reverse proxy.
+
+Only two step are required to setup the reverse proxy:
+1. Add a route for the HTTP and TCP flows you'd like to record.
+2. Modify the backend service configuration (e.g., .env file) to route protocol messages through the Middleman Proxy.
+
+These examples will help illustrate how to setup the reverse proxy:
 * [Record HTTPS iTunes API Messages](#record-itunes-api-messages)
 * [Record MySQL Messages](#record-mysql-messages)
 
