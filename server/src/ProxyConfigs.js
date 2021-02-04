@@ -109,9 +109,8 @@ module.exports = class ProxyConfigs {
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(proxyConfig === undefined || proxyConfig.path === path) {                    
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
-                    message.proxyConfig = proxyConfig;
-                    const json = JSON.stringify(message, null, 2);                   
-                    this.proxyConfigs[key].socket.emit('message', json);
+                    message.proxyConfig = proxyConfig;                                      
+                    this.proxyConfigs[key].socket.emit('message', message);
                     if(proxyConfig === undefined) break;                  
                 }
             }            

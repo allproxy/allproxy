@@ -8,13 +8,10 @@ const Dashboard = (function(){
    
     x.start = (iosocket) => {    
         
-        iosocket.on('message', function(message) {
+        iosocket.on('message', function(json) {
             if(isStopped()) {
                 return; // Do not recording this message
             }
-
-            var json = JSON.parse(message);	
-            
             if(!json.proxyConfig.recording) {
                 return; // Do not recording this message
             }
