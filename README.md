@@ -1,8 +1,8 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
 This project provides both a forward and reverse proxy for debugging distributed applications.
-- **Forward Proxy** - Record HTTP messages sent by your frontend application.
-- **Reverse Proxy** - Record **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other protocol messages used to communicate with your backend services.
+- **Forward Proxy** - Records HTTP messages sent by your frontend application.
+- **Reverse Proxy** - Records **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other protocol messages used to communicate with your backend services.
 
 A browser UI configures, filters, and displays the recorded protcol messages.
 
@@ -75,7 +75,7 @@ Click the *Settings* icon in the upper right corner, and open the Settings modal
 5. Click **Save**.
 
 ## Forward Proxy
-This section illustrates how to record HTTP messages that originate from your frontend application.
+This section illustrates how to record HTTP messages that originate from your frontend application.  The forward proxy only supports HTTP.  However, the reverse proxy feature can be used for HTTPS messages.
 
 Only two steps are required to setup the forward proxy:
 1. Add a *path* for each HTTP request URI you would like to have recorded by the Middleman Proxy.
