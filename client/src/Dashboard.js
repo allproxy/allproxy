@@ -213,6 +213,7 @@ const Dashboard = (function(){
                 $element.addClass('active visited-color');
                 $element.parent().find('.request__msg-seqno-container').addClass('active');
                 $element.next().show();
+                $element.parent().find('.request__msg-icon').addClass('fa-spin');
                 $activeUrl = $element;               
                                                     
                 // Format query parameters
@@ -249,7 +250,8 @@ const Dashboard = (function(){
                 }
                 $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
                 $('.response__container').show();
-                $('.response__loading').hide();		
+                $('.response__loading').hide();
+                $element.parent().find('.request__msg-icon').removeClass('fa-spin');	
             }					
         }
         else if($element.hasClass('resend-icon')) {
@@ -432,8 +434,8 @@ const Dashboard = (function(){
         // No requests are currently hidden (i.e., filter was cleared)
         if($activeUrl && !requestsHidden && requestsWereHidden) {
             const $savedActiveUrl = $activeUrl;
-            $activeUrl.click();
-            $savedActiveUrl.click();
+            $activeUrl.click(); // close
+            $savedActiveUrl.click(); // open
         }
     } 
 
