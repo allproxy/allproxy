@@ -50,6 +50,10 @@ td input {
 	color: red;
 }
 
+.visited-color {
+	color: #1a0dab;
+}
+
 .request__msg-icon {
   	margin: 5px 0 0 5px;
   	font-size:35px;  	
