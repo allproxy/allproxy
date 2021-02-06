@@ -390,7 +390,7 @@ const Dashboard = (function(){
         else {
             return haystack.indexOf(needle) !== -1;
         }
-    }
+    }    
     
     function isFiltered(json) {        
         const value = $('.header__filter-input').val();        
@@ -405,13 +405,18 @@ const Dashboard = (function(){
         if(json.responseHeaders && isMatch(value, JSON.stringify(json.responseBody))) return false;
 		
 		return true;
-	}
+    }
+    
+    let requestsHidden = false;
 	
-	function filter() {		
+	function filter() {
+        const requestsWereHidden = requestsHidden;
+        requestsHidden = false;		
 		$('.request__container').children().each(function(i, request) {	
             var $request = $(request).find('.request__msg');
 			
-			if(isFiltered($request.data())) {				
+			if(isFiltered($request.data())) {
+                requestsHidden = true;			
 				$(request).hide();
 				if($request.hasClass('active')) {
 					$request.removeClass('active')
@@ -422,7 +427,14 @@ const Dashboard = (function(){
 			else {
 				$(request).show();
 			}
-		})
+        })
+
+        // No requests are currently hidden (i.e., filter was cleared)
+        if($activeUrl && !requestsHidden && requestsWereHidden) {
+            const $savedActiveUrl = $activeUrl;
+            $activeUrl.click();
+            $savedActiveUrl.click();
+        }
     } 
 
     return x;
