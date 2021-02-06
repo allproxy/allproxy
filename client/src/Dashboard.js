@@ -58,12 +58,23 @@ const Dashboard = (function(){
             url = fixNewlines(url);
 
             let endpoint = '';
-            if(json.endpoint && json.endpoint.length > 0) endpoint += '['+json.endpoint+']';
-            
+            if(json.endpoint && json.endpoint.length > 0) endpoint += `${json.endpoint}`;
+                        
             var $request = $(		
-                    '<div class="request__msg-seqno-container"><span class="request__msg-seqno">'+json.sequenceNumber+'</span></div>' +
-                    '<div title="'+tooltip+'" class="fa '+iconClass+' request__msg-icon" style="cursor: pointer; float: left; color: '+color+'"></div>' +
-                    '&nbsp<div class="request__msg'+c+'">'+json.method+' <span style="color: '+color+';">'+endpoint+'</span> ('+tcpIp+') '+url+'</div>');
+                `<div class="request__msg-seqno-container">` +
+                `  <span class="request__msg-seqno">${json.sequenceNumber}</span>` +
+                `</div>` +
+                `<div title="${tooltip}" class="fa ${iconClass} request__msg-icon" ` +
+                `  style="cursor: pointer; float: left; color: ${color}">` +
+                `</div>` +
+                `&nbsp` +
+                `<div class="request__msg${c}">` +
+                `  ${json.method} ` +
+                `  <span style="font-weight: bold">` +
+                `    ${endpoint}` +
+                `  </span>` +                
+                `  (${tcpIp}) ${url}` +
+                `</div>`);
                 
             let body = json.method.length > 0 ? url+'\n' : '';
             
@@ -151,7 +162,8 @@ const Dashboard = (function(){
             
             if($('.header__auto-scroll-checkbox').prop('checked')) {
                 $request = requests[requests.length-1].find('.request__msg');
-                $request.click(); // select new request and show response 
+                $request.click(); // select new request and show response
+                $request.removeClass('visited-color');
                 
                 var totalHeight = 0;
                 $('.request__container').find('.request__msg').each(function(){
@@ -188,7 +200,7 @@ const Dashboard = (function(){
                 activeSeqNo = $activeUrl.data().sequenceNumber;						
             }
 
-            if(activeSeqNo == thisSeqNo) {
+            if(activeSeqNo === thisSeqNo) {
                 $activeUrl = undefined;				
             }
             else {		
@@ -198,10 +210,10 @@ const Dashboard = (function(){
                     
                 var json = $element.data();
                 
-                $element.addClass('active');
+                $element.addClass('active visited-color');
                 $element.parent().find('.request__msg-seqno-container').addClass('active');
                 $element.next().show();
-                $activeUrl = $element;                    
+                $activeUrl = $element;               
                                                     
                 // Format query parameters
                 var queryParams;
