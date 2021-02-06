@@ -255,7 +255,8 @@ const Dashboard = (function(){
                                          'referer', 
                                          'accept-encoding', 
                                          'cookie',
-                                         'sec-fetch-dest'
+                                         'sec-fetch-dest',
+                                         'proxy-connection',
                                         ];
                     for(var header in json.requestHeaders) {
                         if(unsafeHeaders.indexOf(header) == -1) {
@@ -267,16 +268,22 @@ const Dashboard = (function(){
                     
                     var data = (results.body ? results.body : undefined);
                     
-                    var protocolHost = document.location.protocol+'//'+document.location.host;
-                
-                    //console.log(JSON.stringify(json, null, 2));
+                    let url;
+                    if(results.url.startsWith('http:') || results.url.startsWIth('https:')) {
+                        url = results.url;
+                    }
+                    else {
+                        const protocolHost = document.location.protocol+'//'+document.location.host;                
+                        url = protocolHost+results.url;
+                    }
+                    console.log(url);
                     $.ajax(
                     {
                         type: method,
-                        method: method,
-                        url : protocolHost+results.url,
-                        headers : headers,				
-                        data : data				
+                        method,
+                        url,
+                        headers,				
+                        data,				
                     }).done(function(results) {	
                         
                     }).fail(function(jqXHR, textStatus, errorThrown) {
