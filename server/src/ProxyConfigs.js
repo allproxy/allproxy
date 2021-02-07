@@ -1,5 +1,6 @@
 const socketio = require('socket.io');
 const TcpProxy = require('./TcpProxy');
+const assert = require('assert');
 
 module.exports = class ProxyConfigs {
 
@@ -12,7 +13,7 @@ module.exports = class ProxyConfigs {
     }
 
     _socketConnection(socket) {
-        console.log('ProxyConfigs: socket connected', socket.conn.id);       
+        console.log('ProxyConfigs: socket connected', socket.conn.id);
 
         socket.on('proxy config', (proxyConfigs) => {
             console.log('ProxyConfigs: proxy config received', 
@@ -101,20 +102,23 @@ module.exports = class ProxyConfigs {
      * @param {*} message 
      * @param {*} proxyConfig
      */
-    emitMessageToBrowser(message, proxyConfig) {
-        const path = proxyConfig ? proxyConfig.path : '';        
+    emitMessageToBrowser(message, inProxyConfig) {
+        const path = inProxyConfig ? inProxyConfig.path : '';        
         //console.log('emitMessageToBrowser()', proxyConfig);
-        
+        let success = false || Object.keys(this.proxyConfigs).length === 0;
         for(const key in this.proxyConfigs) {                
             for(const proxyConfig of this.proxyConfigs[key].configs) {
-                if(proxyConfig === undefined || proxyConfig.path === path) {                    
+                if(inProxyConfig === undefined || proxyConfig.path === path) {                    
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
                     message.proxyConfig = proxyConfig;                                      
-                    this.proxyConfigs[key].socket.emit('message', message);
-                    if(proxyConfig === undefined) break;                  
+                    this.proxyConfigs[key].socket.emit('reqResJson', message);
+                    success = true;
+                    if(inProxyConfig === undefined) break;                  
                 }
             }            
         }
+
+        assert(success);
     }
 
 }

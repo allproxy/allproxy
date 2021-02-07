@@ -3,10 +3,10 @@ const tls = require('tls');
 const fs = require('fs');
 const Global = require('./Global');
 const SocketIoMessage = require('./SocketIoMessage');
-const HexFormatter = require('./HexFormatter');
-const SqlFormatter = require('./SqlFormatter');
-const MongoFormatter = require('./MongoFormatter');
-const RedisFormatter = require('./RedisFormatter');
+const HexFormatter = require('./formatters/HexFormatter');
+const SqlFormatter = require('./formatters/SqlFormatter');
+const MongoFormatter = require('./formatters/MongoFormatter');
+const RedisFormatter = require('./formatters/RedisFormatter');
 
 module.exports = class TcpProxy {
     constructor(proxyConfig) {
@@ -120,7 +120,7 @@ module.exports = class TcpProxy {
                         const mongoFormatter = new MongoFormatter(request, response);
                         requestString = mongoFormatter.getRequest();
                         responseString = mongoFormatter.getResponse();
-                        url = requestString.split('\\n')[0];                        
+                        url = requestString.split('\n')[0];                        
                         break;
                     case 'redis:':
                         const redisFormatter = new RedisFormatter(request, response);
@@ -133,7 +133,7 @@ module.exports = class TcpProxy {
                         break;                                               
                     default:
                         requestString = HexFormatter.format(request);
-                        responseString = '\\n'+HexFormatter.format(response)+'\\n';
+                        responseString = '\n'+HexFormatter.format(response)+'\n';
                         if(requestString.length <= 64) {
                             url = requestString;
                         }
@@ -154,7 +154,7 @@ module.exports = class TcpProxy {
                                                     '', // method 
                                                     url, // url
                                                     endpoint, // endpoint 
-                                                    { middleman_passthru: requestString }, // req body
+                                                    { middleman_inner_body: requestString }, // req body
                                                     sourceSocket.remoteAddress, // clientIp
                                                     targetHost+':'+targetPort, // serverHost
                                                     '', // path

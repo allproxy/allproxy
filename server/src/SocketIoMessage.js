@@ -93,7 +93,7 @@ module.exports = {
 				catch(e) {
 					//console.log('JSON.parse exception');
 					parsedData = {
-						body : rawData.replace(/\\n/g, '\\n')
+						body : rawData
 					};
 				}							
 				

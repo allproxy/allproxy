@@ -16,10 +16,10 @@ module.exports = class RedisFormatter{
 	getResponse = () => this.formattedResponse;
 
 	_formatRequest(buf) {	
-		return buf.toString('utf8').split('\r\n').join('\\n');
+		return buf.toString('utf8').split('\r\n').join('\n');
 	}
 
 	_formatResponse(buf) {
-		return '\\n'+buf.toString('utf8').split('\r\n').join('\\n');
+		return '\n'+buf.toString('utf8').split('\r\n').join('\n');
 	}
 }
