@@ -20,8 +20,7 @@ td input {
 }
 
 .spinner {
-	font-size: 48px !important;
-	color: blue;
+	font-size: 32px !important;
 }
 
 .modal-dialog{

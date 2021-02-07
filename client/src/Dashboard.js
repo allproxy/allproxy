@@ -188,7 +188,7 @@ const Dashboard = (function(){
      * Click event handler in request container
      */
     $('.request__container').unbind('click');
-    $('.request__container').click(function(e) {
+    $('.request__container').click(async function(e) {
         var $element = $(e.target);	
         if($element.parent().hasClass('request__msg')) $element = $element.parent();
         if($element.hasClass('request__msg')) {
@@ -211,54 +211,18 @@ const Dashboard = (function(){
                 //console.log($activeUrl, $element)	
                 $('.response__container').hide();
                 $('.response__loading').show();
-                    
-                var json = $element.data();
                 
                 $element.addClass('active visited-color');
                 $element.parent().find('.request__msg-seqno-container').addClass('active');
                 $element.next().show();                
-                const $caret = $element.prev('.fa-caret-right');
-                $caret.addClass('fa-spin');
+                const $caret = $element.prev('.fa-caret-right');                
                 $caret.removeClass('fa-caret-right');
                 $caret.addClass('fa-caret-down');
-                $activeUrl = $element;               
-                                                    
-                // Format query parameters
-                var queryParams;
-                if(json.url.indexOf('?') != -1) {
-                    queryParams = [];
-                    var temp = json.url.split('?')[1];
-                    temp.split('&').forEach(function(param) {
-                        var keyValue = param.split('=');
-                        var value = keyValue.length > 1 ? unescape(keyValue[1]) : undefined;						
-                        queryParams.push(keyValue[0]+' = '+value);
-                    })
-                }
-                            
-                var $requestHeaders = $('<pre class="request__headers"></pre>').jsonViewer(json.requestHeaders);
-                var $responseHeaders = $('<pre class="response__headers"></pre>').jsonViewer(json.responseHeaders);
-                var $queryParams = $('<pre class="request__query-params"></pre>').jsonViewer(queryParams);
-                var $responseBody = $('<pre class="response__body active"></pre>');
-                if(json.responseHeaders['content-type'] === "application/json") {
-                    $responseBody.jsonViewer(json.responseBody);
-                } else {
-                    $responseBody.text(JSON.stringify(json.responseBody,null,2)
-                                            .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
-                }
-                //var $responseBody = $('<pre class="response__body active"></pre>').jsonViewer(json.responseBody);
-                $('.response__container').empty();
-                var c = json.status < 300  ? '' : ' class="error"';
-                $('.response__container').append('<div'+c+'><label>Status:&nbsp;</label>'+json.status+'</div>');
-                $('.response__container').append('<div><label>Elapsed time:&nbsp;</label>'+json.elapsedTime+' ms</div>');
-                $('.response__container').append('<div class="request__headers-twisty twisty"></div><div><label class="twisty-label">Request Headers:</label></div>').append($requestHeaders);
-                $('.response__container').append('<div class="response__headers-twisty twisty"></div><div><label class="twisty-label">Response Headers:</label></div>').append($responseHeaders);
-                if(queryParams) {
-                    $('.response__container').append('<div class="request__query-params-twisty twisty"></div><div><label class="twisty-label">Query Parameters:</label></div>').append($queryParams);
-                }
-                $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
-                $('.response__container').show();
+                $activeUrl = $element;
+        
+                await renderResponse($element.data());                
                 $('.response__loading').hide();
-                $caret.removeClass('fa-spin');
+                $('.response__container').show();
             }					
         }
         else if($element.hasClass('resend-icon')) {
@@ -316,6 +280,49 @@ const Dashboard = (function(){
             })		
         }		
     })
+
+    function renderResponse(json) {
+        return new Promise((resolve) => {
+            // Format query parameters
+            var queryParams;
+            if(json.url.indexOf('?') != -1) {
+                queryParams = [];
+                var temp = json.url.split('?')[1];
+                temp.split('&').forEach(function(param) {
+                    var keyValue = param.split('=');
+                    var value = keyValue.length > 1 ? unescape(keyValue[1]) : undefined;						
+                    queryParams.push(keyValue[0]+' = '+value);
+                })
+            }
+                        
+            var $requestHeaders = $('<pre class="request__headers"></pre>').jsonViewer(json.requestHeaders);
+            var $responseHeaders = $('<pre class="response__headers"></pre>').jsonViewer(json.responseHeaders);
+            var $queryParams = $('<pre class="request__query-params"></pre>').jsonViewer(queryParams);
+            var $responseBody = $('<pre class="response__body active"></pre>');                      
+            
+            //var $responseBody = $('<pre class="response__body active"></pre>').jsonViewer(json.responseBody);
+            $('.response__container').empty();
+            var c = json.status < 300  ? '' : ' class="error"';
+            $('.response__container').append('<div'+c+'><label>Status:&nbsp;</label>'+json.status+'</div>');
+            $('.response__container').append('<div><label>Elapsed time:&nbsp;</label>'+json.elapsedTime+' ms</div>');
+            $('.response__container').append('<div class="request__headers-twisty twisty"></div><div><label class="twisty-label">Request Headers:</label></div>').append($requestHeaders);
+            $('.response__container').append('<div class="response__headers-twisty twisty"></div><div><label class="twisty-label">Response Headers:</label></div>').append($responseHeaders);
+            if(queryParams) {
+                $('.response__container').append('<div class="request__query-params-twisty twisty"></div><div><label class="twisty-label">Query Parameters:</label></div>').append($queryParams);
+            }
+            $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
+                        
+            setTimeout(() => {
+                if(json.responseHeaders['content-type'] === "application/json") {
+                    $responseBody.jsonViewer(json.responseBody);
+                } else {
+                    $responseBody.text(JSON.stringify(json.responseBody,null,2)
+                                            .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
+                }
+                resolve();
+            })            
+        });
+    }
     
     /**
      * Click event handler in response container
