@@ -7,7 +7,7 @@ module.exports = class SqlFormatter{
 		this.formattedQuery = this._formatQuery(reqBuf);
 		this.formattedResults = this.getCommand() === 'Query' ? 
 											this._formatResults(rspBuf) 
-											: '\\n' + HexFormatter.format(rspBuf) + '\\n';
+											: '\n' + HexFormatter.format(rspBuf) + '\n';
 		this.command = 'Request unknown';
 	}
 
@@ -32,7 +32,7 @@ module.exports = class SqlFormatter{
 			this.command = SqlCommand.toString(command);
 			if(this.command === 'Query') {
 				const str = buf.toString('utf8', 5); // query string
-				return sqlFormatter.format(str.split('\\n').join(' '));
+				return sqlFormatter.format(str.split('\n').join(' '));
 			}			
 		}
 
@@ -91,13 +91,13 @@ module.exports = class SqlFormatter{
 				}
 			}				
 
-			return stringifyResults() + (truncated ? '\\nResults are truncated\\n' : '');
+			return stringifyResults() + (truncated ? '\nResults are truncated\n' : '');
 		} catch(e) {			
 			if(formattedResults.length > 0) {
-				return stringifyResults() + '\\n' + e + '\\n'; // + new Error().stack.replace(/\n/g, '\\n');
+				return stringifyResults() + '\n' + e + '\n'; // + new Error().stack.replace(/\n/g, '\n');
 			}
 			else {
-				'\\n' + HexFormatter.format(buf) + '\\n';
+				'\n' + HexFormatter.format(buf) + '\n';
 			}
 		}
 		
@@ -107,7 +107,7 @@ module.exports = class SqlFormatter{
 				formattedResults.splice(i*fieldCount+(i*2), 0, `{ /* ${i+1} of ${totalCount} */`);
 				formattedResults.splice((i+1)*fieldCount+(i*2)+1, 0, `}`);					
 			}	
-			return JSON.stringify('\n'+formattedResults.join('\n')+'\n',null,2).replace(/\n/g, '\n');
+			return JSON.stringify('\n'+formattedResults.join('\n')+'\n',null,2).replace(/\\n/g, '\n');
 		}
 	}
 }

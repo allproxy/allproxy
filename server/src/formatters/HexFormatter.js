@@ -13,7 +13,7 @@ module.exports = class HexFormatter {
 			if(i > 0 && (i+8)%32 === 0) {
 				strWithNewline += '  ' + displayable;
 				displayable = '';
-				strWithNewline += '\\n';
+				strWithNewline += '\n';
 			}                  
 		}
 

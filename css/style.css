@@ -8,11 +8,6 @@ pre {
 	border: solid thin #e7e2e2!important;
 	border-radius: 8px !important;
 	padding-left: 20px !important;
-	white-space: pre-wrap;       /* css-3 */
-	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-	white-space: -pre-wrap;      /* Opera 4-6 */
-	white-space: -o-pre-wrap;    /* Opera 7 */
-	word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 td input {
@@ -205,8 +200,9 @@ td input {
 	height: calc(100vh - 40px);
 	max-height: calc(100vh - 40px);	
 	overflow-y: auto;
+	overflow-x: auto;
 	-webkit-flex: 1;
-    flex: 1;
+	flex: 1;	
 }
 
 .response__data-container {

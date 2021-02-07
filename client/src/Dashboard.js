@@ -8,7 +8,7 @@ const Dashboard = (function(){
    
     x.start = (iosocket) => {    
         
-        iosocket.on('message', function(json) {
+        iosocket.on('reqResJson', function(json) {
             if(isStopped()) {
                 return; // Do not recording this message
             }
@@ -82,8 +82,8 @@ const Dashboard = (function(){
             let jsonData;
             if(json.requestBody) {
                 let jsonBody = json.requestBody;
-                if(jsonBody.middleman_passthru) {
-                    body += jsonBody.middleman_passthru;
+                if(jsonBody.middleman_inner_body) {
+                    body += jsonBody.middleman_inner_body;
                 }
                 else {
                     jsonData = json.requestBody;
@@ -317,7 +317,7 @@ const Dashboard = (function(){
                     $responseBody.jsonViewer(json.responseBody);
                 } else {
                     $responseBody.text(JSON.stringify(json.responseBody,null,2)
-                                            .replace(/\\"/g, '"').replace(/\\\\n/g, '\n'));
+                                            .replace(/\\"/g, '"').replace(/\\n/g, '\n'));
                 }
                 resolve();
             })            

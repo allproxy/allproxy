@@ -25,14 +25,14 @@ module.exports = class SqlFormatter{
 		const opCode = packet.getOpCode();
 		const requestID = packet.getRequestID();
 		const details = packet.getDetails();
-		return opCode + ' id=' + requestID + ' ' + details + '\\n' + HexFormatter.format(buf) + '\\n';
+		return opCode + ' id=' + requestID + ' ' + details + '\n' + HexFormatter.format(buf) + '\n';
 	}
 
 	_formatResponse(buf) {
 		const packet = new MongoPacket(buf);
 		const flags = packet.getResponseFlags();
 		const numberReturned = packet.getNumberReturned();		
-		return `\\nflags=${flags} documents=${numberReturned}\\n\\n${HexFormatter.format(buf)}\\n`;
+		return `\nflags=${flags} documents=${numberReturned}\n\n${HexFormatter.format(buf)}\n`;
 	}
 }
 
