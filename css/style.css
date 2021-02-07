@@ -56,7 +56,13 @@ td input {
 
 .request__msg-icon {
   	margin: 5px 0 0 5px;
-  	font-size:35px;  	
+	font-size:35px;
+	float: left; 	
+}
+.request__msg-caret {
+	margin: 6px 0 0 5px;
+	font-size:35px;
+	float: left;
 }
 .header__container-host-icon {
   	margin: 10px 0 0 5px !important;   	
@@ -169,6 +175,7 @@ td input {
 }
 .request__msg-seqno {
 	margin-right: 2px;
+	font-family: 'Courier New', Courier, monospace;
 }
 .request__msg {
 	display: inline-block;

@@ -67,7 +67,8 @@ const Dashboard = (function(){
                 `<div title="${tooltip}" class="fa ${iconClass} request__msg-icon" ` +
                 `  style="cursor: pointer; float: left; color: ${color}">` +
                 `</div>` +
-                `&nbsp` +
+                `<div class="fa fa-caret-right request__msg-caret">` +
+                `</div>` +                
                 `<div class="request__msg${c}">` +
                 `  ${json.method} ` +
                 `  <span style="font-weight: bold">` +
@@ -201,6 +202,9 @@ const Dashboard = (function(){
             }
 
             if(activeSeqNo === thisSeqNo) {
+                const $caret = $element.prev('.fa-caret-down');
+                $caret.removeClass('fa-caret-down');
+                $caret.addClass('fa-caret-right');
                 $activeUrl = undefined;				
             }
             else {		
@@ -212,8 +216,11 @@ const Dashboard = (function(){
                 
                 $element.addClass('active visited-color');
                 $element.parent().find('.request__msg-seqno-container').addClass('active');
-                $element.next().show();
-                $element.parent().find('.request__msg-icon').addClass('fa-spin');
+                $element.next().show();                
+                const $caret = $element.prev('.fa-caret-right');
+                $caret.addClass('fa-spin');
+                $caret.removeClass('fa-caret-right');
+                $caret.addClass('fa-caret-down');
                 $activeUrl = $element;               
                                                     
                 // Format query parameters
@@ -251,7 +258,7 @@ const Dashboard = (function(){
                 $('.response__container').append('<div class="response__body-twisty twisty active"></div><div><label class="twisty-label">Response:</label></div>').append($responseBody);						
                 $('.response__container').show();
                 $('.response__loading').hide();
-                $element.parent().find('.request__msg-icon').removeClass('fa-spin');	
+                $caret.removeClass('fa-spin');
             }					
         }
         else if($element.hasClass('resend-icon')) {
