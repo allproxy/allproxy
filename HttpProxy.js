@@ -115,7 +115,8 @@ module.exports = class HttpProxy {
             headers.host = proxyConfig.hostname;
             if(proxyConfig.port) headers.host += ':'+proxyConfig.port;
             
-            let {protocol, hostname, port} = proxyConfig.protocol === 'proxy:' ? reqUrl : proxyConfig;
+            let {protocol, hostname, port} = proxyConfig.protocol === 'proxy:' || proxyConfig.protocol === 'log:' 
+                                                            ? reqUrl : proxyConfig;
             if(port === undefined) {
                 port = proxyConfig.protocol === 'https:' ? 443 : 80; 
             }       

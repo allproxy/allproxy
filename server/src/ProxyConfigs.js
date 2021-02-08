@@ -1,6 +1,6 @@
 const socketio = require('socket.io');
 const TcpProxy = require('./TcpProxy');
-const assert = require('assert');
+const LogProxy = require('./LogProxy');
 
 module.exports = class ProxyConfigs {
 
@@ -33,7 +33,9 @@ module.exports = class ProxyConfigs {
             }
 
             for(const proxyConfig of proxyConfigs) {
-                if(!proxyConfig.isHttpOrHttps) {
+                if(proxyConfig.protocol === 'log:') {
+                    new LogProxy(proxyConfig);
+                } else if(!proxyConfig.isHttpOrHttps) {
                     new TcpProxy(proxyConfig);
                 }
             }
@@ -54,7 +56,9 @@ module.exports = class ProxyConfigs {
             if(socket && key !== socket.conn.id) continue;               
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 console.log(proxyConfig);
-                if(!proxyConfig.isHttpOrHttps) {
+                if(proxyConfig.protocol === 'log:') {
+                    LogProxy.destructor(proxyConfig);
+                } else if(!proxyConfig.isHttpOrHttps) {
                     TcpProxy.destructor(proxyConfig);
                 }                                  
             }
@@ -104,21 +108,17 @@ module.exports = class ProxyConfigs {
      */
     emitMessageToBrowser(message, inProxyConfig) {
         const path = inProxyConfig ? inProxyConfig.path : '';        
-        //console.log('emitMessageToBrowser()', proxyConfig);
-        let success = false || Object.keys(this.proxyConfigs).length === 0;
+        //console.log('emitMessageToBrowser()', proxyConfig);        
         for(const key in this.proxyConfigs) {                
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(inProxyConfig === undefined || proxyConfig.path === path) {                    
                     console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
                     message.proxyConfig = proxyConfig;                                      
-                    this.proxyConfigs[key].socket.emit('reqResJson', message);
-                    success = true;
+                    this.proxyConfigs[key].socket.emit('reqResJson', message);                    
                     if(inProxyConfig === undefined) break;                  
                 }
             }            
         }
-
-        assert(success);
     }
 
 }

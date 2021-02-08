@@ -46,6 +46,9 @@ const Dashboard = (function(){
                     case 'grpc:':
                         iconClass = 'fa-asterisk'; 
                         break;
+                    case 'log:':
+                        iconClass = 'fa-file-text-o';
+                        break;
                     default:
                         iconClass = 'fa-square'; 
                 }           
