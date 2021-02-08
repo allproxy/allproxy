@@ -49,7 +49,7 @@ module.exports = class LogProxy {
 			seqNo,                                                    
 			{}, // headers 
 			'', // method 
-			this.command, // url
+			data.toString().split('\n')[0], // url
 			'', // endpoint 
 			{ middleman_inner_body: this.command }, // req body
 			'log', // clientIp
@@ -57,7 +57,7 @@ module.exports = class LogProxy {
 			'', // path
 			0
 		);
-		SocketIoMessage.appendResponse(message, {}, '[\n'+data+']', 0, 0);
+		SocketIoMessage.appendResponse(message, {}, data, 0, 0);
 		message.protocol = 'log:';
 		Global.proxyConfigs.emitMessageToBrowser(message, this.proxyConfig);
 	}
