@@ -138,7 +138,8 @@ var SettingsModal = (function(){
 		
 		$('.settings-modal__error-message').text('');
 		
-		if(path.length == 0 || (host.length == 0 && protocol !== 'proxy:')) {
+		if(path.length == 0 ||
+			(host.length == 0 && protocol !== 'proxy:' && protocol !== 'log:')) {
 			$('.settings-modal__add-button').prop('disabled', true);
 		}
 		else {			
@@ -156,11 +157,14 @@ var SettingsModal = (function(){
 		if(protocol === 'http:' || protocol === 'https:' || protocol === 'proxy:') {
 			$('.settings-modal__input-path').attr('placeholder', 'Enter path (e.g., /xxx/yyy)');						
 		}
+		else if(protocol === 'log:') {
+			$('.settings-modal__input-path').attr('placeholder', 'Enter log tail command (e.g., docker logs -f container)');
+		}
 		else {
-			$('.settings-modal__input-path').attr('placeholder', 'Entry source port number');			
+			$('.settings-modal__input-path').attr('placeholder', 'Enter source port number');			
 		}
 		
-		if(protocol === 'proxy:') {
+		if(protocol === 'proxy:' || protocol === 'log:') {
 			$('.settings-modal__input-host').attr('disabled', true);
 			$('.settings-modal__input-host').attr('placeholder', '');
 		} else {
@@ -180,6 +184,7 @@ var SettingsModal = (function(){
 				$('.settings-modal__error-message').text(`When protocol "${protocol}" is selected the path must begin with "/"`);				
 				error = true;
 			}
+		} else if (protocol === 'log:') {
 		} else {		
 			if(parseInt(path) === 'NaN') {
 				$('.settings-modal__error-message').text(`'When protocol "${protocol}" is selected port number must be specified`);				
@@ -187,7 +192,7 @@ var SettingsModal = (function(){
 			}
 		} 
 
-		if(!error && protocol !== 'proxy:') {
+		if(!error && protocol !== 'proxy:' && protocol !== 'log:') {
 			try {
 				const url = new URL(host);
 				if(url.port === undefined) {
@@ -233,8 +238,8 @@ var SettingsModal = (function(){
 	function addRow(path, protocol, host, recording) {
 		$('.settings-modal__table').show();		
 		if(protocol === 'any:') protocol = 'other:'; // backwards compatible with previously supported 'any:'
-		const hostDisabled = protocol === 'proxy:' ? 'disabled' : '';
-		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'proxy:', 'redis:', 'grpc:', 'other:'];		
+		const hostDisabled = protocol === 'proxy:' || protocol === 'log:' ? 'disabled' : '';
+		let protocols = ['http:', 'https:', 'sql:', 'mongo:', 'log:', 'proxy:', 'redis:', 'grpc:', 'other:'];		
 		protocols.unshift(protocols.splice(protocols.indexOf(protocol),1)[0]); // put 'protocol' first		
 		const recordingChecked = recording ? 'checked' : '';
 		const recordingClass = recording ? '' : 'disabled';
