@@ -245,7 +245,7 @@ The recording of protocol messages can be temporarily stopped, to allow time to 
 ### Multiple Dashboards
 Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record protocol messages.  Recording the same protocol messages in separate Dashboard instances is of little value.
 
-However, it can be useful to *Freeze* the recording in one Dashboard instance to keep a snapshot of protocol messages, and then go to another Dashboard instance and *Clear* the log, and then wait for additional protocol messages to be recorded, and again *Freeze* the recording.  In this way multiple different snapshots can be be recorded in different Dashboard instances.  After recording multiple snapshots, the snapshots can be analyzed in each of the Dashboard instances as required.
+However, it can be useful to *Stop* the recording in one Dashboard instance to keep a snapshot of protocol messages, and then go to another Dashboard instance and *Clear* the log, and then wait for additional protocol messages to be recorded, and again *Stop* the recording.  In this way multiple different snapshots can be be recorded in different Dashboard instances.  After recording multiple snapshots, the snapshots can be analyzed in each of the Dashboard instances as required.
 
 Each Dashboard instance keeps its own copy of the protocol messages, so clearing or freezing recording in one Dashboard instance, does not affect another other Dashboard instances.
 
