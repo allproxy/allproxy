@@ -319,8 +319,7 @@ const Dashboard = (function(){
                 if(json.responseHeaders['content-type'] === "application/json") {
                     $responseBody.jsonViewer(json.responseBody);
                 } else {
-                    $responseBody.text(JSON.stringify(json.responseBody,null,2)
-                                            .replace(/\\"/g, '"').replace(/\\n/g, '\n'));
+                    $responseBody.text(json.responseBody);
                 }
                 resolve();
             })            

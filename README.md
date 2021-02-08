@@ -237,8 +237,8 @@ Filtering by protocol message type is also possible, by simply uncheck a *Record
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-uncheck-recording.png)
 
-### Freezing Recording
-The recording of protocol messages can be temporarily stopped, to allow time to examine the protocol messages without the log wrapping, and overlaying relevant protocol messages.  A typical approach is to recreate a problem by executing a specific function of the app being debugged, and than checking the *Freeze* checkbox to freeze the recording while the log is examined, as shown in this screenshot.
+### Stopping Recording
+The recording of protocol messages can be temporarily stopped, to allow time to examine the protocol messages without the log wrapping, and overlaying relevant protocol messages.  A typical approach is to recreate a problem by executing a specific function of the app being debugged, and than checking the *Stop* checkbox to stop the recording while the log is examined, as shown in this screenshot.
 
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-freeze.png)
 
