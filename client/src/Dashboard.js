@@ -47,7 +47,7 @@ const Dashboard = (function(){
                         iconClass = 'fa-asterisk'; 
                         break;
                     case 'log:':
-                        iconClass = 'fa-file-text-o';
+                        iconClass = 'fa-exclamation-triangle';
                         break;
                     default:
                         iconClass = 'fa-square'; 

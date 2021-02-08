@@ -1,10 +1,11 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
-This project provides both a forward and reverse proxy for debugging distributed applications.
+This project integrates frontend HTTP messages, backend protocol messages and error logs into a single UI view.  There are three functions:
 - **Forward Proxy** - Records HTTP messages sent by your frontend application.
 - **Reverse Proxy** - Records **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other protocol messages used to communicate with your backend services.
+- **Log Monitoring** - Monitor dockers logs, and file based logs.
 
-A browser UI configures, filters, and displays the recorded protcol messages.
+A browser UI configures, filters, and displays the recorded protocol and log messages.  The frontend HTTP messages, backend protocol messages, and log error messages can be integrated into one time sequenced view making it easy to debug complete distributed applications.  The is not need to examine multiple frontend and backend logs.
 
 Implementation:
 - **HTTP proxy** - The *http* and https node packages are used to proxy HTTP and HTTPS messages.
@@ -24,6 +25,7 @@ Implementation:
 * [Reverse Proxy](#reverse-proxy)
   * [Recording HTTPS iTunes API Messages](#recording-https-itunes-api-messages)
   * [Recording MySQL Messages](#recording-mysql-messages)
+- [Log Monitoring](#log-monitoring)
 * [Features](#features)
   * [Resending HTTP Requests](#resending-http-requests)
   * [Filtering Protocol Messages](#filtering-protocol-messages)
@@ -82,7 +84,7 @@ Only two steps are required to setup the forward proxy:
 2. Configure your browser to proxy all HTTP requests to the Middleman Proxy.
 
 ### Forward Proxy Paths for Recording HTTP Messages
-To record HTTP requests go to the Dashboard settings (click gear icon is upper right corner), and add one or more *paths* matching the HTTP requests you'd like to record, as shown below.
+To record HTTP requests go to the Dashboard settings (click gear icon in the upper right corner), and add one or more *paths* matching the HTTP requests you'd like to record, as shown below.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-forward-proxy-settings.png)
 
 ### Setting up a Forward Proxy on MacOS
@@ -191,6 +193,17 @@ SELECT * FROM employees
 
 Go to the Middleman dashboard you opened earlier, and click on the recorded SQL query on the left side of the dashboard, and the SQL response will render on the right side.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-dashboard.png)
+
+## Log Monitoring
+This section illustrates how to record messages from dockers or file based logs.
+
+Go to the Dashboard settings (click gear icon in the upper right corner):
+1. Select the *log:* protocol.
+2. Enter a shell command that reads a dockers container log, or some log file.  Example commands are:
+  * docker logs -f mycontainer
+  * tail -f /mylogfile
+
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-log-settings.png)
 
 ## Features
 The Middleman proxy provides a number of features that help you debug distributed applications.
