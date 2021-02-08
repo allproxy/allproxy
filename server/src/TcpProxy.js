@@ -159,7 +159,7 @@ module.exports = class TcpProxy {
                                                     targetHost+':'+targetPort, // serverHost
                                                     '', // path
                                                     Date.now() - startTime);                                        
-                    SocketIoMessage.appendResponse(message, {}, '['+responseString+']', 0, Date.now() - startTime);
+                    SocketIoMessage.appendResponse(message, {}, responseString, 0, Date.now() - startTime);
                     message.protocol = proxyConfig.protocol;
                     Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
                 }

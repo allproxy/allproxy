@@ -106,8 +106,12 @@ module.exports = class SqlFormatter{
 			for(let i = 0; i < rowCount-1; ++i) {
 				formattedResults.splice(i*fieldCount+(i*2), 0, `{ /* ${i+1} of ${totalCount} */`);
 				formattedResults.splice((i+1)*fieldCount+(i*2)+1, 0, `}`);					
-			}	
-			return JSON.stringify('\n'+formattedResults.join('\n')+'\n',null,2).replace(/\\n/g, '\n');
+			}
+			let string = '';
+			for(let i = 0; i < formattedResults.length; ++i) {
+				string += formattedResults[i] + '\n';
+			}
+			return string;
 		}
 	}
 }
