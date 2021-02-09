@@ -112,6 +112,7 @@ module.exports = {
 
 function buildRequest(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
 	var message = {
+		timestamp: Date.now(),
 		sequenceNumber,		
 		requestHeaders,
 		method,

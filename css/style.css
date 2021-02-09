@@ -158,17 +158,18 @@ td input {
 	width: 100%;			
 }
 .request__msg-seqno-container {
+	display: none;
+	width: 0;
+}
+.request__msg-timestamp-container {
 	margin: 0 0 0 5px;
 	padding: 2px;	
 	float: left;
 	background-color: whitesmoke;
-	width: 7ch;	
+	width: 10ch;	
 	text-align: right;	
 }
-.request__msg-seqno-container.active {
-	background-color: lightgrey;
-}
-.request__msg-seqno {
+.request__msg-timestamp {
 	margin-right: 2px;
 	font-family: 'Courier New', Courier, monospace;
 }
