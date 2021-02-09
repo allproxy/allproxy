@@ -57,7 +57,7 @@ module.exports = class LogProxy {
 			'', // path
 			0
 		);
-		SocketIoMessage.appendResponse(message, {}, data, 0, 0);
+		SocketIoMessage.appendResponse(message, {}, data.toString(), 0, 0);
 		message.protocol = 'log:';
 		Global.proxyConfigs.emitMessageToBrowser(message, this.proxyConfig);
 	}
