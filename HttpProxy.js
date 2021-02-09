@@ -79,10 +79,12 @@ module.exports = class HttpProxy {
 
                 if(proxyConfig == undefined) {
                     let msg = 'No matching proxy configuration found for '+reqUrl.pathname;
-                    if(reqUrl.pathname === '/') {
-                        msg += ' (If you are trying to access the Middleman Dashboard, use /middleman)'
+                    if(reqUrl.pathname === '/') {                        
+                        client_res.writeHead(302, {'Location': reqUrl.href+'middleman'});
+                        client_res.end();                        
+                    } else {
+                        sendErrorResponse(404, msg);
                     }
-                    sendErrorResponse(404, msg);
                 }
                 else {
                     proxyRequest();
