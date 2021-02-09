@@ -10,10 +10,10 @@ const Dashboard = (function(){
         
         iosocket.on('reqResJson', function(json) {
             if(isStopped()) {
-                return; // Do not recording this message
+                return; // Do not record this message
             }
             if(!json.proxyConfig.recording) {
-                return; // Do not recording this message
+                return; // Do not record this message
             }
                         
             var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
@@ -62,10 +62,13 @@ const Dashboard = (function(){
 
             let endpoint = '';
             if(json.endpoint && json.endpoint.length > 0) endpoint += `${json.endpoint}`;
-                        
+                  
             var $request = $(		
                 `<div class="request__msg-seqno-container">` +
                 `  <span class="request__msg-seqno">${json.sequenceNumber}</span>` +
+                `</div>` +
+                `<div class="request__msg-timestamp-container">` +
+                `  <span class="request__msg-timestamp">${formatTimestamp(json.timestamp)}</span>` +
                 `</div>` +
                 `<div title="${tooltip}" class="fa ${iconClass} request__msg-icon" ` +
                 `  style="cursor: pointer; float: left; color: ${color}">` +
@@ -308,8 +311,12 @@ const Dashboard = (function(){
             var c = json.status < 300  ? '' : ' class="error"';
             $('.response__container').append('<div'+c+'><label>Status:&nbsp;</label>'+json.status+'</div>');
             $('.response__container').append('<div><label>Elapsed time:&nbsp;</label>'+json.elapsedTime+' ms</div>');
-            $('.response__container').append('<div class="request__headers-twisty twisty"></div><div><label class="twisty-label">Request Headers:</label></div>').append($requestHeaders);
-            $('.response__container').append('<div class="response__headers-twisty twisty"></div><div><label class="twisty-label">Response Headers:</label></div>').append($responseHeaders);
+            if(Object.keys(json.requestHeaders).length > 0) {
+                $('.response__container').append('<div class="request__headers-twisty twisty"></div><div><label class="twisty-label">Request Headers:</label></div>').append($requestHeaders);
+            }
+            if(Object.keys(json.responseHeaders).length > 0) {
+                $('.response__container').append('<div class="response__headers-twisty twisty"></div><div><label class="twisty-label">Response Headers:</label></div>').append($responseHeaders);
+            }
             if(queryParams) {
                 $('.response__container').append('<div class="request__query-params-twisty twisty"></div><div><label class="twisty-label">Query Parameters:</label></div>').append($queryParams);
             }
@@ -352,7 +359,15 @@ const Dashboard = (function(){
         } else {
             $('.header__freeze-label').removeClass('active');
         }
-    })  
+    })
+
+    function formatTimestamp(ts) {
+        const date = new Date(ts);
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+        const msecs = date.getMilliseconds();
+        return `${minutes}:${seconds}.${msecs}`;
+    }
 
     function isStopped() {
         return $('.header__freeze-checkbox').prop('checked');        
