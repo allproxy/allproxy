@@ -7,7 +7,7 @@ module.exports = class SqlFormatter{
 		this.formattedQuery = this._formatQuery(reqBuf);
 		this.formattedResults = this.getCommand() === 'Query' ? 
 											this._formatResults(rspBuf) 
-											: '\n' + HexFormatter.format(rspBuf) + '\n';
+											: HexFormatter.format(rspBuf);
 		this.command = 'Request unknown';
 	}
 
@@ -97,7 +97,7 @@ module.exports = class SqlFormatter{
 				return stringifyResults() + '\n' + e + '\n'; // + new Error().stack.replace(/\n/g, '\n');
 			}
 			else {
-				'\n' + HexFormatter.format(buf) + '\n';
+				return HexFormatter.format(buf);
 			}
 		}
 		
@@ -110,6 +110,9 @@ module.exports = class SqlFormatter{
 			let string = '';
 			for(let i = 0; i < formattedResults.length; ++i) {
 				string += formattedResults[i] + '\n';
+			}
+			if(string.length === 0) {
+				string = 'No results';
 			}
 			return string;
 		}
