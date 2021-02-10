@@ -134,7 +134,7 @@ const Dashboard = (function(){
                     $request.after($newRequest);
                     requests.splice(afterIndex+1, 0, $newRequest);			        		
                 }
-                else {
+                else if(beforeIndex) {
                     var $request = requests[beforeIndex];
                     $request.before($newRequest);			        		
                     requests.splice(beforeIndex, 0, $newRequest);
@@ -204,13 +204,13 @@ const Dashboard = (function(){
                 $activeUrl.removeClass('active');
                 $activeUrl.parent().find('.request__msg-seqno-container').removeClass('active');
                 $activeUrl.next().hide();
-                activeSeqNo = $activeUrl.data().sequenceNumber;						
-            }
-
-            if(activeSeqNo === thisSeqNo) {
-                const $caret = $element.prev('.fa-caret-down');
+                activeSeqNo = $activeUrl.data().sequenceNumber;
+                const $caret = $activeUrl.prev('.fa-caret-down');
                 $caret.removeClass('fa-caret-down');
-                $caret.addClass('fa-caret-right');
+                $caret.addClass('fa-caret-right');						
+            }
+            
+            if(activeSeqNo === thisSeqNo) {                                
                 $activeUrl = undefined;				
             }
             else {		
