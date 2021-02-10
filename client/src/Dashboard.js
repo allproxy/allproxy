@@ -363,8 +363,8 @@ const Dashboard = (function(){
 
     function formatTimestamp(ts) {
         const date = new Date(ts);
-        const minutes = date.getMinutes();
-        const seconds = date.getSeconds();
+        const minutes = date.getMinutes().toString().padStart(2,'0');
+        const seconds = date.getSeconds().toString().padStart(2,'0');
         const msecs = date.getMilliseconds();
         return `${minutes}:${seconds}.${msecs}`;
     }
