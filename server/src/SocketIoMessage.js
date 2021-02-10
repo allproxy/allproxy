@@ -91,10 +91,7 @@ module.exports = {
 					parsedData = JSON.parse(rawData); // assume JSON					
 				}
 				catch(e) {
-					//console.log('JSON.parse exception');
-					parsedData = {
-						body : rawData
-					};
+					parsedData = rawData;					
 				}							
 				
 				appendResponse(message, proxyRes.headers, parsedData, proxyRes.statusCode, Date.now() - startTime);
