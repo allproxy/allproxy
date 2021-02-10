@@ -121,24 +121,30 @@ const Dashboard = (function(){
                 for(var i = 0; i < requests.length; ++i) {
                     var thisSeqNo = requests[i].find('.request__msg').data().sequenceNumber;
                     if(json.sequenceNumber > thisSeqNo) {
-                        afterIndex = i;			        					        			
+                        afterIndex = i;
                     }	
                     else if(json.sequenceNumber < thisSeqNo) {
                         beforeIndex = i;			        					        			
                         break;
                     }
-                }
+                }                
                 
-                if(afterIndex != undefined) {
+                console.log(json.path, afterIndex, beforeIndex)
+                if(afterIndex !== undefined) {
                     var $request = requests[afterIndex];
                     $request.after($newRequest);
                     requests.splice(afterIndex+1, 0, $newRequest);			        		
                 }
-                else if(beforeIndex) {
+                else if(beforeIndex !== undefined) {
                     var $request = requests[beforeIndex];
                     $request.before($newRequest);			        		
                     requests.splice(beforeIndex, 0, $newRequest);
-                }	
+                } else {
+                    console.log('first', thisSeqNo);
+                    var $request = requests[0];
+                    $request.before($newRequest);			        		
+                    requests.unshift($newRequest);
+                }
                 
                 // Remove consecutive requests to reduce storage and search time
                 var MIN_Q_LEN = 50;

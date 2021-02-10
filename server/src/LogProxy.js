@@ -46,6 +46,7 @@ module.exports = class LogProxy {
 		console.log(`sendToBrowser log: ${this.command}`);
 		const seqNo = ++Global.nextSequenceNumber; 
 		const message = SocketIoMessage.buildRequest(
+			Date.now(),
 			seqNo,                                                    
 			{}, // headers 
 			'', // method 
