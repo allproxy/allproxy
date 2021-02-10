@@ -109,7 +109,7 @@ module.exports = class TcpProxy {
                     case 'sql:':
                         const sqlFormatter = new SqlFormatter(request, response);
                         requestString = sqlFormatter.getQuery();
-                        responseString = sqlFormatter.getResults();
+                        responseString = sqlFormatter.getResults();                        
                         for(let line of requestString.split('\n')) {
                             if(line.indexOf('/*') !== -1) continue;
                             url += line + ' ';
@@ -148,7 +148,8 @@ module.exports = class TcpProxy {
                     //console.log('processData', sequenceNumber);
                     const endpoint = '';                 
                    
-                    let message = SocketIoMessage.buildRequest(                        
+                    let message = SocketIoMessage.buildRequest(
+                                                    startTime,                       
                                                     sequenceNumber,                                                    
                                                     {}, // headers 
                                                     '', // method 

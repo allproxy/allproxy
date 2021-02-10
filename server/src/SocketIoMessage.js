@@ -41,7 +41,8 @@ module.exports = {
 				}
 				if('/'+endpoint === client_req.url) endpoint = '';					
 				
-				let message = buildRequest(sequenceNumber,											
+				let message = buildRequest(Date.now(),
+											sequenceNumber,											
 											client_req.headers, 
 											client_req.method,
 											client_req.url,
@@ -58,8 +59,8 @@ module.exports = {
 		});
 	},
 
-	buildRequest : function(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
-		return buildRequest(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
+	buildRequest : function(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
+		return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
 	},
 	
 	/**
@@ -107,9 +108,9 @@ module.exports = {
 
 };
 
-function buildRequest(sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
+function buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime) {
 	var message = {
-		timestamp: Date.now(),
+		timestamp,
 		sequenceNumber,		
 		requestHeaders,
 		method,
