@@ -21,7 +21,7 @@ module.exports = {
 				try {
 					requestBody = JSON.parse(rawData)
 				} catch (e) {
-					//console.error(e.message);
+					requestBody = rawData;
 				}
 
 				var endpoint = client_req.url.split('?')[0];
