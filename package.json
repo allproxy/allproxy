@@ -13,7 +13,10 @@
   "license": "ISC",
   "dependencies": {
     "decompress-response": "^3.3.0",
+    "font-awesome": "^4.7.0",
     "forever": "^3.0.4",
+    "jquery": "^3.5.1",
+    "jquery.json-viewer": "^1.4.0",
     "socket.io": "^2.0.4",
     "sql-formatter": "^2.3.3"
   }

@@ -1,4 +1,4 @@
-const Dashboard = (function(){
+const Dashboard = (function(){    
     let x = {};
 
     let requests = []; // Array of out of order requests or last in order request
