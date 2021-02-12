@@ -1,21 +1,27 @@
+body {
+	overflow: hidden;
+}
+
 button:disabled {
 	background: #dddddd;
 }
-
-
 pre {
 	background-color: #f9f9f9!important;
 	border: solid thin #e7e2e2!important;
-	border-radius: 8px !important;
-	padding-left: 20px !important;
+	border-radius: .5rem !important;
+	padding-left: 1.5rem !important;
 }
 
 td input {
 	width: 100%;
 }
 
+input[type=checkbox] {
+	margin-top: 0 !important;
+}
+
 .spinner {
-	font-size: 32px !important;
+	font-size: 2rem !important;
 	color: #9fd6f8;
 }
 
@@ -50,67 +56,69 @@ td input {
 }
 
 .request__msg-icon {
-  	margin: 5px 0 0 5px;
-	font-size:35px;
+  	margin: .5rem 0 0 .5rem;
+	font-size:2rem;
 	float: left; 	
 }
 .request__msg-caret {
-	margin: 6px 0 0 5px;
-	font-size:35px;
+	margin: .5rem 0 0 .5rem;
+	font-size:2rem;
 	float: left;
-}
-.header__container-host-icon {
-  	margin: 10px 0 0 5px !important;   	
 }
 
 .header__container {
 	z-index: 99;
 	position: absolute;
-	top: 0;
+	top: 0;	
 	background-color: #e7f5fe;
-/* 	border-bottom: solid grey medium; */
-	width: 100%;		
+	width: 100%;
+	height: 4rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;		
+}
+.header__left-container {
+	display: flex;
+	align-items: center;
 }
 
 .header__title {
-	margin: 7px 0 5px 5px;
-	margin-bottom: 0;
+	margin: 0 0 0 .5rem;	
 	color: blue;
 	float: left;	
 	vertical-align: middle;
 	font-size: large;
-	font-weight: 900;	
-	line-height: 30px;	
+	font-weight: 900;
 }
 .header__trash {
 	float: left;
-	margin: 12px 0px 0 10px;
+	margin: 0 0 0 1rem;
 	cursor: pointer;
 	font-size: large !important;			
 }
 .header__checkbox-container {
-	margin-left: 10px;
-	padding-top: 5px;	
-	float: left;		
-}
-.header__auto-scroll-label {
-	margin-right: 5px;
-	vertical-align: middle;
-	line-height: 35px;
+	margin-left: 1rem;		
+	float: left;
+	display: flex;
+	align-items: center;		
 }
 .header__freeze-label.active {
 	color: red;
 }
-.header__freeze-label {
-	vertical-align: middle;
-	line-height: 35px;
+.header__freeze-label,
+.header__auto-scroll-label {
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+	margin-left: .5rem;
 }
-
+.header__freeze-checkbox {
+	margin-left: .5rem !important;
+}
 .header__filter {
 	float: left;	
 }
 .header__filter-input {
-	margin: 12px 0 0 10px;
+	margin: 0 0 0 10px;
 	height: 20px;
 	width: 300px;	
 }
@@ -120,15 +128,14 @@ td input {
 
 .header__status,
 .header__settings {	
-	margin: 12px 5px 0 5px;
+	margin: 0 .5rem 0 .5rem;
 	cursor: pointer;
 	font-size: large !important;		
 }
 .header__status {
 	float: left;
 }
-.header__settings {
-	float: right;
+.header__settings {	
 	color: blue;	
 }
 .header__status {
@@ -136,20 +143,20 @@ td input {
 }
 
 .request-response__container {
-	margin: 48px 0 0 0;
+	margin: 4rem 0 0 0;
 	display: -webkit-flex; /* Safari */
   	display: flex;  	
 }
 
 .request__container {	
-	padding-right: 5px;
+	padding-right: .5rem;
 	overflow-y: auto;
 	width: 600px;
 	height: calc(100vh - 40px);
 	max-height: calc(100vh - 40px);
 	resize: both;
 	border-right: solid grey;
-	margin: 0 15px 0 0;	
+	margin: 0 1rem 0 0;	
 }
 
 .request__msg-container {
@@ -162,23 +169,23 @@ td input {
 	width: 0;
 }
 .request__msg-timestamp-container {
-	margin: 0 0 0 5px;
-	padding: 2px;	
+	margin: 0 0 0 .5rem;
+	padding: .1rem;	
 	float: left;
 	background-color: whitesmoke;
 	width: 10ch;	
 	text-align: right;	
 }
 .request__msg-timestamp {
-	margin-right: 2px;
+	margin-right: .1rem;
 	font-family: 'Courier New', Courier, monospace;
 }
 .request__msg {
 	display: inline-block;
 	cursor: pointer;
 	margin: 0;
-	padding: 2px;
-	width: calc(100% - 72px);
+	padding: .1rem;
+	width: calc(100% - 100px);
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
@@ -191,7 +198,7 @@ td input {
 }
 
 .request__body {	
-	margin: 0 0 0 5px;
+	margin: 0 0 0 .5rem;
 	width: auto;
 	white-space: pre;
 	font-family: 'Courier New', Courier, monospace;			
@@ -199,8 +206,8 @@ td input {
 
 .response__loading,
 .response__container {		
-	height: calc(100vh - 40px);
-	max-height: calc(100vh - 40px);	
+	height: calc(100vh - 2.5rem);
+	max-height: calc(100vh - 2.5rem);	
 	overflow-y: auto;
 	overflow-x: auto;
 	-webkit-flex: 1;
@@ -227,7 +234,7 @@ td input {
 .request__query-params.active,
 .response__body.active {
 	display: block;
-	margin: 0 10px 5px 0;
+	margin: 0 1rem .5rem 0;
 }
 
 .request__headers-twisty,
@@ -236,11 +243,11 @@ td input {
 .response__body-twisty {
 	width: 0; 
   	height: 0; 
-  	border-top: 5px solid transparent;
-  	border-bottom: 5px solid transparent;
-  	border-left: 5px solid;
+  	border-top: .5rem solid transparent;
+  	border-bottom: .5rem solid transparent;
+  	border-left: .5rem solid;
   	float: left;
-  	margin: 5px 2px 0 0;
+  	margin: .5rem .1rem 0 0;
   	cursor: pointer;
 }
 .request__headers-twisty.active,
@@ -249,11 +256,11 @@ td input {
 .response__body-twisty.active {
 	width: 0; 
   	height: 0; 
-  	border-left: 5px solid transparent;
-  	border-right: 5px solid transparent;
-  	border-top: 5px solid;
+  	border-left: .5rem solid transparent;
+  	border-right: .5rem solid transparent;
+  	border-top: .5rem solid;
   	float: left;
-  	margin: 6px 0 0 0 !important;
+  	margin: .5rem 0 0 0 !important;
 }
 
 .twisty-label {
@@ -293,10 +300,8 @@ td input {
 
 .settings-modal__input-path-container,
 .settings-modal__input-url-container {
-	padding-right: 10px;	
+	padding-right: 1rem;	
 	width: 40% !important;	
-}
-.settings-modal__select-protocol-container {
 }
 .settings-modal__input-path,
 .settings-modal__input-url {
@@ -307,13 +312,13 @@ td input {
 }
 
 .settings-modal__proxy-delete-button {
-	margin-top: 5px;
+	margin-top: .5rem;
 }
 
 .settings-modal__proxy-path,
 .settings-modal__proxy-protocol,
 .settings-modal__proxy-host {
-	padding-top: 7px;	
+	padding-top: .5rem;	
 	border: none;
 }
 .settings-modal__recording-container {
@@ -325,7 +330,7 @@ td input {
 }
 
 .settings-modal__label-max-messages {
-	padding-right: 10px;	
+	padding-right: 1remx;	
 }
 .settings-modal__input-max-messages {
 	width: 12ch !important;
