@@ -53,7 +53,7 @@ module.exports = class SqlFormatter{
 			let colNames = [];
 			for(let i = 0; i < fieldCount; ++i) {											
 				let subCvOffset = pktOffset + 4; // offset to data in payload packet		
-				for(let j = 0; j < 5; ++j) { // 5th sub payload packet is column name
+				for(let j = 0; j < 4; ++j) { // 4th sub payload packet is column name
 					subCvOffset += buf.readUInt8(subCvOffset) + 1; // next sub payload packet
 				}
 				colNames.push(buf.toString('utf8', subCvOffset+1, subCvOffset+1+buf.readUInt8(subCvOffset)));
