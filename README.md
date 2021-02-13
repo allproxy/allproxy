@@ -1,16 +1,23 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
-This project integrates frontend HTTP messages, backend protocol messages and error logs into a single UI view.  There are three functions:
-- **Forward Proxy** - Records HTTP messages sent by your frontend application.
-- **Reverse Proxy** - Records **HTTP**, **HTTPS**, **SQL**, **MongDB**, **Redis**,  **gRPC**, and any other protocol messages used to communicate with your backend services.
-- **Log Monitoring** - Monitor dockers logs, and file based logs.
+This debug proxy captures browser HTTP messages, SQL database messages, and log messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
 
-A browser UI configures, filters, and displays the recorded protocol and log messages.  The frontend HTTP messages, backend protocol messages, and log error messages can be integrated into one time sequenced view making it easy to debug complete distributed applications.  The is not need to examine multiple frontend and backend logs.
+**Features:**
+* captures all HTTP messages sent by the browser
+* captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
+* captures log messages from dockers or any file based log
+* modify and resent HTTP requests
+* search entire request/response message for matching text
+* stop/start recording to allow messages to examine messages before log wraps
+* capture different snapshots is multiple dashboards
+
+The dashboard configures, filters, and displays the recorded protocol and log messages.
 
 Implementation:
 - **HTTP proxy** - The *http* and https node packages are used to proxy HTTP and HTTPS messages.
 - **TCP proxy** - The *net* node package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
+- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard. 
 
 ### Table of Contents
 
@@ -18,14 +25,14 @@ Implementation:
   * [Install MiddlemanProxy](#install-middleman-proxy)   
   * [Start the Server](#start-the-server)
   * [Open Dashboard in Browser](#open-dashboard-in-browser)
-* [Forward Proxy](#forward-proxy)
-  * [Forward Proxy Paths for Recording HTTP Messages](#forward-proxy-paths-for-recorcing-http-messages)
-  * [Setting up a Forward Proxy on MacOS](#setting-up-a-forward-proxy-on-macos)
-  * [Setting up a Forward Proxy on Linux](#setting-up-a-forward-proxy-on-linux)
-* [Reverse Proxy](#reverse-proxy)
-  * [Recording HTTPS iTunes API Messages](#recording-https-itunes-api-messages)
-  * [Recording MySQL Messages](#recording-mysql-messages)
-- [Log Monitoring](#log-monitoring)
+* [Capture HTTP Browser Messages)](#capture-http-browser-messages)
+  * [Congigure URL Paths](#configure-url-paths)
+  * [Configure MacOS Proxy](#configure-macos-proxy)
+  * [Configure Linux Proxy](#configure-linux-proxy)
+* [Capture Messages Sent to Backend Services](#capture-messages-sent-to-backend-services)
+  * [Captures HTTPS iTunes API Messages](#capture-https-itunes-api-messages)
+  * [Capture MySQL Messages](#capture-mysql-messages)
+- [Capture Log Messages](#capture-log-messages)
 * [Features](#features)
   * [Resending HTTP Requests](#resending-http-requests)
   * [Filtering Protocol Messages](#filtering-protocol-messages)
@@ -76,18 +83,18 @@ Click the *Settings* icon in the upper right corner, and open the Settings modal
 4. Click **Add**.
 5. Click **Save**.
 
-## Forward Proxy
-This section illustrates how to record HTTP messages that originate from your frontend application.  The forward proxy only supports HTTP.  However, the reverse proxy feature can be used for HTTPS messages.
+## Capture HTTP Browser Messages
+This section illustrates how to capture HTTP messages that are sent by your frontend application.  Currently, only HTTP is supports.  
 
-Only two steps are required to setup the forward proxy:
-1. Add a *path* for each HTTP request URI you would like to have recorded by the Middleman Proxy.
-2. Configure your browser to proxy all HTTP requests to the Middleman Proxy.
+Only two steps are required to setup the proxy:
+1. *Configure URL Paths* - Add a *path* for each HTTP request URI you would like to have recorded by the Middleman Proxy.
+2. *Configure MacOS, Linux, or Windows Proxy* - Configure your browser to proxy all HTTP requests to the Middleman Proxy.
 
-### Forward Proxy Paths for Recording HTTP Messages
-To record HTTP requests go to the Dashboard settings (click gear icon in the upper right corner), and add one or more *paths* matching the HTTP requests you'd like to record, as shown below.
+### Configure URL Paths
+To record HTTP requests, go to the Dashboard settings (click the gear icon in the upper right corner), and add one or more *paths* matching the HTTP requests you'd like to record, as shown below.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-forward-proxy-settings.png)
 
-### Setting up a Forward Proxy on MacOS
+### Configure MacOS Proxy
 To setup your Chrome browser on MacOS to proxy all HTTP requests through the Middleman proxy:
 1. Select **Preferences** from the **Chrome** menu. 
 2. Search for *proxy*.
@@ -96,24 +103,24 @@ To setup your Chrome browser on MacOS to proxy all HTTP requests through the Mid
 5. Set the host and port to host localhost and port 8888.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-macos-forward-proxy.png)
 
-### Setting up a Forward Proxy on Linux
+### Configure Linux Proxy
 On Linux for Chrome and Chromium, the *--proxy-server* command line option is used to configure  the browser to use the Middleman proxy.
 ```sh
 $ chromium-browser --http://proxy-server=localhost:8888
 ```
 
-## Reverse Proxy
-This section illustrates how to record protocol messages used to communicate with backend services using a reverse proxy.
+## Capture Messages Sent to Backend Services
+This section illustrates how to record protocol messages sent by your application to backend services.
 
 Only two step are required to setup the reverse proxy:
-1. Add a route for the HTTP and TCP flows you'd like to record.
-2. Modify the backend service configuration (e.g., .env file) to route protocol messages through the Middleman Proxy.
+1. Add routes for the HTTP and TCP flows you'd like to record.
+2. Modify your application configuration (e.g., .env file) to route HTTP/HTTPS, SQL, and other protocol messages through the Middleman Proxy.
 
 These examples will help illustrate how to setup the reverse proxy:
-* [Record HTTPS iTunes API Messages](#record-itunes-api-messages)
-* [Record MySQL Messages](#record-mysql-messages)
+* [Capture HTTPS iTunes API Messages](#capture-itunes-api-messages)
+* [Capture MySQL Messages](#capture-mysql-messages)
 
-### Recording HTTPS iTunes API Messages
+### Capture HTTPS iTunes API Messages
 This is a simple example illustrating how HTTPS messages can be recorded.  A very simple app that uses the Apple iTunes API to find albums by author is used for this example.
 
 First we need to start the middleman proxy server.  By default the server will listen on port 8888 for incoming HTTP connections.  The default is to listen for HTTP connections, however, it is also possible to listen for incoming HTTPS connections.  
@@ -164,7 +171,7 @@ After the iTunes app has loaded in your Chrome browser, type an artist name (e.g
 Go to the Middleman dashboard you opened earlier, and click on the HTTPS iTunes endpoint request on the left side of the dashboard, and the response will render on the right side.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-dashboard.png)
 
-### Recording MySQL Messages
+### Capture MySQL Messages
 This is an example illustrating how MySQL messages can be recorded.  The DBeaver (Linux) or Sequel Pro SQL Tools (MacOS) can be used to send an SQL query to the MySQL server via the Middleman proxy. In a more realistic development setup, a backend service would send the SQL query, but since I don't have a non-production service to use for this example, I'm just using an SQL Tool.
 
 First we need to start the middleman proxy server.    
@@ -194,7 +201,7 @@ SELECT * FROM employees
 Go to the Middleman dashboard you opened earlier, and click on the recorded SQL query on the left side of the dashboard, and the SQL response will render on the right side.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-dashboard.png)
 
-## Log Monitoring
+## Capture Log Messages
 This section illustrates how to record messages from dockers or file based logs.
 
 Go to the Dashboard settings (click gear icon in the upper right corner):
