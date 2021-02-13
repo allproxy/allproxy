@@ -11,7 +11,13 @@ module.exports = class LogProxy {
 	}
 
 	static destructor(proxyConfig) {              
-        if(proxyConfig.logProxyProcess) proxyConfig.logProxyProcess.kill('SIGINT');
+        if(proxyConfig.logProxyProcess) {
+			try {
+				proxyConfig.logProxyProcess.kill('SIGINT');
+			} catch(e) {
+				console.log(e);
+			}
+		}
     }
 
 	start() {
@@ -35,6 +41,10 @@ module.exports = class LogProxy {
 
 		proc.on('error', error => {
 			console.log(`error: ${error} - ${this.command}`);
+		});
+
+		proc.on('exit', rc => {
+			setTimeout(() => this.start(), 5000); // Retry in 5 seconds
 		});
 		
 		function warmUpCompleted() {

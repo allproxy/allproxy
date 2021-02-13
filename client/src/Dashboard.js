@@ -127,9 +127,8 @@ const Dashboard = (function(){
                         beforeIndex = i;			        					        			
                         break;
                     }
-                }                
+                }
                 
-                console.log(json.path, afterIndex, beforeIndex)
                 if(afterIndex !== undefined) {
                     var $request = requests[afterIndex];
                     $request.after($newRequest);
@@ -139,8 +138,7 @@ const Dashboard = (function(){
                     var $request = requests[beforeIndex];
                     $request.before($newRequest);			        		
                     requests.splice(beforeIndex, 0, $newRequest);
-                } else {
-                    console.log('first', thisSeqNo);
+                } else {                    
                     var $request = requests[0];
                     $request.before($newRequest);			        		
                     requests.unshift($newRequest);

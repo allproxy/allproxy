@@ -214,8 +214,7 @@ input[type=checkbox] {
 	flex: 1;	
 }
 
-.response__data-container {
-	margin: 0 0 0 0;
+.response__data-container {	
 	white-space: nowrap;		
 }
 
