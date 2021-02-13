@@ -55,7 +55,6 @@ module.exports = class ProxyConfigs {
         for(const key in this.proxyConfigs) { 
             if(socket && key !== socket.conn.id) continue;               
             for(const proxyConfig of this.proxyConfigs[key].configs) {
-                console.log(proxyConfig);
                 if(proxyConfig.protocol === 'log:') {
                     LogProxy.destructor(proxyConfig);
                 } else if(!proxyConfig.isHttpOrHttps) {
