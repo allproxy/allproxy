@@ -15,6 +15,8 @@ const Dashboard = (function(){
             if(!json.proxyConfig.recording) {
                 return; // Do not record this message
             }
+
+            console.log(json);
                         
             var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
             if(hostColor[hostPath] == undefined) {
@@ -380,12 +382,6 @@ const Dashboard = (function(){
     function resolveHost(ip) {
         if(ip === '127.0.0.1') return 'localhost';
         else return ip;
-    }
-
-    function getHostPort(host) {
-        const tokens = host.split(':');
-        if(tokens.length < 2) return host
-        else return tokens[1];
     }
 
     function fixNewlines(str) {

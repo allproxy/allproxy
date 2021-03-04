@@ -50,7 +50,7 @@ module.exports = class TcpProxy {
         // Create server (source) socket
         function onConnect(sourceSocket) {             
 
-            const startTime = Date.now();
+            let startTime = Date.now();
             let sequenceNumber = 0;
             
             let request = '';
@@ -72,7 +72,8 @@ module.exports = class TcpProxy {
 
             // Handle data from source (client)
             sourceSocket.on('data', (data) => {
-                //console.log('request');                 
+                //console.log('request');
+                startTime = Date.now();                                 
                 sequenceNumber = ++Global.nextSequenceNumber;                
                 request = data;
                 targetSocket.write(data);
