@@ -44,7 +44,8 @@ module.exports = class LogProxy {
 		});
 
 		proc.on('exit', rc => {
-			setTimeout(() => this.start(), 5000); // Retry in 5 seconds
+			console.log('LogProxy exiting:', this.command)
+			setTimeout(() => this.start(), 10000); // Retry in 10 seconds
 		});
 		
 		function warmUpCompleted() {

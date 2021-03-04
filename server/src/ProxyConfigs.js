@@ -107,11 +107,11 @@ module.exports = class ProxyConfigs {
      */
     emitMessageToBrowser(message, inProxyConfig) {
         const path = inProxyConfig ? inProxyConfig.path : '';        
-        //console.log('emitMessageToBrowser()', proxyConfig);        
+        //console.log('emitMessageToBrowser()', message.url);        
         for(const key in this.proxyConfigs) {                
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(inProxyConfig === undefined || proxyConfig.path === path) {                    
-                    console.log('socket emit', this.proxyConfigs[key].socket.conn.id, path);
+                    console.log(message.sequenceNumber, 'socket emit', message.url, this.proxyConfigs[key].socket.conn.id);
                     message.proxyConfig = proxyConfig;                                      
                     this.proxyConfigs[key].socket.emit('reqResJson', message);                    
                     if(inProxyConfig === undefined) break;                  

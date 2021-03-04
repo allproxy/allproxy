@@ -77,8 +77,9 @@ module.exports = class HttpProxy {
                     }
                 }		
 
-                if(proxyConfig == undefined) {
+                if(proxyConfig === undefined) {
                     let msg = 'No matching proxy configuration found for '+reqUrl.pathname;
+                    console.log(sequenceNumber, msg);
                     if(reqUrl.pathname === '/') {                        
                         client_res.writeHead(302, {'Location': reqUrl.href+'middleman'});
                         client_res.end();                        

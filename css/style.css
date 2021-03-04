@@ -16,7 +16,7 @@ td input {
 	width: 100%;
 }
 
-input[type=checkbox] {
+.header__checkbox-container input[type=checkbox] {
 	margin-top: 0 !important;
 }
 
@@ -326,10 +326,11 @@ input[type=checkbox] {
 	justify-content: center;
 }
 .settings-modal__recording-checkbox {
+	margin-top: .75rem !important;
 }
 
 .settings-modal__label-max-messages {
-	padding-right: 1remx;	
+	padding-right: 1rem;	
 }
 .settings-modal__input-max-messages {
 	width: 12ch !important;
