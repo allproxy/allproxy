@@ -53,8 +53,8 @@ module.exports = class TcpProxy {
             let startTime = Date.now();
             let sequenceNumber = 0;
             
-            let request = '';
-            let response = '';
+            let request;
+            let response;
 
             // Connect to target host
             const targetSocket = targetUseTls ? tls.Socket() : net.Socket();
@@ -77,7 +77,8 @@ module.exports = class TcpProxy {
                 sequenceNumber = ++Global.nextSequenceNumber;                
                 request = data;
                 targetSocket.write(data);
-
+                processData();
+                request = data;
             });
 
             // Handle data from target (e.g., database)
@@ -85,7 +86,7 @@ module.exports = class TcpProxy {
                 //console.log('response'); 
                 response = data;
                 sourceSocket.write(data); 
-                if(request.length > 0) {
+                if(request) {
                     processData(); 
                 }                              
             });
@@ -119,14 +120,14 @@ module.exports = class TcpProxy {
                         break;
                     case 'mongo:':
                         const mongoFormatter = new MongoFormatter(request, response);
-                        requestString = mongoFormatter.getRequest();
-                        responseString = mongoFormatter.getResponse();
+                        requestString = mongoFormatter.getRequest();                        
+                        responseString = mongoFormatter.getResponse();                       
                         url = requestString.split('\n')[0];                        
                         break;
                     case 'redis:':
                         const redisFormatter = new RedisFormatter(request, response);
                         requestString = redisFormatter.getRequest();
-                        responseString = redisFormatter.getResponse();
+                        responseString = redisFormatter.getResponse();                      
                         for(let line of requestString.split('\n')) {                            
                             url += line + ' ';
                             if(url.length >= 64) break;
@@ -134,7 +135,8 @@ module.exports = class TcpProxy {
                         break;                                               
                     default:
                         requestString = HexFormatter.format(request);
-                        responseString = '\n'+HexFormatter.format(response)+'\n';
+                        responseString = response ? '\n'+HexFormatter.format(response)+'\n'
+                                                    : 'No Response';                        
                         if(requestString.length <= 64) {
                             url = requestString;
                         }
@@ -166,7 +168,7 @@ module.exports = class TcpProxy {
                     Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
                 }
 
-                request = response = '';                
+                request = response = undefined;               
             }   
         }        
     }

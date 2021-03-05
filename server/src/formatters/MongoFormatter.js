@@ -4,7 +4,7 @@ const MongoOpCode = require('./MongoOpCode');
 module.exports = class SqlFormatter{
 	constructor(reqBuf, rspBuf) {		
 		this.formattedRequest = this._formatRequest(reqBuf);
-		this.formattedResponse = this._formatResponse(rspBuf);
+		this.formattedResponse = rspBuf ? this._formatResponse(rspBuf) : 'No Response';
 		this.command = 'Request unknown';
 	}
 
