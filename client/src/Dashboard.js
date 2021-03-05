@@ -8,15 +8,13 @@ const Dashboard = (function(){
    
     x.start = (iosocket) => {    
         
-        iosocket.on('reqResJson', function(json) {
+        iosocket.on('reqResJson', function(json) {            
             if(isStopped()) {
                 return; // Do not record this message
             }
             if(!json.proxyConfig.recording) {
                 return; // Do not record this message
             }
-
-            console.log(json);
                         
             var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
             if(hostColor[hostPath] == undefined) {
@@ -120,13 +118,23 @@ const Dashboard = (function(){
             else {          		
                 var afterIndex;
                 var beforeIndex;
+                let equalIndex;
                 for(var i = 0; i < requests.length; ++i) {
                     var thisSeqNo = requests[i].find('.request__msg').data().sequenceNumber;
                     if(json.sequenceNumber > thisSeqNo) {
+                        if(i+1 < requests.length) {
+                            thisSeqNo = requests[i+1].find('.request__msg').data().sequenceNumber;
+                            if(json.sequenceNumber > thisSeqNo) {
+                                equalIndex = i+1;
+                                break;
+                            }
+                        }
                         afterIndex = i;
-                    }	
-                    else if(json.sequenceNumber < thisSeqNo) {
+                    } else if(json.sequenceNumber < thisSeqNo) {
                         beforeIndex = i;			        					        			
+                        break;
+                    } else {                        
+                        equalIndex = i;
                         break;
                     }
                 }
@@ -140,6 +148,8 @@ const Dashboard = (function(){
                     var $request = requests[beforeIndex];
                     $request.before($newRequest);			        		
                     requests.splice(beforeIndex, 0, $newRequest);
+                } else if(equalIndex !== undefined) {
+                    requests[equalIndex] = $newRequest;                    
                 } else {                    
                     var $request = requests[0];
                     $request.before($newRequest);			        		
