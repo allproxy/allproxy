@@ -15,8 +15,6 @@ const Dashboard = (function(){
             if(!json.proxyConfig.recording) {
                 return; // Do not record this message
             }
-
-            console.log(json);
                         
             var hostPath = json.clientIp+json.serverHost+(json.path?json.path:'')+(json.protocol?json.protocol:'');
             if(hostColor[hostPath] == undefined) {
