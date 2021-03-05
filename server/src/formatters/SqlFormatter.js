@@ -5,9 +5,10 @@ const SqlCommand = require('./SqlCommand');
 module.exports = class SqlFormatter{
 	constructor(reqBuf, rspBuf) {		
 		this.formattedQuery = this._formatQuery(reqBuf);
-		this.formattedResults = this.getCommand() === 'Query' ? 
+		this.formattedResults = rspBuf ? (this.getCommand() === 'Query' ? 
 											this._formatResults(rspBuf) 
-											: HexFormatter.format(rspBuf);
+											: HexFormatter.format(rspBuf))
+										: 'SQL Response Pending';
 		this.command = 'Request unknown';
 	}
 

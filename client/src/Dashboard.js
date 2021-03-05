@@ -1,14 +1,14 @@
 const Dashboard = (function(){    
     let x = {};
 
-    let requests = []; // Array of out of order requests or last in order request
+    let sequenceNumberArray = []; // Array of out of order requests or last in order request
 
     var colors = ['blue', 'green', 'darkorange','purple', 'brown', 'grey', 'slateblue','darkred'];
 	var hostColor = {}; // key=json.serverHost[json.path]	
    
     x.start = (iosocket) => {    
         
-        iosocket.on('reqResJson', function(json) {            
+        iosocket.on('reqResJson', function(json) {
             if(isStopped()) {
                 return; // Do not record this message
             }
@@ -68,7 +68,7 @@ const Dashboard = (function(){
                 `  <span class="request__msg-seqno">${json.sequenceNumber}</span>` +
                 `</div>` +
                 `<div class="request__msg-timestamp-container">` +
-                `  <span class="request__msg-timestamp">${formatTimestamp(json.timestamp)}</span>` +
+                `  <span class="request__msg-timestamp">${formatTimestamp(json)}</span>` +
                 `</div>` +
                 `<div title="${tooltip}" class="fa ${iconClass} request__msg-icon" ` +
                 `  style="cursor: pointer; float: left; color: ${color}">` +
@@ -105,86 +105,22 @@ const Dashboard = (function(){
             } else {
                 $requestBody.text(body);
             }
-
             
             var hidden = isFiltered(json) ? 'hidden' : '';
             var $newRequest = $(`<div ${hidden} class="request__msg-container"></div>`).append($request).append($requestBody);
-                        
-            json = $newRequest.find('.request__msg').data();    				
-            if(requests.length == 0) {      					
-                $('.request__container').append($newRequest); 
-                requests.push($newRequest);
+            
+            const sequenceNumber = $newRequest.find('.request__msg').data().sequenceNumber;         		
+            insertMessage(sequenceNumber, $newRequest);
+            
+            // Only display the last "n" requests	        	  	
+            if($('.request__container').children().length > SettingsModal.getMaxMessages()) {
+                sequenceNumberArray.shift();	        		
+                $('.request__container').children().first().remove();
             }
-            else {          		
-                var afterIndex;
-                var beforeIndex;
-                let equalIndex;
-                for(var i = 0; i < requests.length; ++i) {
-                    var thisSeqNo = requests[i].find('.request__msg').data().sequenceNumber;
-                    if(json.sequenceNumber > thisSeqNo) {
-                        if(i+1 < requests.length) {
-                            thisSeqNo = requests[i+1].find('.request__msg').data().sequenceNumber;
-                            if(json.sequenceNumber > thisSeqNo) {
-                                equalIndex = i+1;
-                                break;
-                            }
-                        }
-                        afterIndex = i;
-                    } else if(json.sequenceNumber < thisSeqNo) {
-                        beforeIndex = i;			        					        			
-                        break;
-                    } else {                        
-                        equalIndex = i;
-                        break;
-                    }
-                }
-                
-                if(afterIndex !== undefined) {
-                    var $request = requests[afterIndex];
-                    $request.after($newRequest);
-                    requests.splice(afterIndex+1, 0, $newRequest);			        		
-                }
-                else if(beforeIndex !== undefined) {
-                    var $request = requests[beforeIndex];
-                    $request.before($newRequest);			        		
-                    requests.splice(beforeIndex, 0, $newRequest);
-                } else if(equalIndex !== undefined) {
-                    requests[equalIndex] = $newRequest;                    
-                } else {                    
-                    var $request = requests[0];
-                    $request.before($newRequest);			        		
-                    requests.unshift($newRequest);
-                }
-                
-                // Remove consecutive requests to reduce storage and search time
-                var MIN_Q_LEN = 50;
-                var MAX_Q_LEN = 100;
-                if(requests.length > MAX_Q_LEN) {
-                    var prevSeqNo;
-                    for(var i = 0; i < requests.length; ++i) {
-                        if(requests.length == MIN_Q_LEN) break;
-                        var nextSeqNo = requests[i].find('.request__msg').data().sequenceNumber;			        		
-                        if(prevSeqNo) {
-                            if(prevSeqNo == nextSeqNo-1) {			        			
-                                requests.splice(i-1,1);
-                                --i;
-                            }	
-                            else {
-                                break;
-                            }
-                        }
-                        prevSeqNo = nextSeqNo;
-                    }	
-                }
-                
-                // Only display the last "n" requests	        	  	
-                if($('.request__container').children().length > SettingsModal.getMaxMessages()) {	        		
-                    $('.request__container').children().first().remove();
-                }
-            }    		  	
             
             if($('.header__auto-scroll-checkbox').prop('checked')) {
-                $request = requests[requests.length-1].find('.request__msg');
+                const i =  sequenceNumberArray.length-1;
+                $request = $('.request__container').children().eq(i).find('.request__msg');
                 $request.click(); // select new request and show response
                 $request.removeClass('visited-color');
                 
@@ -195,7 +131,40 @@ const Dashboard = (function(){
                 $('.request__container').scrollTop(totalHeight); 
             }
         });
-    }
+
+        function insertMessage(sequenceNumber, $newRequest) {
+            if (sequenceNumberArray.length === 0) {
+                $('.request__container').append($newRequest);
+                sequenceNumberArray.push(sequenceNumber);
+            } else {
+                let l = 0;
+                let r = sequenceNumberArray.length - 1;
+                let m;
+                while (l <= r) {
+                    m = l + Math.floor((r - l) / 2);
+                    if (sequenceNumberArray[m] === sequenceNumber) {
+                        $('.request__container').children().eq(m).replaceWith($newRequest);
+                        return;
+                    }
+
+                    if (sequenceNumberArray[m] < sequenceNumber) {
+                        l = m + 1;
+                    } else {
+                        r = m - 1;
+                    }
+                }
+
+                console.log(l,r,m);
+                if (sequenceNumberArray[m] < sequenceNumber) {
+                    $('.request__container').children().eq(m).after($newRequest);
+                    sequenceNumberArray.splice(m+1, 0, sequenceNumber);
+                } else {
+                    $('.request__container').children().eq(m).before($newRequest);
+                    sequenceNumberArray.splice(m, 0, sequenceNumber);
+                }
+            }
+        }
+    }    
 
     /**
      * Filter messages.
@@ -377,8 +346,9 @@ const Dashboard = (function(){
         }
     })
 
-    function formatTimestamp(ts) {
-        const date = new Date(ts);
+    function formatTimestamp(json) {
+        // return json.sequenceNumber; // used for testing only
+        const date = new Date(json.timestamp);
         const minutes = date.getMinutes().toString().padStart(2,'0');
         const seconds = date.getSeconds().toString().padStart(2,'0');
         const msecs = date.getMilliseconds().toString().padStart(3,'0');
