@@ -175,7 +175,24 @@ module.exports = class HttpProxy {
             var host = proxyConfig.hostname;
             if(proxyConfig.port) host += ':' + proxyConfig.port;
             parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, proxyConfig.path);
-    
+            
+            var endpoint = client_req.url.split('?')[0];
+				var tokens = endpoint.split('/');
+				endpoint = tokens[tokens.length-1];
+            const message = socketMessage.buildRequest(Date.now(),
+                                        sequenceNumber,											
+                                        client_req.headers, 
+                                        client_req.method,
+                                        client_req.url,
+                                        endpoint, 
+                                        null, 
+                                        client_req.connection.remoteAddress,
+                                        host, // server host
+                                        proxyConfig.path, 
+                                        Date.now() - startTime);
+            socketMessage.appendResponse(message, {}, "No Response", 0, 0);
+            Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
+
             client_req.pipe(proxy, {
                 end : true
             });        
