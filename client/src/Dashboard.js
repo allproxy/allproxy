@@ -22,8 +22,11 @@ const Dashboard = (function(){
             }
                         
             var color = hostColor[hostPath];
+
+            // Set error class to make text red
             var c = json.status < 400 ? '' : ' error';   
-            if(isGraphQlError(json)) c = ' error';         
+            if(isGraphQlError(json)) c = ' error';
+            if(json.responseBody === 'No Response') c = 'error';        
                         
             let iconClass;
             let tooltip = '';
