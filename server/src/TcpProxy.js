@@ -16,7 +16,7 @@ module.exports = class TcpProxy {
 
     static destructor(proxyConfig) {
         //console.log('TcpProxy.dtor', proxyConfig);       
-        if(proxyConfig.server) proxyConfig.server.close();
+        if(proxyConfig._server) proxyConfig._server.close();
     }
 
     /**
@@ -45,7 +45,7 @@ module.exports = class TcpProxy {
         }
 
         server.listen(sourcePort, '0.0.0.0', function(){console.log("Listening on port "+sourcePort+ " for target host "+targetHost+":"+targetPort)});
-        proxyConfig.server = server;
+        proxyConfig._server = server;
 
         // Create server (source) socket
         function onConnect(sourceSocket) {             

@@ -88,10 +88,31 @@ module.exports = class HttpProxy {
                     }
                 }
                 else {
+                    emitRequestToBrowser();
                     proxyRequest();
                 }
             }
-        }  
+        }
+        
+        function emitRequestToBrowser() {
+            const host = HttpProxy.getHostPort(proxyConfig);
+            var endpoint = client_req.url.split('?')[0];
+				var tokens = endpoint.split('/');
+				endpoint = tokens[tokens.length-1];
+            const message = socketMessage.buildRequest(Date.now(),
+                                        sequenceNumber,											
+                                        client_req.headers, 
+                                        client_req.method,
+                                        client_req.url,
+                                        endpoint, 
+                                        null, 
+                                        client_req.connection.remoteAddress,
+                                        host, // server host
+                                        proxyConfig.path, 
+                                        Date.now() - startTime);
+            socketMessage.appendResponse(message, {}, "No Response", 0, 0);
+            Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
+        }
         
         function proxyRequest() {
             //console.log(sequenceNumber, 'proxyRequest');
@@ -142,6 +163,9 @@ module.exports = class HttpProxy {
             else {
                 proxy = http.request(options, proxyRequest);
             }
+
+            const host = HttpProxy.getHostPort(proxyConfig);
+            parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, proxyConfig.path);
     
             function proxyRequest(proxyRes) {
                 parseRequestPromise.then(function(message) {
@@ -170,28 +194,7 @@ module.exports = class HttpProxy {
                 error.config = proxyConfig; // Include the proxy config in error response
                 console.log(sequenceNumber, 'Proxy connect error', JSON.stringify(error));
                 sendErrorResponse(404, "Proxy connect error", error, proxyConfig);
-            })
-    
-            var host = proxyConfig.hostname;
-            if(proxyConfig.port) host += ':' + proxyConfig.port;
-            parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, proxyConfig.path);
-            
-            var endpoint = client_req.url.split('?')[0];
-				var tokens = endpoint.split('/');
-				endpoint = tokens[tokens.length-1];
-            const message = socketMessage.buildRequest(Date.now(),
-                                        sequenceNumber,											
-                                        client_req.headers, 
-                                        client_req.method,
-                                        client_req.url,
-                                        endpoint, 
-                                        null, 
-                                        client_req.connection.remoteAddress,
-                                        host, // server host
-                                        proxyConfig.path, 
-                                        Date.now() - startTime);
-            socketMessage.appendResponse(message, {}, "No Response", 0, 0);
-            Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
+            }) 
 
             client_req.pipe(proxy, {
                 end : true
@@ -234,5 +237,11 @@ module.exports = class HttpProxy {
                 console.log(sequenceNumber, 'sendErrorResponse: Parse request promise rejected:', error.message);
             })
         }
-    }    
+    }
+    
+    static getHostPort(proxyConfig) {
+        let host = proxyConfig.hostname;
+        if(proxyConfig.port) host += ':' + proxyConfig.port;
+        return host;
+    }
 }

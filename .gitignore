@@ -1,3 +1,5 @@
+.cache.json
+
 # Logs
 *.log
 npm-debug.log*
