@@ -8,7 +8,9 @@ module.exports = class SqlFormatter{
 		this.formattedResults = rspBuf ? (this.getCommand() === 'Query' ? 
 											this._formatResults(rspBuf) 
 											: HexFormatter.format(rspBuf))
-										: 'No Response';
+										: this.getCommand() === 'Quit' ?
+											'Closed' :
+											'No Response';
 		this.command = 'Request unknown';
 	}
 
