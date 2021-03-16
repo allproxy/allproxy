@@ -78,7 +78,7 @@ const Dashboard = (function(){
                 `</div>` +
                 `<div class="fa fa-caret-right request__msg-caret">` +
                 `</div>` +                
-                `<div class="request__msg${c}">` +
+                `<div class="request__msg ${c}">` +
                 `  ${json.method} ` +
                 `  <span style="font-weight: bold">` +
                 `    ${endpoint}` +
@@ -112,6 +112,7 @@ const Dashboard = (function(){
             var hidden = isFiltered(json) ? 'hidden' : '';
             var $newRequest = $(`<div ${hidden} class="request__msg-container"></div>`).append($request).append($requestBody);
             
+            if($newRequest.find('.request__msg').data() === undefined) console.log($newRequest, json);
             const sequenceNumber = $newRequest.find('.request__msg').data().sequenceNumber;         		
             insertMessage(sequenceNumber, $newRequest);
             
@@ -157,7 +158,7 @@ const Dashboard = (function(){
                     }
                 }
 
-                console.log(l,r,m);
+                //console.log(l,r,m);
                 if (sequenceNumberArray[m] < sequenceNumber) {
                     $('.request__container').children().eq(m).after($newRequest);
                     sequenceNumberArray.splice(m+1, 0, sequenceNumber);
