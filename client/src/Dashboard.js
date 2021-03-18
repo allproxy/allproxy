@@ -203,6 +203,7 @@ const Dashboard = (function(){
                 $activeUrl = undefined;				
             }
             else {		
+                console.log($element.scrollTop);
                 //console.log($activeUrl, $element)	
                 $('.response__container').hide();
                 $('.response__loading').show();
@@ -451,6 +452,20 @@ const Dashboard = (function(){
             const $savedActiveUrl = $activeUrl;
             $activeUrl.click(); // close
             $savedActiveUrl.click(); // open
+
+            let offset = 0;
+            let done = false;
+            $('.request__container').find('.request__msg').each(function() {
+                if(done) return;
+                const seqNo = $activeUrl.data().sequenceNumber;
+                if($(this).data().sequenceNumber === seqNo) {
+                    done = true;
+                } else {
+                    offset += $(this).outerHeight();
+                }
+
+            });
+            $('.request__container').scrollTop(offset); 
         }
     } 
 
