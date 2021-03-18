@@ -99,6 +99,14 @@ module.exports = class ProxyConfigs {
         }
     }
 
+    isMatch(needle, haystack) {
+        if(needle.indexOf('.*') !== -1) {
+            return haystack.search(needle) !== -1;
+        } else {
+            return haystack.startsWith(needle);
+        }
+    }
+
     /**
      * Find proxy config matching URL
      * @param {*} reqUrl 
@@ -113,7 +121,7 @@ module.exports = class ProxyConfigs {
         for(const key in this.proxyConfigs) {            
             for(const proxyConfig of this.proxyConfigs[key].configs) {
                 if(!proxyConfig.isHttpOrHttps) continue;
-                if(reqUrlPath.startsWith(proxyConfig.path) && 
+                if(this.isMatch(proxyConfig.path, reqUrlPath) && 
                     isForwardProxy === (proxyConfig.protocol === 'proxy:')) {
                     if(matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
                         matchingProxyConfig = proxyConfig;
