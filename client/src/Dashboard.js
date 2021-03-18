@@ -202,8 +202,7 @@ const Dashboard = (function(){
             if(activeSeqNo === thisSeqNo) {                                
                 $activeUrl = undefined;				
             }
-            else {		
-                console.log($element.scrollTop);
+            else {
                 //console.log($activeUrl, $element)	
                 $('.response__container').hide();
                 $('.response__loading').show();
