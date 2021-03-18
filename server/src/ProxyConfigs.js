@@ -101,7 +101,7 @@ module.exports = class ProxyConfigs {
 
     isMatch(needle, haystack) {
         if(needle.indexOf('.*') !== -1) {
-            return haystack.search(needle) !== -1;
+            return haystack.match(needle) !== -1;
         } else {
             return haystack.startsWith(needle);
         }
