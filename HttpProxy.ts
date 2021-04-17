@@ -97,12 +97,12 @@ export default class HttpProxy {
             }
         }
 
-        function emitRequestToBrowser(proxyConfig: ProxyConfig) {
+        async function emitRequestToBrowser(proxyConfig: ProxyConfig) {
             const host = HttpProxy.getHostPort(proxyConfig!);
             var endpoint = client_req.url?.split('?')[0];
 				var tokens = endpoint?.split('/');
 				endpoint = tokens?tokens[tokens.length-1]:'';
-            const message = socketMessage.buildRequest(Date.now(),
+            const message = await socketMessage.buildRequest(Date.now(),
                                         sequenceNumber,
                                         client_req.headers,
                                         client_req.method!,

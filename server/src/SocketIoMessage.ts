@@ -1,16 +1,17 @@
 const decompressResponse = require('decompress-response');
 import Message from '../../common/Message';
 import { IncomingHttpHeaders, IncomingMessage } from 'http';
+import dns from 'dns';
 
 export default class SocketMessage {
 	/**
 	 * Parse request data
 	 */
-	static parseRequest(client_req: IncomingMessage, startTime: number, sequenceNumber: number, host: string, path: string)
+	static async parseRequest(client_req: IncomingMessage, startTime: number, sequenceNumber: number, host: string, path: string)
 		: Promise<Message>
 	{
 
-		return new Promise(function(resolve) {
+		return new Promise(async function(resolve) {
 
 			client_req.setEncoding('utf8');
 			var rawData = '';
@@ -19,7 +20,7 @@ export default class SocketMessage {
 			});
 
 			var requestBody: string|{};
-			client_req.on('end', function() {
+			client_req.on('end', async function() {
 
 				try {
 					requestBody = JSON.parse(rawData)
@@ -44,7 +45,7 @@ export default class SocketMessage {
 				}
 				if('/'+endpoint === client_req.url) endpoint = '';
 
-				let message = buildRequest(Date.now(),
+				let message = await buildRequest(Date.now(),
 											sequenceNumber,
 											client_req.headers,
 											client_req.method,
@@ -63,7 +64,7 @@ export default class SocketMessage {
 	}
 
 	static buildRequest(timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
-		: Message
+		: Promise<Message>
 	{
 		return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
 	}
@@ -113,28 +114,45 @@ export default class SocketMessage {
 
 };
 
-function buildRequest(timestamp:number, sequenceNumber:number, requestHeaders:{}, method:string|undefined, url:string|undefined, endpoint:string, requestBody:{}|string, clientIp:string|undefined, serverHost:string, path:string, elapsedTime:number)
-	: Message
+async function buildRequest(timestamp:number, sequenceNumber:number, requestHeaders:{}, method:string|undefined, url:string|undefined, endpoint:string, requestBody:{}|string, clientIp:string|undefined, serverHost:string, path:string, elapsedTime:number)
+	: Promise<Message>
 {
-	var message = {
-		timestamp,
-		sequenceNumber,
-		requestHeaders,
-		method,
-		protocol: 'http:',
-		url,
-		endpoint,
-		requestBody,
-		clientIp,
-		serverHost,
-		path,
-		elapsedTime,
-		responseHeaders: {},
-		responseBody: {},
-		status: 0,
-	};
+	return new Promise<Message>((resolve) => {
+		if (clientIp) {
+			clientIp = clientIp.replace('::ffff:', '');
+			dns.reverse(clientIp, (err, hosts) => {
+				if (err === null && hosts.length > 0) {
+					clientIp = hosts[0];
+					clientIp = clientIp.split('.')[0]; // un-qualify host name
+				}
+				resolve(initMessage());
+			});
+		} else {
+			clientIp = 'unknown';
+			resolve(initMessage());
+		}
+	});
 
-	return message;
+	function initMessage() {
+		var message = {
+			timestamp,
+			sequenceNumber,
+			requestHeaders,
+			method,
+			protocol: 'http:',
+			url,
+			endpoint,
+			requestBody,
+			clientIp,
+			serverHost,
+			path,
+			elapsedTime,
+			responseHeaders: {},
+			responseBody: {},
+			status: 0,
+		};
+		return message;
+	}
 }
 
 function appendResponse(message: Message, responseHeaders: {}, responseBody: {}, status:number, elapsedTime:number) {
