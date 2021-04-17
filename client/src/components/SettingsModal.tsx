@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal } from '@material-ui/core'
 import SettingsStore from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
+import pickIcon from '../PickIcon';
 
 type Props = {
 	open: boolean,
@@ -26,11 +27,12 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 							<thead>
 								<tr>
 									<td></td>
+									<td></td>
 									<td className="text-primary"><label>Protocol</label></td>
 									<td className="text-primary"><label>Path or Port</label></td>
 									<td className="text-primary"><label>Target Host</label></td>
 									<td className="text-primary"><label>Target Port</label></td>
-									<td className="align-center text-primary"><label>Capture</label></td>
+									<td className="align-center text-primary"><label>Stop/Start</label></td>
 								</tr>
 							</thead>
 							: null }
@@ -45,6 +47,12 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 											>
 												X
 											</button>
+										</td>
+										<td>
+										<div className={`settings-modal__icon fa ${pickIcon(entry.protocol)}`}
+												style={{ cursor: 'pointer', float: 'left', color: 'steelblue' }}
+											>
+											</div>
 										</td>
 										<td className="settings-modal__proxy-protocol-container">
 											<select className="settings-modal__select-protocol form-control"
@@ -99,9 +107,15 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 									</td>
 									<td className="settings-modal__input-path-container">
 										<input type="text" className="form-control settings-modal__input-path"
-											placeholder={store.getProtocol() === 'log:'
+											placeholder={
+												store.getProtocol() === 'log:'
 												? 'Enter log tail command (e.g., docker logs -f container)'
-												: 'Enter path (e.g., /xxx/yyy or .*/xxx)'}
+													: store.getProtocol() === 'http:'
+														|| store.getProtocol() === 'https:'
+														|| store.getProtocol() === 'proxy:'
+												? 'Enter path (e.g., /xxx/yyy or .*/xxx)'
+												: 'Entry source TCP port'
+											}
 											value={ store.getPath() }
 											onChange={(e) => store.setPath(e.target.value)}
 										/>

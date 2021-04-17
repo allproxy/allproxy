@@ -340,6 +340,10 @@ td input {
 	margin-top: .5rem;
 }
 
+.settings-modal__icon {
+	margin-top: .725rem;
+}
+
 .settings-modal__proxy-path,
 .settings-modal__proxy-protocol,
 .settings-modal__proxy-host {

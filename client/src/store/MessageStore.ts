@@ -19,7 +19,13 @@ export default class MessageStore {
         this._isError = this.isErrorResponse(message);
         this.visited = false;
         this.color = colorPicker(message);
-        this.iconClass = pickIcon(message);
+        if (message.requestHeaders['middleman_proxy'] === 'resend') {
+            this.iconClass = 'fa-clone';
+            this.iconClass += ' resend-icon';
+        }
+        else {
+            this.iconClass = pickIcon(message.protocol);
+        }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
     }
