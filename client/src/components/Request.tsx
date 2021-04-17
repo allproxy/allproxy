@@ -12,10 +12,7 @@ type Props = {
 const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 	return (
 		<div className="request__msg-container">
-			<div className="request__msg-seqno-container">
-				<span className="request__msg-seqno">{store.getMessage().sequenceNumber}</span>
-			</div>
-			<div className="request__msg-timestamp-container">
+			<div className="request__msg-timestamp-container" title={ `sequence number: ${store.getMessage().sequenceNumber}`  }>
 				<span className="request__msg-timestamp">{formatTimestamp(store.getMessage().timestamp)}</span>
 			</div>
 			<Tooltip title={store.getTooltip()} aria-label={store.getTooltip()}>
@@ -30,7 +27,7 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 			<div className={`request__msg
 				${isActive ? ' active' : ''}
 				${store.isError() ? ' error' : ''}
-				${store.getVisited() ? ' visited-color' : ''}
+				${store.getVisited() && !store.isError() ? ' visited-color' : ''}
 				`}
 				onClick={() => { onClick(); store.setVisited(true); } }
 			>

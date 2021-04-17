@@ -64,7 +64,7 @@ export default class LogProxy {
 	buffer = '';
 	timerHandle: NodeJS.Timeout|undefined;
 
-	sendToBrowser(streamName: string, data: any) {
+	async sendToBrowser(streamName: string, data: any) {
 		if (this.timerHandle) {
 			clearInterval(this.timerHandle);
 		}
@@ -87,7 +87,7 @@ export default class LogProxy {
 
 		console.log(`sendToBrowser log: ${this.command}`);
 		const seqNo = ++Global.nextSequenceNumber;
-		const message: Message = SocketIoMessage.buildRequest(
+		const message = await SocketIoMessage.buildRequest(
 			Date.now(),
 			seqNo,
 			{}, // headers

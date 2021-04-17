@@ -5,9 +5,10 @@ networks:
     external: true
 
 services:
-  middleman:   
+  middleman:
+    image:  node:alpine
     container_name: middleman
-    build: .    
+    working_dir: /app
     networks:
       sharpspring_default:
         aliases:
@@ -17,8 +18,20 @@ services:
         published: 8888
         protocol: tcp
         mode: host
-      - target: 33306
-      - "33306:33306"
-      - "5052:5052"
-      - "5053:5053"
-    command: 'yarn start --ssl'
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    expose:
+      - 27017
+      - 33306
+      - 11211
+      - 4601
+      - 5040
+      - 5052
+      - 5053
+      - 5056
+      - 5057
+      - 5068
+      - 6379
+    command: 'yarn start'
