@@ -64,11 +64,11 @@ export default class ProxyConfigs {
         })
     }
 
-    activateConfig(proxyConfigs: ProxyConfig[], socket?: io.Socket) {
+    async activateConfig(proxyConfigs: ProxyConfig[], socket?: io.Socket) {
         for(const proxyConfig of proxyConfigs) {
             if(proxyConfig.protocol === 'log:') {
                 new LogProxy(proxyConfig);
-            } else if(!ProxyConfig.isHttpOrHttps(proxyConfig)) {
+            } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
                 new TcpProxy(proxyConfig);
             }
         }
@@ -83,7 +83,6 @@ export default class ProxyConfigs {
 
     // Close 'any:' protocol servers that are running for the browser owning the socket
     closeAnyServersWithSocket(socketId: string) {
-        console.log('closeAnyServerWithSocket');
         this.proxyConfigs.forEach((socketConfigs: SocketConfigs, key: string) => {
             if (socketId && key !== socketId) return;
             for(const proxyConfig of socketConfigs.configs) {

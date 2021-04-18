@@ -8,7 +8,6 @@ import SqlFormatter from './formatters/SqlFormatter';
 import MongoFormatter from './formatters/MongoFormatter';
 import RedisFormatter from './formatters/RedisFormatter';
 import ProxyConfig from '../../common/ProxyConfig';
-import { request } from 'node:http';
 
 export default class TcpProxy {
     constructor(proxyConfig: ProxyConfig) {
@@ -32,7 +31,7 @@ export default class TcpProxy {
         const targetHost = proxyConfig.hostname;
         const targetPort = proxyConfig.port;
 
-        let server;
+        let server: net.Server | tls.Server;
 
         if(sourceUseTls) {
             var tlsOptions = {
@@ -46,8 +45,24 @@ export default class TcpProxy {
             server = net.createServer(onConnect);
         }
 
-        server.listen(sourcePort, function(){console.log("Listening on port "+sourcePort+ " for target host "+targetHost+":"+targetPort)});
-        proxyConfig._server = server;
+        let retries = 0;
+        let wait = 1000;
+        server.on('error', (err) => {
+            if (++retries < 10) {
+                setTimeout(() => listen(server), wait *= 2);
+            } else {
+                console.log('TcpProxy server error', err);
+            }
+        });
+
+        listen(server);
+
+        function listen(server: net.Server) {
+            server.listen(sourcePort, function () {
+                console.log("Listening on port " + sourcePort + " for target host " + targetHost + ":" + targetPort)
+            });
+            proxyConfig._server = server;
+        }
 
         type RequestInfo = {
             data: Buffer,

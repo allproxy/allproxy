@@ -25,7 +25,9 @@ export default class HttpProxy {
         let parseRequestPromise: Promise<any>;
 
         var startTime = Date.now();
-        const clientDir = __dirname + '/../client/build'
+        const clientDir = __dirname.endsWith('/build')
+            ? __dirname + '/../client/build'
+            : __dirname + '/client/build';
 
         if (reqUrl.pathname == '/middleman' && reqUrl.search == undefined) {
             console.log(sequenceNumber, 'loading index.html');
