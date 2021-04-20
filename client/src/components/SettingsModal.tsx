@@ -91,7 +91,7 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 							</tbody>
 						</table>
 					</div>
-					<div>
+					<div style={{borderTop: 'solid steelblue', paddingTop: '.5rem'}}>
 						<table>
 							<tbody>
 								<tr>

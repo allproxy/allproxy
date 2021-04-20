@@ -46,6 +46,7 @@ export default class MessageQueueStore {
 		while(this.stores.length > 0) {
 			this.stores.pop();
 		}
+		this.stopped = false;
 	}
 
 	public getMessages(): MessageStore[] {

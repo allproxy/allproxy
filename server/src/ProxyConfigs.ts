@@ -6,23 +6,58 @@ import path from 'path';
 import ProxyConfig from '../../common/ProxyConfig';
 import Message from '../../common/Message';
 import url from 'url';
+const homedir = require('os').homedir();
 
-const CACHE_JSON = `${__dirname}${path.sep}..${path.sep}..${path.sep}.cache.json`;
+const MIDDLEMAN_DIR = `${homedir}${path.sep}.middleman`;
+const CONFIG_JSON = `${MIDDLEMAN_DIR}${path.sep}config.json`;
+const OLD_CACHE_JSON = `${__dirname}${path.sep}..${path.sep}..${path.sep}.cache.json`;
 const CACHE_SOCKET_ID = 'cache';
 
 interface SocketConfigs { socket ?: io.Socket, configs: ProxyConfig[] };
 
 export default class ProxyConfigs {
 
-    proxyConfigs = new Map<string, SocketConfigs>();
+    proxyConfigsMap = new Map<string, SocketConfigs>();
 
     constructor() {
-        this.proxyConfigs = new Map();
-        const cache = fs.existsSync(CACHE_JSON) ? fs.readFileSync(CACHE_JSON) : undefined;
-        if(cache) {
-            const json = JSON.parse(cache.toString());
-            this.activateConfig(json.configs);
+        if (!fs.existsSync(MIDDLEMAN_DIR)){
+            fs.mkdirSync(MIDDLEMAN_DIR);
+            if (fs.existsSync(OLD_CACHE_JSON)) {
+                fs.copyFileSync(CONFIG_JSON, OLD_CACHE_JSON);
+            } else {
+                fs.writeFileSync(
+                    CONFIG_JSON,
+                    JSON.stringify({ configs: this.defaultConfig() }, null, 2)
+                );
+            }
         }
+
+        this.proxyConfigsMap = new Map();
+        this.activateConfig(this.getConfig());
+    }
+
+    private defaultConfig(): ProxyConfig[] {
+        // proxy all http by default
+        return [
+            {
+                protocol: 'proxy:',
+                path: '/',
+                hostname: '',
+                port: 0,
+                recording: true,
+            },
+        ];
+    }
+
+    private getConfig(): ProxyConfig[] {
+        return fs.existsSync(CONFIG_JSON) ? JSON.parse(fs.readFileSync(CONFIG_JSON).toString()).configs : [];
+    }
+
+    private saveConfig(proxyConfigs: ProxyConfig[]) {
+        // Cache the config, to configure the proxy on the next start up prior
+        // to receiving the config from the browser.
+        fs.writeFileSync(CONFIG_JSON,
+            JSON.stringify({ configs: proxyConfigs, }, null, 2));
     }
 
     addHttpServer(httpServer: any) {
@@ -33,15 +68,13 @@ export default class ProxyConfigs {
     _socketConnection(socket: io.Socket) {
         console.log('ProxyConfigs: socket connected', socket.conn.id);
 
+        socket.emit('proxy config', this.getConfig()); // send config to browser
+
         socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
             console.log('ProxyConfigs: proxy config received',
                         socket.conn.id,
                         proxyConfigs);
-
-            // Cache the config, to configure the proxy on the next start up prior
-            // to receiving the config from the browser.
-            fs.writeFileSync(CACHE_JSON,
-                                JSON.stringify({configs: proxyConfigs,}, null, 2));
+            this.saveConfig(proxyConfigs);
 
             // Make sure all matching 'any:' protocol servers are closed.
             for(const proxyConfig of proxyConfigs) {
@@ -56,7 +89,7 @@ export default class ProxyConfigs {
         socket.on('disconnect', () => {
             console.log('ProxyConfigs: socket disconnect', socket.conn.id);
             this.closeAnyServersWithSocket(socket.conn.id);
-            this.proxyConfigs.delete(socket.conn.id);
+            this.proxyConfigsMap.delete(socket.conn.id);
         })
 
         socket.on('error', (e: any) => {
@@ -73,17 +106,17 @@ export default class ProxyConfigs {
             }
         }
 
-        this.proxyConfigs.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
+        this.proxyConfigsMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
                                 {socket: (socket ? socket : undefined), configs: proxyConfigs});
         if(socket !== undefined) {
             this.closeAnyServersWithSocket(CACHE_SOCKET_ID);
-            this.proxyConfigs.delete(CACHE_SOCKET_ID);
+            this.proxyConfigsMap.delete(CACHE_SOCKET_ID);
         }
     }
 
     // Close 'any:' protocol servers that are running for the browser owning the socket
     closeAnyServersWithSocket(socketId: string) {
-        this.proxyConfigs.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             if (socketId && key !== socketId) return;
             for(const proxyConfig of socketConfigs.configs) {
                 if(proxyConfig.protocol === 'log:') {
@@ -97,8 +130,8 @@ export default class ProxyConfigs {
 
     // Close 'any:' protocol servers the specified listening port
     closeAnyServerWithPort(port: number) {
-        console.log('closeAnyServerWithPort', port);
-        this.proxyConfigs.forEach((socketConfigs: SocketConfigs, key: string) => {
+        //console.log('closeAnyServerWithPort', port);
+        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
                     TcpProxy.destructor(proxyConfig);
@@ -127,7 +160,7 @@ export default class ProxyConfigs {
 
         let matchingProxyConfig: ProxyConfig|undefined = undefined;
         // Find matching proxy configuration
-        this.proxyConfigs.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
                 if (this.isMatch(proxyConfig.path, reqUrlPath) &&
@@ -150,7 +183,7 @@ export default class ProxyConfigs {
         const path = inProxyConfig ? inProxyConfig.path : '';
         //console.log('emitMessageToBrowser()', message.url);
         let socketId: string;
-        this.proxyConfigs.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (inProxyConfig === undefined || proxyConfig.path === path) {
                     if (key === socketId) continue;

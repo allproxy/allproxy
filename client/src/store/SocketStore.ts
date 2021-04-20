@@ -20,7 +20,12 @@ export default class SocketStore {
 		this.socket.on('connect', () => {
 			console.log('socket connected');
 			this.setSocketConnected(true);
-			ProxyConfigLocalStorage.load();
+		});
+
+		this.socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
+			//console.log('proxy configs', proxyConfigs);
+			ProxyConfigLocalStorage.merge(proxyConfigs);
+			ProxyConfigLocalStorage.load(); // send to server
 		});
 
 		this.socket.on('disconnect', () => {
