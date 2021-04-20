@@ -32,9 +32,7 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 				onClick={() => { onClick(); store.setVisited(true); } }
 			>
 				{store.getMessage().method+' '}
-				<span style={{ fontWeight: "bold" }}>
-					{store.getMessage().endpoint}
-				</span>
+				<b>{store.getMessage().endpoint}</b>&nbsp;
 				({store.getMessage().clientIp+'->' + store.getMessage().serverHost}) {store.getUrl()}
 			</div>
 			<div className="request__body" hidden={!isActive}>

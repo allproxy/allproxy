@@ -7,6 +7,8 @@ import socketMessage from './server/src/SocketIoMessage';
 import Global from './server/src/Global';
 import ProxyConfig from './common/ProxyConfig';
 import Message from './common/Message';
+import { request } from 'node:http';
+
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -25,22 +27,24 @@ export default class HttpProxy {
         let parseRequestPromise: Promise<any>;
 
         var startTime = Date.now();
-        const clientDir = __dirname.endsWith('/build')
-            ? __dirname + '/../client/build'
-            : __dirname + '/client/build';
+        const clientDir = __dirname.endsWith(path.sep+'build')
+            ? __dirname + path.sep + '..'+path.sep+'client'+path.sep+'build'
+            : __dirname + path.sep + 'client' + path.sep + 'build';
 
-        if (reqUrl.pathname == '/middleman' && reqUrl.search == undefined) {
+        console.log(reqUrl.pathname, reqUrl.search);
+        if (reqUrl.pathname === '/'+'middleman') {
             console.log(sequenceNumber, 'loading index.html');
             client_res.writeHead(200, {
                 'Content-type' : 'text/html'
             });
-            client_res.end(fs.readFileSync(clientDir + '/index.html'));
+            client_res.end(fs.readFileSync(clientDir + path.sep+'index.html'));
         } else {
+            const dir = clientDir + reqUrl.pathname?.replace(/\//g, path.sep);
             // File exists locally?
             if(reqUrl.protocol === null &&
-                 fs.existsSync(clientDir + reqUrl.pathname) && fs.lstatSync(clientDir + reqUrl.pathname).isFile()) {
-                var extname = path.extname(reqUrl.pathname!);
-                var contentType = 'text/html';
+                 fs.existsSync(dir) && fs.lstatSync(dir).isFile()) {
+                const extname = path.extname(reqUrl.pathname!);
+                let contentType = 'text/html';
                 switch (extname) {
                     case '.js':
                         contentType = 'text/javascript';
@@ -196,11 +200,7 @@ export default class HttpProxy {
             }
 
             proxy.on('error', function(error) {
-                const jsonData = {
-                    error,
-                    config: proxyConfig,
-                }
-                console.log(sequenceNumber, 'Proxy connect error', JSON.stringify(error));
+                console.log(sequenceNumber, 'Proxy connect error', JSON.stringify(error), 'config:', proxyConfig);
                 sendErrorResponse(404, "Proxy connect error", error, proxyConfig);
             })
 
