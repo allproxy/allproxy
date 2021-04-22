@@ -10,7 +10,8 @@ export default class ResendStore {
     public constructor(message: Message) {
         this.message = message;
         this.methodAndUrl = message.method + ' ' + message.url;
-        this.body = message.requestBody ? JSON.stringify(message.requestBody) : '';
+        this.body = message.requestBody ? JSON.stringify(message.requestBody, null, 2) : '';
+        this.body = this.body.replace(/\\n/g, ' ');
 		makeAutoObservable(this);
     }
 

@@ -55,14 +55,12 @@ const Response = ({ message }: Props) => {
 
 			<Accordion defaultExpanded={ true }>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-					<b>Response Data:</b>
+					<b title={JSON.stringify({ responseBody: message.responseBody }, null, 2)}>Response Data:</b>
 				</AccordionSummary>
 				<AccordionDetails>
-					{ Object.keys(message.requestBody).length > 0 ?
-						<pre>
-							{getResponseBody(message)}
-						</pre>
-					: 'No response data'}
+					<pre>
+						{getResponseBody(message)}
+					</pre>
 				</AccordionDetails>
 			</Accordion>
 		</div>

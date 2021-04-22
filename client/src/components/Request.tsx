@@ -1,6 +1,5 @@
 import React from 'react';
 import { observer } from "mobx-react-lite";
-import { Tooltip } from '@material-ui/core';
 import MessageStore from '../store/MessageStore';
 
 type Props = {
@@ -15,13 +14,12 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 			<div className="request__msg-timestamp-container" title={ `sequence number: ${store.getMessage().sequenceNumber}`  }>
 				<span className="request__msg-timestamp">{formatTimestamp(store.getMessage().timestamp)}</span>
 			</div>
-			<Tooltip title={store.getTooltip()} aria-label={store.getTooltip()}>
-				<div className={`fa ${store.getIconClass()} request__msg-icon`}
-					style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
-					onClick={ onResend }
-				>
-				</div>
-			</Tooltip>
+			<div className={`fa ${store.getIconClass()} request__msg-icon`}
+				title={store.getTooltip()}
+				style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
+				onClick={ onResend }
+			>
+			</div>
 			<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}>
 			</div>
 			<div className={`request__msg
