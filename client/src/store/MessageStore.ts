@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import colorPicker from '../ColorPicker';
-import Message from '../common/Message';
+import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon from '../PickIcon';
 import Util from '../Util';
 
@@ -90,6 +90,6 @@ export default class MessageStore {
         // Set error class to make text red
         return message.status >= 400
             || Util.isGraphQlError(message)
-            || message.responseBody === 'No Response';
+            || message.responseBody === NO_RESPONSE;
     }
 }

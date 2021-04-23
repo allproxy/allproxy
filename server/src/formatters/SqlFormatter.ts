@@ -1,4 +1,5 @@
 import sqlFormatter from 'sql-formatter';
+import { NO_RESPONSE } from '../../../common/Message';
 import HexFormatter from './HexFormatter';
 import SqlCommand from './SqlCommand';
 
@@ -14,7 +15,7 @@ export default class SqlFormatter{
 				: HexFormatter.format(rspBuf))
 			: this.getCommand() === 'Quit'
 				?	'Closed'
-				:	'No Response';
+				:	NO_RESPONSE;
 		this.command = 'Request unknown';
 	}
 

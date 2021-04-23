@@ -8,6 +8,7 @@ import SqlFormatter from './formatters/SqlFormatter';
 import MongoFormatter from './formatters/MongoFormatter';
 import RedisFormatter from './formatters/RedisFormatter';
 import ProxyConfig from '../../common/ProxyConfig';
+import { NO_RESPONSE } from '../../common/Message';
 
 export default class TcpProxy {
     constructor(proxyConfig: ProxyConfig) {
@@ -164,7 +165,7 @@ export default class TcpProxy {
                         default:
                             requestString = HexFormatter.format(request.data);
                             responseString = response ? '\n' + HexFormatter.format(response) + '\n'
-                                : 'No Response';
+                                : NO_RESPONSE;
                             if (requestString.length <= 64) {
                                 url = requestString;
                             }

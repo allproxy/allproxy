@@ -1,5 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
-import Message from '../common/Message';
+import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
 
 const DEFAULT_LIMIT = 1000;
@@ -77,16 +77,18 @@ export default class MessageQueueStore {
 		}
 
 		// console.log(l,r,m);
-		const store = new MessageStore(message);
+		const messageStore = new MessageStore(message);
 		if (this.stores.length === 0) {
-			this.stores.push(store);
+			this.stores.push(messageStore);
 		} else if (sn === message.sequenceNumber) {
-			this.stores[m] = store;
+			if (messageStore.getMessage().responseBody !== NO_RESPONSE) {
+				this.stores[m] = messageStore;
+			}
 		}
 		else if (sn < message.sequenceNumber) {
-			this.stores.splice(m+1, 0, store);
+			this.stores.splice(m+1, 0, messageStore);
 		} else if(sn > message.sequenceNumber) {
-			this.stores.splice(m, 0, store);
+			this.stores.splice(m, 0, messageStore);
 		}
 
 		// Only display the last "n" requests
