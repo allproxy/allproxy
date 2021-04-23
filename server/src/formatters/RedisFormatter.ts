@@ -1,9 +1,11 @@
+import { NO_RESPONSE } from '../../../common/Message';
+
 export default class RedisFormatter{
 	formattedRequest: any;
 	formattedResponse: string;
 	constructor(reqBuf: Buffer, rspBuf: Buffer) {
 		this.formattedRequest = this._formatRequest(reqBuf);
-		this.formattedResponse = rspBuf ? this._formatResponse(rspBuf) : 'No Response';
+		this.formattedResponse = rspBuf ? this._formatResponse(rspBuf) : NO_RESPONSE;
 	}
 
 	/**

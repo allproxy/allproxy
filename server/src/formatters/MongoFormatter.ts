@@ -1,3 +1,4 @@
+import { NO_RESPONSE } from '../../../common/Message';
 import HexFormatter from './HexFormatter';
 import MongoOpCode from './MongoOpCode';
 
@@ -7,7 +8,7 @@ export default class SqlFormatter {
 	command: string;
 	constructor(reqBuf: Buffer, rspBuf: Buffer) {
 		this.formattedRequest = this._formatRequest(reqBuf);
-		this.formattedResponse = rspBuf ? this._formatResponse(rspBuf) : 'No Response';
+		this.formattedResponse = rspBuf ? this._formatResponse(rspBuf) : NO_RESPONSE;
 		this.command = 'Request unknown';
 	}
 

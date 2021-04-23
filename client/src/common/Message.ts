@@ -1,5 +1,7 @@
 import ProxyConfig from "./ProxyConfig";
 
+export const NO_RESPONSE = 'No Response';
+
 export default class Message  {
 	timestamp: number = 0;
 	sequenceNumber: number = 0;
