@@ -8,12 +8,13 @@ export default class SqlFormatter{
 	command: string;
 	constructor(reqBuf: Buffer, rspBuf: Buffer) {
 		this.formattedQuery = this._formatQuery(reqBuf);
-		this.formattedResults = rspBuf ? (this.getCommand() === 'Query' ?
-											this._formatResults(rspBuf)
-											: HexFormatter.format(rspBuf))
-										: this.getCommand() === 'Quit' ?
-											'Closed' :
-											'No Response';
+		this.formattedResults = rspBuf
+			? (this.getCommand() === 'Query'
+				?	this._formatResults(rspBuf)
+				: HexFormatter.format(rspBuf))
+			: this.getCommand() === 'Quit'
+				?	'Closed'
+				:	'No Response';
 		this.command = 'Request unknown';
 	}
 
