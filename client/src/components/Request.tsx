@@ -30,7 +30,7 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 				onClick={() => { onClick(); store.setVisited(true); } }
 			>
 				{store.getMessage().method+' '}
-				<b>{store.getMessage().endpoint}</b>&nbsp;
+				<b>{store.getMessage().endpoint+' '}</b>
 				({store.getMessage().clientIp+'->' + store.getMessage().serverHost}) {store.getUrl()}
 			</div>
 			<div className="request__body" hidden={!isActive}>
