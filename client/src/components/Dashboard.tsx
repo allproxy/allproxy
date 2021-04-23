@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { filterStore } from '../store/FilterStore';
 import MessageQueueStore from '../store/MessageQueueStore';
@@ -18,7 +18,10 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 	const ref = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
-		if (filterStore.shouldResetScroll()) {
+		if (activeRequestIndex !== Number.MAX_SAFE_INTEGER
+			&& activeRequestIndex >= messageQueueStore.getMessages().length) {
+			setActiveRequestIndex(Number.MAX_SAFE_INTEGER);
+		} else if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			resetScroll(activeRequestIndex);
 		}
