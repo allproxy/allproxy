@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 
 if [ -d "$1" ]; then
   exit 1; # exists

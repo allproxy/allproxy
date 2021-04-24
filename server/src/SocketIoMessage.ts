@@ -119,14 +119,18 @@ async function buildRequest(timestamp:number, sequenceNumber:number, requestHead
 {
 	return new Promise<Message>((resolve) => {
 		if (clientIp) {
-			clientIp = clientIp.replace('::ffff:', '');
-			dns.reverse(clientIp, (err, hosts) => {
-				if (err === null && hosts.length > 0) {
-					clientIp = hosts[0];
-					clientIp = clientIp.split('.')[0]; // un-qualify host name
-				}
+			try {
+				clientIp = clientIp.replace('::ffff:', '');
+				dns.reverse(clientIp, (err, hosts) => {
+					if (err === null && hosts.length > 0) {
+						clientIp = hosts[0];
+						clientIp = clientIp.split('.')[0]; // un-qualify host name
+					}
+					resolve(initMessage());
+				});
+			} catch (e) {
 				resolve(initMessage());
-			});
+			}
 		} else {
 			clientIp = 'unknown';
 			resolve(initMessage());

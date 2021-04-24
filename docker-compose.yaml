@@ -6,7 +6,7 @@ networks:
 
 services:
   middleman:
-    image:  node:alpine
+    build: .
     container_name: middleman
     working_dir: /app
     networks:
@@ -19,6 +19,7 @@ services:
         protocol: tcp
         mode: host
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - type: bind
         source: .
         target: /app
