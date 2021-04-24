@@ -1,3 +1,4 @@
+import { readConfigFile } from 'typescript';
 import ProxyConfig from '../common/ProxyConfig';
 import { socketStore } from './SocketStore'
 
@@ -6,12 +7,17 @@ export default class ProxyConfigLocalStorage {
 	public static merge(proxyConfigs: ProxyConfig[]) {
 		const proxyDirectives = ProxyConfigLocalStorage.getProxyConfigs();
 		for (let directive of proxyDirectives) {
-			if (proxyConfigs.filter(proxyConfig =>
-				directive.protocol === proxyConfig.protocol
-				&& directive.path === proxyConfig.path
-				&& directive.hostname === proxyConfig.hostname
-				&& directive.port === proxyConfig.port
-			).length === 0) {
+			if (proxyConfigs.filter(proxyConfig => {
+				return directive.protocol === proxyConfig.protocol
+					&& directive.path === proxyConfig.path
+					&&
+					(
+						directive.protocol === 'proxy:'
+						|| directive.protocol === 'log:'
+						|| (directive.hostname === proxyConfig.hostname
+							&& directive.port === proxyConfig.port)
+					);
+			}).length === 0) {
 				proxyConfigs.push(directive);
 			}
 		}
@@ -42,7 +48,16 @@ export default class ProxyConfigLocalStorage {
 			let proxyConfigs: ProxyConfig[];
 			try {
 				proxyConfigs = (JSON.parse(configs) as ProxyConfig[]);
-				proxyConfigs.sort((a, b) => a.port - b.port);
+				proxyConfigs.sort((a, b) => {
+					let rc = a.protocol.localeCompare(b.protocol);
+					if (rc === 0) {
+						rc = a.path.localeCompare(b.path);
+						if (rc === 0) {
+							rc = a.hostname.localeCompare(b.hostname);
+						}
+					}
+					return rc;
+				});
 			} catch (e) {
 				proxyConfigs = [];
 			}
