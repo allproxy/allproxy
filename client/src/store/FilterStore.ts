@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
-import ProxyConfigLocalStorage from './ProxyConfigLocalStorage';
+import proxyConfigStore from './ProxyConfigStore';
 
 export default class FilterStore {
     private filter: string = '';
@@ -27,9 +27,13 @@ export default class FilterStore {
     }
 
     public isFiltered(message: Message) {
+        const proxyConfig = proxyConfigStore.getProxyConfigWithPath(
+            message.protocol,
+            message.proxyConfig!.path
+        );
+        if (proxyConfig === null || !proxyConfig.recording) return true;
+
         if (this.filter.length === 0) return false;
-        const proxyConfig = ProxyConfigLocalStorage.getProxyConfigWithPath(message.proxyConfig!.path);
-        if(proxyConfig === null || !proxyConfig.recording) return true;
 
         if(this.isMatch(this.filter, message.url!)) return false;
         if(this.isMatch(this.filter, message.clientIp!)) return false;
