@@ -15,6 +15,7 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 			className="modal-window"
 			open={open}
 			onClose={onClose}
+			disableBackdropClick
 			aria-labelledby="simple-modal-title"
   		aria-describedby="simple-modal-description"
 		>
