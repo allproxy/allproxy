@@ -64,14 +64,13 @@ export default class MessageStore {
 
     public getRequestBody(): string {
         let body = this.message.method!.length > 0 ? this.url + '\n' : '';
-        let jsonData;
+
         if(this.message.requestBody) {
             let jsonBody = (this.message.requestBody as any);
             if(jsonBody['middleman_inner_body']) {
                 body += jsonBody['middleman_inner_body'];
             }
             else {
-                jsonData = this.message.requestBody;
                 body += JSON.stringify(this.message.requestBody, null, 2);
             }
             body = Util.fixNewlines(body);

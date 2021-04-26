@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import ProxyConfig from '../common/ProxyConfig';
 import { messageQueueStore } from './MessageQueueStore';
-import ProxyConfigLocalStorage from './ProxyConfigLocalStorage';
+import proxyConfigStore from './ProxyConfigStore';
 
 const PROTOCOLS = [
 	'http:',
@@ -22,7 +22,7 @@ export default class SettingsStore {
 	private targetHost = 'localhost';
 	private targetPort = '';
 
-	private entries = ProxyConfigLocalStorage.getProxyConfigs();
+	private entries = proxyConfigStore.getProxyConfigs();
 	private messageQueueLimit = messageQueueStore.getLimit();
 	private error = '';
 
@@ -37,7 +37,7 @@ export default class SettingsStore {
 		this.targetHost = 'localhost';
 		this.targetPort = '';
 		this.messageQueueLimit = messageQueueStore.getLimit();
-		this.entries = ProxyConfigLocalStorage.getProxyConfigs();
+		this.entries = proxyConfigStore.getProxyConfigs();
 		this.error = '';
 	}
 
@@ -193,9 +193,9 @@ export default class SettingsStore {
 
 	@action public save() {
 		this.changed = false;
-		ProxyConfigLocalStorage.setProxyConfigs(this.entries);
+		proxyConfigStore.setProxyConfigs(this.entries);
 		messageQueueStore.setLimit(this.messageQueueLimit);
-		ProxyConfigLocalStorage.load();
+		proxyConfigStore.load();
 	}
 }
 

@@ -1,11 +1,16 @@
-import { readConfigFile } from 'typescript';
+import { makeAutoObservable, action } from "mobx"
 import ProxyConfig from '../common/ProxyConfig';
 import { socketStore } from './SocketStore'
 
-export default class ProxyConfigLocalStorage {
+class ProxyConfigStore {
+	private proxyConfigs: ProxyConfig[] = this.getFromLocalStorage();
 
-	public static merge(proxyConfigs: ProxyConfig[]) {
-		const proxyDirectives = ProxyConfigLocalStorage.getProxyConfigs();
+	constructor() {
+		makeAutoObservable(this);
+	}
+
+	@action public merge(proxyConfigs: ProxyConfig[]) {
+		const proxyDirectives = this.proxyConfigs;
 		for (let directive of proxyDirectives) {
 			if (proxyConfigs.filter(proxyConfig => {
 				return directive.protocol === proxyConfig.protocol
@@ -24,10 +29,14 @@ export default class ProxyConfigLocalStorage {
 
 		// Store local copy of configuration
 		localStorage.proxyDirectives = JSON.stringify(proxyConfigs);
+		this.updateProxyConfigs();
 	}
 
-	public static load() {
-		const proxyDirectives: ProxyConfig[] = ProxyConfigLocalStorage.getProxyConfigs();
+	/**
+	 * Load config on server
+	 */
+	public load() {
+		const proxyDirectives: ProxyConfig[] = this.proxyConfigs;
 		proxyDirectives.forEach(proxyConfig => {
 			// backwards compatible with previously supported 'any:'
 			if(proxyConfig.protocol === 'any:') proxyConfig.protocol = 'other:';
@@ -36,11 +45,23 @@ export default class ProxyConfigLocalStorage {
 		socketStore.emitConfig('proxy config', proxyDirectives);
 	}
 
-	public static setProxyConfigs(proxyConfigs: ProxyConfig[]) {
-		localStorage.proxyDirectives = JSON.stringify(proxyConfigs, null, 2);
+	public getProxyConfigs() {
+		return this.proxyConfigs;
 	}
 
-	public static getProxyConfigs(): ProxyConfig[] {
+	@action public setProxyConfigs(proxyConfigs: ProxyConfig[]) {
+		localStorage.proxyDirectives = JSON.stringify(proxyConfigs, null, 2);
+		this.updateProxyConfigs();
+	}
+
+	private updateProxyConfigs() {
+		this.proxyConfigs.splice(0, this.proxyConfigs.length);
+		this.getFromLocalStorage().forEach(c => {
+			this.proxyConfigs.push(new ProxyConfig(c));
+		});
+	}
+
+	private getFromLocalStorage(): ProxyConfig[] {
 		let configs = localStorage.proxyDirectives
 		if (!configs) {
 			return [];
@@ -65,13 +86,18 @@ export default class ProxyConfigLocalStorage {
 		}
 	}
 
-	public static getProxyConfigWithPath(path: string): ProxyConfig | null {
-		const proxyDirectives = ProxyConfigLocalStorage.getProxyConfigs();
-		for(let config of proxyDirectives) {
-			if(path === config.path) {
-				return config;
+	public getProxyConfigWithPath(protocol: string, path: string): ProxyConfig | null {
+		let result = null;
+		const proxyDirectives = this.proxyConfigs;
+		for (let config of proxyDirectives) {
+			if (protocol === config.protocol && path === config.path) {
+				result = config;
 			}
 		}
-		return null;
+		console.log(result);
+		return result;
 	}
 }
+
+const proxyConfigs = new ProxyConfigStore();
+export default proxyConfigs;

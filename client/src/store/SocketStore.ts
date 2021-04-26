@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
 import io from "socket.io-client";
 import Message from '../common/Message';
-import ProxyConfigLocalStorage from './ProxyConfigLocalStorage';
+import proxyConfigStore from './ProxyConfigStore';
 import { messageQueueStore } from './MessageQueueStore';
 import ProxyConfig from '../common/ProxyConfig';
 
@@ -24,8 +24,8 @@ export default class SocketStore {
 
 		this.socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
 			//console.log('proxy configs', proxyConfigs);
-			ProxyConfigLocalStorage.merge(proxyConfigs);
-			ProxyConfigLocalStorage.load(); // send to server
+			proxyConfigStore.merge(proxyConfigs);
+			proxyConfigStore.load(); // send to server
 		});
 
 		this.socket.on('disconnect', () => {
