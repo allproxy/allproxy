@@ -88,7 +88,12 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 										<td>
 											<div className="settings-modal__status-container">
 												<div className={`settings-modal__status fa
-													${entry.hostReachable ? 'success fa-circle' : 'error fa-exclamation-triangle'}`}>
+													${store.isStatusUpdating()
+													? 'updating fa-circle'
+													:
+														entry.hostReachable
+														? 'success fa-circle'
+														: 'error fa-exclamation-triangle'}`}>
 												</div>
 											</div>
 										</td>

@@ -22,12 +22,17 @@ export default class SettingsStore {
 	private targetHost = 'localhost';
 	private targetPort = '';
 
+	private statusUpdating = true;
 	private entries: ProxyConfig[] = [];
 	private messageQueueLimit = messageQueueStore.getLimit();
 	private error = '';
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public isStatusUpdating() {
+		return this.statusUpdating;
 	}
 
 	private setConfig() {
@@ -37,6 +42,7 @@ export default class SettingsStore {
 			this.entries.push(config);
 		});
 
+		this.statusUpdating = true;
 		proxyConfigStore.retrieveProxyConfigs()
 			.then((configs) => {
 				configs.forEach(config => {
@@ -46,6 +52,7 @@ export default class SettingsStore {
 							entry.hostReachable = config.hostReachable;
 						}
 					}
+					this.statusUpdating = false;
 				})
 		})
 	}
