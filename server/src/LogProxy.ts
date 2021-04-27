@@ -2,7 +2,6 @@ import { spawn } from 'child_process';
 import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
-import Message from '../../common/Message';
 
 export default class LogProxy {
 	proxyConfig: ProxyConfig;

@@ -8,6 +8,7 @@ export default class ProxyConfig {
 	hostname: string = '';
 	port: number = 0;
 	recording: boolean = true;
+	hostReachable: boolean = true;
 	logProxyProcess?: any = undefined; // not used by client
 	_server?: net.Server | tls.Server; // not used by client
 
@@ -19,6 +20,7 @@ export default class ProxyConfig {
 			this.hostname = proxyConfig.hostname;
 			this.port = proxyConfig.port;
 			this.recording = proxyConfig.recording;
+			this.hostReachable = proxyConfig.hostReachable;
 		}
 	}
 

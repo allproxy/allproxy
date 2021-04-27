@@ -9,6 +9,22 @@ class ProxyConfigStore {
 		makeAutoObservable(this);
 	}
 
+	/**
+	 * Local storage is deprecated.
+	 */
+	private getFromLocalStorage(): ProxyConfig[] {
+		let proxyConfigs: ProxyConfig[] = [];
+		if (localStorage.proxyDirectives) {
+			try {
+				proxyConfigs = JSON.parse(localStorage.proxyDirectives);
+				localStorage.proxyDirectives = undefined; // stop using local storage
+			} catch (e) {
+			}
+		}
+		return proxyConfigs;
+	}
+
+
 	@action public merge(proxyConfigs: ProxyConfig[]) {
 		const proxyDirectives = this.proxyConfigs;
 		for (let directive of proxyDirectives) {
@@ -27,9 +43,7 @@ class ProxyConfigStore {
 			}
 		}
 
-		// Store local copy of configuration
-		localStorage.proxyDirectives = JSON.stringify(proxyConfigs);
-		this.updateProxyConfigs();
+		this.updateProxyConfigs(proxyConfigs);
 	}
 
 	/**
@@ -45,45 +59,48 @@ class ProxyConfigStore {
 		socketStore.emitConfig('proxy config', proxyDirectives);
 	}
 
+	public retrieveProxyConfigs(): Promise<ProxyConfig[]> {
+		const headers: {[key: string]: string} = {};
+		headers['middleman_proxy'] = 'config';
+		return new Promise((resolve) => {
+			const url = document.location.protocol + '//' + document.location.host
+			+ '/api/middleman/config';
+			fetch(url, headers)
+				.then((response) => response.json())
+				.then(data => {
+					resolve(data);
+					this.setProxyConfigs(data);
+				});
+		})
+	}
+
 	public getProxyConfigs() {
 		return this.proxyConfigs;
 	}
 
 	@action public setProxyConfigs(proxyConfigs: ProxyConfig[]) {
-		localStorage.proxyDirectives = JSON.stringify(proxyConfigs, null, 2);
-		this.updateProxyConfigs();
+		this.updateProxyConfigs(proxyConfigs);
 	}
 
-	private updateProxyConfigs() {
+	private updateProxyConfigs(proxyConfigs: ProxyConfig[]) {
 		this.proxyConfigs.splice(0, this.proxyConfigs.length);
-		this.getFromLocalStorage().forEach(c => {
+		this.sortConfigs(proxyConfigs).forEach(c => {
 			this.proxyConfigs.push(new ProxyConfig(c));
 		});
 	}
 
-	private getFromLocalStorage(): ProxyConfig[] {
-		let configs = localStorage.proxyDirectives
-		if (!configs) {
-			return [];
-		} else {
-			let proxyConfigs: ProxyConfig[];
-			try {
-				proxyConfigs = (JSON.parse(configs) as ProxyConfig[]);
-				proxyConfigs.sort((a, b) => {
-					let rc = a.protocol.localeCompare(b.protocol);
-					if (rc === 0) {
-						rc = a.path.localeCompare(b.path);
-						if (rc === 0) {
-							rc = a.hostname.localeCompare(b.hostname);
-						}
-					}
-					return rc;
-				});
-			} catch (e) {
-				proxyConfigs = [];
+	private sortConfigs(proxyConfigs: ProxyConfig[]): ProxyConfig[] {
+		proxyConfigs.sort((a, b) => {
+			let rc = a.protocol.localeCompare(b.protocol);
+			if (rc === 0) {
+				rc = a.path.localeCompare(b.path);
+				if (rc === 0) {
+					rc = a.hostname.localeCompare(b.hostname);
+				}
 			}
-			return proxyConfigs;
-		}
+			return rc;
+		});
+		return proxyConfigs;
 	}
 
 	public getProxyConfigWithPath(protocol: string, path: string): ProxyConfig | null {
@@ -94,7 +111,6 @@ class ProxyConfigStore {
 				result = config;
 			}
 		}
-		console.log(result);
 		return result;
 	}
 }

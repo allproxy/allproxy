@@ -33,7 +33,7 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 									<td className="text-primary"><label>Path or Port</label></td>
 									<td className="text-primary"><label>Target Host</label></td>
 									<td className="text-primary"><label>Target Port</label></td>
-									<td className="align-center text-primary"><label>Stop/Start</label></td>
+									<td className="text-primary"><label>Status</label></td>
 								</tr>
 							</thead>
 							: null }
@@ -49,13 +49,17 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 												X
 											</button>
 										</td>
-										<td>
-										<div className={`settings-modal__icon fa ${pickIcon(entry.protocol)}`}
-												style={{ cursor: 'pointer', float: 'left', color: 'steelblue' }}
-											>
-											</div>
+										<td className="settings-modal__recording-container">
+											<div className={'settings__recording fas '
+												+ (entry.recording ? 'fa-pause' : 'fa-play')}
+												onClick={(e) => store.toggleEntryCapture(index)}
+											/>
 										</td>
 										<td className="settings-modal__proxy-protocol-container">
+											<div className={`settings-modal__icon fa ${pickIcon(entry.protocol)}`}
+												style={{ cursor: 'pointer', float: 'left' }}
+											>
+											</div>
 											<select className="settings-modal__select-protocol form-control"
 												onChange={(e) => store.updateEntryProtocol(index, e.target.value)}
 												value={ entry.protocol }
@@ -81,11 +85,12 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 												onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 												value={entry.port} />
 										</td>
-										<td className="settings-modal__recording-container">
-											<div className={'settings__recording fas '
-												+ (entry.recording ? 'fa-pause' : 'fa-play')}
-												onClick={(e) => store.toggleEntryCapture(index)}
-											/>
+										<td>
+											<div className="settings-modal__status-container">
+												<div className={`settings-modal__status fa
+													${entry.hostReachable ? 'success fa-circle' : 'error fa-exclamation-triangle'}`}>
+												</div>
+											</div>
 										</td>
 								</tr>
 								))}
