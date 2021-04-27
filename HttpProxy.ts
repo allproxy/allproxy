@@ -7,7 +7,7 @@ import socketMessage from './server/src/SocketIoMessage';
 import Global from './server/src/Global';
 import ProxyConfig from './common/ProxyConfig';
 import Message from './common/Message';
-import { request } from 'node:http';
+import ProxyConfigs from './server/src/ProxyConfigs';
 
 
 /**
@@ -17,7 +17,7 @@ export default class HttpProxy {
     constructor() {
     }
 
-    onRequest(client_req: IncomingMessage, client_res: http.ServerResponse) {
+    async onRequest(client_req: IncomingMessage, client_res: http.ServerResponse) {
         var sequenceNumber = ++Global.nextSequenceNumber;
         var remoteAddress = client_req.socket.remoteAddress;
         console.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
@@ -41,8 +41,8 @@ export default class HttpProxy {
         } else {
             const dir = clientDir + reqUrl.pathname?.replace(/\//g, path.sep);
             // File exists locally?
-            if(reqUrl.protocol === null &&
-                 fs.existsSync(dir) && fs.lstatSync(dir).isFile()) {
+            if (reqUrl.protocol === null &&
+                fs.existsSync(dir) && fs.lstatSync(dir).isFile()) {
                 const extname = path.extname(reqUrl.pathname!);
                 let contentType = 'text/html';
                 switch (extname) {
@@ -69,9 +69,16 @@ export default class HttpProxy {
                 // Read local file and return to client
                 console.log(sequenceNumber, 'loading local file');
                 client_res.writeHead(200, {
-                    'Content-type' : contentType
+                    'Content-type': contentType
                 });
                 client_res.end(fs.readFileSync(clientDir + reqUrl.pathname));
+            } else if (reqUrl.protocol === null
+                && reqUrl.pathname === '/api/middleman/config') {
+                const configs = await Global.proxyConfigs.updateHostReachable();
+                client_res.writeHead(200, {
+                    'Content-type': 'application/json'
+                });
+                client_res.end(JSON.stringify(configs));
             } else {
                 // Find matching proxy configuration
                 let proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);

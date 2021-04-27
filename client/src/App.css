@@ -334,6 +334,7 @@ td input {
 }
 .settings-modal__select-protocol {
 	width: 100px !important;
+	padding-left: 0 !important;
 }
 
 .settings-modal__proxy-delete-button {
@@ -350,16 +351,20 @@ td input {
 	padding-top: .5rem;
 	border: none;
 }
+.settings-modal__status-container,
 .settings-modal__recording-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
+.settings-modal__status,
 .settings__recording {
 	margin-top: .70rem !important;
 	cursor: pointer;
-	color: gray;
+}
+.settings__recording {
+	color: steelblue;
 }
 
 .settings-modal__label-max-messages {

@@ -3,10 +3,11 @@ import tls from 'tls';
 
 export default class ProxyConfig {
 	path: string = '';
-	protocol: string = '';	
+	protocol: string = '';
 	hostname: string = '';
 	port: number = 0;
 	recording: boolean = true;
+	hostReachable: boolean = true;
 	logProxyProcess?: any = undefined;
 	_server?: net.Server | tls.Server;
 

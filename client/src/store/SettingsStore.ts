@@ -22,7 +22,7 @@ export default class SettingsStore {
 	private targetHost = 'localhost';
 	private targetPort = '';
 
-	private entries = proxyConfigStore.getProxyConfigs();
+	private entries: ProxyConfig[] = [];
 	private messageQueueLimit = messageQueueStore.getLimit();
 	private error = '';
 
@@ -30,14 +30,34 @@ export default class SettingsStore {
 		makeAutoObservable(this);
 	}
 
-	@action public reset() {
+	private setConfig() {
+		this.entries.splice(0, this.entries.length);
+		const configs = proxyConfigStore.getProxyConfigs();
+		configs.forEach((config) => {
+			this.entries.push(config);
+		});
+
+		proxyConfigStore.retrieveProxyConfigs()
+			.then((configs) => {
+				configs.forEach(config => {
+					if (config.protocol === 'log:' || config.protocol === 'proxy:') return;
+					for (const entry of this.entries) {
+						if (entry.hostname === config.hostname && entry.port === config.port) {
+							entry.hostReachable = config.hostReachable;
+						}
+					}
+				})
+		})
+	}
+
+	@action public async reset() {
 		this.changed = false;
 		this.protocol = 'http:';
 		this.path = '';
 		this.targetHost = 'localhost';
 		this.targetPort = '';
 		this.messageQueueLimit = messageQueueStore.getLimit();
-		this.entries = proxyConfigStore.getProxyConfigs();
+		this.setConfig();
 		this.error = '';
 	}
 

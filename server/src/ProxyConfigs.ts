@@ -6,6 +6,8 @@ import path from 'path';
 import ProxyConfig from '../../common/ProxyConfig';
 import Message from '../../common/Message';
 import url from 'url';
+import net from 'net';
+import Ping from './Ping';
 const homedir = require('os').homedir();
 
 const MIDDLEMAN_DIR = `${homedir}${path.sep}.middleman`;
@@ -45,12 +47,67 @@ export default class ProxyConfigs {
                 hostname: '',
                 port: 0,
                 recording: true,
+                hostReachable: true,
             },
         ];
     }
 
-    private getConfig(): ProxyConfig[] {
-        return fs.existsSync(CONFIG_JSON) ? JSON.parse(fs.readFileSync(CONFIG_JSON).toString()).configs : [];
+    public getConfig(): ProxyConfig[] {
+        return fs.existsSync(CONFIG_JSON)
+            ? JSON.parse(fs.readFileSync(CONFIG_JSON).toString()).configs : [];
+    }
+
+    private resolveQueue: ((value: ProxyConfig[]) => void)[] = [];
+
+    public updateHostReachable(): Promise<ProxyConfig[]> {
+        return new Promise((resolve) => {
+            let configs = this.getConfig();
+
+            this.resolveQueue.push(resolve);
+            if (this.resolveQueue.length > 1) return;
+
+            console.log('Start: updateHostReachable');
+            let count = 0;
+
+            const done = () => {
+                if (++count === configs.length) {
+                    const queueCount = this.resolveQueue.length;
+                    let func;
+                    while (func = this.resolveQueue.pop()) {
+                        func(configs);
+                    }
+                    console.log(`End: updateHostReachable (${queueCount})`);
+                }
+            }
+            configs.forEach(config => {
+                if (config.protocol === 'proxy:' || config.protocol === 'log:') {
+                    config.hostReachable = true;
+                    done();
+                }
+                else {
+                    config.hostReachable = false;
+                    setTimeout(async () => {
+                        const pingSuccessful = await Ping.host(config.hostname);
+                        if (!pingSuccessful) {
+                            done();
+                        } else {
+                            const socket = net.connect(config.port, config.hostname, () => {
+                                config.hostReachable = true;
+                                console.log('Reachable', config.hostname, config.port);
+                                socket.end();
+                                done();
+                            });
+
+                            socket.on('error', (err) => {
+                                //console.log('ProxyConfigs:', config.hostname, config.port, err);
+                                done();
+                                socket.end();
+                            });
+                        }
+                    });
+                }
+            });
+        });
     }
 
     private saveConfig(proxyConfigs: ProxyConfig[]) {
@@ -68,7 +125,9 @@ export default class ProxyConfigs {
     _socketConnection(socket: io.Socket) {
         console.log('ProxyConfigs: socket connected', socket.conn.id);
 
-        socket.emit('proxy config', this.getConfig()); // send config to browser
+        const config = this.getConfig();
+
+        socket.emit('proxy config', config); // send config to browser
 
         socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
             console.log('ProxyConfigs: proxy config received',
@@ -84,6 +143,7 @@ export default class ProxyConfigs {
             }
 
             this.activateConfig(proxyConfigs, socket);
+            this.updateHostReachable();
         })
 
         socket.on('disconnect', () => {
