@@ -63,6 +63,10 @@ td input {
 	color: green !important;
 }
 
+.updating {
+	color: rgba(255, 187, 0, 0.884);
+}
+
 .visited-color {
 	color: #1a0dab;
 }
