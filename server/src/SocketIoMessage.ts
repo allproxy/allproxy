@@ -2,6 +2,7 @@ const decompressResponse = require('decompress-response');
 import Message from '../../common/Message';
 import { IncomingHttpHeaders, IncomingMessage } from 'http';
 import dns from 'dns';
+import querystring from 'querystring';
 
 export default class SocketMessage {
 	/**
@@ -25,7 +26,12 @@ export default class SocketMessage {
 				try {
 					requestBody = JSON.parse(rawData)
 				} catch (e) {
-					requestBody = rawData;
+					const contentType = client_req.headers['content-type'];
+					if (contentType && contentType.indexOf('application/x-www-form-urlencoded') !== -1) {
+						requestBody = querystring.parse(rawData);
+					} else {
+						requestBody = rawData;
+					}
 				}
 
 				var endpoint = client_req.url?.split('?')[0];
