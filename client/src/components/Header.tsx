@@ -30,7 +30,10 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 				<div className="header__trash fa fa-trash-alt" title="Clear log"
-					onClick={ () => messageQueueStore.clear() }
+					onClick={() => {
+						messageQueueStore.clear();
+						filterStore.setFilter('');
+					}}
 				/>
 				<div className={'header__stop fas '
 					+ (messageQueueStore.getStopped() ? 'fa-play' : 'fa-pause')}
@@ -39,6 +42,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				/>
 				<div className="header__filter">
 					<input className="header__filter-input" type="text"
+						value={ filterStore.getFilter() }
 						onChange={e => filterStore.setFilter(e.currentTarget.value)}
 						placeholder="Filter (regex with '.*' is supported)" />
 				</div>

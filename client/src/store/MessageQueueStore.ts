@@ -1,6 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
 import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
+import filterStore from './FilterStore';
 
 const DEFAULT_LIMIT = 1000;
 
