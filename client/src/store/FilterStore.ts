@@ -27,11 +27,6 @@ export default class FilterStore {
     }
 
     public isFiltered(message: Message) {
-        const proxyConfig = proxyConfigStore.getProxyConfigWithPath(
-            message.protocol,
-            message.proxyConfig!.path
-        );
-        if (proxyConfig === null || !proxyConfig.recording) return true;
 
         if (this.filter.length === 0) return false;
 
