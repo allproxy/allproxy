@@ -247,6 +247,7 @@ export default class ProxyConfigs {
             for (const proxyConfig of socketConfigs.configs) {
                 if (inProxyConfig === undefined || proxyConfig.path === path) {
                     if (key === socketId) continue;
+                    if (!proxyConfig.recording) continue;
                     socketId = key;
                     message.proxyConfig = proxyConfig;
                     if (socketConfigs.socket) {

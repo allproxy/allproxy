@@ -102,17 +102,6 @@ class ProxyConfigStore {
 		});
 		return proxyConfigs;
 	}
-
-	public getProxyConfigWithPath(protocol: string, path: string): ProxyConfig | null {
-		let result = null;
-		const proxyDirectives = this.proxyConfigs;
-		for (let config of proxyDirectives) {
-			if (protocol === config.protocol && path === config.path) {
-				result = config;
-			}
-		}
-		return result;
-	}
 }
 
 const proxyConfigs = new ProxyConfigStore();
