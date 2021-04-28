@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
-import proxyConfigStore from './ProxyConfigStore';
 
 export default class FilterStore {
     private filter: string = '';
@@ -24,6 +23,10 @@ export default class FilterStore {
         }
 
         this.filter = filter;
+    }
+
+    public getFilter() {
+        return this.filter;
     }
 
     public isFiltered(message: Message) {
