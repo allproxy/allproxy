@@ -93,9 +93,9 @@ class ProxyConfigStore {
 		proxyConfigs.sort((a, b) => {
 			let rc = a.protocol.localeCompare(b.protocol);
 			if (rc === 0) {
-				rc = a.path.localeCompare(b.path);
-				if (rc === 0) {
-					rc = a.hostname.localeCompare(b.hostname);
+					rc = a.hostname.localeCompare(b.hostname)
+					if (rc === 0) {
+						rc = a.path.localeCompare(b.path);
 				}
 			}
 			return rc;
