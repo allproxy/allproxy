@@ -31,7 +31,7 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 		<div className="request-response__container">
 			<div className="request__container" ref={ ref }>
 				{messageQueueStore.getMessages().map((messageStore, index) => {
-					if (filterStore.isFiltered(messageStore.getMessage())) {
+					if (filterStore.isFiltered(messageStore)) {
 						return null;
 					} else {
 						return (

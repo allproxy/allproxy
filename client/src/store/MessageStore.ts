@@ -82,7 +82,7 @@ export default class MessageStore {
         var url = urlStr.indexOf('?') !== -1 ? urlStr.split('?')[0] : urlStr;
         url = unescape(url);
         url = Util.fixNewlines(url);
-        return url;
+        return url.split(/\s+/).join(' ');
     }
 
     private isErrorResponse(message: Message): boolean {

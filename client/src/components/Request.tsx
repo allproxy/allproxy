@@ -11,7 +11,8 @@ type Props = {
 const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 	return (
 		<div className="request__msg-container">
-			<div className="request__msg-timestamp-container" title={ `sequence number: ${store.getMessage().sequenceNumber}`  }>
+			<div className="request__msg-timestamp-container"
+				title={`sequence number: ${store.getMessage().sequenceNumber}`}>
 				<span className="request__msg-timestamp">{formatTimestamp(store.getMessage().timestamp)}</span>
 			</div>
 			<div className={`fa ${store.getIconClass()} request__msg-icon`}
