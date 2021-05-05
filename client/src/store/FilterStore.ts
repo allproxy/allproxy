@@ -34,17 +34,22 @@ export default class FilterStore {
 
         if (this.filter.length === 0) return false;
         const message = messageStore.getMessage();
-        if (this.isMatch(this.filter, message.clientIp!)) return false;
-        if (this.isMatch(this.filter, message.endpoint)) return false;
-        if (this.isMatch(this.filter, messageStore.getUrl())) return false;
-        if(message.requestBody && this.isMatch(this.filter, JSON.stringify(message.requestBody))) return false;
-        if(message.responseHeaders && this.isMatch(this.filter, JSON.stringify(message.responseBody))) return false;
+        if (this.isMatch(message.clientIp!+'->'+message.serverHost)) return false;
+        if (this.isMatch(message.endpoint)) return false;
+        if (this.isMatch(messageStore.getUrl())) return false;
+        if (this.isMatch(JSON.stringify(message.requestHeaders))) return false;
+        if (this.isMatch(JSON.stringify(message.responseHeaders))) return false;
+        if(this.isMatch(messageStore.getRequestBody())) return false;
+        if (message.responseBody && this.isMatch(JSON.stringify(message.responseBody))) return false;
+
 
 		return true;
     }
 
-	private isMatch(needle: string, haystack: string) {
-        if(haystack === undefined) return false;
+	private isMatch(haystack: string) {
+        if (haystack === undefined) return false;
+
+        const needle = this.filter;
 
         if(needle === needle.toLowerCase()) {
             haystack = haystack.toLowerCase();
