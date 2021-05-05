@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
+import MessageStore from './MessageStore';
 
 export default class FilterStore {
     private filter: string = '';
@@ -29,13 +30,13 @@ export default class FilterStore {
         return this.filter;
     }
 
-    public isFiltered(message: Message) {
+    public isFiltered(messageStore: MessageStore) {
 
         if (this.filter.length === 0) return false;
-
-        if(this.isMatch(this.filter, message.url!)) return false;
-        if(this.isMatch(this.filter, message.clientIp!)) return false;
-        if(this.isMatch(this.filter, message.endpoint)) return false;
+        const message = messageStore.getMessage();
+        if (this.isMatch(this.filter, message.clientIp!)) return false;
+        if (this.isMatch(this.filter, message.endpoint)) return false;
+        if (this.isMatch(this.filter, messageStore.getUrl())) return false;
         if(message.requestBody && this.isMatch(this.filter, JSON.stringify(message.requestBody))) return false;
         if(message.responseHeaders && this.isMatch(this.filter, JSON.stringify(message.responseBody))) return false;
 
