@@ -44,7 +44,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					<input className="header__filter-input" type="text"
 						value={ filterStore.getFilter() }
 						onChange={e => filterStore.setFilter(e.currentTarget.value)}
-						placeholder="Filter (regex with '.*' is supported)" />
+						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
 				</div>
 			</div>
 			<div className="header__settings fa fa-cog" title="Settings"
