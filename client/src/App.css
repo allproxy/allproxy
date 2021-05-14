@@ -159,7 +159,7 @@ td input {
 .request-response__container {
 	margin: 3rem 0 0 0;
 	display: -webkit-flex; /* Safari */
-  	display: flex;
+  display: flex;
 }
 
 .request__container {
@@ -171,6 +171,8 @@ td input {
 	resize: both;
 	border-right: solid grey;
 	margin: 0 1rem 0 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .request__msg-container {
@@ -201,8 +203,6 @@ td input {
 	padding: .0;
 	width: calc(100% - 100px);
 	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow-x: hidden;
 }
 .request__msg.active {
 	background-color: yellow;
