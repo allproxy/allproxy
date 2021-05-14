@@ -1,9 +1,9 @@
 <html>
 
 <head>
-	<link rel="stylesheet" href="css/style.css">	
+	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
-	<link rel="stylesheet" href="node_modules/jquery.json-viewer/json-viewer//jquery.json-viewer.css">	
+	<link rel="stylesheet" href="node_modules/jquery.json-viewer/json-viewer//jquery.json-viewer.css">
 	<link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
 </head>
 
@@ -20,15 +20,15 @@
 				<label class="header__freeze-label">Stop</label>
 			</div>
 			<div class="header__filter">
-				<input class="header__filter-input" type="text" placeholder="Filter (regex with '.*' is supported)"/>
+				<input class="header__filter-input" type="text" placeholder="Boolean/Regex Filter: (a || b.*) && !c"/>
 			</div>
 		</div>
-		<div class="header__settings fa fa-cog" title="Settings"></div>					
+		<div class="header__settings fa fa-cog" title="Settings"></div>
 	</div>
 	<div class="request-response__container">
-		<div class="request__container">			
-		</div>		
-		<div class="response__container">			
+		<div class="request__container">
+		</div>
+		<div class="response__container">
 			<div class="center">Select request from left column</div>
 		</div>
 		<div class="response__loading" hidden>
@@ -37,10 +37,10 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="modal fade" id="editorModal" role="dialog">
 	    <div class="modal-dialog">
-	    
+
 	      <!-- Modal content-->
 	      <div class="modal-content">
 	        <div class="modal-header">
@@ -63,17 +63,17 @@
 	        </div>
 	        <div class="modal-footer">
 	        	<label class="resend-modal__error-message"></label>
-	          	<button type="button" class="resend-modal__send btn btn-default btn-success">Send</button>	          
+	          	<button type="button" class="resend-modal__send btn btn-default btn-success">Send</button>
 	        </div>
 	      </div>
-	      
+
 	    </div>
 	  </div>
-	  
-	  
+
+
 	  <div class="modal fade" id="settingsModal" role="dialog">
 	    <div class="modal-dialog">
-	    
+
 	      <!-- Modal content-->
 	      <div class="modal-content">
 	        <div class="modal-header">
@@ -86,15 +86,15 @@
 	        			<tr>
 							<td></td>
 							<td class="text-primary"><label>Protocol</label></td>
-							<td class="text-primary"><label>Path or Port</label></td>						
+							<td class="text-primary"><label>Path or Port</label></td>
 							<td class="text-primary"><label>Target Host</label></td>
 							<td class="align-center text-primary"><label>Capture</label></td>
 	        			</tr>
 	        		</thead>
 	        		<tbody>
-	        		</tbody>        		        		
-	        	</table>        	
-	        	
+	        		</tbody>
+	        	</table>
+
 	        	<table>
 		        	<tr>
 						<td class="settings-modal__select-protocol-container">
@@ -105,22 +105,22 @@
 								<option>mongo:</option>
 								<option>log:</option>
 								<option>proxy:</option>
-								<option>sql:</option>								
-								<option>redis:</option>								
+								<option>sql:</option>
+								<option>redis:</option>
 								<option>other:</option>
 							</select>
-		    			</td>		        		
+		    			</td>
 		        		<td class="settings-modal__input-path-container">
 		    				<input type="text" class="form-control settings-modal__input-path" placeholder="Enter path (e.g., /xxx/yyy)">
-						</td>						
+						</td>
 		    			<td class="settings-modal__input-url-container">
 		    				<input type="text" class="form-control settings-modal__input-host" placeholder="Enter target host (e.g., localhost:8000)">
 		    			</td>
 		    			<td class="settings-modal__add-button-container">
 		       				<button class="settings-modal__add-button btn btn-primary">Add</button>
-						</td>					 
+						</td>
 	       			</tr>
-       			</table>   
+       			</table>
        			<hr>
        			<table>
        				<tr>
@@ -131,15 +131,15 @@
        						<input type="number" class="form-control settings-modal__input-max-messages" value="100">
        					</td>
        				</tr>
-       			</table>     			     			    	
+       			</table>
 	        </div>
-	        <div class="modal-footer">	
-				<label class="settings-modal__error-message"></label>  
-				<button type="button" class="settings-modal__cancel btn btn-default btn-default" data-dismiss="modal">Cancel</button>      	
-    			<button type="button" class="settings-modal__save btn btn-default btn-success" data-dismiss="modal">Save</button>	          	
+	        <div class="modal-footer">
+				<label class="settings-modal__error-message"></label>
+				<button type="button" class="settings-modal__cancel btn btn-default btn-default" data-dismiss="modal">Cancel</button>
+    			<button type="button" class="settings-modal__save btn btn-default btn-success" data-dismiss="modal">Save</button>
    	        </div>
 	      </div>
-	      
+
 	    </div>
 	  </div>
 </body>

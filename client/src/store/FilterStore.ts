@@ -3,7 +3,9 @@ import Message from '../common/Message';
 import MessageStore from './MessageStore';
 
 export default class FilterStore {
-    private filter: string = '';
+    private filter = '';
+    private boolString = '';
+    private boolOperands: string[] = [];
     private resetScroll = false;
 
     public constructor() {
@@ -24,6 +26,49 @@ export default class FilterStore {
         }
 
         this.filter = filter;
+
+        this.updateBoolString();
+    }
+
+    private updateBoolString() {
+        this.boolString = '';
+        this.boolOperands.splice(0, this.boolOperands.length);
+        let argNum = 0;
+        if (this.filter.includes('!')
+            || this.filter.includes('&&')
+            || this.filter.includes('||')) {
+            let operand = '';
+            for (let i = 0; i < this.filter.length; ++i) {
+                let c1 = this.filter.substr(i, 1);
+                let c2 = i < this.filter.length - 1 ? this.filter.substr(i + 1, 1) : '';
+                let nonOperand = '';
+                if (c1 === '!' || c1 === '(' || c1 === ')') nonOperand = c1;
+                if (c1 === '&' && c2 === '&') {
+                    ++i;
+                    nonOperand = '&&';
+                }
+                if (c1 === '|' && c2 === '|') {
+                    ++i;
+                    nonOperand = '||';
+                }
+                if (nonOperand.length > 0) {
+                    if (operand.length > 0) {
+                        this.boolString += '###' + argNum++;
+                        this.boolOperands.push(operand.trim());
+                        operand = '';
+                    }
+                    this.boolString += nonOperand;
+                }
+                else {
+                    operand += c1;
+                }
+            }
+
+            if (operand.length > 0) {
+                this.boolString += '###' + argNum++;
+                this.boolOperands.push(operand.trim());
+            }
+        }
     }
 
     public getFilter() {
@@ -31,26 +76,39 @@ export default class FilterStore {
     }
 
     public isFiltered(messageStore: MessageStore) {
-
         if (this.filter.length === 0) return false;
-        const message = messageStore.getMessage();
-        if (this.isMatch(message.clientIp!+'->'+message.serverHost)) return false;
-        if (this.isMatch(message.endpoint)) return false;
-        if (this.isMatch(messageStore.getUrl())) return false;
-        if (this.isMatch(JSON.stringify(message.requestHeaders))) return false;
-        if (this.isMatch(JSON.stringify(message.responseHeaders))) return false;
-        if(this.isMatch(messageStore.getRequestBody())) return false;
-        if (message.responseBody && this.isMatch(JSON.stringify(message.responseBody))) return false;
-
-
-		return true;
+        if (this.boolString.length > 0) {
+            let boolString = this.boolString;
+            for (let i = 0; i < this.boolOperands.length; ++i) {
+                const filtered = this.isMessageFiltered(this.boolOperands[i], messageStore);
+                boolString = boolString.replace('###'+i, (filtered ? 'false' : 'true'));
+            }
+            console.log(boolString);
+            try {
+                return !eval(boolString);
+            } catch (e) {
+                return true;
+            }
+        }
+        else {
+            return this.isMessageFiltered(this.filter, messageStore);
+        }
     }
 
-	private isMatch(haystack: string) {
+    private isMessageFiltered(needle: string, messageStore: MessageStore) {
+        const message = messageStore.getMessage();
+        if (this.isMatch(needle, message.clientIp!+'->'+message.serverHost)) return false;
+        if (this.isMatch(needle, message.endpoint)) return false;
+        if (this.isMatch(needle, messageStore.getUrl())) return false;
+        if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
+        if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
+        if(this.isMatch(needle, messageStore.getRequestBody())) return false;
+        if (message.responseBody && this.isMatch(needle, JSON.stringify(message.responseBody))) return false;
+    	return true;
+    }
+
+	private isMatch(needle: string, haystack: string) {
         if (haystack === undefined) return false;
-
-        const needle = this.filter;
-
         if(needle === needle.toLowerCase()) {
             haystack = haystack.toLowerCase();
         }
