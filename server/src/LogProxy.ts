@@ -6,6 +6,8 @@ import ProxyConfig from '../../common/ProxyConfig';
 export default class LogProxy {
 	proxyConfig: ProxyConfig;
 	command: string;
+	retry = true;
+
 	constructor(proxyConfig: ProxyConfig) {
 		this.proxyConfig = proxyConfig;
 		this.command = proxyConfig.path;
@@ -14,16 +16,17 @@ export default class LogProxy {
 	}
 
 	static destructor(proxyConfig: ProxyConfig) {
-        if(proxyConfig.logProxyProcess) {
+    if(proxyConfig.logProxyProcess) {
 			try {
 				proxyConfig.logProxyProcess.kill('SIGINT');
 			} catch(e) {
 				console.log(e);
 			}
 		}
-    }
+  }
 
 	start() {
+		this.retry = true;
 		console.log(`Monitoring log: ${this.command}`);
 		const tokens = this.command.split(' ');
 		const proc = spawn(tokens[0], tokens.slice(1));
@@ -47,8 +50,11 @@ export default class LogProxy {
 		});
 
 		proc.on('exit', rc => {
-			console.log('LogProxy exiting:', this.command)
-			setTimeout(() => this.start(), 10000); // Retry in 10 seconds
+			console.log('LogProxy exiting:', this.command);
+			if (this.retry) {
+				setTimeout(() => this.start(), 10000); // Retry in 10 seconds
+				this.retry = false;
+			}
 		});
 
 		function warmUpCompleted() {
