@@ -11,14 +11,18 @@ export default class LogProxy {
 	constructor(proxyConfig: ProxyConfig) {
 		this.proxyConfig = proxyConfig;
 		this.command = proxyConfig.path;
-		proxyConfig.logProxyProcess = this;
 		this.start();
 	}
 
 	static destructor(proxyConfig: ProxyConfig) {
     if(proxyConfig.logProxyProcess) {
 			try {
-				proxyConfig.logProxyProcess.kill('SIGINT');
+				const proc = proxyConfig.logProxyProcess;
+				//console.log('killing:', proc.pid);
+				proc.stdout.removeAllListeners();
+				proc.stderr.removeAllListeners();
+				proc.removeAllListeners();
+				proc.kill('SIGINT');
 			} catch(e) {
 				console.log(e);
 			}
@@ -26,10 +30,12 @@ export default class LogProxy {
   }
 
 	start() {
+		LogProxy.destructor(this.proxyConfig);
 		this.retry = true;
 		console.log(`Monitoring log: ${this.command}`);
 		const tokens = this.command.split(' ');
 		const proc = spawn(tokens[0], tokens.slice(1));
+		//('start', proc.pid);
 		this.proxyConfig.logProxyProcess = proc; // save so we can kill process
 		const startTime = Date.now();
 
@@ -51,6 +57,9 @@ export default class LogProxy {
 
 		proc.on('exit', rc => {
 			console.log('LogProxy exiting:', this.command);
+			proc.stdout.removeAllListeners();
+			proc.stderr.removeAllListeners();
+			proc.removeAllListeners();
 			if (this.retry) {
 				setTimeout(() => this.start(), 10000); // Retry in 10 seconds
 				this.retry = false;
