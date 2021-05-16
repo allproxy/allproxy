@@ -42,6 +42,11 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				/>
 				<div className="header__filter">
 					<input className="header__filter-input" type="text"
+						style={{
+							background: !filterStore.isInvalidFilterSyntax()
+								? (filterStore.getFilter().length > 0 ? 'lightGreen' : undefined)
+								: 'lightCoral'
+						}}
 						value={ filterStore.getFilter() }
 						onChange={e => filterStore.setFilter(e.currentTarget.value)}
 						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />

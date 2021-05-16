@@ -1,9 +1,9 @@
 import { makeAutoObservable, action } from "mobx"
-import Message from '../common/Message';
 import MessageStore from './MessageStore';
 
 export default class FilterStore {
     private filter = '';
+    private invalidFilterSyntax = false;
     private boolString = '';
     private boolOperands: string[] = [];
     private resetScroll = false;
@@ -28,6 +28,10 @@ export default class FilterStore {
         this.filter = filter;
 
         this.updateBoolString();
+    }
+
+    public isInvalidFilterSyntax(): boolean {
+        return this.invalidFilterSyntax;
     }
 
     private updateBoolString() {
@@ -76,6 +80,7 @@ export default class FilterStore {
     }
 
     public isFiltered(messageStore: MessageStore) {
+        this.invalidFilterSyntax = false;
         if (this.filter.length === 0) return false;
         if (this.boolString.length > 0) {
             let boolString = this.boolString;
@@ -87,6 +92,7 @@ export default class FilterStore {
             try {
                 return !eval(boolString);
             } catch (e) {
+                this.invalidFilterSyntax = true;
                 return true;
             }
         }
