@@ -56,9 +56,10 @@ export default class FilterStore {
                     nonOperand = '||';
                 }
                 if (nonOperand.length > 0) {
+                    operand = operand.trim();
                     if (operand.length > 0) {
                         this.boolString += '###' + argNum++;
-                        this.boolOperands.push(operand.trim());
+                        this.boolOperands.push(operand);
                         operand = '';
                     }
                     this.boolString += nonOperand;
@@ -88,7 +89,7 @@ export default class FilterStore {
                 const filtered = this.isMessageFiltered(this.boolOperands[i], messageStore);
                 boolString = boolString.replace('###'+i, (filtered ? 'false' : 'true'));
             }
-            console.log(boolString);
+            //console.log(boolString);
             try {
                 return !eval(boolString);
             } catch (e) {
