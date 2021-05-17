@@ -8,11 +8,9 @@ import Message from '../../common/Message';
 import url from 'url';
 import net from 'net';
 import Ping from './Ping';
-const homedir = require('os').homedir();
 
-const MIDDLEMAN_DIR = `${homedir}${path.sep}.middleman`;
+const MIDDLEMAN_DIR = `${__dirname}${path.sep}`;
 const CONFIG_JSON = `${MIDDLEMAN_DIR}${path.sep}config.json`;
-const OLD_CACHE_JSON = `${__dirname}${path.sep}..${path.sep}..${path.sep}.cache.json`;
 const CACHE_SOCKET_ID = 'cache';
 
 interface SocketConfigs { socket ?: io.Socket, configs: ProxyConfig[] };
@@ -22,18 +20,6 @@ export default class ProxyConfigs {
     proxyConfigsMap = new Map<string, SocketConfigs>();
 
     constructor() {
-        if (!fs.existsSync(MIDDLEMAN_DIR)){
-            fs.mkdirSync(MIDDLEMAN_DIR);
-            if (fs.existsSync(OLD_CACHE_JSON)) {
-                fs.copyFileSync(CONFIG_JSON, OLD_CACHE_JSON);
-            } else {
-                fs.writeFileSync(
-                    CONFIG_JSON,
-                    JSON.stringify({ configs: this.defaultConfig() }, null, 2)
-                );
-            }
-        }
-
         this.proxyConfigsMap = new Map();
         this.activateConfig(this.getConfig());
     }
@@ -53,8 +39,9 @@ export default class ProxyConfigs {
     }
 
     public getConfig(): ProxyConfig[] {
-        return fs.existsSync(CONFIG_JSON)
-            ? JSON.parse(fs.readFileSync(CONFIG_JSON).toString()).configs : [];
+        const config = fs.existsSync(CONFIG_JSON)
+            ? JSON.parse(fs.readFileSync(CONFIG_JSON).toString()).configs : this.defaultConfig();
+        return config;
     }
 
     private resolveQueue: ((value: ProxyConfig[]) => void)[] = [];
