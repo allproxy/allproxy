@@ -180,7 +180,9 @@ export default class HttpProxy {
                 proxy = http.request(options, proxyRequest);
             }
 
-            const host = HttpProxy.getHostPort(proxyConfig);
+            const host = proxyConfig.protocol === 'proxy:' && hostname !== null
+                ? hostname.split('.')[0]
+                : HttpProxy.getHostPort(proxyConfig);
             parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, proxyConfig.path);
 
             function proxyRequest(proxyRes: any) {

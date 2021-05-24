@@ -18,12 +18,17 @@ services:
         published: 8888
         protocol: tcp
         mode: host
+      - target: 9999
+        published: 9999
+        protocol: tcp
+        mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - type: bind
         source: .
         target: /app
     expose:
+      - 9999
       - 27017
       - 3306
       - 33306
@@ -45,4 +50,4 @@ services:
       - 50067
       - 50068
       - 63790
-    command: 'yarn start'
+    command: 'yarn start --listen 8888 --listenHttps 9999'
