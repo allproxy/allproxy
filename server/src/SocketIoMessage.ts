@@ -38,7 +38,7 @@ export default class SocketMessage {
 				var tokens = endpoint?.split('/');
 				endpoint = tokens?tokens[tokens.length-1]:'';
 
-				if(client_req.url === '/graphql') {
+				if(client_req.url?.endsWith('/graphql')) {
 					endpoint = '';
 					if(requestBody && Array.isArray(requestBody)) {
 						requestBody.forEach((entry) => {
@@ -47,6 +47,9 @@ export default class SocketMessage {
 								endpoint += entry.operationName;
 							}
 						})
+						if (endpoint.length > 0) {
+							endpoint = 'GQL ' + endpoint;
+						}
 					}
 				}
 				if('/'+endpoint === client_req.url) endpoint = '';

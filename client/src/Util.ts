@@ -8,8 +8,8 @@ export default class Util {
                   .replaceAll('""', '"'); // remove consecutive quotes
 	}
 
-	static isGraphQlError(message: Message) {
-        if(message.url === '/graphql' && Array.isArray(message.responseBody)) {
+    static isGraphQlError(message: Message) {
+        if (message.url?.endsWith('/graphql') && Array.isArray(message.responseBody)) {
             for(const entry of message.responseBody) {
                 if(entry.errors) {
                    return true;
