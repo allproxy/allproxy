@@ -130,7 +130,10 @@ async function buildRequest(timestamp:number, sequenceNumber:number, requestHead
 				dns.reverse(clientIp, (err, hosts) => {
 					if (err === null && hosts.length > 0) {
 						clientIp = hosts[0];
-						clientIp = clientIp.split('.')[0]; // un-qualify host name
+						const host = clientIp.split('.')[0]; // un-qualify host name
+						if (isNaN(+host)) {
+							clientIp = host;
+						}
 					}
 					resolve(initMessage());
 				});
