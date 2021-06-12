@@ -36,7 +36,10 @@ export default class SocketMessage {
 
 				var endpoint = client_req.url?.split('?')[0];
 				var tokens = endpoint?.split('/');
-				endpoint = tokens?tokens[tokens.length-1]:'';
+				endpoint = tokens ? tokens[tokens.length - 1] : '';
+				if (!isNaN(+endpoint) && tokens && tokens.length > 1) {
+					endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
+				}
 
 				if(client_req.url?.endsWith('/graphql')) {
 					endpoint = '';
