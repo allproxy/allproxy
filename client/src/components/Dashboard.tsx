@@ -2,6 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { filterStore } from '../store/FilterStore';
 import MessageQueueStore from '../store/MessageQueueStore';
+import { Fade } from '@material-ui/core';
 import Request from './Request';
 import Response from './Response';
 import ResendModal from './ResendModal';
@@ -54,7 +55,13 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 					<Response
 						message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
 					/>
-					: <div className="center">Select request from left column</div>}
+					:
+					<Fade in={true}>
+						<div className="center">
+							Select request from left column
+						</div>
+					</Fade>
+				}
 			</div>
 			{resendMessage ? (
 				<ResendModal
