@@ -67,9 +67,13 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 	);
 
 	function handleClick(index: number) {
-		activeRequestIndex === index
-			? setActiveRequestIndex(Number.MAX_SAFE_INTEGER)
-			: setActiveRequestIndex(index);
+		const curIndex = activeRequestIndex;
+		setActiveRequestIndex(Number.MAX_SAFE_INTEGER);
+		setTimeout(() => {
+			if (curIndex !== index) {
+				setActiveRequestIndex(index);
+			}
+		});
 	}
 
 	function resetScroll(index: number) {
