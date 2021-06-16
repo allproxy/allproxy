@@ -6,7 +6,8 @@
   "scripts": {
     "install": "cd ./client && $npm_execpath install",
     "startdev": "nodemon --config nodemon.json app.ts && tsc --force --project ./tsconfig.json",
-    "build": "npm run clean && tsc --project ./tsconfig.json && npm run copy-files",
+    "build": "npm run build-server && npm run build-client",
+    "build-server": "npm run clean && tsc --project ./tsconfig.json && npm run copy-files",
     "build-client": "npm run clean-client && cd ./client && npm run build",
     "clean": "rm -rf ./build",
     "clean-client": "rm -rf ./client/build",
