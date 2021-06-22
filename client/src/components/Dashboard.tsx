@@ -13,21 +13,21 @@ type Props = {
 	messageQueueStore: MessageQueueStore
 }
 const Dashboard = observer(({ messageQueueStore }: Props) => {
-	const [activeRequestIndex, setActiveRequestIndex] = React.useState(Number.MAX_SAFE_INTEGER);
+	const [activeRequestSeqNum, setActiveRequestSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendMessage, setResendMessage] = React.useState<Message>();
 	const ref = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
-		if (activeRequestIndex !== Number.MAX_SAFE_INTEGER
-			&& activeRequestIndex >= messageQueueStore.getMessages().length) {
-			setActiveRequestIndex(Number.MAX_SAFE_INTEGER);
-		} else if (filterStore.shouldResetScroll()) {
+		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
-			resetScroll(activeRequestIndex);
+			if (activeRequestSeqNum !== Number.MAX_SAFE_INTEGER) {
+				setScrollTo(activeRequestSeqNum);
+			}
 		}
 	});
 
+	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	return (
 		<div className="request-response__container">
 			<div className="request__container" ref={ ref }>
@@ -35,10 +35,14 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 					if (filterStore.isFiltered(messageStore)) {
 						return null;
 					} else {
+						const isActiveRequest = activeRequestSeqNum === messageStore.getMessage().sequenceNumber;
+						if (isActiveRequest) {
+							activeRequestIndex = index;
+						}
 						return (
 							<Request store={messageStore}
 								key={index}
-								isActive={activeRequestIndex === index}
+								isActive={isActiveRequest}
 								onClick={() => handleClick(index)}
 								onResend={() => {
 									if (messageStore.getMessage().protocol === 'http:' || messageStore.getMessage().protocol === 'https:') {
@@ -74,23 +78,27 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 	);
 
 	function handleClick(index: number) {
-		const curIndex = activeRequestIndex;
-		setActiveRequestIndex(Number.MAX_SAFE_INTEGER);
+		const curSeqNum = activeRequestSeqNum;
+		setActiveRequestSeqNum(Number.MAX_SAFE_INTEGER);
 		setTimeout(() => {
-			if (curIndex !== index) {
-				setActiveRequestIndex(index);
+			const clickedSeqNum = messageQueueStore.getMessages()[index].getMessage().sequenceNumber;
+			if (curSeqNum !== clickedSeqNum) {
+				setActiveRequestSeqNum(clickedSeqNum);
 			}
 		});
 	}
 
-	function resetScroll(index: number) {
-		if (index !== Number.MAX_SAFE_INTEGER) {
+	function setScrollTo(seqNum: number) {
+		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
 			const parent = (ref.current as Element);
 			const children = (parent).childNodes;
-			for (let i = 0; i < index; ++i) {
+			for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 				const element = (children[i] as Element);
 				offset += element.clientHeight
+				if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
+					break;
+				}
 			}
 			parent.scrollTop = offset;
 		}
