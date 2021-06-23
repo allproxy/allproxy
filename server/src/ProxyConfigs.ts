@@ -9,18 +9,19 @@ import url from 'url';
 import net from 'net';
 import Ping from './Ping';
 
-const MIDDLEMAN_DIR = `${__dirname}${path.sep}`;
-const CONFIG_JSON = `${MIDDLEMAN_DIR}${path.sep}config.json`;
+const CONFIG_JSON = process.env.NODE_ENV === "production"
+    ? `${__dirname}${path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
+    : `${__dirname}${path.sep}.${path.sep}config.json`;
 const CACHE_SOCKET_ID = 'cache';
+console.log('Config file:', CONFIG_JSON);
 
 interface SocketConfigs { socket ?: io.Socket, configs: ProxyConfig[] };
 
 export default class ProxyConfigs {
 
-    proxyConfigsMap = new Map<string, SocketConfigs>();
+    private proxyConfigsMap = new Map<string, SocketConfigs>();
 
     constructor() {
-        this.proxyConfigsMap = new Map();
         this.activateConfig(this.getConfig());
     }
 
@@ -100,6 +101,7 @@ export default class ProxyConfigs {
     private saveConfig(proxyConfigs: ProxyConfig[]) {
         // Cache the config, to configure the proxy on the next start up prior
         // to receiving the config from the browser.
+        console.log(`Updating config file: ${CONFIG_JSON}`)
         fs.writeFileSync(CONFIG_JSON,
             JSON.stringify({ configs: proxyConfigs, }, null, 2));
     }
