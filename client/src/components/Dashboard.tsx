@@ -94,11 +94,11 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 			const parent = (ref.current as Element);
 			const children = (parent).childNodes;
 			for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
-				const element = (children[i] as Element);
-				offset += element.clientHeight
 				if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
 					break;
 				}
+				const element = (children[i] as Element);
+				offset += element.clientHeight;
 			}
 			parent.scrollTop = offset;
 		}

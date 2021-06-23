@@ -142,7 +142,7 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 									<td className="settings-modal__input-url-container">
 										<input type="text" className="form-control settings-modal__input-host"
 											hidden={ store.isProxyOrLog() }
-											placeholder={store.isProxyOrLog() ? '' : 'Entry port number'}
+											placeholder={store.isProxyOrLog() ? '' : 'Enter port number'}
 											value={ store.getTargetPort() }
 											onChange={(e) => store.setTargetPort(e.target.value)}
 										/>
