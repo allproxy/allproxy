@@ -42,6 +42,8 @@ td input {
 .center {
 	text-align: center;
 	vertical-align: middle;
+	align-self: center;
+	justify-self: center;
 	position: relative;
 	top: 50%;
 	transform: translateY(-50%);

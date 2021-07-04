@@ -2,7 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { filterStore } from '../store/FilterStore';
 import MessageQueueStore from '../store/MessageQueueStore';
-import { Fade } from '@material-ui/core';
+import { CircularProgress, Fade } from '@material-ui/core';
 import Request from './Request';
 import Response from './Response';
 import ResendModal from './ResendModal';
@@ -30,30 +30,37 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	return (
 		<div className="request-response__container">
-			<div className="request__container" ref={ ref }>
-				{messageQueueStore.getMessages().map((messageStore, index) => {
-					if (filterStore.isFiltered(messageStore)) {
-						return null;
-					} else {
-						const isActiveRequest = activeRequestSeqNum === messageStore.getMessage().sequenceNumber;
-						if (isActiveRequest) {
-							activeRequestIndex = index;
+			{messageQueueStore.getMessages().length > 0 &&
+				<div className="request__container" ref={ref}>
+					{messageQueueStore.getMessages().map((messageStore, index) => {
+						if (filterStore.isFiltered(messageStore)) {
+							return null;
+						} else {
+							const isActiveRequest = activeRequestSeqNum === messageStore.getMessage().sequenceNumber;
+							if (isActiveRequest) {
+								activeRequestIndex = index;
+							}
+							return (
+								<Request store={messageStore}
+									key={index}
+									isActive={isActiveRequest}
+									onClick={() => handleClick(index)}
+									onResend={() => {
+										if (messageStore.getMessage().protocol === 'http:' || messageStore.getMessage().protocol === 'https:') {
+											setResendMessage(messageStore.getMessage());
+											setOpenModal(true);
+										}
+									}}
+								/>)
 						}
-						return (
-							<Request store={messageStore}
-								key={index}
-								isActive={isActiveRequest}
-								onClick={() => handleClick(index)}
-								onResend={() => {
-									if (messageStore.getMessage().protocol === 'http:' || messageStore.getMessage().protocol === 'https:') {
-										setResendMessage(messageStore.getMessage());
-										setOpenModal(true);
-									}
-								}}
-							/>)
-					}
-				})}
-			</div>
+					})}
+				</div>
+			}
+			{messageQueueStore.getMessages().length === 0 &&
+				<div className="request__container">
+					<CircularProgress className="center"/>
+				</div>
+			}
 			<div className="response__container">
 				{activeRequestIndex < messageQueueStore.getMessages().length ?
 					<Response
@@ -63,7 +70,7 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 					<Fade in={true}>
 						<div className="center">
 							Select request from left column
-						</div>
+					</div>
 					</Fade>
 				}
 			</div>
