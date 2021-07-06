@@ -99,15 +99,17 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
 			const parent = (ref.current as Element);
-			const children = (parent).childNodes;
-			for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
-				if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
-					break;
+			if (parent) {
+				const children = (parent).childNodes;
+				for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
+					if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
+						break;
+					}
+					const element = (children[i] as Element);
+					offset += element.clientHeight;
 				}
-				const element = (children[i] as Element);
-				offset += element.clientHeight;
+				parent.scrollTop = offset;
 			}
-			parent.scrollTop = offset;
 		}
 	}
 });
