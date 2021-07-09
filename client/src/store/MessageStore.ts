@@ -79,8 +79,8 @@ export default class MessageStore {
     }
 
     private formatUrl(urlStr: string): string {
-        var url = urlStr.indexOf('?') !== -1 ? urlStr.split('?')[0] : urlStr;
-        url = unescape(url);
+        //var url = urlStr.indexOf('?') !== -1 ? urlStr.split('?')[0] : urlStr;
+        let url = unescape(urlStr);
         url = Util.fixNewlines(url);
         return url.split(/\s+/).join(' ');
     }
