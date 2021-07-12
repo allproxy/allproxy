@@ -7,8 +7,6 @@ import socketMessage from './server/src/SocketIoMessage';
 import Global from './server/src/Global';
 import ProxyConfig from './common/ProxyConfig';
 import Message from './common/Message';
-import ProxyConfigs from './server/src/ProxyConfigs';
-
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -183,16 +181,21 @@ export default class HttpProxy {
             const host = proxyConfig.protocol === 'proxy:' && hostname !== null
                 ? hostname.split('.')[0]
                 : HttpProxy.getHostPort(proxyConfig);
-            parseRequestPromise = socketMessage.parseRequest(client_req, startTime, sequenceNumber, host, proxyConfig.path);
+            parseRequestPromise = socketMessage.parseRequest(
+                client_req,
+                startTime,
+                sequenceNumber,
+                host,
+                proxyConfig.path);
 
-            function proxyRequest(proxyRes: any) {
+            function proxyRequest(proxyRes: http.IncomingMessage) {
                 parseRequestPromise.then(function(message) {
                     var parseResponsePromise = socketMessage.parseResponse(proxyRes, startTime, message);
 
                     /**
                      * Forward the response back to the client
                      */
-                    client_res.writeHead(proxyRes.statusCode, proxyRes.headers);
+                    client_res.writeHead((proxyRes as any).statusCode, proxyRes.headers);
                     proxyRes.pipe(client_res, {
                         end : true
                     });

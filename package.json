@@ -4,7 +4,7 @@
   "description": "Reverse (transparent) proxy that captures, edits and replays HTTP requests.",
   "main": "main.js",
   "scripts": {
-    "install": "cd ./client && $npm_execpath install",
+    "install": "cd ./client && $npm_execpath install && cd ../node-http-mitm-proxy && $npm_execpath install",
     "startdev": "NODE_ENV=development nodemon --config nodemon.json app.ts && tsc --force --project ./tsconfig.json",
     "build": "npm run build-server && npm run build-client",
     "build-server": "npm run clean && tsc --project ./tsconfig.json && npm run copy-files",
@@ -12,7 +12,7 @@
     "clean": "rm -rf ./build",
     "clean-client": "rm -rf ./client/build",
     "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
-    "copy-files": "cp -r ./private ./build/",
+    "copy-files": "cp -r ./private ./build/ && cp -r ./node-http-mitm-proxy ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "echo \"Error: no test specified\" && exit 1"

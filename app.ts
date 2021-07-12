@@ -4,7 +4,10 @@ import { exit } from 'process';
 import https from 'https';
 import Global from './server/src/Global';
 import ProxyConfigs from './server/src/ProxyConfigs';
-import HttpProxy from './HttpProxy';
+import HttpProxy from './ReverseProxy';
+import HttpsProxy from './ForwardProxy';
+import ForwardProxy from './node-http-mitm-proxy';
+const forwardProxy = ForwardProxy();
 
 let listen: {protocol?: string,
 			host?: string,
@@ -67,6 +70,7 @@ process.on('uncaughtException', (err) => {
 
 Global.proxyConfigs = new ProxyConfigs();
 const httpProxy = new HttpProxy();
+const httpsProxy = new HttpsProxy();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // trust all certificates
 
@@ -80,17 +84,19 @@ for(let entry of listen) {
 	let host = entry.host;
 	let port = entry.port;
 
-	if(protocol === 'https:') {
-		httpServer = https.createServer(httpsOptions,
-			(client_req, client_res) => httpProxy.onRequest(client_req, client_res));
+	if (protocol === 'https:') {
+		forwardProxy.listen({ port: port });
+		console.log(`Listening on ${protocol} ${host ? host : ''} ${port}`);
+		httpsProxy.onRequest(forwardProxy);
 	} else {
 		httpServer = http.createServer(
 			(client_req, client_res) => httpProxy.onRequest(client_req, client_res));
+			httpServer.listen(port, host);
+		console.log(`Listening on ${protocol} ${host?host:''} ${port}`);
+		console.log(`Open browser to ${protocol}//localhost:${port}/middleman\n`);
+
+		Global.proxyConfigs.addHttpServer(httpServer);
 	}
 
-	Global.proxyConfigs.addHttpServer(httpServer);
 
-	httpServer.listen(port, host);
-	console.log(`Listening on ${protocol} ${host?host:''} ${port}`);
-	console.log(`Open browser to ${protocol}//localhost:${port}/middleman\n`);
 }
