@@ -4,10 +4,10 @@ import { exit } from 'process';
 import https from 'https';
 import Global from './server/src/Global';
 import ProxyConfigs from './server/src/ProxyConfigs';
-import HttpProxy from './ReverseProxy';
-import HttpsProxy from './ForwardProxy';
-import ForwardProxy from './node-http-mitm-proxy';
-const forwardProxy = ForwardProxy();
+import HttpProxy from './HttpProxy';
+import HttpsProxy from './HttpsProxy';
+import HttpMitmProxy from './node-http-mitm-proxy';
+const httpMitmProxy = HttpMitmProxy();
 
 let listen: {protocol?: string,
 			host?: string,
@@ -85,9 +85,9 @@ for(let entry of listen) {
 	let port = entry.port;
 
 	if (protocol === 'https:') {
-		forwardProxy.listen({ port: port });
+		httpMitmProxy.listen({ port: port });
 		console.log(`Listening on ${protocol} ${host ? host : ''} ${port}`);
-		httpsProxy.onRequest(forwardProxy);
+		httpsProxy.onRequest(httpMitmProxy, 'localhost', port);
 	} else {
 		httpServer = http.createServer(
 			(client_req, client_res) => httpProxy.onRequest(client_req, client_res));
