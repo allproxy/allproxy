@@ -50,14 +50,17 @@ for(var i = 2; i < process.argv.length; ++i) {
 	}
 }
 
-if(listen.length === 0) listen.push({port: 8888});
+if (listen.length === 0) {
+	listen.push({ protocol: 'http:',port: 8888 });
+	listen.push({ protocol: 'https:', port: 9999 });
+}
 
 function usage() {
 	console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port]');
 	console.log('\nOptions:');
 	console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
 	console.log('\t--listenHttps - listen for incoming https connections.');
-	console.log('\nExample: npm start --listen localhost:3000 --listenHttps 3001');
+	console.log('\nExample: npm start -- --listen 8888 --listenHttps 9999');
 }
 
 /**
