@@ -1,15 +1,24 @@
-import React from 'react';
 import { Modal } from '@material-ui/core'
+import SettingsTable from './SettingsTable';
 import SettingsStore from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
-import pickIcon from '../PickIcon';
+import { Tab, Tabs } from '@material-ui/core';
+import TabContext from '@material-ui/lab/TabContext';
+import TabPanel from '@material-ui/lab/TabPanel';
+import React from 'react';
 
 type Props = {
 	open: boolean,
 	onClose: () => void,
 	store: SettingsStore,
 };
-const SettingsModal= observer(({ open, onClose, store }: Props) => {
+const SettingsModal = observer(({ open, onClose, store }: Props) => {
+	const [tabValue, setTabValue] = React.useState('grpc:');
+
+	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
+		setTabValue(value);
+	}
+
 	return (
 		<Modal
 			className="modal-window"
@@ -22,86 +31,26 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 			<div className="settings-modal" role="dialog">
 				<div>
 					<h3>Settings</h3>
-					<div className="settings-modal__scroll-container">
-						<table className="table settings-modal__table">
-							{store.getEntries().length > 0 ?
-							<thead>
-								<tr>
-									<td></td>
-									<td></td>
-									<td className="text-primary"><label>Protocol</label></td>
-									<td className="text-primary"><label>Path or Port</label></td>
-									<td className="text-primary"><label>Target Host</label></td>
-									<td className="text-primary"><label>Target Port</label></td>
-									<td className="text-primary"><label>Status</label></td>
-								</tr>
-							</thead>
-							: null }
-							<tbody>
-								{store.getEntries().map((entry, index) => (
-									<tr className= "settings-modal__proxy-row" key = { index }
-										style={{opacity: entry.recording ? 1 : .5}}
-									>
-										<td>
-											<button className="settings-modal__proxy-delete-button btn btn-xs btn-danger"
-												onClick={ () => store.deleteEntry(index) }
-											>
-												X
-											</button>
-										</td>
-										<td className="settings-modal__recording-container">
-											<div className={'settings__recording fas '
-												+ (entry.recording ? 'fa-pause' : 'fa-play')}
-												onClick={(e) => store.toggleEntryCapture(index)}
-											/>
-										</td>
-										<td className="settings-modal__proxy-protocol-container">
-											<div className={`settings-modal__icon fa ${pickIcon(entry.protocol)}`}
-												style={{ cursor: 'pointer', float: 'left' }}
-											>
-											</div>
-											<select className="settings-modal__select-protocol form-control"
-												onChange={(e) => store.updateEntryProtocol(index, e.target.value)}
-												value={ entry.protocol }
-											>
-												{store.getProtocols().map(protocol =>
-													<option key={ protocol }>{protocol}</option>)}
-											</select>
-										</td>
-										<td className="settings-modal__proxy-path-container">
-											<input className="settings-modal__proxy-path"
-												onChange={ (e) => store.updateEntryPath(index, e.target.value) }
-												value={entry.path} />
-										</td>
-										<td className="settings-modal__proxy-host-container">
-											<input className="settings-modal__proxy-host"
-												hidden={ entry.protocol === 'proxy:' || entry.protocol === 'log:' }
-												onChange={ (e) => store.updateEntryHost(index, e.target.value) }
-												value={entry.hostname} />
-										</td>
-										<td className="settings-modal__proxy-host-container">
-											<input className="settings-modal__proxy-host"
-												hidden={ entry.protocol === 'proxy:' || entry.protocol === 'log:' }
-												onChange={ (e) => store.updateEntryPort(index, e.target.value) }
-												value={entry.port} />
-										</td>
-										<td>
-											<div className="settings-modal__status-container">
-												<div className={`settings-modal__status fa
-													${store.isStatusUpdating()
-													? 'updating fa-circle'
-													:
-														entry.hostReachable
-														? 'success fa-circle'
-														: 'error fa-exclamation-triangle'}`}>
-												</div>
-											</div>
-										</td>
-								</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+					<TabContext value={tabValue}>
+						<Tabs
+							value={tabValue}
+							onChange={handleTabChange}
+							indicatorColor="primary"
+							textColor="primary"
+							aria-label="Settings table">
+							{store.getProtocols().map(protocol => (
+								<Tab value={ protocol } label={ protocol }>
+								</Tab>
+							))}
+						</Tabs>
+						{store.getProtocols().map(protocol => (
+							<TabPanel value={ protocol }>
+								<div className="settings-modal__scroll-container">
+									<SettingsTable store={store} protocol={ protocol }></SettingsTable>
+								</div>
+							</TabPanel>
+						))}
+					</TabContext>
 					<div style={{borderTop: 'solid steelblue', paddingTop: '.5rem'}}>
 						<table>
 							<tbody>
@@ -193,5 +142,6 @@ const SettingsModal= observer(({ open, onClose, store }: Props) => {
 		</Modal>
 	);
 });
+
 
 export default SettingsModal;
