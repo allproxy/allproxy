@@ -4,15 +4,15 @@ import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
 const PROTOCOLS = [
+	'grpc:',
 	'http:',
 	'https:',
-	'grpc:',
-	'mongo:',
 	'log:',
-	'proxy:',
-	'sql:',
-	'redis:',
+	'mongo:',
 	'other:',
+	'proxy:',
+	'redis:',
+	'sql:',
 ];
 
 export default class SettingsStore {
