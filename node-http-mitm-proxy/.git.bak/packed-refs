@@ -1,0 +1,20 @@
+# pack-refs with: peeled fully-peeled sorted 
+e225cc722e4bcedeb6462d1db6919a719f866ddd refs/remotes/origin/dependabot/npm_and_yarn/glob-parent-5.1.2
+3a3a2bc089ac06749c33b37e99720513e48d66a3 refs/remotes/origin/http2
+df6be48286db49bd1508d248a587f23c1f72e5b1 refs/remotes/origin/master
+ea167e6c0eb8bd5da9d0a1a404c55e4169398cc8 refs/tags/v0.0.2
+a725f66745ec61453ac969291d3bd7f2cf8ccb5d refs/tags/v0.1.0
+3173ca7f52bb9faf75b5852749a8452b7d5154f5 refs/tags/v0.2.0
+ac4570dd2705ad4f1e24cbaba6531b471e86d47b refs/tags/v0.3.0
+fc45d9b82ca893d79c062cf47dca4436885fc034 refs/tags/v0.4.0
+1ba10061bc9a8b866bbeaf30f695813d293add28 refs/tags/v0.5.0
+11973eb0027d1a6f3cd8046a7485e31f5181044c refs/tags/v0.5.1
+d2e32ec7dfa1314d3eee4553ff7d2efdc5de8820 refs/tags/v0.5.2
+433a4aae336dc19216505f94b977c53d8af43f5f refs/tags/v0.5.3
+89dfe3db89ee49441c9fdbcd02b285fd65bce9be refs/tags/v0.6.0
+4491f21e5cccfb7556c35a83b4772f142d814c3a refs/tags/v0.6.1
+b1b14cb38c2fb241ed8fee0b2d33c9f3b0031644 refs/tags/v0.7.0
+623aace576fe4655498ab598d2fbed6f8cff0f90 refs/tags/v0.8.0
+d9a222d89cc7263d99065ac16bcf581e04d1df38 refs/tags/v0.8.1
+f0ca1f0cd7fe330144c9e993f35c132cd84b0f01 refs/tags/v0.8.2
+df6be48286db49bd1508d248a587f23c1f72e5b1 refs/tags/v0.9.0
