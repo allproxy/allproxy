@@ -13,7 +13,7 @@ const CONFIG_JSON = process.env.NODE_ENV === "production"
     ? `${__dirname}${path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
     : `${__dirname}${path.sep}.${path.sep}config.json`;
 const CACHE_SOCKET_ID = 'cache';
-console.log('Config file:', CONFIG_JSON);
+//console.log('Config file:', CONFIG_JSON);
 
 interface SocketConfigs { socket ?: io.Socket, configs: ProxyConfig[] };
 

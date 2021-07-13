@@ -312,7 +312,7 @@ td input {
 
 .settings-modal__scroll-container {
 	overflow-y: auto;
-	height: 70vh;
+	height: calc(90vh - 300px);
 }
 
 .modal-content {
