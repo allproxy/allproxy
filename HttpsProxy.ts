@@ -14,25 +14,28 @@ import { request } from 'node:http';
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
-export default class ForwardProxy {
+export default class HttpsProxy {
     constructor() {
     }
 
-    onRequest(proxy: Proxy.IProxy) {
+    onRequest(proxy: Proxy.IProxy, proxyHost: string, proxyPort: number) {
         proxy.onRequest(function (ctx, callback) {
             ctx.use(Proxy.gunzip);
 
             const client_req = ctx.clientToProxyRequest;
             const client_res = ctx.proxyToClientResponse;
-            //console.log(ctx);
+            console.log(ctx);
 
             var sequenceNumber = ++Global.nextSequenceNumber;
             var remoteAddress = client_req.socket.remoteAddress;
 
             const reqHeaders = ctx.proxyToServerRequestOptions.headers;
-            const host = reqHeaders['host'];
+            const connectRequest = Object.keys((ctx as any).connectRequest).length > 0;
+            if (connectRequest) {
+                const host = reqHeaders['host'];
+                client_req.url = 'https://' + host + client_req.url;
+            }
 
-            client_req.url = 'https://' + host + client_req.url;
             const reqUrl = url.parse(client_req.url ? client_req.url : '');
 
             console.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
@@ -43,16 +46,25 @@ export default class ForwardProxy {
             console.log(reqUrl.protocol, reqUrl.pathname, reqUrl.search);
 
             // Find matching proxy configuration
-            let proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);
-            // Always proxy forward proxy requests
-            if (proxyConfig === undefined && reqUrl.protocol !== null) {
-                proxyConfig = new ProxyConfig();
-                proxyConfig.path = reqUrl.pathname!;
-                proxyConfig.protocol = reqUrl.protocol;
-                proxyConfig.hostname = reqUrl.hostname!;
-                proxyConfig.port = reqUrl.port === null
-                    ? reqUrl.protocol === 'http:' ? 80 : 443
-                    : +reqUrl.port;
+            let proxyConfig;
+
+            if (!connectRequest) {
+                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);
+                if (proxyConfig !== undefined) {
+                    ctx.proxyToServerRequestOptions.headers['host'] = proxyConfig.hostname;
+                    client_req.url = 'https://' + proxyConfig.hostname + client_req.url;
+                }
+            } else {
+                // Always proxy forward proxy requests
+                if (reqUrl.protocol !== null) {
+                    proxyConfig = new ProxyConfig();
+                    proxyConfig.path = reqUrl.pathname!;
+                    proxyConfig.protocol = reqUrl.protocol;
+                    proxyConfig.hostname = reqUrl.hostname!;
+                    proxyConfig.port = reqUrl.port === null
+                        ? reqUrl.protocol === 'http:' ? 80 : 443
+                        : +reqUrl.port;
+                }
             }
 
             if(proxyConfig === undefined) {
@@ -149,17 +161,35 @@ export default class ForwardProxy {
                 resHeaders: {} = {},
                 resBody: string = "No Response"
             ) {
-                const host = ForwardProxy.getHostPort(proxyConfig!);
+                const reqBodyJson = toJSON(reqBody);
+                const host = HttpsProxy.getHostPort(proxyConfig!);
                 var endpoint = url.split('?')[0];
                     var tokens = endpoint?.split('/');
-                    endpoint = tokens?tokens[tokens.length-1]:'';
+                endpoint = tokens ? tokens[tokens.length - 1] : '';
+
+                if(client_req.url?.endsWith('/graphql')) {
+					endpoint = '';
+					if(reqBodyJson && Array.isArray(reqBodyJson)) {
+						reqBodyJson.forEach((entry) => {
+							if(entry.operationName) {
+								if(endpoint && endpoint.length > 0) endpoint += ', '
+								endpoint += entry.operationName;
+							}
+						})
+						if (endpoint.length > 0) {
+							endpoint = 'GQL ' + endpoint;
+						}
+					}
+				}
+                if ('/' + endpoint === client_req.url) endpoint = '';
+
                 const message = await socketMessage.buildRequest(Date.now(),
                                             sequenceNumber,
                                             reqHeaders,
                                             client_req.method!,
                                             url,
                                             endpoint,
-                                            toJSON(reqBody),
+                                            reqBodyJson,
                                             client_req.socket.remoteAddress!,
                                             host, // server host
                                             proxyConfig ? proxyConfig.path : '',
