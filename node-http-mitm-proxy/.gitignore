@@ -1,0 +1,10 @@
+/build/*
+node_modules
+*.node
+*.sh
+*.swp
+.lock*
+npm-debug.log
+.idea
+.http-mitm-proxy
+.vscode
