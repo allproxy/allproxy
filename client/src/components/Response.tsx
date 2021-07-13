@@ -7,7 +7,8 @@ type Props = {
 	message: Message,
 };
 const Response = ({ message }: Props) => {
-	const [responseBody, setResponseBody] = React.useState('');
+	const LOADING = 'Loading...';
+	const [responseBody, setResponseBody] = React.useState(LOADING);
 
 	const queryParams = getQueryParams(message);
 	getResponseBody(message)
@@ -68,7 +69,7 @@ const Response = ({ message }: Props) => {
 						</pre>
 					</AccordionDetails>
 				</Accordion>
-				{responseBody.length === 0 &&
+				{responseBody === LOADING &&
 					<div style={{
 						width: '100%',
 						marginTop: '1rem',
