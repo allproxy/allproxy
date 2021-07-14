@@ -19,7 +19,7 @@ export default class SettingsStore {
 	private changed = false;
 	private protocol = 'http:';
 	private path = '';
-	private targetHost = 'localhost';
+	private targetHost = '';
 	private targetPort = '';
 
 	private statusUpdating = true;
@@ -61,7 +61,7 @@ export default class SettingsStore {
 		this.changed = false;
 		this.protocol = 'http:';
 		this.path = '';
-		this.targetHost = 'localhost';
+		this.targetHost = '';
 		this.targetPort = '';
 		this.messageQueueLimit = messageQueueStore.getLimit();
 		this.setConfig();
