@@ -17,7 +17,7 @@ export default class HttpsProxy {
 
             const client_req = ctx.clientToProxyRequest;
             const client_res = ctx.proxyToClientResponse;
-            console.log(ctx);
+            //console.log(ctx);
 
             var sequenceNumber = ++Global.nextSequenceNumber;
             var remoteAddress = client_req.socket.remoteAddress;
@@ -33,8 +33,6 @@ export default class HttpsProxy {
 
             console.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
 
-            let parseRequestPromise: Promise<any>;
-
             var startTime = Date.now();
             console.log(reqUrl.protocol, reqUrl.pathname, reqUrl.search);
 
@@ -48,11 +46,12 @@ export default class HttpsProxy {
                     client_req.url = 'https://' + proxyConfig.hostname + client_req.url;
                 }
             } else {
+                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);
                 // Always proxy forward proxy requests
-                if (reqUrl.protocol !== null) {
+                if (proxyConfig === undefined) {
                     proxyConfig = new ProxyConfig();
                     proxyConfig.path = reqUrl.pathname!;
-                    proxyConfig.protocol = reqUrl.protocol;
+                    proxyConfig.protocol = reqUrl.protocol!;
                     proxyConfig.hostname = reqUrl.hostname!;
                     proxyConfig.port = reqUrl.port === null
                         ? reqUrl.protocol === 'http:' ? 80 : 443

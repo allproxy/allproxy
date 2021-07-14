@@ -53,7 +53,7 @@ class ProxyConfigStore {
 		const proxyDirectives: ProxyConfig[] = this.proxyConfigs;
 		proxyDirectives.forEach(proxyConfig => {
 			// backwards compatible with previously supported 'any:'
-			if(proxyConfig.protocol === 'any:') proxyConfig.protocol = 'other:';
+			if(proxyConfig.protocol === 'any:' || proxyConfig.protocol === 'other:') proxyConfig.protocol = 'tcp:';
 		});
 		// Send configs to server
 		socketStore.emitConfig('proxy config', proxyDirectives);

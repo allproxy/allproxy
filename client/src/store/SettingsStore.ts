@@ -9,10 +9,10 @@ const PROTOCOLS = [
 	'https:',
 	'log:',
 	'mongo:',
-	'other:',
 	'proxy:',
 	'redis:',
 	'sql:',
+	'tcp:',
 ];
 
 export default class SettingsStore {
@@ -151,7 +151,7 @@ export default class SettingsStore {
 			this.entries.push(proxyConfig);
 
 			this.path = '';
-			this.targetHost = 'localhost';
+			this.targetHost = '';
 			this.targetPort = '';
 			this.changed = true;
 		}
