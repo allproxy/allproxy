@@ -401,7 +401,7 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
         conn.end();
       });
       var connectKey = conn.localPort + ':' + conn.remotePort;
-      self.connectRequests[connectKey] = req; 
+      self.connectRequests[connectKey] = req;
       socket.pipe(conn);
       conn.pipe(socket);
       socket.emit('data', head);
@@ -806,7 +806,7 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
       }
       if (self.responseContentPotentiallyModified || ctx.responseContentPotentiallyModified) {
         ctx.serverToProxyResponse.headers['transfer-encoding'] = 'chunked';
-        delete ctx.serverToProxyResponse.headers['content-length'];  
+        delete ctx.serverToProxyResponse.headers['content-length'];
       }
       if (self.keepAlive) {
         if (ctx.clientToProxyRequest.headers['proxy-connection']) {
@@ -969,23 +969,27 @@ Proxy.prototype._onWebSocketFrame = function(ctx, type, fromServer, data, flags)
 };
 
 Proxy.prototype._onWebSocketClose = function(ctx, closedByServer, code, message) {
-  if (!ctx.closedByServer && !ctx.closedByClient) {
-    ctx.closedByServer = closedByServer;
-    ctx.closedByClient = !closedByServer;
-    async.forEach(this.onWebSocketCloseHandlers.concat(ctx.onWebSocketCloseHandlers), function(fn, callback) {
-      return fn(ctx, code, message, callback);
-    }, function(err) {
-      if (err) {
-        return self._onWebSocketError(ctx, err);
-      }
-      if (ctx.clientToProxyWebSocket.readyState !== ctx.proxyToServerWebSocket.readyState) {
-        if (ctx.clientToProxyWebSocket.readyState === WebSocket.CLOSED && ctx.proxyToServerWebSocket.readyState === WebSocket.OPEN) {
-          ctx.proxyToServerWebSocket.close(code, message);
-        } else if (ctx.proxyToServerWebSocket.readyState === WebSocket.CLOSED && ctx.clientToProxyWebSocket.readyState === WebSocket.OPEN) {
-          ctx.clientToProxyWebSocket.close(code, message);
+  try {
+    if (!ctx.closedByServer && !ctx.closedByClient) {
+      ctx.closedByServer = closedByServer;
+      ctx.closedByClient = !closedByServer;
+      async.forEach(this.onWebSocketCloseHandlers.concat(ctx.onWebSocketCloseHandlers), function(fn, callback) {
+        return fn(ctx, code, message, callback);
+      }, function(err) {
+        if (err) {
+          return self._onWebSocketError(ctx, err);
         }
-      }
-    });
+        if (ctx.clientToProxyWebSocket.readyState !== ctx.proxyToServerWebSocket.readyState) {
+          if (ctx.clientToProxyWebSocket.readyState === WebSocket.CLOSED && ctx.proxyToServerWebSocket.readyState === WebSocket.OPEN) {
+            ctx.proxyToServerWebSocket.close(code, message);
+          } else if (ctx.proxyToServerWebSocket.readyState === WebSocket.CLOSED && ctx.clientToProxyWebSocket.readyState === WebSocket.OPEN) {
+            ctx.clientToProxyWebSocket.close(code, message);
+          }
+        }
+      });
+    }
+  } catch(e) {
+    console.error(e);
   }
 };
 
