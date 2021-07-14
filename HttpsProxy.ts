@@ -1,15 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import url from 'url';
-import http, { IncomingMessage } from 'http';
-import https from 'https';
 import socketMessage from './server/src/SocketIoMessage';
 import Global from './server/src/Global';
 import ProxyConfig from './common/ProxyConfig';
-import Message from './common/Message';
 import Proxy from './node-http-mitm-proxy';
-import { request } from 'node:http';
-
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
