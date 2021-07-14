@@ -1,7 +1,6 @@
 .http-mitm-proxy
 config.json
 build/
-*.js
 
 # Logs
 *.log
