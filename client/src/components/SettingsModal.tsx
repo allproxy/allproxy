@@ -14,9 +14,11 @@ type Props = {
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
 	const [tabValue, setTabValue] = React.useState('grpc:');
+	store.setProtocol('grpc:');
 
 	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
 		setTabValue(value);
+		store.setProtocol(value);
 	}
 
 	return (
