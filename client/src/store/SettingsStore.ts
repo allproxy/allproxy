@@ -21,6 +21,7 @@ export default class SettingsStore {
 	private path = '';
 	private targetHost = '';
 	private targetPort = '';
+	private comment = '';
 
 	private statusUpdating = true;
 	private entries: ProxyConfig[] = [];
@@ -63,6 +64,7 @@ export default class SettingsStore {
 		this.path = '';
 		this.targetHost = '';
 		this.targetPort = '';
+		this.comment = '';
 		this.messageQueueLimit = messageQueueStore.getLimit();
 		this.setConfig();
 		this.error = '';
@@ -116,6 +118,15 @@ export default class SettingsStore {
 		this.error = '';
 	}
 
+	public getComment() {
+		return this.comment;
+	}
+
+	@action public setComment(comment: string) {
+		this.comment = comment;
+		this.error = '';
+	}
+
 	public isAddDisabled(): boolean {
 		if (this.isProxyOrLog()) {
 			return this.path.length === 0;
@@ -148,11 +159,13 @@ export default class SettingsStore {
 			proxyConfig.path = this.path;
 			proxyConfig.hostname = this.targetHost;
 			proxyConfig.port = +this.targetPort;
+			proxyConfig.comment = this.comment;
 			this.entries.push(proxyConfig);
 
 			this.path = '';
 			this.targetHost = '';
 			this.targetPort = '';
+			this.comment = '';
 			this.changed = true;
 		}
 	}
@@ -192,6 +205,13 @@ export default class SettingsStore {
 			this.entries.splice(index, 1, entry);
 			this.changed = true;
 		}
+	}
+
+	@action public updateComment(index: number, value: string) {
+		const entry = { ...this.entries[index] };
+		entry.comment = value;
+		this.entries.splice(index, 1, entry);
+		this.changed = true;
 	}
 
 	@action public toggleEntryCapture(index: number) {

@@ -35,6 +35,7 @@ export default class ProxyConfigs {
                 port: 0,
                 recording: true,
                 hostReachable: true,
+                comment: '',
             },
         ];
     }
