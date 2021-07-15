@@ -71,11 +71,6 @@ export default class HttpsProxy {
                 );
             }
             else {
-                emitRequestToBrowser(
-                    proxyConfig,
-                    client_req.url!,
-                    reqHeaders,
-                );
                 proxyRequest(proxyConfig);
             }
 
