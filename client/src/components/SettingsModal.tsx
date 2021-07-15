@@ -67,8 +67,8 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 											})};
 										</select>
 									</td>
-									<td className="settings-modal__input-path-container">
-										<input type="text" className="form-control settings-modal__input-path"
+									<td className="settings-modal__add-container">
+										<input type="text" className="form-control settings-modal__add-input"
 											placeholder={
 												store.getProtocol() === 'log:'
 												? 'Enter log tail command (e.g., docker logs -f container)'
@@ -82,20 +82,27 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 											onChange={(e) => store.setPath(e.target.value)}
 										/>
 									</td>
-									<td className="settings-modal__input-url-container">
-										<input type="text" className="form-control settings-modal__input-host"
+									<td className="settings-modal__add-container">
+										<input type="text" className="form-control settings-modal__add-input"
 											hidden={ store.isProxyOrLog() }
 											placeholder={store.isProxyOrLog() ? '' : 'Entry host name'}
 											value={ store.getTargetHost() }
 											onChange={(e) => store.setTargetHost(e.target.value)}
 										/>
 									</td>
-									<td className="settings-modal__input-url-container">
-										<input type="text" className="form-control settings-modal__input-host"
+									<td className="settings-modal__add-container">
+										<input type="text" className="form-control settings-modal__add-input"
 											hidden={ store.isProxyOrLog() }
 											placeholder={store.isProxyOrLog() ? '' : 'Enter port number'}
 											value={ store.getTargetPort() }
 											onChange={(e) => store.setTargetPort(e.target.value)}
+										/>
+									</td>
+									<td className="settings-modal__add-container">
+										<input type="text" className="form-control settings-modal__add-input"
+											placeholder={'Enter optional comment'}
+											value={ store.getComment() }
+											onChange={(e) => store.setComment(e.target.value)}
 										/>
 									</td>
 									<td className="settings-modal__add-button-container">

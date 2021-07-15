@@ -10,6 +10,7 @@ export default class ProxyConfig {
 	hostReachable: boolean = true;
 	logProxyProcess?: any = undefined;
 	_server?: net.Server | tls.Server;
+	comment:string = '';
 
 	static isHttpOrHttps(config: ProxyConfig): boolean {
 		switch (config.protocol) {

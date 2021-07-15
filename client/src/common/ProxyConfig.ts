@@ -11,6 +11,7 @@ export default class ProxyConfig {
 	hostReachable: boolean = true;
 	logProxyProcess?: any = undefined; // not used by client
 	_server?: net.Server | tls.Server; // not used by client
+	comment = '';
 
 	constructor(proxyConfig?: ProxyConfig) {
 		makeAutoObservable(this);
@@ -21,6 +22,7 @@ export default class ProxyConfig {
 			this.port = proxyConfig.port;
 			this.recording = proxyConfig.recording;
 			this.hostReachable = proxyConfig.hostReachable;
+			this.comment = proxyConfig.comment;
 		}
 	}
 

@@ -334,14 +334,12 @@ td input {
 	color: red;
 }
 
-.settings-modal__input-path-container,
-.settings-modal__input-url-container {
-	padding-right: 1rem;
-	width: 40% !important;
+.settings-modal__add-container {
+	padding-left: .5rem;
+	width: 25% !important;
 }
-.settings-modal__input-path,
-.settings-modal__input-url {
-	width: 300px !important;
+.settings-modal__add-input {
+	width: 100% !important;
 }
 .settings-modal__select-protocol {
 	width: 100px !important;
@@ -358,9 +356,9 @@ td input {
 
 .settings-modal__proxy-path,
 .settings-modal__proxy-protocol,
-.settings-modal__proxy-host {
+.settings-modal__proxy-host,
+.settings-modal__proxy-comment {
 	padding-top: .5rem;
-	border: none;
 }
 .settings-modal__status-container,
 .settings-modal__recording-container {

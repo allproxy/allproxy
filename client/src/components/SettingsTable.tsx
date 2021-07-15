@@ -18,6 +18,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 					<td className="text-primary"><label>Path or Port</label></td>
 					<td className="text-primary"><label>Target Host</label></td>
 					<td className="text-primary"><label>Target Port</label></td>
+					<td className="text-primary"><label>Comment</label></td>
 					<td className="text-primary"><label>Status</label></td>
 				</tr>
 			</thead>
@@ -54,21 +55,26 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							</select>
 						</td>
 						<td className="settings-modal__proxy-path-container">
-							<input className="settings-modal__proxy-path"
+							<input className="form-control settings-modal__proxy-path"
 								onChange={ (e) => store.updateEntryPath(index, e.target.value) }
 								value={entry.path} />
 						</td>
 						<td className="settings-modal__proxy-host-container">
-							<input className="settings-modal__proxy-host"
+							<input className="form-control settings-modal__proxy-host"
 								hidden={ entry.protocol === 'proxy:' || entry.protocol === 'log:' }
 								onChange={ (e) => store.updateEntryHost(index, e.target.value) }
 								value={entry.hostname} />
 						</td>
 						<td className="settings-modal__proxy-host-container">
-							<input className="settings-modal__proxy-host"
+							<input className="form-control settings-modal__proxy-host"
 								hidden={ entry.protocol === 'proxy:' || entry.protocol === 'log:' }
 								onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 								value={entry.port} />
+						</td>
+						<td className="settings-modal__proxy-host-container">
+							<input className="form-control settings-modal__proxy-comment"
+								onChange={ (e) => store.updateComment(index, e.target.value) }
+								value={entry.comment} />
 						</td>
 						<td>
 							<div className="settings-modal__status-container">
