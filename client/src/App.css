@@ -179,9 +179,13 @@ td input {
 
 .request__msg-container {
 	margin: 0 0 0 0;
-	white-space: nowrap;
 	width: 100%;
 }
+
+.request__msg-header {
+	white-space: nowrap;
+}
+
 .request__msg-seqno-container {
 	display: none;
 	width: 0;
@@ -214,7 +218,8 @@ td input {
 }
 
 .request__body {
-	margin: 0 0 0 .5rem;
+	float: left;
+	margin: 0 0 0 1rem;
 	width: auto;
 	white-space: pre;
 	font-family: 'Courier New', Courier, monospace;
