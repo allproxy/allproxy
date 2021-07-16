@@ -39,8 +39,8 @@ export default class MessageQueueStore {
 		return this.autoScroll;
 	}
 
-	@action public setAutoScroll(autoScroll: boolean) {
-		this.autoScroll = autoScroll;
+	@action public toggleAutoScroll() {
+		this.autoScroll = !this.autoScroll;
 	}
 
 	@action public clear() {
