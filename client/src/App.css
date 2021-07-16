@@ -130,6 +130,14 @@ td input {
 	font-size: large !important;
 }
 
+.header__auto-scroll {
+	float: left;
+	margin: 0 0 0 1rem;
+	cursor: pointer;
+	color: whitesmoke;
+	font-size: large !important;
+}
+
 .header__filter {
 	float: left;
 }

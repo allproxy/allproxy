@@ -24,6 +24,10 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 			if (activeRequestSeqNum !== Number.MAX_SAFE_INTEGER) {
 				setScrollTo(activeRequestSeqNum);
 			}
+		} else if (messageQueueStore.getAutoScroll()) {
+			if (activeRequestSeqNum === Number.MAX_SAFE_INTEGER) {
+				setScrollTo(messageQueueStore.getMessages().length - 1);
+			}
 		}
 	});
 
