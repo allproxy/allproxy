@@ -41,7 +41,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 							textColor="primary"
 							aria-label="Settings table">
 							{store.getProtocols().map(protocol => (
-								<Tab value={ protocol } label={ protocol }>
+								<Tab value={protocol} label={protocol} title={store.getTooltip(protocol) }>
 								</Tab>
 							))}
 						</Tabs>
