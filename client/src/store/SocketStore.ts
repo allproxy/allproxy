@@ -24,8 +24,8 @@ export default class SocketStore {
 
 		this.socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
 			//console.log('proxy configs', proxyConfigs);
-			proxyConfigStore.merge(proxyConfigs);
-			proxyConfigStore.load(); // send to server
+			proxyConfigStore.setProxyConfigs(proxyConfigs);
+			//proxyConfigStore.load(); // send to server
 		});
 
 		this.socket.on('disconnect', () => {

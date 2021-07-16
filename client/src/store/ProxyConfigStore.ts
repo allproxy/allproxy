@@ -24,7 +24,7 @@ class ProxyConfigStore {
 		return proxyConfigs;
 	}
 
-
+  // @deprecated
 	@action public merge(proxyConfigs: ProxyConfig[]) {
 		const proxyDirectives = this.proxyConfigs;
 		for (let directive of proxyDirectives) {
