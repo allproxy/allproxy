@@ -311,7 +311,7 @@ td input {
 
 .settings-modal {
 	background: white;
-	width: 90vw;
+	width: 99vw;
 	padding: 1rem 1rem;
 }
 
@@ -321,7 +321,7 @@ td input {
 }
 
 .modal-content {
-	width: 90vw;
+	width: 99vw;
 }
 
 .table settings-modal__table {

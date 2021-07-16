@@ -15,6 +15,18 @@ const PROTOCOLS = [
 	'tcp:',
 ];
 
+const TOOLTIP: Map<string, string> = new Map([
+	['grpc:', 'Proxy and capture Remote Procedure Call messages.  Listen on the specified port for gRPC requests, and pass the requests to the target gRPC service.'],
+	['http:', `Reverse proxy for HTTP messages.  Listen on port 8888 (default) for HTTP requests, and pass the requests to the target host having the best matching URL path.	The path can be regex a expression.`],
+	['https:', `Reverse proxy for HTTPS messages.  Listen on port 9999 (default) for HTTPS requests, and pass the requests to the target host having the best matching URL path. 	The path can be a regex expression.`],
+	['log:', `Monitor dockers log. The "docker logs -f CONTAINER" command will pull log messages from a dockers container.`],
+	['mongo:', `Proxy and capture MongoDB messages.  Listen on the specified port for MongoDB requests, and pass the requests to the target MongoDB service.`],
+	['proxy:', `Forward proxy for HTTP and HTTPS.  Listen on port 8888 (default) for HTTP requests, and port 9999 (default) for HTTPS requests.  Your browser must be configured to proxy HTTP and HTTPS messages to localhost:8888 and localhost:9999, respectively.`],
+	['redis:', `Proxy and capture Redis messages.  Listen on the specified port for Redis requests, and pass the requests to the target Redis service.`],
+	['sql:', `Proxy and capture SQL messages.  Listen on the specified port for SQL requests, and pass the requests to the target SQL service.  It has only been tested with MariaDB (MySQL).`],
+	['tcp:', `TCP proxy.  Can proxy and capture any TCP request/response protocol.`],
+]);
+
 export default class SettingsStore {
 	private changed = false;
 	private protocol = 'http:';
@@ -76,6 +88,11 @@ export default class SettingsStore {
 
 	public getProtocols() {
 		return PROTOCOLS;
+	}
+
+	public getTooltip(protocol: string): string {
+		const tooltip = TOOLTIP.get(protocol);
+		return tooltip ? tooltip : 'Tooltip text not found!';
 	}
 
 	public getProtocol() {
