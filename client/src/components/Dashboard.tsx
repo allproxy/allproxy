@@ -110,7 +110,9 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 						break;
 					}
 					const element = (children[i] as Element);
-					offset += element.clientHeight;
+					if (element) {
+						offset += element.clientHeight;
+					}
 				}
 				parent.scrollTop = offset;
 			}
