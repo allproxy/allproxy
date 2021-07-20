@@ -62,7 +62,7 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 			}
 			{messageQueueStore.getMessages().length === 0 &&
 				<div className="request__container">
-					<CircularProgress className="center"/>
+					<CircularProgress className="center" />
 				</div>
 			}
 			<div className="response__container">
@@ -74,7 +74,7 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 					<Fade in={true}>
 						<div className="center">
 							Select request from left column
-					</div>
+						</div>
 					</Fade>
 				}
 			</div>
@@ -102,20 +102,22 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 	function setScrollTo(seqNum: number) {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
-			const parent = (ref.current as Element);
-			if (parent) {
-				const children = (parent).childNodes;
-				for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
-					if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
-						break;
+			setTimeout(() => {
+				const parent = (ref.current as Element);
+				if (parent && parent.childNodes.length > 0) {
+					const children = parent.childNodes;
+					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
+						if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
+							break;
+						}
+						const element = (children[i] as Element);
+						if (element) {
+							offset += element.clientHeight;
+						}
 					}
-					const element = (children[i] as Element);
-					if (element) {
-						offset += element.clientHeight;
-					}
+					parent.scrollTop = offset;
 				}
-				parent.scrollTop = offset;
-			}
+			});
 		}
 	}
 });

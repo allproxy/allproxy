@@ -92,9 +92,9 @@ export default class MessageQueueStore {
 			this.stores.splice(m, 0, messageStore);
 		}
 
-		// Only display the last "n" requests
-		if (this.stores.length > this.limit) {
-			this.stores.shift();
+		// Shrink array when it is 100 larger then limit
+		if (this.stores.length >= this.limit + 100) {
+			this.stores.splice(0, 100);
 		}
 	}
 }
