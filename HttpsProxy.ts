@@ -40,13 +40,13 @@ export default class HttpsProxy {
             let proxyConfig;
 
             if (!connectRequest) {
-                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);
+                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL('https:', reqUrl);
                 if (proxyConfig !== undefined) {
                     ctx.proxyToServerRequestOptions.headers['host'] = proxyConfig.hostname;
                     client_req.url = 'https://' + proxyConfig.hostname + client_req.url;
                 }
             } else {
-                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL(reqUrl);
+                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL('https:', reqUrl);
                 // Always proxy forward proxy requests
                 if (proxyConfig === undefined) {
                     proxyConfig = new ProxyConfig();

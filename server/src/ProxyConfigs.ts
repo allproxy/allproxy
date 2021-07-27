@@ -204,7 +204,7 @@ export default class ProxyConfigs {
      * @param {*} reqUrl
      * @returns ProxyConfig
      */
-    findProxyConfigMatchingURL(reqUrl: url.UrlWithStringQuery): ProxyConfig|undefined {
+    findProxyConfigMatchingURL(protocol: string, reqUrl: url.UrlWithStringQuery): ProxyConfig|undefined {
         const reqUrlPath = reqUrl.pathname!.replace(/\/\//g, '/');
         const isForwardProxy = reqUrl.protocol !== null;
 
@@ -213,6 +213,7 @@ export default class ProxyConfigs {
         this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
+                if (proxyConfig.protocol !== protocol) continue;
                 if (this.isMatch(proxyConfig.path, reqUrlPath) &&
                     isForwardProxy === (proxyConfig.protocol === 'proxy:')) {
                     if (matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
