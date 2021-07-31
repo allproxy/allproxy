@@ -88,6 +88,7 @@ export default class MessageStore {
     private isErrorResponse(message: Message): boolean {
         // Set error class to make text red
         return message.status >= 400
+            || (message.protocol === 'sql:' && message.status !== 0)
             || Util.isGraphQlError(message)
             || message.responseBody === NO_RESPONSE;
     }
