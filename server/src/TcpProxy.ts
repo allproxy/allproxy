@@ -136,11 +136,13 @@ export default class TcpProxy {
                     let requestString = '';
                     let responseString = '';
                     let url = '';
+                    let status = 0;
                     switch (proxyConfig.protocol) {
                         case 'sql:':
                             const sqlFormatter = new SqlFormatter(request.data, response!);
                             requestString = sqlFormatter.getQuery();
                             responseString = sqlFormatter.getResults();
+                            status = sqlFormatter.getErrorCode();
                             for (let line of requestString.split('\n')) {
                                 if (line.indexOf('/*') !== -1) continue;
                                 url += line + ' ';
@@ -192,7 +194,7 @@ export default class TcpProxy {
                             targetHost + ':' + targetPort, // serverHost
                             '', // path
                             Date.now() - request.startTime);
-                        SocketIoMessage.appendResponse(message, {}, responseString, 0, Date.now() - request.startTime);
+                        SocketIoMessage.appendResponse(message, {}, responseString, status, Date.now() - request.startTime);
                         message.protocol = proxyConfig.protocol;
                         Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
                     }

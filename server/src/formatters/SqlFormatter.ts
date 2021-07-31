@@ -7,7 +7,10 @@ export default class SqlFormatter{
 	formattedQuery: any;
 	formattedResults: any;
 	command: string;
+	errorCode: number;
+
 	constructor(reqBuf: Buffer, rspBuf: Buffer) {
+		this.errorCode = 0;
 		this.formattedQuery = this._formatQuery(reqBuf);
 		this.formattedResults = rspBuf
 			? (this.getCommand() === 'Query'
@@ -47,6 +50,10 @@ export default class SqlFormatter{
 		return this.command +'\n' + HexFormatter.format(buf);
 	}
 
+	getErrorCode(): number {
+		return this.errorCode;
+	}
+
 	_formatResults(buf: Buffer): string {
 		let formattedResults: string[] = [];
 		let fieldCount = 0;
@@ -57,6 +64,13 @@ export default class SqlFormatter{
 			let pktOffset = packet.nextOffset(); // get next (second) payload packet
 
 			fieldCount = buf.readUInt8(4); // number of rows
+
+			// Error?
+			if (fieldCount === 255) {
+				this.errorCode = buf.readUInt16LE(5);
+				console.log('SQL error code:', this.errorCode);
+				return HexFormatter.format(buf);
+			}
 
 			let colNames = [];
 			for(let i = 0; i < fieldCount; ++i) {
