@@ -1,6 +1,6 @@
 import Message from './common/Message';
 
-const colors = ['blue', 'green', 'darkorange', 'purple', 'brown', 'grey', 'slateblue', 'darkred'];
+const colors = ['blue', 'green', 'darkorange', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];
 let hostColor: Map<string, string> = new Map(); // key=message.serverHost[message.path]
 
 export default function colorPicker(message: Message): string {

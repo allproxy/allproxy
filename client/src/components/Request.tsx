@@ -26,7 +26,9 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
 						${store.isError() ? ' error' : ''}
-						${store.getVisited() && !store.isError() ? ' visited-color' : ''}
+						${store.isNoResponse() ? ' no-response' : ''}
+						${store.getVisited() && !store.isError()
+							? ' visited-color' : ''}
 						`}
 						title={store.getRequestBody()}
 						onClick={() => { onClick(); store.setVisited(true); } }

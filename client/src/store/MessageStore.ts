@@ -38,6 +38,10 @@ export default class MessageStore {
         return this.url;
     }
 
+    public isNoResponse(): boolean {
+        return this.message.responseBody === NO_RESPONSE;
+    }
+
     public isError(): boolean {
         return this._isError;
     }
@@ -89,7 +93,6 @@ export default class MessageStore {
         // Set error class to make text red
         return message.status >= 400
             || (message.protocol === 'sql:' && message.status !== 0)
-            || Util.isGraphQlError(message)
-            || message.responseBody === NO_RESPONSE;
+            || Util.isGraphQlError(message);
     }
 }
