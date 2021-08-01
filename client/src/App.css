@@ -61,6 +61,10 @@ td input {
 	color: red;
 }
 
+.no-response {
+	background: rgba(255, 255, 0, 0.219);
+}
+
 .success {
 	color: green !important;
 }
