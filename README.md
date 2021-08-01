@@ -1,44 +1,44 @@
 <h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
 
-This debug proxy captures browser HTTP messages, SQL database messages, and log messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
+This debug proxy captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log messages, and TCP request/response messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
 
 **Features:**
-* captures all HTTP messages sent by the browser
+* captures HTTP and/or HTTPS messages as either a forward or reverse proxy
 * captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
-* captures log messages from dockers or any file based log
+* captures log messages from dockers logs
 * modify and resent HTTP requests
 * search entire request/response message for matching text
-* stop/start recording to allow messages to examine messages before log wraps
-* capture different snapshots is multiple dashboards
-
-The dashboard configures, filters, and displays the recorded protocol and log messages.
+* stop/start recording
+* supports multiple dashboard browser tabs
 
 Implementation:
-- **HTTP proxy** - The *http* and https node packages are used to proxy HTTP and HTTPS messages.
-- **TCP proxy** - The *net* node package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
+- **HTTP proxy** - The *http* package is used to proxy HTTP trafic as either a forward or reverse proxy.
+- **HTTPS proxy** - The *node-http-mitm-proxy* package is used to build certificates to capture decrypted HTTPS traffic as either a forward or reverse proxy.
+- **TCP proxy** - The *net* package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
-- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard. 
+- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard.
 
 ### Table of Contents
 
 * [Quick Start](#quick-start)
-  * [Install MiddlemanProxy](#install-middleman-proxy)   
-  * [Start the Server](#start-the-server)
+  * [Install MiddlemanProxy](#install-middleman-proxy)
+  * [Build MiddlemanProxy](#build-middleman-proxy)
+  * [Start the Middleman Proxy](#start-the-middleman-proxy)
   * [Open Dashboard in Browser](#open-dashboard-in-browser)
-* [Capture HTTP Browser Messages)](#capture-http-browser-messages)
-  * [Congigure URL Paths](#configure-url-paths)
-  * [Configure MacOS Proxy](#configure-macos-proxy)
-  * [Configure Linux Proxy](#configure-linux-proxy)
-* [Capture Messages Sent to Backend Services](#capture-messages-sent-to-backend-services)
-  * [Captures HTTPS iTunes API Messages](#capture-https-itunes-api-messages)
-  * [Capture MySQL Messages](#capture-mysql-messages)
-- [Capture Log Messages](#capture-log-messages)
-* [Features](#features)
-  * [Resending HTTP Requests](#resending-http-requests)
-  * [Filtering Protocol Messages](#filtering-protocol-messages)
-  * [Freezing Recording](#freezing-recording)
-  * [Multiple Dashboards](#multiple-dashboards)
-* [Certificates for HTTPS Connections](#certificates-for-https-connections)
+  * [Configure Browser Proxy](#configure-browser-proxy)
+* [Settings](#settings)
+  * [HTTP/HTTPS Proxy](http-https-proxy)
+  * [MySQL Proxy](#mysql-proxy)
+  * [gRPC Proxy](#grpc-Proxy)
+  * [MongoDB Proxy](#mongodb-proxy)
+  * [Redis Proxy](#redis-proxy)
+  * [TCP Proxy](tcp-proxy)
+  * [Docker Logs](#docker-logs)
+* [Dashboard](#dashboard)
+  * [Pause Recording](#pause-recording)
+  * [Filter Messages](#filter-messages)
+  * [Multiple Browser Tabs](#multiple-browser-tabs)
+* [Certificates](#certificates)
 
 ## Quick Start
 
@@ -48,233 +48,191 @@ $ cd ~/git/middleman-proxy
 middleman-proxy$ npm install
 ```
 
+### Build Middleman Proxy
+```sh
+middleman-proxy$ npm run build
+```
+
 #### Middleman Proxy Parameters
 ```sh
-middleman-proxy$ app.js --help
-
 Usage: npm start [--listen [host:]port] [--listenHttps [host:]port]
 
 Options:
 	--listen - listen for incoming http connections.  Default is 8888.
 	--listenHttps - listen for incoming https connections.
 
-Example: npm start --listen localhost:3000 --listenHttps 3001
-
+Example: npm start -- --listen 8888 --listenHttps 9999
 ```
 
-### Start the Server
+### Start the Middleman Proxy
 
    ```sh
    middleman-proxy$ npm start
+
+    > middleman@1.0.0 start /home/davechri/middleman-proxy
+    > if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js
+
+    Listening on http:  8888
+    Open browser to http://localhost:8888/middleman
+
+    Listening on https:  9999
    ```
 ### Open Dashboard in Browser
 
-Enter http://localhost:8888/middleman in browser:
+Enter http://localhost:8888/middleman in browser.
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-launch.png)
+### Configure Browser Proxy
 
-Click the *Settings* icon in the upper right corner, and open the Settings modal.
+To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the Middleman proxy.  The default is to proxy HTTP messages to port 8888, and HTTPS messages to port 9999.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/firefox-proxy.png)
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-settings.png)
+## Configuration
 
-1. Select a protocol: *http, https, grpc, mongodb, proxy, sql, rdis or other*.
-2. Enter a path for http/https, or a port number for non http/https protocols.
-3. Enter a target host (e.g., localhost:80).
-4. Click **Add**.
-5. Click **Save**.
+This section gives example on how to configure the Middleman proxy.  Clicking the settings icon in the upper right corner opens the Setting modal.
 
-## Capture HTTP Browser Messages
-This section illustrates how to capture HTTP messages that are sent by your frontend application.  Currently, only HTTP is supports.  
+<h3 id="http-https-proxy">HTTP/HTTPS Proxy</h3>
 
-Only two steps are required to setup the proxy:
-1. *Configure URL Paths* - Add a *path* for each HTTP request URI you would like to have recorded by the Middleman Proxy.
-2. *Configure MacOS, Linux, or Windows Proxy* - Configure your browser to proxy all HTTP requests to the Middleman Proxy.
+Both a forward and reverse proxy is supported for HTTP/HTTPS messages.  Your browser must be configured to proxy HTTP/HTTPS messages to the Middleman forward proxy.  See [Configure Browser Proxy](#configure-browser-proxy) for more information on configuring your browser.
 
-### Configure URL Paths
-To record HTTP requests, go to the Dashboard settings (click the gear icon in the upper right corner), and add one or more *paths* matching the HTTP requests you'd like to record, as shown below.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-forward-proxy-settings.png)
+The Middleman reverse proxy can be used to transparently capture HTTP/HTTPS messages sent by backend services.  The backend service is configured to send the HTTP/HTTPS messages to the Middleman proxy.  For example, a -search- microservice could be configured to send Elasticsearch messages to the Middleman proxy by setting environment variables.
 
-### Configure MacOS Proxy
-To setup your Chrome browser on MacOS to proxy all HTTP requests through the Middleman proxy:
-1. Select **Preferences** from the **Chrome** menu. 
-2. Search for *proxy*.
-3. Click *Open your computer's proxy settings*, to open the proxy settings modal.
-4. Check the *Web Proxy (HTTP)* checkbox.
-5. Set the host and port to host localhost and port 8888.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-macos-forward-proxy.png)
-
-### Configure Linux Proxy
-On Linux for Chrome and Chromium, the *--proxy-server* command line option is used to configure  the browser to use the Middleman proxy.
+Example -search- microservice configuration:
 ```sh
-$ chromium-browser --http://proxy-server=localhost:8888
+ELASTIC_HOST=elasticsearch
+ELASTIC_PORT=9200
 ```
 
-## Capture Messages Sent to Backend Services
-This section illustrates how to record protocol messages sent by your application to backend services.
-
-Only two step are required to setup the reverse proxy:
-1. Add routes for the HTTP and TCP flows you'd like to record.
-2. Modify your application configuration (e.g., .env file) to route HTTP/HTTPS, SQL, and other protocol messages through the Middleman Proxy.
-
-These examples will help illustrate how to setup the reverse proxy:
-* [Capture HTTPS iTunes API Messages](#capture-itunes-api-messages)
-* [Capture MySQL Messages](#capture-mysql-messages)
-
-### Capture HTTPS iTunes API Messages
-This is a simple example illustrating how HTTPS messages can be recorded.  A very simple app that uses the Apple iTunes API to find albums by author is used for this example.
-
-First we need to start the middleman proxy server.  By default the server will listen on port 8888 for incoming HTTP connections.  The default is to listen for HTTP connections, however, it is also possible to listen for incoming HTTPS connections.  
+Modified -search- micorservice configuration:
 ```sh
-$ cd middleman-proxy
-middleman-proxy$ npm start
+ELASTIC_HOST=middleman  # middleman is the docker container host name
+ELASTIC_PORT=8888       # middleman HTTP port is 8888.  Use 9999 for HTTPS.
 ```
-Then, open your browser to http://localhost:8888/middleman
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-launch.png)
+An HTTP path is added to proxy HTTP requests to the elasticsearch host.  All HTTP requests matching path /_search are proxied to the elasticsearch host on port 9200.
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/elasticsearch-settings.png)
 
-Add route for protocol=*https*, path=*/search*, and host=*itunes.apple.com*.
+### MySQL Proxy
+The Middleman SQL proxy can transparently capture SQL messages sent by backend microservices to a MySQL server.
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-settings.png)
-
-After clicking **Add**, the new iTunes route is added to the settings.  You then need to click **Save** to save the iTunes route and send the updated configuration to the Middleman server.
-
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-save.png)
-
-Now we clone and install the example iTunes app:
-
+Example microservice config file:
 ```sh
-$ git clone git@github.com:davechri/itunes.git
-
-# Install server
-$ cd itunes
-itunes$ npm install
-
-# Install client
-itunes$ cd client
-itunes/client$ npm install
+MYSQL_HOST=mysql
+MYSQL_PORT=3306
 ```
-The example iTunes app uses the http://itunes.apple.com/search API to search for albums.  We want to record all the iTunes API request/response messages sent by the example iTunes app.  The example iTunes app uses a *.env* file to configure the iTunes URL endpoint.  Normally, it would be set the URL to http://itunes.apple.com, but we need to route the API messages through the Middleman proxy, so we set the ITUNES_URL environment variable to point at the Middleman proxy.  
+
+Modified microservice config file:
 ```sh
-# Make sure the current directory is iTunes app root directory
-itunes$ echo 'ITUNES_URL=http://localhost:8888' > .env
+MYSQL_HOST=middleman    # Proxy queries to the Middleman proxy
+MYSQL_PORT=3306
 ```
 
-We are now ready to start up the iTunes app.  The app is started in development mode so that it will automatically open a browser tab in a Chrome browser with URL http://localhost:3000.
+The Middleman proxy is configured to proxy MySQL requests to the MySQL server:
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/mysql-settings.png)
+
+### gRPC Proxy
+The Middleman gRPC proxy can transparently capture gRPC messages sent to backend microservices.
+
+Example gRPC microservice config file:
 ```sh
-# Start the server and client from iTunes app root directory
-itunes$ npm run start:dev
+GRPC_HOST=grpchost    # gRPC host name
+GRPC_PORT=12345       # gRPC port number
 ```
 
-After the iTunes app has loaded in your Chrome browser, type an artist name (e.g., John Denver), and press enter to start search for albums produced by the artist.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-search.png)
-
-Go to the Middleman dashboard you opened earlier, and click on the HTTPS iTunes endpoint request on the left side of the dashboard, and the response will render on the right side.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-itunes-dashboard.png)
-
-### Capture MySQL Messages
-This is an example illustrating how MySQL messages can be recorded.  The DBeaver (Linux) or Sequel Pro SQL Tools (MacOS) can be used to send an SQL query to the MySQL server via the Middleman proxy. In a more realistic development setup, a backend service would send the SQL query, but since I don't have a non-production service to use for this example, I'm just using an SQL Tool.
-
-First we need to start the middleman proxy server.    
+Modified gRPC microservice config file:
 ```sh
-$ cd middleman-proxy
-middleman-proxy$ npm start
-```
-Then open your browser to http://localhost:8888/middleman
-
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-launch.png)
-
-Add route for protocol=*sql*, port=*33306*, and host=*localhost:3306*.  The Middleman proxy will listen for incoming TCP connections on port 33306, and proxy SQL requests to the MySQL server listening on port 3306.   In this example, we will be running the MySQL server locally on port 3306.
-
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-settings.png)
-
-After clicking **Add**, the new MySQL route is added to the settings.  You then need to click **Save** to save the MySQL route and send the updated configuration to the Middleman server.
-
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-save.png)
-
-Now we need to start the SQL Tool (e.g., DBeaver) and create a DB connection to the Middleman proxy listening on port 33306.  The SQL Tool will connect to localhost:33306, and all SQL requests and responses will be recorded by the Middleman proxy.  
-
-I have created a [sample MySQL employees database](https://dev.mysql.com/doc/employee/en/employees-installation.html).   The following query will be sent by the SQL Tool to the Middleman proxy listening on port 33306.
-```sql
-SELECT * FROM employees
+GRPC_HOST=middleman    # Proxy gRPC requests to the Middleman proxy
+GRPC_PORT=12345
 ```
 
-Go to the Middleman dashboard you opened earlier, and click on the recorded SQL query on the left side of the dashboard, and the SQL response will render on the right side.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-mysql-dashboard.png)
+The Middleman proxy is configured to proxy gRPC requests to a microservice:
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/grpc-settings.png)
 
-## Capture Log Messages
-This section illustrates how to record messages from dockers or file based logs.
+### MongoDB Proxy
+The Middleman MongoDB proxy can transparently capture MongoDB messages sent by backend microservices.
 
-Go to the Dashboard settings (click gear icon in the upper right corner):
-1. Select the *log:* protocol.
-2. Enter a shell command that reads a dockers container log, or some log file.  Example commands are:
-  * docker logs -f mycontainer
-  * tail -f /mylogfile
+Example MongoDB microservice config file:
+```sh
+MONGO_HOST=mongodb     # MongoDB host name
+MONGO_PORT=27017       # MongoDB port number
+```
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-log-settings.png)
+Modified MongoDB microservice config file:
+```sh
+MONGO_HOST=middleman    # Proxy MongoDB requests to the Middleman proxy
+MONGO_PORT=27017
+```
 
-## Features
-The Middleman proxy provides a number of features that help you debug distributed applications.
+The Middleman proxy is configured to proxy MongoDB requests to a microservice:
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/mongodb-settings.png)
 
-* [Resending HTTP Requests](resending-http-requests)
-* [Filtering Protocol Messages](#filtering-protocol-messages)
-* [Freezing Recording](#freezing-recording)
-* [Multiple Dashboards](#multiple-dashboards)
+### Redis Proxy
+The Middleman Redis proxy can transparently capture Redis messages sent by backend microservices.
 
-### Resending HTTP Requests
+Example Redis microservice config file:
+```sh
+REDIS_HOST=redis    # Redis host name
+REDIS_PORT=6379     # Redis port number
+```
 
-Recorded HTTP and HTTPS requests can be modified and resent.  Click on the *paper plane* icon for to select a request to resend.  A modal will open to allow the request to be optionally modified, and resent.
+Modified Redis microservice config file:
+```sh
+REDIS_HOST=middleman    # Proxy Redis requests to the Middleman proxy
+REDIS_PORT=6379
+```
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-resend.png)
+The Middleman proxy is configured to proxy Redis requests to a microservice:
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/redis-settings.png)
 
-### Filtering Protocol Messages
-Filtering is a powerful feature that allows you to find protocol messages matching your search filter, and hide unmatched protocol messages.  The entire protocol message is search for a match.  The filter may be *case insensitive*, *case sensitive*, or a *regular expression*.
+### TCP Proxy
+The Middleman TCP proxy can transparently capture TCP request/response messages sent by backend microservices.  For example, the TCP proxy can be used to capture memcached messages.
+
+Example Memcached microservice config file:
+```sh
+MEMCACHED_HOST=memcached    # Memcached host name
+MEMCACHED_PORT=11211        # Memcached port number
+```
+
+Modified Memcached microservice config file:
+```sh
+MEMCACHED_HOST=middleman    # Proxy Memcached requests to the Middleman proxy
+MEMCACHED_PORT=11211
+```
+
+The Middleman proxy is configured to proxy Memcached requests to a microservice:
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/memcached-settings.png)
+
+### Dockers Logs
+The Middleman Docker log proxy can capture log messages.
+
+The Middleman proxy is configured to capture Dockers log messages:
+![ ](https://github.com/davechri/middleman-proxy/blob/master/images/log-settings.png)
+
+## Dashboard
+The Middleman proxy dashboard is stated from the browser with URL http://localhost:8888/middleman.
+
+### Pause Recording
+The recording of messages can be temporarily stopped, to allow time to examine the messages without the log wrapping.
+
+### Filter Messages
+Filtering allows you to find messages matching a search filter, and hide other messages.  The entire message is search for a match.  The filter may be *case insensitive*, *case sensitive*, or a *regular expression*.
 
 Types of filters:
-* **case insensitive** - If the filter only contains lower case characters, a *case insensitive* match is performed. 
+* **case insensitive** - If the filter only contains lower case characters, a *case insensitive* match is performed.
 * **case ensensitive** - If the filter contains upper and lower case characters, a *case insensitive* match is performed.
 * **regular expression** - If the filter includes ".*", a *regular express* match is performed.
 
-Here is an example of unfiltered protocol messages.  No data is intentionally shown on the left, since it may contain private data.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-unfiltered.png)
+Boolean filters can use &&, ||, !, and parenthesis.
 
-Typing into the input filter only shows the protocol message that match the typed filter.  In this case, only those protocol messages that contain the word "google" (case insensitive) are considered matches.
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-filtered.png)
+### Multiple Browser Tabs
+Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record messages.
 
-Filtering by protocol message type is also possible, by simply uncheck a *Recording* checkbox in the *Settings* modal.  The unchecked route will instantly filter the associated protocol messages from the Dashboard.  However, subsequent protocol messages that arrive when the  associated *Recording* checkbox is unchecked will not be recorded.  This is an easy way to filter out protocol messages you may not be interested in seeing, and then uncheck *Recording* checkbox when you want to see those protocol messages again.  In the screenshot below, the *MongoDB* and *Redis* protocol message are unchecked and will not be shown in the Dashboard.
+Each Dashboard instance keeps its own copy of the messages, so clearing or stopping recording in one Dashboard instance, does not affect another other Dashboard instances.
 
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-uncheck-recording.png)
+## Certificates
+Certificates are managed by the [node-http-mitm-proxy](https://github.com/joeferner/node-http-mitm-proxy/tree/master/examples) package.
 
-### Stopping Recording
-The recording of protocol messages can be temporarily stopped, to allow time to examine the protocol messages without the log wrapping, and overlaying relevant protocol messages.  A typical approach is to recreate a problem by executing a specific function of the app being debugged, and than checking the *Stop* checkbox to stop the recording while the log is examined, as shown in this screenshot.
-
-![ ](https://github.com/davechri/middleman-proxy/blob/master/images/middleman-freeze.png)
-
-### Multiple Dashboards
-Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record protocol messages.  Recording the same protocol messages in separate Dashboard instances is of little value.
-
-However, it can be useful to *Stop* the recording in one Dashboard instance to keep a snapshot of protocol messages, and then go to another Dashboard instance and *Clear* the log, and then wait for additional protocol messages to be recorded, and again *Stop* the recording.  In this way multiple different snapshots can be be recorded in different Dashboard instances.  After recording multiple snapshots, the snapshots can be analyzed in each of the Dashboard instances as required.
-
-Each Dashboard instance keeps its own copy of the protocol messages, so clearing or freezing recording in one Dashboard instance, does not affect another other Dashboard instances.
-
-## Certificates for HTTPS Connections 
-The Middleman proxy can be started with one or more HTTPS servers that listen for incoming HTTPS connections.  The --listenHttps option is used to start and HTTPS server.  The following start command will start an HTTPS server on port 9999.
-
-```sh
-middleman-proxy$ npm start --listenHttps 9999
-```
-
-An HTTPS server is started with a private key and public certificate.  The Middleman proxy repo includes a self-signed certificate and private key that will be used by default for TLS authentication.  Since it is self-signed it will not be trusted by your browser, and your browser will warn you that "Your connection is not private". Most browsers will than allow you to proceed to connect to the un-trusted server.
-
-If your security policy does not allow the use of self-signed certificates, you can replace the self-signed certificate and private key with your own CA signed certificate and private key.  Just copy your CA signed certificate and private key to the *server.crt* and *server.key* files, respectively.  The *server.crt* and *server.key* files are located in the *private/keys* directory as shown below.
-
-```sh
-middleman-proxy$
-private
-└── keys
-    ├── server.crt
-    └── server.key
-```
+Generated certificates are stored in -middleman-proxy/.http-mitm-proxy/certs-.  The '/middleman-proxy/.http-mitm-proxy/certs/ca.pem' CA certificate can be imported to your browser to trust certificates generated by the Middleman proxy.
 
 ## License
 
-  This code is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+This code is licensed under the [MIT License](https://opensource.org/licenses/MIT).
