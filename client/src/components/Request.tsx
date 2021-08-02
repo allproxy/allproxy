@@ -27,7 +27,7 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 						${isActive ? ' active' : ''}
 						${store.isError() ? ' error' : ''}
 						${store.isNoResponse() ? ' no-response' : ''}
-						${store.getVisited() && !store.isError()
+						${store.getVisited() && !store.isError() && !store.isNoResponse()
 							? ' visited-color' : ''}
 						`}
 						title={store.getRequestBody()}

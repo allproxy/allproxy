@@ -62,7 +62,7 @@ td input {
 }
 
 .no-response {
-	background: rgba(255, 255, 0, 0.219);
+	color: rgba(128, 128, 128, 0.801);
 }
 
 .success {
