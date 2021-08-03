@@ -86,6 +86,11 @@ Enter http://localhost:8888/middleman in browser.
 To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the Middleman proxy.  The default is to proxy HTTP messages to port 8888, and HTTPS messages to port 9999.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/firefox-proxy.png)
 
+for chrome and chromium you can set the browser proxy using environment variables http_proxy and https_proxy.
+```sh
+$ http_proxy=http://localhost:8888 https_proxy://9999 chromium-browser
+```
+
 ## Configuration
 
 This section gives example on how to configure the Middleman proxy.  Clicking the settings icon in the upper right corner opens the Setting modal.
