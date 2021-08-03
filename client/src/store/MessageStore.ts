@@ -24,7 +24,9 @@ export default class MessageStore {
             this.iconClass += ' resend-icon';
         }
         else {
-            this.iconClass = pickIcon(message.protocol);
+            this.iconClass = pickIcon(message.proxyConfig
+                ? message.proxyConfig.protocol
+                : message.protocol);
         }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
