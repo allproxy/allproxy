@@ -6,6 +6,7 @@ import { Tab, Tabs } from '@material-ui/core';
 import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
+import pickIcon from '../PickIcon';
 
 type Props = {
 	open: boolean,
@@ -41,7 +42,13 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 							textColor="primary"
 							aria-label="Settings table">
 							{store.getProtocols().map(protocol => (
-								<Tab value={protocol} label={protocol} title={store.getTooltip(protocol) }>
+								<Tab value={protocol}
+									label={
+										<div className={'fa ' + pickIcon(protocol)}>
+											<span style={{ marginLeft: '.25rem' }}>{protocol}</span>
+										</div>
+									}
+									title={store.getTooltip(protocol)}>
 								</Tab>
 							))}
 						</Tabs>

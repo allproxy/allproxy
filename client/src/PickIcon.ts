@@ -24,7 +24,7 @@ export default function pickIcon(protocol: string): string {
 			iconClass = 'fa-exclamation-triangle';
 			break;
 		default:
-			iconClass = 'fa-square';
+			iconClass = 'fa-arrows-alt-h';
 	}
 	return iconClass;
 }
