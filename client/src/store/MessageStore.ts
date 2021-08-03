@@ -47,7 +47,7 @@ export default class MessageStore {
     }
 
     public getColor(): string {
-        return this.color ? this.color : 'pink';
+        return this.color;
     }
 
     public getIconClass(): string {

@@ -2,7 +2,7 @@ import { assert } from 'console';
 import Message from './common/Message';
 
 const colors = ['blue', 'green', 'darkorange', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];
-let unusedColors: string[] = [];
+let count = 0;
 let hostColor: Map<string, string> = new Map(); // key=message.serverHost[message.path]
 
 export default function colorPicker(message: Message): string {
@@ -15,11 +15,8 @@ export default function colorPicker(message: Message): string {
 		if (hostPath === 'error') {
 			color = 'red';
 		} else {
-			if (unusedColors.length === 0) {
-				unusedColors = colors.map(color => color);
-			}
-			color = unusedColors[0];
-			unusedColors.splice(0, 1);
+			color = colors[count % colors.length];
+			++count;
 			hostColor.set(hostPath, color);
 		}
 	}
