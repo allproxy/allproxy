@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import ProxyConfig from '../common/ProxyConfig';
+import ReachableHostsModal from '../components/ReachableHostsModal';
 import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
@@ -26,6 +27,12 @@ const TOOLTIP: Map<string, string> = new Map([
 	['sql:', `Proxy and capture SQL messages.  Listen on the specified port for SQL requests, and pass the requests to the target SQL service.  It has only been tested with MariaDB (MySQL).`],
 	['tcp:', `TCP proxy.  Can proxy and capture any TCP request/response protocol.`],
 ]);
+
+export enum HostStatus {
+	All = 'All',
+	Reachable = 'Reachable',
+	Unreachable = 'Unreachable',
+}
 
 export default class SettingsStore {
 	private changed = false;
@@ -238,12 +245,19 @@ export default class SettingsStore {
 		this.changed = true;
 	}
 
-	public getEntries(reachableModal: boolean = false): ProxyConfig[] {
-		if (reachableModal) {
+	public getEntries(hostStatus: HostStatus = HostStatus.All): ProxyConfig[] {
+		if (hostStatus === HostStatus.All) {
+			return this.entries;
+		} else {
 			const hostPorts: Map<string, boolean> = new Map();
+			const hostReachable = (hostStatus === HostStatus.Reachable);
 			return this.entries
 				.filter(entry => {
-					if (!entry.hostReachable || entry.protocol === 'proxy:' || entry.protocol === 'log:') {
+					if (
+						entry.hostReachable !== hostReachable
+						|| entry.protocol === 'proxy:'
+						|| entry.protocol === 'log:'
+					) {
 						return false;
 					}
 
@@ -254,8 +268,6 @@ export default class SettingsStore {
 					hostPorts.set(hostPort, true);
 					return true;
 				});
-		} else {
-			return this.entries;
 		}
 	}
 
