@@ -4,7 +4,7 @@ import SocketStore from '../store/SocketStore';
 import { observer } from 'mobx-react-lite';
 import ReachableHostsModal from './ReachableHostsModal';
 import SettingsModal from './SettingsModal';
-import { settingsStore } from '../store/SettingsStore';
+import { HostStatus, settingsStore } from '../store/SettingsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 
 /**
@@ -70,7 +70,8 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 			<ReachableHostsModal
 				open={showReachableHostsModal}
 				onClose={() => setShowReachableHostsModal(false)}
-				store={ settingsStore }
+				store={settingsStore}
+				initTabValue={ HostStatus.Reachable }
 			/>
 			<SettingsModal
 				open={showSettingsModal}

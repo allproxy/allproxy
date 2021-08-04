@@ -1,15 +1,22 @@
-import { CircularProgress, Modal } from '@material-ui/core'
-import SettingsStore from '../store/SettingsStore';
+import { CircularProgress, Modal, Tab, Tabs } from '@material-ui/core'
+import SettingsStore, { HostStatus } from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import pickIcon from '../PickIcon';
+import { TabContext, TabPanel } from '@material-ui/lab';
 
 type Props = {
 	open: boolean,
 	onClose: () => void,
 	store: SettingsStore,
+	initTabValue: HostStatus,
 };
-const ReachableHostsModal = observer(({ open, onClose, store }: Props) => {
+const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Props) => {
+	const TAB_VALUES = [HostStatus.Reachable, HostStatus.Unreachable];
+	const [tabValue, setTabValue] = React.useState(initTabValue);
+
+	function handleTabChange(e: React.ChangeEvent<{}>, value: HostStatus) {
+		setTabValue(value);
+	}
 
 	function onRefresh() {
 		store.setConfig();
@@ -38,31 +45,58 @@ const ReachableHostsModal = observer(({ open, onClose, store }: Props) => {
 								}}>
 									<CircularProgress />
 								</div>
-								: store.getEntries(true).length === 0
-									? <div>No hosts are reachable!</div>
-									:	<table className="table settings-modal__table">
-											{store.getEntries(true).length > 0 ?
-												<thead>
-													<tr>
-														<td className="text-primary"><label>Host</label></td>
-														<td className="text-primary"><label>Port</label></td>
-													</tr>
-												</thead>
-												: null}
-											<tbody>
-												{store.getEntries(true)
-													.map((entry, index) => (
-														<tr className="settings-modal__proxy-row" key={index}>
-															<td className="settings-modal__proxy-host-container">
-																<input className="form-control settings-modal__proxy-host" value={entry.hostname} disabled />
-															</td>
-															<td className="settings-modal__proxy-host-container">
-																<input className="form-control settings-modal__proxy-host" value={entry.port} disabled />
-															</td>
-														</tr>
-													))}
-											</tbody>
-										</table>
+								:
+								<TabContext value={tabValue}>
+									<Tabs
+										value={tabValue}
+										onChange={handleTabChange}
+										indicatorColor="primary"
+										textColor="primary"
+										aria-label="Settings table">
+										{TAB_VALUES.map(value => (
+											<Tab value={ value }
+												label={
+													<div className={ 'fa ' +
+														(value === HostStatus.Reachable
+														? 'success fa-circle'
+														: 'error fa-exclamation-triangle') }>
+														<span style={{ marginLeft: '.25rem', color: 'black' }}>{value}</span>
+													</div>
+												}>
+											</Tab>
+										))}
+									</Tabs>
+									{TAB_VALUES.map(value => (
+										<TabPanel value={value}>
+											{store.getEntries(value).length === 0
+												? <div>No hosts are {value.toLocaleLowerCase()} !</div>
+												: <table className="table settings-modal__table">
+													{store.getEntries(value).length > 0 ?
+														<thead>
+															<tr>
+																<td className="text-primary"><label>Host</label></td>
+																<td className="text-primary"><label>Port</label></td>
+															</tr>
+														</thead>
+														: null}
+													<tbody>
+														{store.getEntries(value)
+															.map((entry, index) => (
+																<tr className="settings-modal__proxy-row" key={index}>
+																	<td className="settings-modal__proxy-host-container">
+																		<input className="form-control settings-modal__proxy-host" value={entry.hostname} disabled />
+																	</td>
+																	<td className="settings-modal__proxy-host-container">
+																		<input className="form-control settings-modal__proxy-host" value={entry.port} disabled />
+																	</td>
+																</tr>
+															))}
+													</tbody>
+												</table>
+											}
+										</TabPanel>
+									))}
+								</TabContext>
 								}
 							</div>
 					</div>
