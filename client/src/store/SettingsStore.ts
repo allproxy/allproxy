@@ -48,7 +48,7 @@ export default class SettingsStore {
 		return this.statusUpdating;
 	}
 
-	private setConfig() {
+	public setConfig() {
 		this.entries.splice(0, this.entries.length);
 		const configs = proxyConfigStore.getProxyConfigs();
 		configs.forEach((config) => {
@@ -238,8 +238,25 @@ export default class SettingsStore {
 		this.changed = true;
 	}
 
-	public getEntries(): ProxyConfig[] {
-		return this.entries;
+	public getEntries(reachableModal: boolean = false): ProxyConfig[] {
+		if (reachableModal) {
+			const hostPorts: Map<string, boolean> = new Map();
+			return this.entries
+				.filter(entry => {
+					if (!entry.hostReachable || entry.protocol === 'proxy:' || entry.protocol === 'log:') {
+						return false;
+					}
+
+					const hostPort = entry.hostname + ':' + entry.port;
+					if (hostPorts.get(hostPort)) {
+						return false;
+					}
+					hostPorts.set(hostPort, true);
+					return true;
+				});
+		} else {
+			return this.entries;
+		}
 	}
 
 	public getMessageQueueLimit() {

@@ -321,15 +321,25 @@ td input {
 	justify-content: center;
 }
 
+.reachable-modal,
 .settings-modal {
 	background: white;
 	width: 99vw;
 	padding: 1rem 1rem;
 }
 
+.reachable-modal {
+	max-width: 700px;
+}
+
 .settings-modal__scroll-container {
 	overflow-y: auto;
 	height: calc(90vh - 400px);
+}
+
+.reachable-modal__scroll-container {
+	overflow-y: auto;
+	height: 80vh;
 }
 
 .modal-content {

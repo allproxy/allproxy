@@ -2,6 +2,7 @@ import React from 'react';
 import FilterStore from '../store/FilterStore';
 import SocketStore from '../store/SocketStore';
 import { observer } from 'mobx-react-lite';
+import ReachableHostsModal from './ReachableHostsModal';
 import SettingsModal from './SettingsModal';
 import { settingsStore } from '../store/SettingsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
@@ -15,7 +16,8 @@ type Props = {
 	filterStore: FilterStore
 };
 const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props) : JSX.Element => {
-	const [modalShow, setModalShow] = React.useState(false);
+	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const statusClassName = 'fa ' + (socketStore.isConnected()
 		? 'success fa-circle' : 'error fa-exclamation-triangle');
 	return (
@@ -57,12 +59,22 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
 				</div>
 			</div>
-			<div className="header__settings fa fa-cog" title="Settings"
-				onClick={() => { setModalShow(true); settingsStore.reset(); } }>
+			<div>
+				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
+					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
+				</div>
+				<div className="header__settings fa fa-cog" title="Settings"
+					onClick={() => { setShowSettingsModal(true); settingsStore.reset(); } }>
+				</div>
 			</div>
+			<ReachableHostsModal
+				open={showReachableHostsModal}
+				onClose={() => setShowReachableHostsModal(false)}
+				store={ settingsStore }
+			/>
 			<SettingsModal
-				open={modalShow}
-				onClose={() => setModalShow(false)}
+				open={showSettingsModal}
+				onClose={() => setShowSettingsModal(false)}
 				store={ settingsStore }
 			/>
 		</div>
