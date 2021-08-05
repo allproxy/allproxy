@@ -213,7 +213,7 @@ export default class ProxyConfigs {
         this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
-                if (proxyConfig.protocol !== protocol) continue;
+                if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'proxy:') continue;
                 if (this.isMatch(proxyConfig.path, reqUrlPath) &&
                     isForwardProxy === (proxyConfig.protocol === 'proxy:')) {
                     if (matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
