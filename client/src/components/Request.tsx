@@ -9,6 +9,8 @@ type Props = {
 	store: MessageStore,
 };
 const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
+	const handleClick = () => { onClick(); store.setVisited(true); }
+
 	return (
 		<div>
 			<div className="request__msg-container">
@@ -31,7 +33,7 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 							? ' visited-color' : ''}
 						`}
 						title={store.getRequestBody()}
-						onClick={() => { onClick(); store.setVisited(true); } }
+						onClick={ handleClick }
 					>
 					<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}/>
 					{store.getMessage().method+' '}

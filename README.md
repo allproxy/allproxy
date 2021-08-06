@@ -6,7 +6,7 @@ This debug proxy captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log mes
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
 * captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
 * captures log messages from dockers logs
-* modify and resent HTTP requests
+* modify and resend HTTP requests
 * search entire request/response message for matching text
 * stop/start recording
 * supports multiple dashboard browser tabs
@@ -37,6 +37,7 @@ Implementation:
 * [Dashboard](#dashboard)
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
+  * [Resend HTTP Requests](#resend-http-requests)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
 * [Certificates](#certificates)
 
@@ -227,6 +228,9 @@ Types of filters:
 * **regular expression** - If the filter includes ".*", a *regular express* match is performed.
 
 Boolean filters can use &&, ||, !, and parenthesis.
+
+### Resend HTTP Requests
+To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
 
 ### Multiple Browser Tabs
 Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record messages.
