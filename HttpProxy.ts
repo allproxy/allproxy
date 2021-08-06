@@ -82,6 +82,7 @@ export default class HttpProxy {
                 let proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL('http:', reqUrl);
                 // Always proxy forward proxy requests
                 if (proxyConfig === undefined && reqUrl.protocol !== null) {
+                    console.log('No match found for forward proxy');
                     proxyConfig = new ProxyConfig();
                     proxyConfig.path = reqUrl.pathname!;
                     proxyConfig.protocol = reqUrl.protocol;
