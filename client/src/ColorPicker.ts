@@ -9,7 +9,7 @@ export default function colorPicker(message: Message): string {
 	const protocol = message.proxyConfig
 		? message.proxyConfig.protocol
 		: message.protocol;
-	const hostPath = protocol === 'proxy:' || !message.clientIp ? protocol : message.clientIp;
+	const hostPath = protocol === 'browser:' || !message.clientIp ? protocol : message.clientIp;
 		// + message.serverHost
 		// + (message.path ? message.path : '')
 		// + (message.protocol ? message.protocol : '');

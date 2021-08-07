@@ -47,13 +47,13 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 						</td>
 						<td className="settings-modal__proxy-host-container">
 							<input className="form-control settings-modal__proxy-host"
-								hidden={ entry.protocol === 'proxy:' || entry.protocol === 'log:' }
+								hidden={ entry.protocol === 'browser:' || entry.protocol === 'log:' }
 								onChange={ (e) => store.updateEntryHost(index, e.target.value) }
 								value={entry.hostname} />
 						</td>
 						<td className="settings-modal__proxy-host-container">
 							<input className="form-control settings-modal__proxy-host"
-								hidden={ entry.protocol === 'proxy:' || entry.protocol === 'log:' }
+								hidden={ entry.protocol === 'browser:' || entry.protocol === 'log:' }
 								onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 								value={entry.port} />
 						</td>

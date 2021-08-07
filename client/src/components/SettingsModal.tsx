@@ -14,7 +14,7 @@ type Props = {
 	store: SettingsStore,
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
-	const [tabValue, setTabValue] = React.useState('grpc:');
+	const [tabValue, setTabValue] = React.useState('browser:');
 	store.setProtocol(tabValue);
 
 	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
@@ -81,7 +81,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 												? 'Enter log tail command (e.g., docker logs -f container)'
 													: store.getProtocol() === 'http:'
 														|| store.getProtocol() === 'https:'
-														|| store.getProtocol() === 'proxy:'
+														|| store.getProtocol() === 'browser:'
 												? 'Enter path (e.g., /xxx/yyy or .*/xxx)'
 												: 'Entry source TCP port'
 											}

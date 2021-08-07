@@ -209,7 +209,7 @@
     },
     {
       "path": "/",
-      "protocol": "proxy:",
+      "protocol": "browser:",
       "hostname": "",
       "port": 0,
       "recording": true,

@@ -5,24 +5,24 @@ import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
 const PROTOCOLS = [
+	'browser:',
 	'grpc:',
 	'http:',
 	'https:',
 	'log:',
 	'mongo:',
-	'proxy:',
 	'redis:',
 	'sql:',
 	'tcp:',
 ];
 
 const TOOLTIP: Map<string, string> = new Map([
+	['browser:', `Forward proxy for HTTP and HTTPS.  Listen on port 8888 (default) for HTTP requests, and port 9999 (default) for HTTPS requests.  Your browser must be configured to proxy HTTP and HTTPS messages to localhost:8888 and localhost:9999, respectively.`],
 	['grpc:', 'Proxy and capture Remote Procedure Call messages.  Listen on the specified port for gRPC requests, and pass the requests to the target gRPC service.'],
 	['http:', `Reverse proxy for HTTP messages.  Listen on port 8888 (default) for HTTP requests, and pass the requests to the target host having the best matching URL path.	The path can be regex a expression.`],
 	['https:', `Reverse proxy for HTTPS messages.  Listen on port 9999 (default) for HTTPS requests, and pass the requests to the target host having the best matching URL path. 	The path can be a regex expression.`],
 	['log:', `Monitor dockers log. The "docker logs -f CONTAINER" command will pull log messages from a dockers container.`],
 	['mongo:', `Proxy and capture MongoDB messages.  Listen on the specified port for MongoDB requests, and pass the requests to the target MongoDB service.`],
-	['proxy:', `Forward proxy for HTTP and HTTPS.  Listen on port 8888 (default) for HTTP requests, and port 9999 (default) for HTTPS requests.  Your browser must be configured to proxy HTTP and HTTPS messages to localhost:8888 and localhost:9999, respectively.`],
 	['redis:', `Proxy and capture Redis messages.  Listen on the specified port for Redis requests, and pass the requests to the target Redis service.`],
 	['sql:', `Proxy and capture SQL messages.  Listen on the specified port for SQL requests, and pass the requests to the target SQL service.  It has only been tested with MariaDB (MySQL).`],
 	['tcp:', `TCP proxy.  Can proxy and capture any TCP request/response protocol.`],
@@ -66,7 +66,7 @@ export default class SettingsStore {
 		proxyConfigStore.retrieveProxyConfigs()
 			.then((configs) => {
 				configs.forEach(config => {
-					if (config.protocol === 'log:' || config.protocol === 'proxy:') return;
+					if (config.protocol === 'log:' || config.protocol === 'browser:') return;
 					for (const entry of this.entries) {
 						if (entry.hostname === config.hostname && entry.port === config.port) {
 							entry.hostReachable = config.hostReachable;
@@ -112,7 +112,7 @@ export default class SettingsStore {
 	}
 
 	public isProxyOrLog() {
-		return this.protocol === 'proxy:' || this.protocol === 'log:';
+		return this.protocol === 'browser:' || this.protocol === 'log:';
 	}
 
 	public getPath() {
@@ -160,7 +160,7 @@ export default class SettingsStore {
 	}
 
 	@action public addEntry(): void {
-		if (this.protocol === 'http:' || this.protocol === 'https:' || this.protocol === 'proxy:') {
+		if (this.protocol === 'http:' || this.protocol === 'https:' || this.protocol === 'browser:') {
 			// if (!this.path.startsWith('/')) {
 			// 	this.error = `When protocol "${this.protocol}" is selected the path must begin with "/"`;
 			// }
@@ -171,7 +171,7 @@ export default class SettingsStore {
 			}
 		}
 
-		if (this.error.length === 0 && this.protocol !== 'proxy:' && this.protocol !== 'log:') {
+		if (this.error.length === 0 && this.protocol !== 'browser:' && this.protocol !== 'log:') {
 			if (isNaN(+this.targetPort)) {
 				this.error = `Invalid target port number`;
 			}
@@ -255,7 +255,7 @@ export default class SettingsStore {
 				.filter(entry => {
 					if (
 						entry.hostReachable !== hostReachable
-						|| entry.protocol === 'proxy:'
+						|| entry.protocol === 'browser:'
 						|| entry.protocol === 'log:'
 					) {
 						return false;

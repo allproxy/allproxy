@@ -5,7 +5,7 @@ export default function pickIcon(protocol: string): string {
 		case 'https:':
 			iconClass = 'fa-paper-plane';
 			break;
-		case 'proxy:':
+		case 'browser:':
 			iconClass = 'fa-window-maximize';
 			break;
 		case 'sql:':

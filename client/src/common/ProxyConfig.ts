@@ -30,7 +30,7 @@ export default class ProxyConfig {
 		switch (config.protocol) {
 			case 'http:':
 			case 'https:':
-			case 'proxy:':
+			case 'browser:':
 				return true;
 			default:
 				return false;
