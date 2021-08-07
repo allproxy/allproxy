@@ -356,6 +356,10 @@ td input {
 	color: red;
 }
 
+.settings-modal__proxy-protocol-container {
+	white-space: nowrap;
+}
+
 .settings-modal__add-container {
 	padding-left: .5rem;
 	width: 25% !important;
@@ -374,6 +378,7 @@ td input {
 
 .settings-modal__icon {
 	margin-top: .725rem;
+	display: inline-block;
 }
 
 .settings-modal__proxy-path,
