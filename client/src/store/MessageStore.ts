@@ -84,6 +84,12 @@ export default class MessageStore {
         return body;
     }
 
+    public isHttpOrHttps() {
+        return this.message.protocol === 'browser:'
+            || this.message.protocol === 'http:'
+            || this.message.protocol === 'https:';
+    }
+
     private formatUrl(urlStr: string): string {
         //var url = urlStr.indexOf('?') !== -1 ? urlStr.split('?')[0] : urlStr;
         let url = unescape(urlStr);

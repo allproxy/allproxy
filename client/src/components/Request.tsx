@@ -35,10 +35,12 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 						title={store.getRequestBody()}
 						onClick={ handleClick }
 					>
-					<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}/>
-					{store.getMessage().method+' '}
-					<b>{store.getMessage().endpoint+' '}</b>
-					({store.getMessage().clientIp+'->' + store.getMessage().serverHost}) {store.getUrl()}
+						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
+						{store.isHttpOrHttps() && !store.isNoResponse() &&
+							store.getMessage().status + ' '}
+						{store.getMessage().method+' '}
+						<b>{store.getMessage().endpoint+' '}</b>
+						({store.getMessage().clientIp+'->' + store.getMessage().serverHost}) {store.getUrl()}
 					</div>
 				</div>
 			</div>
