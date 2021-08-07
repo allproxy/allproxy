@@ -29,7 +29,7 @@ export default class ProxyConfigs {
         // proxy all http by default
         return [
             {
-                protocol: 'proxy:',
+                protocol: 'browser:',
                 path: '/',
                 hostname: '',
                 port: 0,
@@ -41,9 +41,17 @@ export default class ProxyConfigs {
     }
 
     public getConfig(): ProxyConfig[] {
-        const config = fs.existsSync(CONFIG_JSON)
+        const configs = fs.existsSync(CONFIG_JSON)
             ? JSON.parse(fs.readFileSync(CONFIG_JSON).toString()).configs : this.defaultConfig();
-        return config;
+        let modified = false;
+        for (const config of (configs as ProxyConfig[])) {
+            if (config.protocol === 'proxy:') {
+                config.protocol = 'browser:';
+                modified = true;
+            }
+        }
+        modified && this.saveConfig(configs);
+        return configs;
     }
 
     private resolveQueue: ((value: ProxyConfig[]) => void)[] = [];
@@ -69,7 +77,7 @@ export default class ProxyConfigs {
                 }
             }
             configs.forEach(config => {
-                if (config.protocol === 'proxy:' || config.protocol === 'log:') {
+                if (config.protocol === 'browser:' || config.protocol === 'log:') {
                     config.hostReachable = true;
                     done();
                 }
@@ -213,9 +221,9 @@ export default class ProxyConfigs {
         this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
-                if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'proxy:') continue;
+                if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'browser:') continue;
                 if (this.isMatch(proxyConfig.path, reqUrlPath) &&
-                    isForwardProxy === (proxyConfig.protocol === 'proxy:')) {
+                    isForwardProxy === (proxyConfig.protocol === 'browser:')) {
                     if (matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
                         matchingProxyConfig = proxyConfig;
                     }

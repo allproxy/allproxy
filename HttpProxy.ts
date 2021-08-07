@@ -154,7 +154,7 @@ export default class HttpProxy {
             headers.host = proxyConfig.hostname;
             if(proxyConfig.port) headers.host += ':'+proxyConfig.port;
 
-            let {protocol, hostname, port} = proxyConfig.protocol === 'proxy:' || proxyConfig.protocol === 'log:'
+            let {protocol, hostname, port} = proxyConfig.protocol === 'browser:' || proxyConfig.protocol === 'log:'
                                                             ? reqUrl : proxyConfig;
             if(port === undefined) {
                 port = proxyConfig.protocol === 'https:' ? 443 : 80;
@@ -179,7 +179,7 @@ export default class HttpProxy {
                 proxy = http.request(options, proxyRequest);
             }
 
-            const host = proxyConfig.protocol === 'proxy:' && hostname !== null
+            const host = proxyConfig.protocol === 'browser:' && hostname !== null
                 ? hostname.split('.')[0]
                 : HttpProxy.getHostPort(proxyConfig);
             parseRequestPromise = socketMessage.parseRequest(

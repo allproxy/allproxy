@@ -33,7 +33,7 @@ class ProxyConfigStore {
 					&& directive.path === proxyConfig.path
 					&&
 					(
-						directive.protocol === 'proxy:'
+						directive.protocol === 'browser:'
 						|| directive.protocol === 'log:'
 						|| (directive.hostname === proxyConfig.hostname
 							&& directive.port === proxyConfig.port)
