@@ -6,10 +6,13 @@ let count = 0;
 let hostColor: Map<string, string> = new Map(); // key=message.serverHost[message.path]
 
 export default function colorPicker(message: Message): string {
-	const hostPath = message.clientIp
-		+ message.serverHost
-		+ (message.path ? message.path : '')
-		+ (message.protocol ? message.protocol : '');
+	const protocol = message.proxyConfig
+		? message.proxyConfig.protocol
+		: message.protocol;
+	const hostPath = protocol === 'proxy:' || !message.clientIp ? protocol : message.clientIp;
+		// + message.serverHost
+		// + (message.path ? message.path : '')
+		// + (message.protocol ? message.protocol : '');
 	let color = hostColor.get(hostPath);
 	if (color === undefined) {
 		if (hostPath === 'error') {
