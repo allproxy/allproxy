@@ -14,7 +14,6 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				<tr>
 					<td></td>
 					<td></td>
-					<td className="text-primary"><label>Protocol</label></td>
 					<td className="text-primary"><label>Path or Port</label></td>
 					<td className="text-primary"><label>Target Host</label></td>
 					<td className="text-primary"><label>Target Port</label></td>
@@ -40,19 +39,6 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 								+ (entry.recording ? 'fa-pause' : 'fa-play')}
 								onClick={(e) => store.toggleEntryCapture(index)}
 							/>
-						</td>
-						<td className="settings-modal__proxy-protocol-container">
-							<div className={`settings-modal__icon fa ${pickIcon(entry.protocol)}`}
-								style={{ cursor: 'pointer', float: 'left' }}
-							>
-							</div>
-							<select className="settings-modal__select-protocol form-control"
-								onChange={(e) => store.updateEntryProtocol(index, e.target.value)}
-								value={ entry.protocol }
-							>
-								{store.getProtocols().map(protocol =>
-									<option key={ protocol }>{protocol}</option>)}
-							</select>
 						</td>
 						<td className="settings-modal__proxy-path-container">
 							<input className="form-control settings-modal__proxy-path"
