@@ -40,15 +40,16 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 						if (filterStore.isFiltered(messageStore)) {
 							return null;
 						} else {
-							const isActiveRequest = activeRequestSeqNum === messageStore.getMessage().sequenceNumber;
+							const seqNum = messageStore.getMessage().sequenceNumber;
+							const isActiveRequest = activeRequestSeqNum === seqNum;
 							if (isActiveRequest) {
 								activeRequestIndex = index;
 							}
 							return (
 								<Request store={messageStore}
-									key={index}
+									key={seqNum}
 									isActive={isActiveRequest}
-									onClick={() => handleClick(index)}
+									onClick={() => handleClick(seqNum)}
 									onResend={() => {
 										if (messageStore.getMessage().protocol === 'http:' || messageStore.getMessage().protocol === 'https:') {
 											setResendMessage(messageStore.getMessage());
@@ -88,15 +89,12 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 		</div>
 	);
 
-	function handleClick(index: number) {
+	function handleClick(seqNum: number) {
 		const curSeqNum = activeRequestSeqNum;
 		setActiveRequestSeqNum(Number.MAX_SAFE_INTEGER);
-		setTimeout(() => {
-			const clickedSeqNum = messageQueueStore.getMessages()[index].getMessage().sequenceNumber;
-			if (curSeqNum !== clickedSeqNum) {
-				setActiveRequestSeqNum(clickedSeqNum);
-			}
-		});
+		if (seqNum !== curSeqNum) {
+			setActiveRequestSeqNum(seqNum);
+		}
 	}
 
 	function setScrollTo(seqNum: number) {
