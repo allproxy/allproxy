@@ -15,8 +15,8 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 					<td></td>
 					<td></td>
 					<td className="text-primary"><label>Path or Port</label></td>
-					<td className="text-primary"><label>Target Host</label></td>
-					<td className="text-primary"><label>Target Port</label></td>
+						<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Host'}</label></td>
+					<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Port'}</label></td>
 					<td className="text-primary"><label>Comment</label></td>
 					<td className="text-primary"><label>Status</label></td>
 				</tr>
