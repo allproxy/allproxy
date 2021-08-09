@@ -620,7 +620,9 @@ Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
   ctx.clientToProxyWebSocket.on('pong', self._onWebSocketFrame.bind(self, ctx, 'pong', false));
   ctx.clientToProxyWebSocket.on('error', self._onWebSocketError.bind(self, ctx));
   ctx.clientToProxyWebSocket.on('close', self._onWebSocketClose.bind(self, ctx, false));
-  ctx.clientToProxyWebSocket.pause();
+  if(ctx.clientToProxyWebSocket.pause) {
+    ctx.clientToProxyWebSocket.pause();
+  }
   var url;
   if (upgradeReq.url == '' || /^\//.test(upgradeReq.url)) {
     var hostPort = Proxy.parseHostAndPort(upgradeReq);
@@ -656,7 +658,9 @@ Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
     ctx.proxyToServerWebSocket.on('close', self._onWebSocketClose.bind(self, ctx, true));
     ctx.proxyToServerWebSocket.on('open', function() {
       if (ctx.clientToProxyWebSocket.readyState === WebSocket.OPEN) {
-        ctx.clientToProxyWebSocket.resume();
+        if (ctx.clientToProxyWebSocket.resume) {
+          ctx.clientToProxyWebSocket.resume();
+        }
       }
     });
   }
