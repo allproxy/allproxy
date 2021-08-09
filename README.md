@@ -93,8 +93,13 @@ for chrome and chromium you can set the browser proxy using environment variable
 $ http_proxy=http://localhost:8888 https_proxy://9999 chromium-browser
 ```
 ## Screenshots
+### Dashboard
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/dashboard.png)
+
+### Settings
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/settings.png)
+
+### Reachable Hosts
 ![ ](https://github.com/davechri/middleman-proxy/blob/master/images/reachable.png)
 
 ## Configuration
