@@ -3,24 +3,37 @@ import Message from './common/Message';
 
 const colors = ['blue', 'green', 'darkorange', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];
 let count = 0;
-let hostColor: Map<string, string> = new Map(); // key=message.serverHost[message.path]
+let colorMap: Map<string, string> = new Map();
 
 export default function colorPicker(message: Message): string {
 	const protocol = message.proxyConfig
 		? message.proxyConfig.protocol
 		: message.protocol;
-	const hostPath = protocol === 'browser:' || !message.clientIp ? protocol : message.clientIp;
-		// + message.serverHost
-		// + (message.path ? message.path : '')
-		// + (message.protocol ? message.protocol : '');
-	let color = hostColor.get(hostPath);
+
+	let key = '';
+	switch (protocol) {
+		case 'browser:':
+			key = protocol;
+			break;
+		case 'log:':
+			const command = message.proxyConfig!.path.trim();
+			const tokens = command.split(' ');
+			key = tokens[tokens.length-1];
+			break;
+		default:
+			if (message.clientIp) {
+				key = message.clientIp.trim();
+			}
+	}
+
+	let color = colorMap.get(key);
 	if (color === undefined) {
-		if (hostPath === 'error') {
+		if (key === 'error') {
 			color = 'red';
 		} else {
 			color = colors[count % colors.length];
 			++count;
-			hostColor.set(hostPath, color);
+			colorMap.set(key, color);
 		}
 	}
 
