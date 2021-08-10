@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
 import MessageStore from './MessageStore';
-import _ from 'lodash';
 
 export default class FilterStore {
     private filter = '';
@@ -22,15 +21,14 @@ export default class FilterStore {
     }
 
     @action public setFilter(filter: string) {
-        _.debounce(() => {
-            if (this.filter.length > 0 && filter.length === 0) {
-                this.resetScroll = true;
-            }
+        console.log(filter);
+        if (this.filter.length > 0 && filter.length === 0) {
+            this.resetScroll = true;
+        }
 
-            this.filter = filter;
+        this.filter = filter;
 
-            this.updateBoolString();
-        }, 1000);
+        this.updateBoolString();
     }
 
     public isInvalidFilterSyntax(): boolean {
