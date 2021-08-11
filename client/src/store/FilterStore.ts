@@ -111,6 +111,8 @@ export default class FilterStore {
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
         const message = messageStore.getMessage();
+        if (this.isMatch(needle, message.status+'')) return false;
+        if (this.isMatch(needle, message.method)) return false;
         if (this.isMatch(needle, message.clientIp!+'->'+message.serverHost)) return false;
         if (this.isMatch(needle, message.endpoint)) return false;
         if (this.isMatch(needle, messageStore.getUrl())) return false;
@@ -121,7 +123,7 @@ export default class FilterStore {
     	return true;
     }
 
-	private isMatch(needle: string, haystack: string) {
+	private isMatch(needle: string, haystack: string | undefined) {
         if (haystack === undefined) return false;
         if(needle === needle.toLowerCase()) {
             haystack = haystack.toLowerCase();
