@@ -1,9 +1,11 @@
 import { makeAutoObservable, action } from "mobx"
 import MessageStore from './MessageStore';
+import _ from 'lodash';
 
 export default class FilterStore {
     private filter = '';
     private invalidFilterSyntax = false;
+    private searchFilter = '';
     private boolString = '';
     private boolOperands: string[] = [];
     private resetScroll = false;
@@ -21,14 +23,18 @@ export default class FilterStore {
     }
 
     @action public setFilter(filter: string) {
-        console.log(filter);
         if (this.filter.length > 0 && filter.length === 0) {
             this.resetScroll = true;
         }
 
         this.filter = filter;
 
-        this.updateBoolString();
+        const debounce = _.debounce(() => {
+            this.searchFilter = this.filter;
+            this.updateBoolString();
+        }, 500);
+
+        debounce();
     }
 
     public isInvalidFilterSyntax(): boolean {
@@ -83,7 +89,7 @@ export default class FilterStore {
 
     public isFiltered(messageStore: MessageStore) {
         this.invalidFilterSyntax = false;
-        if (this.filter.length === 0) return false;
+        if (this.searchFilter.length === 0) return false;
         if (this.boolString.length > 0) {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
@@ -99,7 +105,7 @@ export default class FilterStore {
             }
         }
         else {
-            return this.isMessageFiltered(this.filter, messageStore);
+            return this.isMessageFiltered(this.searchFilter, messageStore);
         }
     }
 
