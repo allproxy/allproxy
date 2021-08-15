@@ -37,8 +37,9 @@ export default class SocketStore {
 			console.log('socket error', e);
 		});
 
-		this.socket.on('reqResJson', (message: Message) => {
-			messageQueueStore.insert(message);
+		this.socket.on('reqResJson', (socketSeqNum: number, message: Message, callback: any) => {
+			messageQueueStore.insert(socketSeqNum, message);
+			callback(`${socketSeqNum} ${message.sequenceNumber} socket.io response`);
 		});
 	}
 

@@ -18,7 +18,7 @@ export default class HttpProxy {
     async onRequest(client_req: IncomingMessage, client_res: http.ServerResponse) {
         var sequenceNumber = ++Global.nextSequenceNumber;
         var remoteAddress = client_req.socket.remoteAddress;
-        console.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
+        Global.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
 
         let reqUrl = url.parse(client_req.url ? client_req.url : '');
 
@@ -29,9 +29,9 @@ export default class HttpProxy {
             ? __dirname + path.sep + '..'+path.sep+'client'+path.sep+'build'
             : __dirname + path.sep + 'client' + path.sep + 'build';
 
-        console.log(reqUrl.pathname, reqUrl.search);
+        Global.log(reqUrl.pathname, reqUrl.search);
         if (reqUrl.pathname === '/'+'middleman') {
-            console.log(sequenceNumber, 'loading index.html');
+            Global.log(sequenceNumber, 'loading index.html');
             client_res.writeHead(200, {
                 'Content-type' : 'text/html'
             });
@@ -65,7 +65,7 @@ export default class HttpProxy {
                 }
 
                 // Read local file and return to client
-                console.log(sequenceNumber, 'loading local file');
+                Global.log(sequenceNumber, 'loading local file');
                 client_res.writeHead(200, {
                     'Content-type': contentType
                 });
@@ -82,7 +82,7 @@ export default class HttpProxy {
                 let proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL('http:', reqUrl);
                 // Always proxy forward proxy requests
                 if (proxyConfig === undefined && reqUrl.protocol !== null) {
-                    console.log('No match found for forward proxy');
+                    Global.log('No match found for forward proxy');
                     proxyConfig = new ProxyConfig();
                     proxyConfig.path = reqUrl.pathname!;
                     proxyConfig.protocol = reqUrl.protocol;
@@ -94,7 +94,7 @@ export default class HttpProxy {
 
                 if(proxyConfig === undefined) {
                     let msg = 'No matching proxy configuration found for '+reqUrl.pathname;
-                    console.log(sequenceNumber, msg);
+                    Global.log(sequenceNumber, msg);
                     if(reqUrl.pathname === '/') {
                         client_res.writeHead(302, {'Location': reqUrl.href+'middleman'});
                         client_res.end();
@@ -130,15 +130,15 @@ export default class HttpProxy {
         }
 
         function proxyRequest(proxyConfig: ProxyConfig) {
-            //console.log(sequenceNumber, 'proxyRequest');
+            //Global.log(sequenceNumber, 'proxyRequest');
 
             client_req.on('close', function() {
-                console.log(sequenceNumber, 'Client closed connection');
+                Global.log(sequenceNumber, 'Client closed connection');
                 //sendErrorResponse(499, "Client closed connection", undefined, proxyConfig.path);
             })
 
             client_req.on('error', function(error) {
-                console.log(sequenceNumber, 'Client connection error', JSON.stringify(error));
+                Global.log(sequenceNumber, 'Client connection error', JSON.stringify(error));
             })
 
             var method = client_req.method;
@@ -204,16 +204,16 @@ export default class HttpProxy {
                         Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
                     })
                     .catch(function(error: any) {
-                        console.log(sequenceNumber, 'Parse response promise emit error:', error);
+                        Global.log(sequenceNumber, 'Parse response promise emit error:', error);
                     })
                 })
                 .catch(function(error) {
-                    console.log(sequenceNumber, 'Parse request promise rejected:', error);
+                    Global.error(sequenceNumber, 'Parse request promise rejected:', error);
                 })
             }
 
             proxy.on('error', function(error) {
-                console.log(sequenceNumber, 'Proxy connect error', JSON.stringify(error), 'config:', proxyConfig);
+                Global.error(sequenceNumber, 'Proxy connect error', JSON.stringify(error), 'config:', proxyConfig);
                 sendErrorResponse(404, "Proxy connect error", error, proxyConfig);
             })
 
@@ -226,7 +226,7 @@ export default class HttpProxy {
             responseMessage: string,
             jsonData?: { [key: string]: any },
             proxyConfig?: ProxyConfig) {
-            console.log(sequenceNumber, 'sendErrorResponse', responseMessage);
+            Global.log(sequenceNumber, 'sendErrorResponse', responseMessage);
             const path = proxyConfig ? proxyConfig.path : '';
             if(parseRequestPromise == undefined) {
                 var host = 'error';
@@ -247,7 +247,7 @@ export default class HttpProxy {
 
                 if(responseMessage != 'Client closed connection') {
                     client_res.on('error', function(error) {
-                        console.log(sequenceNumber, 'sendErrorResponse error handled', JSON.stringify(error));
+                        Global.error(sequenceNumber, 'sendErrorResponse error handled', JSON.stringify(error));
                     })
 
                     client_res.writeHead(status, {
@@ -258,7 +258,7 @@ export default class HttpProxy {
                 }
             })
             .catch(function(error) {
-                console.log(sequenceNumber, 'sendErrorResponse: Parse request promise rejected:', error.message);
+                Global.log(sequenceNumber, 'sendErrorResponse: Parse request promise rejected:', error.message);
             })
         }
     }

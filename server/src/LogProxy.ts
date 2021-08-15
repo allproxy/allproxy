@@ -18,13 +18,13 @@ export default class LogProxy {
     if(proxyConfig.logProxyProcess) {
 			try {
 				const proc = proxyConfig.logProxyProcess;
-				//console.log('killing:', proc.pid);
+				//Global.log('killing:', proc.pid);
 				proc.stdout.removeAllListeners();
 				proc.stderr.removeAllListeners();
 				proc.removeAllListeners();
 				proc.kill('SIGINT');
 			} catch(e) {
-				console.log(e);
+				Global.error(e);
 			}
 		}
   }
@@ -32,7 +32,7 @@ export default class LogProxy {
 	start() {
 		LogProxy.destructor(this.proxyConfig);
 		this.retry = true;
-		console.log(`Monitoring log: ${this.command}`);
+		Global.log(`Monitoring log: ${this.command}`);
 		const tokens = this.command.split(' ');
 		const proc = spawn(tokens[0], tokens.slice(1));
 		//('start', proc.pid);
@@ -52,11 +52,11 @@ export default class LogProxy {
 		});
 
 		proc.on('error', error => {
-			console.log(`error: ${error} - ${this.command}`);
+			Global.error(`error: ${error} - ${this.command}`);
 		});
 
 		proc.on('exit', rc => {
-			console.log('LogProxy exiting:', this.command);
+			Global.log('LogProxy exiting:', this.command);
 			proc.stdout.removeAllListeners();
 			proc.stderr.removeAllListeners();
 			proc.removeAllListeners();
@@ -99,7 +99,7 @@ export default class LogProxy {
 			return;
 		}
 
-		console.log(`sendToBrowser log: ${this.command}`);
+		Global.log(`sendToBrowser log: ${this.command}`);
 		const seqNo = ++Global.nextSequenceNumber;
 		const message = await SocketIoMessage.buildRequest(
 			Date.now(),
@@ -118,7 +118,7 @@ export default class LogProxy {
 		message.protocol = 'log:';
 		Global.proxyConfigs.emitMessageToBrowser(message, this.proxyConfig);
 
-		//console.log('buffered:', this.recordCount, this.buffer.toString());
+		//Global.log('buffered:', this.recordCount, this.buffer.toString());
 		this.buffer = '';
 		this.recordCount = 0;
 	}

@@ -12,12 +12,12 @@ import { NO_RESPONSE } from '../../common/Message';
 
 export default class TcpProxy {
     constructor(proxyConfig: ProxyConfig) {
-        //console.log('TcpProxy.ctor', proxyConfig);
+        //Global.log('TcpProxy.ctor', proxyConfig);
         this.startProxy(proxyConfig);
     }
 
     static destructor(proxyConfig: ProxyConfig) {
-        //console.log('TcpProxy.dtor', proxyConfig);
+        //Global.log('TcpProxy.dtor', proxyConfig);
         if(proxyConfig._server) proxyConfig._server.close();
     }
 
@@ -52,7 +52,7 @@ export default class TcpProxy {
             if (++retries < 10) {
                 setTimeout(() => listen(server), wait *= 2);
             } else {
-                console.log('TcpProxy server error', err);
+                Global.log('TcpProxy server error', err);
             }
         });
 
@@ -60,7 +60,7 @@ export default class TcpProxy {
 
         function listen(server: net.Server) {
             server.listen(sourcePort, function () {
-                console.log("Listening on port " + sourcePort + " for target host " + targetHost + ":" + targetPort)
+                Global.log("Listening on port " + sourcePort + " for target host " + targetHost + ":" + targetPort)
             });
             proxyConfig._server = server;
         }
@@ -80,25 +80,25 @@ export default class TcpProxy {
             let targetSocket: net.Socket | tls.TLSSocket;
             if (!targetUseTls) {
                 targetSocket = net.connect(targetPort, targetHost, () => {
-                    //console.log('connected to target');
+                    //Global.log('connected to target');
                 });
             } else {
                 targetSocket = tls.connect(targetPort, targetHost, {}, () => {
-                    //console.log('connected to target');
+                    //Global.log('connected to target');
                 });
             }
 
             sourceSocket.on('error', (err: any) => {
-                console.error(`TcpProxy client error ${sourcePort}: ${err}`);
+                Global.error(`TcpProxy client error ${sourcePort}: ${err}`);
             })
 
             targetSocket.on('error', (err) => {
-                console.error(`TcpProxy server error ${sourcePort}: ${err}`);
+                Global.error(`TcpProxy server error ${sourcePort}: ${err}`);
             })
 
             // Handle data from source (client)
             sourceSocket.on('data', async (data: Buffer) => {
-                //console.log('request');
+                //Global.log('request');
                 const request = {
                     data,
                     startTime: Date.now(),
@@ -111,7 +111,7 @@ export default class TcpProxy {
 
             // Handle data from target (e.g., database)
             targetSocket.on('data', async (data) => {
-                //console.log('response');
+                //Global.log('response');
                 sourceSocket.write(data);
                 if (requests.length > 0) {
                     const request = requests.pop();
@@ -121,13 +121,13 @@ export default class TcpProxy {
 
             // Handle source socket closed
             sourceSocket.on('close', () => {
-                console.log(`TcpProxy client closed ${sourcePort} source connection`);
+                Global.log(`TcpProxy client closed ${sourcePort} source connection`);
                 targetSocket.end();
             });
 
             // Handle target socket closed
             targetSocket.on('close', () => {
-                console.log(`TcpProxy server ${targetPort} closed target connection`);
+                Global.log(`TcpProxy server ${targetPort} closed target connection`);
                 sourceSocket.end();
             });
 
@@ -179,7 +179,7 @@ export default class TcpProxy {
                     }
 
                     if (requestString.length > 0) {
-                        //console.log('processData', sequenceNumber);
+                        //Global.log('processData', sequenceNumber);
                         const endpoint = '';
 
                         let message = await SocketIoMessage.buildRequest(
