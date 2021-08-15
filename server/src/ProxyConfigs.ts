@@ -8,18 +8,32 @@ import Message from '../../common/Message';
 import url from 'url';
 import net from 'net';
 import Ping from './Ping';
+import Global from './Global'
 
 const CONFIG_JSON = process.env.NODE_ENV === "production"
     ? `${__dirname}${path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
     : `${__dirname}${path.sep}.${path.sep}config.json`;
 const CACHE_SOCKET_ID = 'cache';
-//console.log('Config file:', CONFIG_JSON);
+//Global.log('Config file:', CONFIG_JSON);
 
-interface SocketConfigs { socket ?: io.Socket, configs: ProxyConfig[] };
+interface SocketConfigs { socket?: io.Socket, configs: ProxyConfig[] };
+
+class SocketMessage {
+    public refCount: number = 0;
+    public message: Message;
+
+    public constructor(message: Message) {
+        this.message = message;
+    }
+}
 
 export default class ProxyConfigs {
 
     private proxyConfigsMap = new Map<string, SocketConfigs>();
+
+    // Message retransmission queue.
+    private socketSeqNum = 0;
+    private socketRetransmissionMap = new Map<number, SocketMessage>();
 
     constructor() {
         this.activateConfig(this.getConfig());
@@ -63,7 +77,7 @@ export default class ProxyConfigs {
             this.resolveQueue.push(resolve);
             if (this.resolveQueue.length > 1) return;
 
-            console.log('Start: updateHostReachable');
+            Global.log('Start: updateHostReachable');
             let count = 0;
 
             const done = () => {
@@ -73,7 +87,7 @@ export default class ProxyConfigs {
                     while (func = this.resolveQueue.pop()) {
                         func(configs);
                     }
-                    console.log(`End: updateHostReachable (${queueCount})`);
+                    Global.log(`End: updateHostReachable (${queueCount})`);
                 }
             }
             configs.forEach(config => {
@@ -90,13 +104,13 @@ export default class ProxyConfigs {
                         } else {
                             const socket = net.connect(config.port, config.hostname, () => {
                                 config.hostReachable = true;
-                                console.log('Reachable', config.hostname, config.port);
+                                Global.log('Reachable', config.hostname, config.port);
                                 socket.end();
                                 done();
                             });
 
                             socket.on('error', (err) => {
-                                //console.log('ProxyConfigs:', config.hostname, config.port, err);
+                                //Global.log('ProxyConfigs:', config.hostname, config.port, err);
                                 done();
                                 socket.end();
                             });
@@ -110,7 +124,7 @@ export default class ProxyConfigs {
     private saveConfig(proxyConfigs: ProxyConfig[]) {
         // Cache the config, to configure the proxy on the next start up prior
         // to receiving the config from the browser.
-        console.log(`Updating config file: ${CONFIG_JSON}`)
+        Global.log(`Updating config file: ${CONFIG_JSON}`)
         fs.writeFileSync(CONFIG_JSON,
             JSON.stringify({ configs: proxyConfigs, }, null, 2));
     }
@@ -121,7 +135,7 @@ export default class ProxyConfigs {
     }
 
     _socketConnection(socket: io.Socket) {
-        console.log('ProxyConfigs: socket connected', socket.conn.id);
+        Global.log('ProxyConfigs: socket connected', socket.conn.id);
 
         const config = this.getConfig();
 
@@ -141,17 +155,18 @@ export default class ProxyConfigs {
             }
 
             this.activateConfig(proxyConfigs, socket);
-            this.updateHostReachable();
+            this.doSocketRetransmit(this.proxyConfigsMap.get(socket.conn.id));
+            //this.updateHostReachable();
         })
 
         socket.on('disconnect', () => {
-            console.log('ProxyConfigs: socket disconnect', socket.conn.id);
+            Global.log('ProxyConfigs: socket disconnect', socket.conn.id);
             this.closeAnyServersWithSocket(socket.conn.id);
             this.proxyConfigsMap.delete(socket.conn.id);
         })
 
         socket.on('error', (e: any) => {
-            console.log('error', e);
+            Global.error('error', e);
         })
     }
 
@@ -188,7 +203,7 @@ export default class ProxyConfigs {
 
     // Close 'any:' protocol servers the specified listening port
     closeAnyServerWithPort(port: number) {
-        //console.log('closeAnyServerWithPort', port);
+        //Global.log('closeAnyServerWithPort', port);
         this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
@@ -240,8 +255,12 @@ export default class ProxyConfigs {
      */
     emitMessageToBrowser(message: Message, inProxyConfig?: ProxyConfig) {
         const path = inProxyConfig ? inProxyConfig.path : '';
-        //console.log('emitMessageToBrowser()', message.url);
+        //Global.log('emitMessageToBrowser()', message.url);
         let socketId: string;
+        let emitted = false;
+        const socketSeqNum = ++this.socketSeqNum;
+        const socketMessage = new SocketMessage(message);
+        this.socketRetransmissionMap.set(socketSeqNum, socketMessage);
         this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (inProxyConfig === undefined || proxyConfig.path === path) {
@@ -250,13 +269,61 @@ export default class ProxyConfigs {
                     socketId = key;
                     message.proxyConfig = proxyConfig;
                     if (socketConfigs.socket) {
-                        console.log(message.sequenceNumber, 'socket emit', message.url, socketId);
-                        socketConfigs.socket.emit('reqResJson', message);
+                        Global.log(message.sequenceNumber, socketSeqNum, 'socket emit', message.url, socketId);
+                        socketMessage.refCount++;
+                        socketConfigs.socket.emit(
+                            'reqResJson', socketSeqNum, message,
+                            (response: string) => {
+                                Global.log(this.socketRetransmissionMap.size, response);
+                                socketMessage.refCount--;
+                                if (socketMessage.refCount === 0) {
+                                    this.socketRetransmissionMap.delete(socketSeqNum);
+                                }
+                            }
+                        );
+                        emitted = true;
                     }
                     if (inProxyConfig === undefined) break;
                 }
             }
         });
+        if (!emitted) {
+            Global.log(message.sequenceNumber, 'no browser socket to emit to', message.url);
+            this.socketRetransmissionMap.delete(socketSeqNum);
+        }
+    }
+
+    private doSocketRetransmit(socketConfigs: SocketConfigs | undefined) {
+        if (socketConfigs === undefined) {
+            Global.log('Socket config is undefined?');
+            return;
+        }
+
+        Global.log('retransmit queue count', this.socketRetransmissionMap.size);
+
+        this.socketRetransmissionMap.forEach((socketMessage, socketSeqNum) => {
+            if (socketConfigs.socket) {
+                const message = socketMessage.message;
+                // If message sequence number is old, don't retransmit it.
+                if (this.socketSeqNum < Global.nextSequenceNumber - 1000) {
+                    Global.log(message.sequenceNumber, socketSeqNum, 'delete old retransmit message', message.url);
+                    this.socketRetransmissionMap.delete(socketSeqNum);
+                }
+                else {
+                    Global.log(message.sequenceNumber, socketSeqNum, 'retransmit socket emit', message.url);
+                    socketConfigs.socket.emit(
+                        'reqResJson', socketSeqNum, message,
+                        (response: string) => {
+                            Global.log('retransmit ', this.socketRetransmissionMap.size, response);
+                            socketMessage.refCount--;
+                            if (socketMessage.refCount === 0) {
+                                this.socketRetransmissionMap.delete(socketSeqNum);
+                            }
+                        }
+                    );
+                }
+            }
+        })
     }
 
 }

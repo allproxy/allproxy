@@ -17,7 +17,7 @@ export default class HttpsProxy {
 
             const client_req = ctx.clientToProxyRequest;
             const client_res = ctx.proxyToClientResponse;
-            //console.log(ctx);
+            //Global.log(ctx);
 
             var sequenceNumber = ++Global.nextSequenceNumber;
             var remoteAddress = client_req.socket.remoteAddress;
@@ -31,10 +31,10 @@ export default class HttpsProxy {
 
             const reqUrl = url.parse(client_req.url ? client_req.url : '');
 
-            console.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
+            Global.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
 
             var startTime = Date.now();
-            console.log(reqUrl.protocol, reqUrl.pathname, reqUrl.search);
+            Global.log(reqUrl.protocol, reqUrl.pathname, reqUrl.search);
 
             // Find matching proxy configuration
             let proxyConfig;
@@ -61,7 +61,7 @@ export default class HttpsProxy {
 
             if(proxyConfig === undefined) {
                 let msg = 'No matching proxy configuration found for '+reqUrl.pathname;
-                console.log(sequenceNumber, msg);
+                Global.log(sequenceNumber, msg);
                 ctx.proxyToClientResponse.end('404 '+msg);
                 emitRequestToBrowser(
                     undefined,
@@ -77,18 +77,18 @@ export default class HttpsProxy {
             callback();
 
             function proxyRequest(proxyConfig: ProxyConfig) {
-                //console.log(sequenceNumber, 'proxyRequest');
+                //Global.log(sequenceNumber, 'proxyRequest');
 
                 client_req.on('close', function () {
-                    console.log(sequenceNumber, 'Client closed connection');
+                    Global.log(sequenceNumber, 'Client closed connection');
                 })
 
                 client_req.on('error', function (error) {
-                    console.log(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
+                    Global.error(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
                 })
 
                 client_res.on('error', function (error) {
-                    console.log(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2));
+                    Global.error(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2));
                     emitRequestToBrowser(
                         undefined,
                         client_req.url!,
@@ -99,7 +99,7 @@ export default class HttpsProxy {
 
                 let reqChunks: string = '';
                 ctx.onRequestData(function (ctx, chunk, callback) {
-                    //console.log('request data length: ' + chunk.length);
+                    //Global.log('request data length: ' + chunk.length);
                     reqChunks += chunk.toString();
                     return callback(undefined, chunk);
                 });
@@ -115,11 +115,11 @@ export default class HttpsProxy {
                 });
 
                 ctx.onResponse(function (ctx, callback) {
-                    //console.log('RESPONSE: http://' + ctx.clientToProxyRequest.headers.host + ctx.clientToProxyRequest.url);
+                    //Global.log('RESPONSE: http://' + ctx.clientToProxyRequest.headers.host + ctx.clientToProxyRequest.url);
 
                     let resChunks: string = '';
                     ctx.onResponseData(function (ctx, chunk, callback) {
-                        //console.log('response data length: ' + chunk.length);
+                        //Global.log('response data length: ' + chunk.length);
                         resChunks += chunk.toString();
                         return callback(undefined, chunk);
                     });

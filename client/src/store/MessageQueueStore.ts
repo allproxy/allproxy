@@ -53,7 +53,8 @@ export default class MessageQueueStore {
 		return this.stores;
 	}
 
-	@action public insert(message: Message) {
+	@action public insert(socketSeqNum: number, message: Message) {
+		console.log('insert', socketSeqNum, message.sequenceNumber);
 		if (this.stopped) return;
 		if (!message.proxyConfig?.recording) return;
 
@@ -91,9 +92,9 @@ export default class MessageQueueStore {
 			this.stores.splice(m, 0, messageStore);
 		}
 
-		// Shrink array when it is 100 larger then limit
-		if (this.stores.length >= this.limit + 100) {
-			this.stores.splice(0, 100);
+		// Shrink array when it is 1 larger than ghe limit
+		if (this.stores.length >= this.limit) {
+			this.stores.splice(0, 1);
 		}
 	}
 }

@@ -52,10 +52,10 @@ proxy.listen({ port }, function() {
   console.log('> ' + cmd);
   require('child_process').exec(cmd, function (error, stdout, stderr) {
     if (error) {
-      console.error(`exec error: ${error}`);
+      Global.error(`exec error: ${error}`);
       return;
     }
-    console.log(`${stdout}`);
+    Global.log(`${stdout}`);
     assert(/DOCTYPE/.test(stdout));
     proxy.close();
   });
