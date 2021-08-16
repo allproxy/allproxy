@@ -43,6 +43,9 @@ for(var i = 2; i < process.argv.length; ++i) {
 			})
 
 			break;
+		case '--debug':
+			Global.debug = true;
+			break;
 		default:
 			usage();
 			console.error('\nInvalid option: '+process.argv[i]);
@@ -56,10 +59,11 @@ if (listen.length === 0) {
 }
 
 function usage() {
-	console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port]');
+	console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port] [--debug]');
 	console.log('\nOptions:');
 	console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
 	console.log('\t--listenHttps - listen for incoming https connections.');
+	console.log('\t--debug - log verbose debug messages to terminal.');
 	console.log('\nExample: npm start -- --listen 8888 --listenHttps 9999');
 }
 

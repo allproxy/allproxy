@@ -53,8 +53,7 @@ export default class MessageQueueStore {
 		return this.stores;
 	}
 
-	@action public insert(socketSeqNum: number, message: Message) {
-		// console.log('insert', socketSeqNum, message.sequenceNumber);
+	@action public insert(message: Message) {
 		if (this.stopped) return;
 		if (!message.proxyConfig?.recording) return;
 
