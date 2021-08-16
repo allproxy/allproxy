@@ -16,24 +16,24 @@ const CONFIG_JSON = process.env.NODE_ENV === "production"
 const CACHE_SOCKET_ID = 'cache';
 //Global.log('Config file:', CONFIG_JSON);
 
-interface SocketConfigs { socket?: io.Socket, configs: ProxyConfig[] };
+const WINDOW_SIZE = 32; // windows size so we don't overrun the socket
 
-class SocketMessage {
-    public refCount: number = 0;
-    public message: Message;
+class SocketConfigs {
+    socket: io.Socket | undefined = undefined;
+    configs: ProxyConfig[] = [];
+    seqNum = 0;
+    remainingPacingCount = WINDOW_SIZE;
+    delayedMessages: Message[] = [];
 
-    public constructor(message: Message) {
-        this.message = message;
+    constructor(socket: io.Socket | undefined, configs: ProxyConfig[]) {
+        this.socket = socket;
+        this.configs = configs;
     }
-}
+};
 
 export default class ProxyConfigs {
 
     private proxyConfigsMap = new Map<string, SocketConfigs>();
-
-    // Message retransmission queue.
-    private socketSeqNum = 0;
-    private socketRetransmissionMap = new Map<number, SocketMessage>();
 
     constructor() {
         this.activateConfig(this.getConfig());
@@ -155,7 +155,6 @@ export default class ProxyConfigs {
             }
 
             this.activateConfig(proxyConfigs, socket);
-            this.doSocketRetransmit(this.proxyConfigsMap.get(socket.conn.id));
             //this.updateHostReachable();
         })
 
@@ -180,7 +179,7 @@ export default class ProxyConfigs {
         }
 
         this.proxyConfigsMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
-                                {socket: (socket ? socket : undefined), configs: proxyConfigs});
+                                new SocketConfigs((socket ? socket : undefined), proxyConfigs));
         if(socket !== undefined) {
             this.closeAnyServersWithSocket(CACHE_SOCKET_ID);
             this.proxyConfigsMap.delete(CACHE_SOCKET_ID);
@@ -258,9 +257,6 @@ export default class ProxyConfigs {
         //Global.log('emitMessageToBrowser()', message.url);
         let socketId: string;
         let emitted = false;
-        const socketSeqNum = ++this.socketSeqNum;
-        const socketMessage = new SocketMessage(message);
-        this.socketRetransmissionMap.set(socketSeqNum, socketMessage);
         this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (inProxyConfig === undefined || proxyConfig.path === path) {
@@ -269,18 +265,7 @@ export default class ProxyConfigs {
                     socketId = key;
                     message.proxyConfig = proxyConfig;
                     if (socketConfigs.socket) {
-                        Global.log(message.sequenceNumber, socketSeqNum, 'socket emit', message.url, socketId);
-                        socketMessage.refCount++;
-                        socketConfigs.socket.emit(
-                            'reqResJson', socketSeqNum, message,
-                            (response: string) => {
-                                Global.log(this.socketRetransmissionMap.size, response);
-                                socketMessage.refCount--;
-                                if (socketMessage.refCount === 0) {
-                                    this.socketRetransmissionMap.delete(socketSeqNum);
-                                }
-                            }
-                        );
+                        this.emitMessageWithFlowControl(message, socketConfigs, socketId);
                         emitted = true;
                     }
                     if (inProxyConfig === undefined) break;
@@ -289,41 +274,39 @@ export default class ProxyConfigs {
         });
         if (!emitted) {
             Global.log(message.sequenceNumber, 'no browser socket to emit to', message.url);
-            this.socketRetransmissionMap.delete(socketSeqNum);
         }
     }
 
-    private doSocketRetransmit(socketConfigs: SocketConfigs | undefined) {
-        if (socketConfigs === undefined) {
-            Global.log('Socket config is undefined?');
-            return;
-        }
-
-        Global.log('retransmit queue count', this.socketRetransmissionMap.size);
-
-        this.socketRetransmissionMap.forEach((socketMessage, socketSeqNum) => {
+    private emitMessageWithFlowControl(message: Message, socketConfigs: SocketConfigs, socketId: string) {
+        if (socketConfigs.remainingPacingCount === 0) {
+            socketConfigs.delayedMessages.push(message);
+        } else {
             if (socketConfigs.socket) {
-                const message = socketMessage.message;
-                // If message sequence number is old, don't retransmit it.
-                if (this.socketSeqNum < Global.nextSequenceNumber - 1000) {
-                    Global.log(message.sequenceNumber, socketSeqNum, 'delete old retransmit message', message.url);
-                    this.socketRetransmissionMap.delete(socketSeqNum);
-                }
-                else {
-                    Global.log(message.sequenceNumber, socketSeqNum, 'retransmit socket emit', message.url);
-                    socketConfigs.socket.emit(
-                        'reqResJson', socketSeqNum, message,
-                        (response: string) => {
-                            Global.log('retransmit ', this.socketRetransmissionMap.size, response);
-                            socketMessage.refCount--;
-                            if (socketMessage.refCount === 0) {
-                                this.socketRetransmissionMap.delete(socketSeqNum);
+                Global.log(message.sequenceNumber,
+                    socketConfigs.delayedMessages.length,
+                    'socket emit',
+                    message.url, socketId);
+                const doCallback = socketConfigs.seqNum % WINDOW_SIZE === 0; // callback on first message in window
+                --socketConfigs.remainingPacingCount;
+                ++socketConfigs.seqNum;
+                socketConfigs.socket.emit(
+                    'reqResJson',
+                    message,
+                    !doCallback
+                        ? undefined
+                        : (response: string) => {
+                            console.log(
+                                `rpc=${socketConfigs.remainingPacingCount}`,
+                                `ql=${socketConfigs.delayedMessages.length}`,
+                                response);
+                            socketConfigs.remainingPacingCount += WINDOW_SIZE;
+                            while (socketConfigs.delayedMessages.length > 0
+                                && socketConfigs.remainingPacingCount > 0) {
+                                 this.emitMessageWithFlowControl(socketConfigs.delayedMessages.shift()!, socketConfigs, socketId);
                             }
-                        }
-                    );
-                }
+                    }
+                );
             }
-        })
+        }
     }
-
 }
