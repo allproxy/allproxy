@@ -292,8 +292,10 @@ export default class ProxyConfigs {
                 socketConfigs.socket.emit(
                     'reqResJson',
                     message,
+                    socketConfigs.delayedMessages.length,
                     !doCallback
                         ? undefined
+                        // callback
                         : (response: string) => {
                             console.log(
                                 `rpc=${socketConfigs.remainingPacingCount}`,
