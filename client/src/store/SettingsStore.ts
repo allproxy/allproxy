@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx";
 import ProxyConfig from '../common/ProxyConfig';
-import ReachableHostsModal from '../components/ReachableHostsModal';
 import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 

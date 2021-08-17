@@ -1,7 +1,7 @@
-import ProxyConfigs from './ProxyConfigs';
+import SocketIoManager from './SocketIoManager';
 
 export default class Global {
-    static proxyConfigs: ProxyConfigs;
+    static socketIoManager: SocketIoManager;
     static nextSequenceNumber: number = 0;
     static debug = false;
 

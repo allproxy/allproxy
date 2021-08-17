@@ -1,8 +1,14 @@
 import ProxyConfig from "./ProxyConfig";
 
 export const NO_RESPONSE = 'No Response';
+export enum MessageType {
+	REQUEST,
+	RESPONSE,
+	REQUEST_AND_RESPONSE,
+}
 
 export default class Message  {
+	type: MessageType = MessageType.REQUEST_AND_RESPONSE;
 	timestamp: number = 0;
 	sequenceNumber: number = 0;
 	requestHeaders: {[key: string]: string} = {};

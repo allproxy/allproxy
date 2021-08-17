@@ -1,8 +1,9 @@
 import url from 'url';
-import socketMessage from './server/src/SocketIoMessage';
+import SocketMessage from './server/src/SocketIoMessage';
 import Global from './server/src/Global';
 import ProxyConfig from './common/ProxyConfig';
 import Proxy from './node-http-mitm-proxy';
+import { MessageType, NO_RESPONSE } from './common/Message';
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -40,13 +41,13 @@ export default class HttpsProxy {
             let proxyConfig;
 
             if (!connectRequest) {
-                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL('https:', reqUrl);
+                proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', reqUrl);
                 if (proxyConfig !== undefined) {
                     ctx.proxyToServerRequestOptions.headers['host'] = proxyConfig.hostname;
                     client_req.url = 'https://' + proxyConfig.hostname + client_req.url;
                 }
             } else {
-                proxyConfig = Global.proxyConfigs.findProxyConfigMatchingURL('https:', reqUrl);
+                proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', reqUrl);
                 // Always proxy forward proxy requests
                 if (proxyConfig === undefined) {
                     proxyConfig = new ProxyConfig();
@@ -146,7 +147,7 @@ export default class HttpsProxy {
                 reqHeaders: {} = {},
                 reqBody: string = '',
                 resHeaders: {} = {},
-                resBody: string = "No Response"
+                resBody: string = NO_RESPONSE
             ) {
                 const reqBodyJson = toJSON(reqBody);
                 const host = HttpsProxy.getHostPort(proxyConfig!);
@@ -170,7 +171,7 @@ export default class HttpsProxy {
 				}
                 if ('/' + endpoint === client_req.url) endpoint = '';
 
-                const message = await socketMessage.buildRequest(Date.now(),
+                const message = await SocketMessage.buildRequest(Date.now(),
                                             sequenceNumber,
                                             reqHeaders,
                                             client_req.method!,
@@ -181,8 +182,8 @@ export default class HttpsProxy {
                                             host, // server host
                                             proxyConfig ? proxyConfig.path : '',
                                             Date.now() - startTime);
-                socketMessage.appendResponse(message, resHeaders, toJSON(resBody), 0, 0);
-                Global.proxyConfigs.emitMessageToBrowser(message, proxyConfig);
+                SocketMessage.appendResponse(message, resHeaders, resBody, 0, 0);
+                Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST, message, proxyConfig);
 
                 function toJSON(s: string): {} {
                     try {

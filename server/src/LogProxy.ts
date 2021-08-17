@@ -2,6 +2,7 @@ import { spawn } from 'child_process';
 import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
+import { MessageType } from '../../common/Message';
 
 export default class LogProxy {
 	proxyConfig: ProxyConfig;
@@ -116,7 +117,7 @@ export default class LogProxy {
 		);
 		SocketIoMessage.appendResponse(message, {}, this.buffer.toString(), 0, 0);
 		message.protocol = 'log:';
-		Global.proxyConfigs.emitMessageToBrowser(message, this.proxyConfig);
+		Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig);
 
 		//Global.log('buffered:', this.recordCount, this.buffer.toString());
 		this.buffer = '';

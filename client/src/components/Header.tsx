@@ -6,6 +6,8 @@ import ReachableHostsModal from './ReachableHostsModal';
 import SettingsModal from './SettingsModal';
 import { HostStatus, settingsStore } from '../store/SettingsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
+import MetricsModal from './MetricsModal';
+import { metricsStore } from '../store/MetricsStore';
 
 /**
  * Header view
@@ -18,6 +20,7 @@ type Props = {
 const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props) : JSX.Element => {
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
+	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
 	const statusClassName = 'fa ' + (socketStore.isConnected()
 		? 'success fa-circle' : 'error fa-exclamation-triangle');
 	return (
@@ -35,7 +38,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					onClick={() => {
 						messageQueueStore.clear();
 						filterStore.setFilter('');
-						socketStore.clearInCount();
+						socketStore.clearMetrics();
 					}}
 				/>
 				<div className={'header__stop fas '
@@ -61,14 +64,17 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				</div>
 			</div>
 			<div>
-				<div className="header__count" title="Messages received from server">
-					<div>Received: {socketStore.getInCount() }</div>
+				<div className="header__count" title="Received messages">
+					<div>Requests/Responses: {socketStore.getRequestCount()+'/'+socketStore.getResponseCount()}</div>
 				</div>
 				<div className="header__count" title="Messages queued at server">
-					<div>Intransit: {socketStore.getQueuedCount() }</div>
+					<div>Intransit: {socketStore.getIntransitCount() }</div>
 				</div>
 			</div>
 			<div>
+				<div className="header__settings fa fa-table" title="Metrics"
+					onClick={() => { setShowMetricsModal(true); } }>
+				</div>
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
 					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
 				</div>
@@ -76,6 +82,11 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					onClick={() => { setShowSettingsModal(true); settingsStore.reset(); } }>
 				</div>
 			</div>
+			<MetricsModal
+				open={showMetricsModal}
+				onClose={() => setShowMetricsModal(false)}
+				store={metricsStore}
+			/>
 			<ReachableHostsModal
 				open={showReachableHostsModal}
 				onClose={() => setShowReachableHostsModal(false)}
