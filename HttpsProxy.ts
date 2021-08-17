@@ -183,7 +183,10 @@ export default class HttpsProxy {
                                             proxyConfig ? proxyConfig.path : '',
                                             Date.now() - startTime);
                 SocketMessage.appendResponse(message, resHeaders, resBody, 0, 0);
-                Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST, message, proxyConfig);
+                Global.socketIoManager.emitMessageToBrowser(
+                    resBody === NO_RESPONSE ? MessageType.REQUEST : MessageType.RESPONSE,
+                    message,
+                    proxyConfig);
 
                 function toJSON(s: string): {} {
                     try {
