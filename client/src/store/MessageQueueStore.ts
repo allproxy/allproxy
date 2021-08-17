@@ -91,9 +91,9 @@ export default class MessageQueueStore {
 			this.stores.splice(m, 0, messageStore);
 		}
 
-		// Shrink array when it is 1 larger than ghe limit
-		if (this.stores.length >= this.limit) {
-			this.stores.splice(0, 1);
+		// Shrink array
+		if (this.stores.length >= this.limit + this.limit/2) {
+			this.stores.splice(0, this.limit/2);
 		}
 	}
 }
