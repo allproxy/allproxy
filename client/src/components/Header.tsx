@@ -35,6 +35,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					onClick={() => {
 						messageQueueStore.clear();
 						filterStore.setFilter('');
+						socketStore.clearInCount();
 					}}
 				/>
 				<div className={'header__stop fas '
@@ -57,6 +58,14 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 						value={ filterStore.getFilter() }
 						onChange={e => filterStore.setFilter(e.currentTarget.value)}
 						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
+				</div>
+			</div>
+			<div>
+				<div className="header__count" title="Messages received from server">
+					<div>Received: {socketStore.getInCount() }</div>
+				</div>
+				<div className="header__count" title="Messages queued at server">
+					<div>Intransit: {socketStore.getQueuedCount() }</div>
 				</div>
 			</div>
 			<div>

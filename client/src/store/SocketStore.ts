@@ -4,10 +4,13 @@ import Message from '../common/Message';
 import proxyConfigStore from './ProxyConfigStore';
 import { messageQueueStore } from './MessageQueueStore';
 import ProxyConfig from '../common/ProxyConfig';
+import { BlurCircular } from '@material-ui/icons';
 
 export default class SocketStore {
 	private socket?: SocketIOClient.Socket = undefined;
 	private socketConnected: boolean = false;
+	private queuedCount: number = 0;
+	private inCount: number = 0;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -37,12 +40,26 @@ export default class SocketStore {
 			console.log('socket error', e);
 		});
 
-		this.socket.on('reqResJson', (message: Message, callback: any) => {
+		this.socket.on('reqResJson', (message: Message, queuedCount: number, callback: any) => {
+			this.queuedCount = queuedCount;
+			this.inCount++;
 			messageQueueStore.insert(message);
 			if (callback) {
 				callback(`${message.sequenceNumber} socket.io callback`);
 			}
 		});
+	}
+
+	@action clearInCount() {
+		this.inCount = 0;
+	}
+
+	public getInCount() {
+		return this.inCount;
+	}
+
+	public getQueuedCount() {
+		return this.queuedCount;
 	}
 
 	@action setSocketConnected(value: boolean) {

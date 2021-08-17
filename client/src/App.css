@@ -154,6 +154,11 @@ td input {
 	background-color: lightyellow;
 }
 
+.header__count {
+	margin: 0 0 0 1rem;
+	color: whitesmoke;
+}
+
 .header__status,
 .header__settings {
 	margin: 0 0 0 1rem;
