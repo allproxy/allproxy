@@ -1,5 +1,5 @@
 const decompressResponse = require('decompress-response');
-import Message from '../../common/Message';
+import Message, { MessageType } from '../../common/Message';
 import { IncomingHttpHeaders, IncomingMessage } from 'http';
 import dns from 'dns';
 import querystring from 'querystring';
@@ -8,7 +8,7 @@ export default class SocketMessage {
 	/**
 	 * Parse request data
 	 */
-	static async parseRequest(client_req: IncomingMessage, startTime: number, sequenceNumber: number, host: string, path: string)
+	public static async parseRequest(client_req: IncomingMessage, startTime: number, sequenceNumber: number, host: string, path: string)
 		: Promise<Message>
 	{
 
@@ -75,7 +75,7 @@ export default class SocketMessage {
 		});
 	}
 
-	static buildRequest(timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
+	public static buildRequest(timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
 		: Promise<Message>
 	{
 		return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
@@ -84,7 +84,7 @@ export default class SocketMessage {
 	/**
 	 * Parse response
 	 */
-	static parseResponse(proxyRes: any, startTime: number, message: Message): Promise<Message> {
+	public static parseResponse(proxyRes: any, startTime: number, message: Message): Promise<Message> {
 
 		return new Promise((resolve) => {
 
@@ -120,7 +120,7 @@ export default class SocketMessage {
 		});
 	}
 
-	static appendResponse(message: Message, responseHeaders: {}, responseBody:{}|string, status:number, elapsedTime:number) {
+	public static appendResponse(message: Message, responseHeaders: {}, responseBody:{}|string, status:number, elapsedTime:number) {
 		appendResponse(message, responseHeaders, responseBody, status, elapsedTime);
 	}
 
@@ -152,7 +152,7 @@ async function buildRequest(timestamp:number, sequenceNumber:number, requestHead
 		}
 	});
 
-	function initMessage() {
+	function initMessage(): Message {
 		var message = {
 			timestamp,
 			sequenceNumber,
@@ -170,7 +170,7 @@ async function buildRequest(timestamp:number, sequenceNumber:number, requestHead
 			responseBody: {},
 			status: 0,
 		};
-		return message;
+		return message as Message;
 	}
 }
 

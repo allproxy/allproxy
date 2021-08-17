@@ -326,6 +326,7 @@ td input {
 	justify-content: center;
 }
 
+.metrics-modal,
 .reachable-modal,
 .settings-modal {
 	background: white;
@@ -337,11 +338,16 @@ td input {
 	max-width: 700px;
 }
 
+.metrics-modal {
+	max-width: 90vw;
+}
+
 .settings-modal__scroll-container {
 	overflow-y: auto;
 	height: calc(90vh - 400px);
 }
 
+.metrics-modal__scroll-container,
 .reachable-modal__scroll-container {
 	overflow-y: auto;
 	height: 80vh;

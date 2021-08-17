@@ -4,7 +4,7 @@ import LogProxy from './LogProxy';
 import fs from 'fs';
 import path from 'path';
 import ProxyConfig from '../../common/ProxyConfig';
-import Message from '../../common/Message';
+import Message, { MessageType } from '../../common/Message';
 import url from 'url';
 import net from 'net';
 import Ping from './Ping';
@@ -18,7 +18,7 @@ const CACHE_SOCKET_ID = 'cache';
 
 const WINDOW_SIZE = 32; // windows size so we don't overrun the socket
 
-class SocketConfigs {
+class SocketIoInfo {
     socket: io.Socket | undefined = undefined;
     configs: ProxyConfig[] = [];
     seqNum = 0;
@@ -31,9 +31,9 @@ class SocketConfigs {
     }
 };
 
-export default class ProxyConfigs {
+export default class SocketIoManager {
 
-    private proxyConfigsMap = new Map<string, SocketConfigs>();
+    private socketIoMap = new Map<string, SocketIoInfo>();
 
     constructor() {
         this.activateConfig(this.getConfig());
@@ -161,7 +161,7 @@ export default class ProxyConfigs {
         socket.on('disconnect', () => {
             Global.log('ProxyConfigs: socket disconnect', socket.conn.id);
             this.closeAnyServersWithSocket(socket.conn.id);
-            this.proxyConfigsMap.delete(socket.conn.id);
+            this.socketIoMap.delete(socket.conn.id);
         })
 
         socket.on('error', (e: any) => {
@@ -178,17 +178,17 @@ export default class ProxyConfigs {
             }
         }
 
-        this.proxyConfigsMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
-                                new SocketConfigs((socket ? socket : undefined), proxyConfigs));
+        this.socketIoMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
+                                new SocketIoInfo((socket ? socket : undefined), proxyConfigs));
         if(socket !== undefined) {
             this.closeAnyServersWithSocket(CACHE_SOCKET_ID);
-            this.proxyConfigsMap.delete(CACHE_SOCKET_ID);
+            this.socketIoMap.delete(CACHE_SOCKET_ID);
         }
     }
 
     // Close 'any:' protocol servers that are running for the browser owning the socket
     closeAnyServersWithSocket(socketId: string) {
-        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
             if (socketId && key !== socketId) return;
             for(const proxyConfig of socketConfigs.configs) {
                 if(proxyConfig.protocol === 'log:') {
@@ -203,7 +203,7 @@ export default class ProxyConfigs {
     // Close 'any:' protocol servers the specified listening port
     closeAnyServerWithPort(port: number) {
         //Global.log('closeAnyServerWithPort', port);
-        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
                     TcpProxy.destructor(proxyConfig);
@@ -232,7 +232,7 @@ export default class ProxyConfigs {
 
         let matchingProxyConfig: ProxyConfig|undefined = undefined;
         // Find matching proxy configuration
-        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
                 if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'browser:') continue;
@@ -252,12 +252,13 @@ export default class ProxyConfigs {
      * @param {*} message
      * @param {*} proxyConfig
      */
-    emitMessageToBrowser(message: Message, inProxyConfig?: ProxyConfig) {
+    emitMessageToBrowser(messageType:MessageType, message: Message, inProxyConfig?: ProxyConfig) {
+        message.type = messageType;
         const path = inProxyConfig ? inProxyConfig.path : '';
         //Global.log('emitMessageToBrowser()', message.url);
         let socketId: string;
         let emitted = false;
-        this.proxyConfigsMap.forEach((socketConfigs: SocketConfigs, key: string) => {
+        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
             for (const proxyConfig of socketConfigs.configs) {
                 if (inProxyConfig === undefined || proxyConfig.path === path) {
                     if (key === socketId) continue;
@@ -277,7 +278,7 @@ export default class ProxyConfigs {
         }
     }
 
-    private emitMessageWithFlowControl(message: Message, socketConfigs: SocketConfigs, socketId: string) {
+    private emitMessageWithFlowControl(message: Message, socketConfigs: SocketIoInfo, socketId: string) {
         if (socketConfigs.remainingPacingCount === 0) {
             socketConfigs.delayedMessages.push(message);
         } else {

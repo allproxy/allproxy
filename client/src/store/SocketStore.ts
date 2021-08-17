@@ -1,16 +1,18 @@
 import { makeAutoObservable, action } from "mobx"
 import io from "socket.io-client";
-import Message from '../common/Message';
+import Message, { MessageType } from '../common/Message';
 import proxyConfigStore from './ProxyConfigStore';
 import { messageQueueStore } from './MessageQueueStore';
 import ProxyConfig from '../common/ProxyConfig';
-import { BlurCircular } from '@material-ui/icons';
+import { metricsStore } from './MetricsStore';
+import { mapProtocolToIndex } from './MetricsStore';
 
 export default class SocketStore {
 	private socket?: SocketIOClient.Socket = undefined;
 	private socketConnected: boolean = false;
-	private queuedCount: number = 0;
-	private inCount: number = 0;
+	private intransitCount: number = 0;
+	private requestCount: number = 0;
+	private responseCount: number = 0;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -41,8 +43,8 @@ export default class SocketStore {
 		});
 
 		this.socket.on('reqResJson', (message: Message, queuedCount: number, callback: any) => {
-			this.queuedCount = queuedCount;
-			this.inCount++;
+			this.intransitCount = queuedCount;
+			this.countMetrics(message);
 			messageQueueStore.insert(message);
 			if (callback) {
 				callback(`${message.sequenceNumber} socket.io callback`);
@@ -50,16 +52,51 @@ export default class SocketStore {
 		});
 	}
 
-	@action clearInCount() {
-		this.inCount = 0;
+	@action private countMetrics(message: Message) {
+		const protocol = message.proxyConfig ? message.proxyConfig.protocol : message.protocol;
+		const i = mapProtocolToIndex.get(protocol);
+		if (i === undefined) {
+			console.error(`Unknown protocol ${protocol} for message ${message}`);
+			return;
+		}
+
+		const row = metricsStore.getMetrics()[i];
+
+		if (message.type === MessageType.REQUEST_AND_RESPONSE
+			|| message.type === MessageType.REQUEST) {
+			++row.requestCount;
+			++this.requestCount;
+		}
+		if (message.type === MessageType.REQUEST_AND_RESPONSE
+			|| message.type === MessageType.RESPONSE) {
+			++row.responseCount;
+			++this.responseCount;
+			row.totalTime += message.elapsedTime;
+			if (message.elapsedTime > row.maximumTime) {
+				row.maximumTime = message.elapsedTime;
+			}
+			if (message.elapsedTime < row.minimumTime) {
+				row.minimumTime = message.elapsedTime;
+			}
+		}
 	}
 
-	public getInCount() {
-		return this.inCount;
+	@action clearMetrics() {
+		this.requestCount = 0;
+		this.responseCount = 0;
+		metricsStore.clear();
 	}
 
-	public getQueuedCount() {
-		return this.queuedCount;
+	public getRequestCount() {
+		return this.requestCount;
+	}
+
+	public getResponseCount() {
+		return this.responseCount;
+	}
+
+	public getIntransitCount() {
+		return this.intransitCount;
 	}
 
 	@action setSocketConnected(value: boolean) {

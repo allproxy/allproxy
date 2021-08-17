@@ -3,7 +3,7 @@ import http from 'http';
 import { exit } from 'process';
 import https from 'https';
 import Global from './server/src/Global';
-import ProxyConfigs from './server/src/ProxyConfigs';
+import SocketIoManager from './server/src/SocketIoManager';
 import HttpProxy from './HttpProxy';
 import HttpsProxy from './HttpsProxy';
 import HttpMitmProxy from './node-http-mitm-proxy';
@@ -75,7 +75,7 @@ process.on('uncaughtException', (err) => {
 	process.exit();
 })
 
-Global.proxyConfigs = new ProxyConfigs();
+Global.socketIoManager = new SocketIoManager();
 const httpProxy = new HttpProxy();
 const httpsProxy = new HttpsProxy();
 
@@ -102,7 +102,7 @@ for(let entry of listen) {
 		console.log(`Listening on ${protocol} ${host?host:''} ${port}`);
 		console.log(`Open browser to ${protocol}//localhost:${port}/middleman\n`);
 
-		Global.proxyConfigs.addHttpServer(httpServer);
+		Global.socketIoManager.addHttpServer(httpServer);
 	}
 
 
