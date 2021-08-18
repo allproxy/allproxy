@@ -111,7 +111,7 @@ export default class HttpsProxy {
                         proxyConfig,
                         client_req.url!,
                         reqHeaders,
-                        reqChunks,
+                        HttpsProxy.formatJSON(reqChunks)
                     );
                     return callback();
                 });
@@ -131,9 +131,9 @@ export default class HttpsProxy {
                             proxyConfig,
                             client_req.url!,
                             reqHeaders,
-                            reqChunks,
+                            HttpsProxy.formatJSON(reqChunks),
                             ctx.serverToProxyResponse.headers,
-                            resChunks,
+                            HttpsProxy.formatJSON(resChunks),
                         );
                         return callback();
                     });
@@ -185,5 +185,13 @@ export default class HttpsProxy {
         let host = proxyConfig.hostname;
         if(proxyConfig.port) host += ':' + proxyConfig.port;
         return host;
+    }
+
+    private static formatJSON(json: string) {
+        try {
+            return JSON.stringify(JSON.parse(json), null, 2);
+        } catch (e) {
+            return json;
+        }
     }
 }

@@ -76,7 +76,7 @@ export default class HttpProxy {
                 client_res.writeHead(200, {
                     'Content-type': 'application/json'
                 });
-                client_res.end(JSON.stringify(configs));
+                client_res.end(JSON.stringify(configs, null, 2));
             } else {
                 // Find matching proxy configuration
                 let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('http:', reqUrl);
@@ -136,7 +136,7 @@ export default class HttpProxy {
             })
 
             client_req.on('error', function(error) {
-                Global.log(sequenceNumber, 'Client connection error', JSON.stringify(error));
+                Global.log(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
             })
 
             var method = client_req.method;
@@ -211,7 +211,7 @@ export default class HttpProxy {
             }
 
             proxy.on('error', function(error) {
-                Global.error(sequenceNumber, 'Proxy connect error', JSON.stringify(error), 'config:', proxyConfig);
+                Global.error(sequenceNumber, 'Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig);
                 sendErrorResponse(404, "Proxy connect error", error, proxyConfig);
             })
 
@@ -252,7 +252,7 @@ export default class HttpProxy {
                         'Content-type' : 'application/json'
                     });
 
-                    client_res.end(JSON.stringify(message.responseBody));
+                    client_res.end(JSON.stringify(message.responseBody, null, 2));
                 }
             })
             .catch(function(error) {
