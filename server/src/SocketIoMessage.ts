@@ -1,8 +1,9 @@
 const decompressResponse = require('decompress-response');
-import Message, { MessageType } from '../../common/Message';
+import Message from '../../common/Message';
 import { IncomingHttpHeaders, IncomingMessage } from 'http';
 import dns from 'dns';
 import querystring from 'querystring';
+import { getHttpEndpoint } from '../../HttpProxy';
 
 export default class SocketMessage {
 	/**
@@ -34,35 +35,12 @@ export default class SocketMessage {
 					}
 				}
 
-				var endpoint = client_req.url?.split('?')[0];
-				var tokens = endpoint?.split('/');
-				endpoint = tokens ? tokens[tokens.length - 1] : '';
-				if (!isNaN(+endpoint) && tokens && tokens.length > 1) {
-					endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
-				}
-
-				if(client_req.url?.endsWith('/graphql')) {
-					endpoint = '';
-					if(requestBody && Array.isArray(requestBody)) {
-						requestBody.forEach((entry) => {
-							if(entry.operationName) {
-								if(endpoint && endpoint.length > 0) endpoint += ', '
-								endpoint += entry.operationName;
-							}
-						})
-						if (endpoint.length > 0) {
-							endpoint = 'GQL ' + endpoint;
-						}
-					}
-				}
-				if('/'+endpoint === client_req.url) endpoint = '';
-
 				let message = await buildRequest(Date.now(),
 											sequenceNumber,
 											client_req.headers,
 											client_req.method,
 											client_req.url,
-											endpoint,
+											getHttpEndpoint(client_req, requestBody),
 											requestBody,
 											client_req.socket.remoteAddress,
 											host, // server host

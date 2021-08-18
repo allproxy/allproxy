@@ -4,6 +4,7 @@ import Global from './server/src/Global';
 import ProxyConfig from './common/ProxyConfig';
 import Proxy from './node-http-mitm-proxy';
 import { MessageType, NO_RESPONSE } from './common/Message';
+import { getHttpEndpoint } from './HttpProxy';
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -151,32 +152,13 @@ export default class HttpsProxy {
             ) {
                 const reqBodyJson = toJSON(reqBody);
                 const host = HttpsProxy.getHostPort(proxyConfig!);
-                var endpoint = url.split('?')[0];
-                    var tokens = endpoint?.split('/');
-                endpoint = tokens ? tokens[tokens.length - 1] : '';
-
-                if(client_req.url?.endsWith('/graphql')) {
-					endpoint = '';
-					if(reqBodyJson && Array.isArray(reqBodyJson)) {
-						reqBodyJson.forEach((entry) => {
-							if(entry.operationName) {
-								if(endpoint && endpoint.length > 0) endpoint += ', '
-								endpoint += entry.operationName;
-							}
-						})
-						if (endpoint.length > 0) {
-							endpoint = 'GQL ' + endpoint;
-						}
-					}
-				}
-                if ('/' + endpoint === client_req.url) endpoint = '';
 
                 const message = await SocketMessage.buildRequest(Date.now(),
                                             sequenceNumber,
                                             reqHeaders,
                                             client_req.method!,
                                             url,
-                                            endpoint,
+                                            getHttpEndpoint(client_req, reqBodyJson),
                                             reqBodyJson,
                                             client_req.socket.remoteAddress!,
                                             host, // server host
