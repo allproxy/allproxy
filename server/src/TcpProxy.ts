@@ -197,7 +197,10 @@ export default class TcpProxy {
                         SocketIoMessage.appendResponse(message, {}, responseString, status, Date.now() - request.startTime);
                         message.protocol = proxyConfig.protocol;
                         Global.socketIoManager.emitMessageToBrowser(
-                            response === null ? MessageType.REQUEST : MessageType.RESPONSE,
+                            response === null
+                                ? responseString === NO_RESPONSE
+                                    ? MessageType.REQUEST : MessageType.REQUEST_AND_RESPONSE
+                                : MessageType.RESPONSE,
                             message,
                             proxyConfig);
                     }
