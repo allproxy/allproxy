@@ -111,6 +111,8 @@ export default class FilterStore {
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
         const message = messageStore.getMessage();
+        if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
+        if (this.isMatch(needle, message.protocol)) return false;
         if (this.isMatch(needle, message.status+'')) return false;
         if (this.isMatch(needle, message.method)) return false;
         if (this.isMatch(needle, message.clientIp!+'->'+message.serverHost)) return false;
