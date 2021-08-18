@@ -10,7 +10,7 @@ import { mapProtocolToIndex } from './MetricsStore';
 export default class SocketStore {
 	private socket?: SocketIOClient.Socket = undefined;
 	private socketConnected: boolean = false;
-	private queutedCount: number = 0;
+	private queuedCount: number = 0;
 	private requestCount: number = 0;
 	private responseCount: number = 0;
 
@@ -43,7 +43,7 @@ export default class SocketStore {
 		});
 
 		this.socket.on('reqResJson', (messages: Message[], queuedCount: number, callback: any) => {
-			this.queutedCount = queuedCount;
+			this.queuedCount = queuedCount;
 			for (const message of messages) {
 				this.countMetrics(message);
 			}
@@ -74,10 +74,12 @@ export default class SocketStore {
 			++row.responseCount;
 			++this.responseCount;
 			row.totalTime += message.elapsedTime;
+
 			if (message.elapsedTime > row.maximumTime) {
 				row.maximumTime = message.elapsedTime;
 			}
-			if (message.elapsedTime < row.minimumTime) {
+
+			if (message.elapsedTime < row.minimumTime || row.minimumTime === 0) {
 				row.minimumTime = message.elapsedTime;
 			}
 		}
@@ -98,7 +100,7 @@ export default class SocketStore {
 	}
 
 	public getQueuedCount() {
-		return this.queutedCount;
+		return this.queuedCount;
 	}
 
 	@action setSocketConnected(value: boolean) {
