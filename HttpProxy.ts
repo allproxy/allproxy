@@ -111,20 +111,18 @@ export default class HttpProxy {
 
         async function emitRequestToBrowser(proxyConfig: ProxyConfig) {
             const host = HttpProxy.getHostPort(proxyConfig!);
-            var endpoint = client_req.url?.split('?')[0];
-				var tokens = endpoint?.split('/');
-				endpoint = tokens?tokens[tokens.length-1]:'';
+
             const message = await SocketMessage.buildRequest(Date.now(),
-                                        sequenceNumber,
-                                        client_req.headers,
-                                        client_req.method!,
-                                        client_req.url!,
-                                        endpoint,
-                                        {},
-                                        client_req.socket.remoteAddress!,
-                                        host, // server host
-                                        proxyConfig.path,
-                                        Date.now() - startTime);
+                sequenceNumber,
+                client_req.headers,
+                client_req.method!,
+                client_req.url!,
+                getHttpEndpoint(client_req, {}),
+                {},
+                client_req.socket.remoteAddress!,
+                host, // server host
+                proxyConfig.path,
+                Date.now() - startTime);
             SocketMessage.appendResponse(message, {}, NO_RESPONSE, 0, 0);
             Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST, message, proxyConfig);
         }
@@ -268,4 +266,27 @@ export default class HttpProxy {
         if(proxyConfig.port) host += ':' + proxyConfig.port;
         return host;
     }
+}
+
+export const getHttpEndpoint = (client_req: IncomingMessage, requestBody: string | {}): string => {
+    var endpoint = client_req.url?.split('?')[0];
+    var tokens = endpoint?.split('/');
+    endpoint = tokens ? tokens[tokens.length - 1] : '';
+    if (!isNaN(+endpoint) && tokens && tokens.length > 1) {
+        endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
+    }
+
+    if(client_req.method !== 'OPTIONS' && client_req.url?.endsWith('/graphql')) {
+        endpoint = ' GQL';
+        if(requestBody && Array.isArray(requestBody)) {
+            requestBody.forEach((entry) => {
+                if(entry.operationName) {
+                    if(endpoint !== ' GQL') endpoint += ','
+                    endpoint += ' ' + entry.operationName;
+                }
+            })
+        }
+    }
+    if ('/' + endpoint === client_req.url) endpoint = '';
+    return endpoint;
 }
