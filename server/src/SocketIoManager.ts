@@ -16,13 +16,15 @@ const CONFIG_JSON = process.env.NODE_ENV === "production"
 const CACHE_SOCKET_ID = 'cache';
 //Global.log('Config file:', CONFIG_JSON);
 
-const WINDOW_SIZE = 32; // windows size so we don't overrun the socket
+const WINDOW_SIZE = 64; // windows size - maximum outstanding messages
+const MAX_OUT = 2; // two message batches
 
-class SocketIoInfo {
+class SocketInfo {
     socket: io.Socket | undefined = undefined;
     configs: ProxyConfig[] = [];
     seqNum = 0;
     remainingPacingCount = WINDOW_SIZE;
+    messagesOut = 0;
     delayedMessages: Message[] = [];
 
     constructor(socket: io.Socket | undefined, configs: ProxyConfig[]) {
@@ -33,7 +35,7 @@ class SocketIoInfo {
 
 export default class SocketIoManager {
 
-    private socketIoMap = new Map<string, SocketIoInfo>();
+    private socketIoMap = new Map<string, SocketInfo>();
 
     constructor() {
         this.activateConfig(this.getConfig());
@@ -179,7 +181,7 @@ export default class SocketIoManager {
         }
 
         this.socketIoMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
-                                new SocketIoInfo((socket ? socket : undefined), proxyConfigs));
+                                new SocketInfo((socket ? socket : undefined), proxyConfigs));
         if(socket !== undefined) {
             this.closeAnyServersWithSocket(CACHE_SOCKET_ID);
             this.socketIoMap.delete(CACHE_SOCKET_ID);
@@ -188,9 +190,9 @@ export default class SocketIoManager {
 
     // Close 'any:' protocol servers that are running for the browser owning the socket
     closeAnyServersWithSocket(socketId: string) {
-        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
+        this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
             if (socketId && key !== socketId) return;
-            for(const proxyConfig of socketConfigs.configs) {
+            for(const proxyConfig of socketInfo.configs) {
                 if(proxyConfig.protocol === 'log:') {
                     LogProxy.destructor(proxyConfig);
                 } else if(!ProxyConfig.isHttpOrHttps(proxyConfig)) {
@@ -203,8 +205,8 @@ export default class SocketIoManager {
     // Close 'any:' protocol servers the specified listening port
     closeAnyServerWithPort(port: number) {
         //Global.log('closeAnyServerWithPort', port);
-        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
-            for (const proxyConfig of socketConfigs.configs) {
+        this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
+            for (const proxyConfig of socketInfo.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
                     TcpProxy.destructor(proxyConfig);
                 }
@@ -232,8 +234,8 @@ export default class SocketIoManager {
 
         let matchingProxyConfig: ProxyConfig|undefined = undefined;
         // Find matching proxy configuration
-        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
-            for (const proxyConfig of socketConfigs.configs) {
+        this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
+            for (const proxyConfig of socketInfo.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
                 if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'browser:') continue;
                 if (this.isMatch(proxyConfig.path, reqUrlPath) &&
@@ -258,15 +260,15 @@ export default class SocketIoManager {
         //Global.log('emitMessageToBrowser()', message.url);
         let socketId: string;
         let emitted = false;
-        this.socketIoMap.forEach((socketConfigs: SocketIoInfo, key: string) => {
-            for (const proxyConfig of socketConfigs.configs) {
+        this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
+            for (const proxyConfig of socketInfo.configs) {
                 if (inProxyConfig === undefined || proxyConfig.path === path) {
                     if (key === socketId) continue;
                     if (!proxyConfig.recording) continue;
                     socketId = key;
                     message.proxyConfig = proxyConfig;
-                    if (socketConfigs.socket) {
-                        this.emitMessageWithFlowControl(message, socketConfigs, socketId);
+                    if (socketInfo.socket) {
+                        this.emitMessageWithFlowControl([message], socketInfo, socketId);
                         emitted = true;
                     }
                     if (inProxyConfig === undefined) break;
@@ -278,35 +280,42 @@ export default class SocketIoManager {
         }
     }
 
-    private emitMessageWithFlowControl(message: Message, socketConfigs: SocketIoInfo, socketId: string) {
-        if (socketConfigs.remainingPacingCount === 0) {
-            socketConfigs.delayedMessages.push(message);
+    private emitMessageWithFlowControl(messages: Message[], socketInfo: SocketInfo, socketId: string) {
+        if (socketInfo.remainingPacingCount === 0 || socketInfo.messagesOut >= MAX_OUT) {
+            socketInfo.delayedMessages = socketInfo.delayedMessages.concat(messages);
         } else {
-            if (socketConfigs.socket) {
-                Global.log(message.sequenceNumber,
-                    socketConfigs.delayedMessages.length,
-                    'socket emit',
-                    message.url, socketId);
-                const doCallback = socketConfigs.seqNum % WINDOW_SIZE === 0; // callback on first message in window
-                --socketConfigs.remainingPacingCount;
-                ++socketConfigs.seqNum;
-                socketConfigs.socket.emit(
+            if (socketInfo.socket) {
+                // Global.log(messages[0].sequenceNumber,
+                //     socketInfo.delayedMessages.length,
+                //     'socket emit',
+                //     messages[0].url, socketId);
+                const batchCount = messages.length;
+                socketInfo.remainingPacingCount -= batchCount;
+                ++socketInfo.seqNum;
+                ++socketInfo.messagesOut;
+                socketInfo.socket.emit(
                     'reqResJson',
-                    message,
-                    socketConfigs.delayedMessages.length,
-                    !doCallback
-                        ? undefined
-                        // callback
-                        : (response: string) => {
-                            console.log(
-                                `rpc=${socketConfigs.remainingPacingCount}`,
-                                `ql=${socketConfigs.delayedMessages.length}`,
-                                response);
-                            socketConfigs.remainingPacingCount += WINDOW_SIZE;
-                            while (socketConfigs.delayedMessages.length > 0
-                                && socketConfigs.remainingPacingCount > 0) {
-                                 this.emitMessageWithFlowControl(socketConfigs.delayedMessages.shift()!, socketConfigs, socketId);
-                            }
+                    messages,
+                    socketInfo.delayedMessages.length,
+                    // callback:
+                    (response: string) => {
+                        --socketInfo.messagesOut;
+                        socketInfo.remainingPacingCount += batchCount;
+
+                        console.log(
+                            `out=${socketInfo.messagesOut}`,
+                            `rpc=${socketInfo.remainingPacingCount}`,
+                            `ql=${socketInfo.delayedMessages.length}`,
+                            response);
+
+                        const count = Math.min(socketInfo.remainingPacingCount, socketInfo.delayedMessages.length);
+                        if (count > 0) {
+                            this.emitMessageWithFlowControl(
+                                socketInfo.delayedMessages.splice(0, count),
+                                socketInfo,
+                                socketId
+                            );
+                        }
                     }
                 );
             }
