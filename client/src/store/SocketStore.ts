@@ -10,7 +10,7 @@ import { mapProtocolToIndex } from './MetricsStore';
 export default class SocketStore {
 	private socket?: SocketIOClient.Socket = undefined;
 	private socketConnected: boolean = false;
-	private intransitCount: number = 0;
+	private queutedCount: number = 0;
 	private requestCount: number = 0;
 	private responseCount: number = 0;
 
@@ -42,12 +42,14 @@ export default class SocketStore {
 			console.log('socket error', e);
 		});
 
-		this.socket.on('reqResJson', (message: Message, queuedCount: number, callback: any) => {
-			this.intransitCount = queuedCount;
-			this.countMetrics(message);
-			messageQueueStore.insert(message);
+		this.socket.on('reqResJson', (messages: Message[], queuedCount: number, callback: any) => {
+			this.queutedCount = queuedCount;
+			for (const message of messages) {
+				this.countMetrics(message);
+			}
+			messageQueueStore.insertBatch(messages);
 			if (callback) {
-				callback(`${message.sequenceNumber} socket.io callback`);
+				callback(`${messages[messages.length-1].sequenceNumber} socket.io callback`);
 			}
 		});
 	}
@@ -95,8 +97,8 @@ export default class SocketStore {
 		return this.responseCount;
 	}
 
-	public getIntransitCount() {
-		return this.intransitCount;
+	public getQueuedCount() {
+		return this.queutedCount;
 	}
 
 	@action setSocketConnected(value: boolean) {
