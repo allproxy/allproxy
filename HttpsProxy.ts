@@ -5,6 +5,7 @@ import ProxyConfig from './common/ProxyConfig';
 import Proxy from './node-http-mitm-proxy';
 import { MessageType, NO_RESPONSE } from './common/Message';
 import { getHttpEndpoint } from './HttpProxy';
+import { IncomingMessage } from 'http';
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -15,6 +16,7 @@ export default class HttpsProxy {
 
     onRequest(proxy: Proxy.IProxy, proxyHost: string, proxyPort: number) {
         proxy.onRequest(function (ctx, callback) {
+            var startTime = Date.now();
             ctx.use(Proxy.gunzip);
 
             const client_req = ctx.clientToProxyRequest;
@@ -35,7 +37,6 @@ export default class HttpsProxy {
 
             Global.log(sequenceNumber, remoteAddress + ': ', client_req.method, client_req.url);
 
-            var startTime = Date.now();
             Global.log(reqUrl.protocol, reqUrl.pathname, reqUrl.search);
 
             // Find matching proxy configuration
@@ -132,7 +133,7 @@ export default class HttpsProxy {
                             client_req.url!,
                             reqHeaders,
                             reqChunks,
-                            ctx.serverToProxyResponse.headers,
+                            ctx.serverToProxyResponse,
                             resChunks,
                         );
                         return callback();
@@ -147,7 +148,7 @@ export default class HttpsProxy {
                 url: string,
                 reqHeaders: {} = {},
                 reqBody: string = '',
-                resHeaders: {} = {},
+                res: IncomingMessage | undefined = undefined,
                 resBody: string = NO_RESPONSE
             ) {
                 const reqBodyJson = HttpsProxy.toJSON(reqBody);
@@ -155,17 +156,18 @@ export default class HttpsProxy {
                 const host = HttpsProxy.getHostPort(proxyConfig!);
 
                 const message = await SocketMessage.buildRequest(Date.now(),
-                                            sequenceNumber,
-                                            reqHeaders,
-                                            client_req.method!,
-                                            url,
-                                            getHttpEndpoint(client_req, reqBodyJson),
-                                            reqBodyJson,
-                                            client_req.socket.remoteAddress!,
-                                            host, // server host
-                                            proxyConfig ? proxyConfig.path : '',
-                                            Date.now() - startTime);
-                SocketMessage.appendResponse(message, resHeaders, resBodyJson, 0, 0);
+                    sequenceNumber,
+                    reqHeaders,
+                    client_req.method!,
+                    url,
+                    getHttpEndpoint(client_req, reqBodyJson),
+                    reqBodyJson,
+                    client_req.socket.remoteAddress!,
+                    host, // server host
+                    proxyConfig ? proxyConfig.path : '',
+                    Date.now() - startTime);
+                const status = res && res.statusCode ? res.statusCode : 0;
+                SocketMessage.appendResponse(message, res ? res.headers : {}, resBodyJson, status, Date.now() - startTime);
                 Global.socketIoManager.emitMessageToBrowser(
                     resBody === NO_RESPONSE ? MessageType.REQUEST : MessageType.RESPONSE,
                     message,
