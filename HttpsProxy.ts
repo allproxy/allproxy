@@ -111,7 +111,7 @@ export default class HttpsProxy {
                         proxyConfig,
                         client_req.url!,
                         reqHeaders,
-                        HttpsProxy.formatJSON(reqChunks)
+                        reqChunks
                     );
                     return callback();
                 });
@@ -131,9 +131,9 @@ export default class HttpsProxy {
                             proxyConfig,
                             client_req.url!,
                             reqHeaders,
-                            HttpsProxy.formatJSON(reqChunks),
+                            reqChunks,
                             ctx.serverToProxyResponse.headers,
-                            HttpsProxy.formatJSON(resChunks),
+                            resChunks,
                         );
                         return callback();
                     });
@@ -150,7 +150,8 @@ export default class HttpsProxy {
                 resHeaders: {} = {},
                 resBody: string = NO_RESPONSE
             ) {
-                const reqBodyJson = toJSON(reqBody);
+                const reqBodyJson = HttpsProxy.toJSON(reqBody);
+                const resBodyJson = resBody === NO_RESPONSE ? resBody : HttpsProxy.toJSON(resBody);
                 const host = HttpsProxy.getHostPort(proxyConfig!);
 
                 const message = await SocketMessage.buildRequest(Date.now(),
@@ -164,19 +165,11 @@ export default class HttpsProxy {
                                             host, // server host
                                             proxyConfig ? proxyConfig.path : '',
                                             Date.now() - startTime);
-                SocketMessage.appendResponse(message, resHeaders, resBody, 0, 0);
+                SocketMessage.appendResponse(message, resHeaders, resBodyJson, 0, 0);
                 Global.socketIoManager.emitMessageToBrowser(
                     resBody === NO_RESPONSE ? MessageType.REQUEST : MessageType.RESPONSE,
                     message,
                     proxyConfig);
-
-                function toJSON(s: string): {} {
-                    try {
-                        return JSON.parse(s);
-                    } catch (e) {
-                        return s;
-                    }
-                }
             }
         });
     }
@@ -187,11 +180,11 @@ export default class HttpsProxy {
         return host;
     }
 
-    private static formatJSON(json: string) {
+    static toJSON(s: string): {} {
         try {
-            return JSON.stringify(JSON.parse(json), null, 2);
+            return JSON.parse(s);
         } catch (e) {
-            return json;
+            return s;
         }
     }
 }
