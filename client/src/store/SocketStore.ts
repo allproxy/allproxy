@@ -49,7 +49,20 @@ export default class SocketStore {
 			}
 			messageQueueStore.insertBatch(messages);
 			if (callback) {
-				callback(`${messages[messages.length-1].sequenceNumber} socket.io callback`);
+				const first = messages[0];
+				callback(`${messageTypeTOString(first)} seq=${first.sequenceNumber}`);
+			}
+
+			function messageTypeTOString(message: Message): string {
+				switch (message.type) {
+					case MessageType.REQUEST:
+						return 'req';
+					case MessageType.RESPONSE:
+						return 'res';
+					case MessageType.REQUEST_AND_RESPONSE:
+						return 'req/res';						
+				}
+				return 'unknown';
 			}
 		});
 	}
