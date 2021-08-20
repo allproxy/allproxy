@@ -31,6 +31,13 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 		}
 	});
 
+	let maxElapsedTime = 0;
+	messageQueueStore.getMessages()
+		.forEach(messageStore => {
+			const et = messageStore.getMessage().elapsedTime ? messageStore.getMessage().elapsedTime : 0;
+			maxElapsedTime = Math.max(maxElapsedTime, et);
+		});
+
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	return (
 		<div className="request-response__container">
@@ -40,19 +47,24 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 						if (filterStore.isFiltered(messageStore)) {
 							return null;
 						} else {
-							const seqNum = messageStore.getMessage().sequenceNumber;
+							const message = messageStore.getMessage();
+							const seqNum = message.sequenceNumber;
 							const isActiveRequest = activeRequestSeqNum === seqNum;
 							if (isActiveRequest) {
 								activeRequestIndex = index;
-							}
+							}							
+							const timeBarPercent = maxElapsedTime > 0 
+								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1) 
+								: 0;
 							return (
 								<Request store={messageStore}
 									key={seqNum}
 									isActive={isActiveRequest}
+									timeBarPercent={timeBarPercent + '%'}
 									onClick={() => handleClick(seqNum)}
 									onResend={() => {
-										if (messageStore.getMessage().protocol === 'http:' || messageStore.getMessage().protocol === 'https:') {
-											setResendMessage(messageStore.getMessage());
+										if (message.protocol === 'http:' || message.protocol === 'https:') {
+											setResendMessage(message);
 											setOpenModal(true);
 										}
 									}}

@@ -83,8 +83,8 @@ td input {
 
 .request__msg-icon {
   margin: .3rem 0 0 .5rem;
-	font-size: 1rem;
-	float: left;
+  font-size: 1rem;
+  float: left;
 }
 .request__msg-caret {
 	margin: .3rem .1rem 0 .5rem;
@@ -211,18 +211,25 @@ td input {
 	display: none;
 	width: 0;
 }
-.request__msg-timestamp-container {
-	margin: 0 0 0 .5rem;
-	padding: 0;
-	float: left;
-	background-color: white;
+
+.request__msg-time-bar-container {
+	margin: 0 0 0 .5rem;	
+	float: left;	
 	width: 10ch;
-	text-align: right;
+	display: flex;
+	align-items: center;
+	height: 24px;	
+}
+.request__msg-time-bar {
+  height: 10px;
+  background: #007bff;
+  opacity: .5;
 }
 .request__msg-timestamp {
 	margin-right: .1rem;
 	font-family: 'Courier New', Courier, monospace;
 }
+
 .request__msg {
 	display: inline-block;
 	cursor: pointer;
