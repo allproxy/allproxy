@@ -23,9 +23,9 @@ class SocketInfo {
     socket: io.Socket | undefined = undefined;
     configs: ProxyConfig[] = [];
     seqNum = 0;
-    remainingPacingCount = WINDOW_SIZE;
+    remainingWindow = WINDOW_SIZE;
     messagesOut = 0;
-    delayedMessages: Message[] = [];
+    queuedMessages: Message[] = [];
 
     constructor(socket: io.Socket | undefined, configs: ProxyConfig[]) {
         this.socket = socket;
@@ -281,8 +281,8 @@ export default class SocketIoManager {
     }
 
     private emitMessageWithFlowControl(messages: Message[], socketInfo: SocketInfo, socketId: string) {
-        if (socketInfo.remainingPacingCount === 0 || socketInfo.messagesOut >= MAX_OUT) {
-            socketInfo.delayedMessages = socketInfo.delayedMessages.concat(messages);
+        if (socketInfo.remainingWindow === 0 || socketInfo.messagesOut >= MAX_OUT) {
+            socketInfo.queuedMessages = socketInfo.queuedMessages.concat(messages);
         } else {
             if (socketInfo.socket) {
                 // Global.log(messages[0].sequenceNumber,
@@ -290,28 +290,28 @@ export default class SocketIoManager {
                 //     'socket emit',
                 //     messages[0].url, socketId);
                 const batchCount = messages.length;
-                socketInfo.remainingPacingCount -= batchCount;
+                socketInfo.remainingWindow -= batchCount;
                 ++socketInfo.seqNum;
                 ++socketInfo.messagesOut;
                 socketInfo.socket.emit(
                     'reqResJson',
                     messages,
-                    socketInfo.delayedMessages.length,
+                    socketInfo.queuedMessages.length,
                     // callback:
                     (response: string) => {
                         --socketInfo.messagesOut;
-                        socketInfo.remainingPacingCount += batchCount;
+                        socketInfo.remainingWindow += batchCount;
 
                         console.log(
                             `out=${socketInfo.messagesOut}`,
-                            `rpc=${socketInfo.remainingPacingCount}`,
-                            `ql=${socketInfo.delayedMessages.length}`,
-                            response);
+                            `win=${socketInfo.remainingWindow}`,
+                            `queued=${socketInfo.queuedMessages.length}`,
+                            `(${response})`);
 
-                        const count = Math.min(socketInfo.remainingPacingCount, socketInfo.delayedMessages.length);
+                        const count = Math.min(socketInfo.remainingWindow, socketInfo.queuedMessages.length);
                         if (count > 0) {
                             this.emitMessageWithFlowControl(
-                                socketInfo.delayedMessages.splice(0, count),
+                                socketInfo.queuedMessages.splice(0, count),
                                 socketInfo,
                                 socketId
                             );
