@@ -18,7 +18,7 @@ export default function pickIcon(protocol: string): string {
 			iconClass = 'fa-cube';
 			break;
 		case 'grpc:':
-			iconClass = 'fa-atom';
+			iconClass = 'fa-bahai';
 			break;
 		case 'log:':
 			iconClass = 'fa-exclamation-triangle';

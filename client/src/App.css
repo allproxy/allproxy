@@ -17,6 +17,10 @@ td input {
 	width: 100%;
 }
 
+.MuiTabs-flexContainer {
+	overflow-x: auto;
+}
+
 .btn-group-xs > .btn, .btn-xs {
   padding: .25rem .25rem !important;
   font-size: .875rem !important;
