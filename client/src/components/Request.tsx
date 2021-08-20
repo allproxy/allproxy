@@ -7,17 +7,20 @@ type Props = {
 	onClick: () => void,
 	onResend: () => void,
 	store: MessageStore,
+	timeBarPercent: string,
 };
-const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
+const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }: Props) => {
 	const handleClick = () => { onClick(); store.setVisited(true); }
-
+	const message = store.getMessage();
+	
 	return (
 		<div>
 			<div className="request__msg-container">
 				<div className="request__msg-header">
-					<div className="request__msg-timestamp-container"
-						title={`sequence number: ${store.getMessage().sequenceNumber}`}>
-						<span className="request__msg-timestamp">{formatTimestamp(store.getMessage().timestamp)}</span>
+					<div className="request__msg-time-bar-container"
+						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, seqNum=${message.sequenceNumber}`}>
+						<div className={'request__msg-time-bar'} style={{ width: timeBarPercent }}/>
+						{/* <span className="request__msg-timestamp">{formatTimestamp(message.timestamp)}</span> */}
 					</div>
 					<div className={`fa ${store.getIconClass()} request__msg-icon`}
 						title={store.getTooltip()}
@@ -37,10 +40,10 @@ const Request = observer(({ isActive, onClick, store, onResend }: Props) => {
 					>
 						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
 						{store.isHttpOrHttps() && !store.isNoResponse() &&
-							store.getMessage().status + ' '}
-						{store.getMessage().method+' '}
-						<b>{store.getMessage().endpoint+' '}</b>
-						({store.getMessage().clientIp+'->' + store.getMessage().serverHost}) {store.getUrl()}
+							message.status + ' '}
+						{message.method+' '}
+						<b>{message.endpoint+' '}</b>
+						({message.clientIp+'->' + message.serverHost}) {store.getUrl()}
 					</div>
 				</div>
 			</div>
