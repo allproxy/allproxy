@@ -204,7 +204,8 @@ td input {
 }
 
 .request__msg-header {
-	white-space: nowrap;
+	display: flex;
+	flex-wrap: nowrap;
 }
 
 .request__msg-seqno-container {
@@ -213,15 +214,15 @@ td input {
 }
 
 .request__msg-time-bar-container {
-	margin: 0 0 0 .5rem;	
-	float: left;	
-	width: 10ch;
+	margin-left: .5rem;
+	width: 7ch;
 	display: flex;
 	align-items: center;
-	height: 24px;	
+	justify-content: right;
+	height: 24px;
 }
 .request__msg-time-bar {
-  height: 10px;
+	height: 10px;
   background: #007bff;
   opacity: .5;
 }

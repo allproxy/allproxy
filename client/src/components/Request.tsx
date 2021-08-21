@@ -12,15 +12,16 @@ type Props = {
 const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }: Props) => {
 	const handleClick = () => { onClick(); store.setVisited(true); }
 	const message = store.getMessage();
-	
+
 	return (
 		<div>
 			<div className="request__msg-container">
 				<div className="request__msg-header">
 					<div className="request__msg-time-bar-container"
 						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, seqNum=${message.sequenceNumber}`}>
-						<div className={'request__msg-time-bar'} style={{ width: timeBarPercent }}/>
-						{/* <span className="request__msg-timestamp">{formatTimestamp(message.timestamp)}</span> */}
+						<div style={{width: `calc(100% - ${timeBarPercent})` }}/>
+						<div className={'request__msg-time-bar'}
+							style={{ width: timeBarPercent }} />
 					</div>
 					<div className={`fa ${store.getIconClass()} request__msg-icon`}
 						title={store.getTooltip()}
