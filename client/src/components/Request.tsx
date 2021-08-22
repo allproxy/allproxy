@@ -58,10 +58,11 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 function formatTimestamp(timestamp: number) {
 	// return json.sequenceNumber; // used for testing only
 	const date = new Date(timestamp);
+	const hours = date.getHours().toString().padStart(2,'0');
 	const minutes = date.getMinutes().toString().padStart(2,'0');
 	const seconds = date.getSeconds().toString().padStart(2,'0');
-	const msecs = date.getMilliseconds().toString().padStart(3,'0');
-	return `${minutes}:${seconds}.${msecs}`;
+	const msecs = (date.getMilliseconds()/1000).toFixed(3).toString().replace('0.', '');
+	return `${hours}:${minutes}:${seconds}.${msecs}`;
 }
 
 export default Request;
