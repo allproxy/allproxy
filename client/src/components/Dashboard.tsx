@@ -26,7 +26,8 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 			}
 		} else if (messageQueueStore.getAutoScroll()) {
 			if (activeRequestSeqNum === Number.MAX_SAFE_INTEGER) {
-				setScrollTo(messageQueueStore.getMessages().length - 1);
+				const messages = messageQueueStore.getMessages();
+				setScrollTo(messages[messages.length - 1].getMessage().sequenceNumber);
 			}
 		}
 	});
@@ -52,9 +53,9 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 							const isActiveRequest = activeRequestSeqNum === seqNum;
 							if (isActiveRequest) {
 								activeRequestIndex = index;
-							}							
-							const timeBarPercent = maxElapsedTime > 0 
-								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1) 
+							}
+							const timeBarPercent = maxElapsedTime > 0
+								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
 								: 0;
 							return (
 								<Request store={messageStore}
