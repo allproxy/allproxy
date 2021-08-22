@@ -161,6 +161,7 @@ td input {
 .header__count {
 	margin: 0 0 0 1rem;
 	color: whitesmoke;
+	line-height: 2ch;
 }
 
 .header__status,
