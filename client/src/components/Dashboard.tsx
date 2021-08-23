@@ -27,7 +27,10 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 		} else if (messageQueueStore.getAutoScroll()) {
 			if (activeRequestSeqNum === Number.MAX_SAFE_INTEGER) {
 				const messages = messageQueueStore.getMessages();
-				setScrollTo(messages[messages.length - 1].getMessage().sequenceNumber);
+				const lastMessage = messages[messages.length - 1];
+				if (lastMessage) {
+					setScrollTo(lastMessage.getMessage().sequenceNumber);
+				}
 			}
 		}
 	});
