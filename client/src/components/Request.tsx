@@ -1,5 +1,5 @@
-import React from 'react';
 import { observer } from "mobx-react-lite";
+import ReactJson from "react-json-view";
 import MessageStore from '../store/MessageStore';
 
 type Props = {
@@ -48,8 +48,11 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 					</div>
 				</div>
 			</div>
-			<div className="request__body" hidden={!isActive}>
-				{store.getRequestBody()}
+			<div className="request__body" hidden={!isActive}>				
+				{typeof message.requestBody === 'string'
+					? store.getRequestBody()
+					: <ReactJson src={message.requestBody} name={false}/>
+				}
 			</div>
 		</div>
 	)
