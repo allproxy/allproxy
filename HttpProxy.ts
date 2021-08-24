@@ -276,16 +276,19 @@ export const getHttpEndpoint = (client_req: IncomingMessage, requestBody: string
         endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
     }
 
-    if(client_req.method !== 'OPTIONS' && client_req.url?.endsWith('/graphql')) {
-        endpoint = ' GQL';
+    if(client_req.method !== 'OPTIONS' 
+        && (client_req.url?.endsWith('/graphql') || client_req.url?.endsWith('/graphql-public'))) {
+        endpoint = '';
         if(requestBody && Array.isArray(requestBody)) {
             requestBody.forEach((entry) => {
                 if(entry.operationName) {
-                    if(endpoint !== ' GQL') endpoint += ','
+                    if(endpoint!.length > 0) endpoint += ','
                     endpoint += ' ' + entry.operationName;
                 }
             })
         }
+        const tag = client_req.url?.endsWith('/graphql-public') ? 'GQLP' : 'GQL';
+        endpoint = ' ' + tag + endpoint;
     }
     if ('/' + endpoint === client_req.url) endpoint = '';
     return endpoint;
