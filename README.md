@@ -1,4 +1,4 @@
-<h1 align="center" style="border-bottom: none;">Middleman Proxy</h1>
+<h1 align="center" style="border-bottom: none;">Middleman Debugging Proxy</h1>
 
 This debug proxy captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log messages, and TCP request/response messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
 
@@ -12,7 +12,7 @@ This debug proxy captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log mes
 * supports multiple dashboard browser tabs
 
 Implementation:
-- **HTTP proxy** - The *http* package is used to proxy HTTP trafic as either a forward or reverse proxy.
+- **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.
 - **HTTPS proxy** - The *node-http-mitm-proxy* package is used to build certificates to capture decrypted HTTPS traffic as either a forward or reverse proxy.
 - **TCP proxy** - The *net* package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
@@ -21,6 +21,7 @@ Implementation:
 ### Table of Contents
 
 * [Quick Start](#quick-start)
+  * [Node Version](#node-version)
   * [Install MiddlemanProxy](#install-middleman-proxy)
   * [Build MiddlemanProxy](#build-middleman-proxy)
   * [Start the Middleman Proxy](#start-the-middleman-proxy)
@@ -43,6 +44,9 @@ Implementation:
 * [Certificates](#certificates)
 
 ## Quick Start
+
+### Node Version
+The middleman proxy has been tested with node versions v10.22.1, and v12.19.1.  Version 10 or higher is recommended.  Use nvm to install the appropriate node version.
 
 ### Install Middleman Proxy
 ```sh
