@@ -21,6 +21,7 @@ Implementation:
 ### Table of Contents
 
 * [Quick Start](#quick-start)
+  * [Node Version](#node-version)
   * [Install MiddlemanProxy](#install-middleman-proxy)
   * [Build MiddlemanProxy](#build-middleman-proxy)
   * [Start the Middleman Proxy](#start-the-middleman-proxy)
@@ -43,6 +44,9 @@ Implementation:
 * [Certificates](#certificates)
 
 ## Quick Start
+
+### Node Version
+The middleman proxy has been tested with node versions v10.22.1, and v12.19.1.  Version 10 or higher is recommended.  Use nvm to install the appropriate node version.
 
 ### Install Middleman Proxy
 ```sh
