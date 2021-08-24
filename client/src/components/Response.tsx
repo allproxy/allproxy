@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Message from '../common/Message';
 import { Accordion, AccordionSummary, AccordionDetails, CircularProgress } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ReactJson from 'react-json-view';
+
 
 type Props = {
 	message: Message,
 };
 const Response = ({ message }: Props) => {
 	const LOADING = 'Loading...';
-	const [responseBody, setResponseBody] = React.useState(LOADING);
+	const [responseBody, setResponseBody] = React.useState<string | ReactElement<any,any>>(LOADING);
 
 	const queryParams = getQueryParams(message);
 	getResponseBody(message)
@@ -39,7 +41,7 @@ const Response = ({ message }: Props) => {
 						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 							<b>Response Headers:</b>
 						</AccordionSummary>
-						<AccordionDetails>
+						<AccordionDetails>							
 							<pre>
 								{JSON.stringify(message.responseHeaders, null, 2)}
 							</pre>
@@ -64,9 +66,10 @@ const Response = ({ message }: Props) => {
 						<b>Response Data:</b>
 					</AccordionSummary>
 					<AccordionDetails>
-						<pre>
-							{responseBody}
-						</pre>
+						{typeof responseBody === 'string' 
+							? <pre>{responseBody}</pre>
+							: responseBody
+						}
 					</AccordionDetails>
 				</Accordion>
 				{responseBody === LOADING &&
@@ -84,11 +87,11 @@ const Response = ({ message }: Props) => {
 		</div>
 	);
 
-	async function getResponseBody(message: Message): Promise<string> {
-		return new Promise<string>((resolve) => {
-			let response = '';
+	async function getResponseBody(message: Message): Promise<string | ReactElement<any,any>> {
+		return new Promise((resolve) => {
+			let response: string | ReactElement<any,any>;
 			if(typeof message.responseBody === 'object') {
-				response = JSON.stringify(message.responseBody, null, 2);
+				response = <ReactJson src={message.responseBody} name={false}/>;				
 			} else {
 				response = message.responseBody;
 			}
