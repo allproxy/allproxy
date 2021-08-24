@@ -9,7 +9,8 @@ export default class Util {
 	}
 
     static isGraphQlError(message: Message) {
-        if (message.url?.endsWith('/graphql') && Array.isArray(message.responseBody)) {
+        if ((message.url?.endsWith('/graphql') || message.url?.endsWith('/graphql-public')) 
+            && Array.isArray(message.responseBody)) {
             for(const entry of message.responseBody) {
                 if(entry.errors) {
                    return true;
