@@ -68,6 +68,12 @@ export default class MessageStore {
         this.visited = true;
     }
 
+    public isRequestBodyJson() {
+        return this.message.requestBody 
+            && typeof this.message.requestBody === 'object'
+            && (this.message.protocol === 'http:' || this.message.protocol === 'https:' || this.message.protocol === 'browser:');
+    }
+
     public getRequestBody(): string {
         let body = this.message.method!.length > 0 ? this.url + '\n' : '';
 
