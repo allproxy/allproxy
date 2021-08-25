@@ -91,7 +91,12 @@ const Response = ({ message }: Props) => {
 		return new Promise((resolve) => {
 			let response: string | ReactElement<any,any>;
 			if(typeof message.responseBody === 'object') {
-				response = <ReactJson src={message.responseBody} name={false}/>;				
+				response = <ReactJson 
+								src={message.responseBody} 
+								name={false}
+								displayDataTypes={false}
+								quotesOnKeys={false}
+								/>;				
 			} else {
 				response = message.responseBody;
 			}

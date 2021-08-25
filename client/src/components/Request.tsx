@@ -51,7 +51,12 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 			<div className="request__body" hidden={!isActive}>				
 				{typeof message.requestBody === 'string'
 					? store.getRequestBody()
-					: <ReactJson src={message.requestBody} name={false}/>
+					: <ReactJson 
+						src={message.requestBody} 
+						name={false}
+						displayDataTypes={false}
+						quotesOnKeys={false}
+						/>
 				}
 			</div>
 		</div>
