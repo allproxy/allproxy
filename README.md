@@ -1,6 +1,6 @@
 <h1 align="center" style="border-bottom: none;">Middleman Debugging Proxy</h1>
 
-This debug proxy captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log messages, and TCP request/response messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
+Web and SQL debugging proxy captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log messages, and TCP request/response messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
 
 **Features:**
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
