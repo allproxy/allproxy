@@ -302,7 +302,7 @@ export default class SocketIoManager {
                         --socketInfo.messagesOut;
                         socketInfo.remainingWindow += batchCount;
 
-                        console.log(
+                        Global.log(
                             `out=${socketInfo.messagesOut}`,
                             `win=${socketInfo.remainingWindow}`,
                             `queued=${socketInfo.queuedMessages.length}`,
