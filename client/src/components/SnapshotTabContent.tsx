@@ -12,7 +12,7 @@ import Message from '../common/Message';
 type Props = {
 	messageQueueStore: MessageQueueStore
 }
-const Dashboard = observer(({ messageQueueStore }: Props) => {
+const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 	const [activeRequestSeqNum, setActiveRequestSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendMessage, setResendMessage] = React.useState<Message>();
@@ -136,4 +136,4 @@ const Dashboard = observer(({ messageQueueStore }: Props) => {
 	}
 });
 
-export default Dashboard;
+export default SnapshotTabContent;

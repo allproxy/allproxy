@@ -34,23 +34,30 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					Middleman
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
-				<div className="header__trash fa fa-trash-alt" title="Clear log"
-					onClick={() => {
-						messageQueueStore.clear();
-						filterStore.setFilter('');
-						socketStore.clearMetrics();
-					}}
-				/>
-				<div className={'header__stop fas '
-					+ (messageQueueStore.getStopped() ? 'fa-play' : 'fa-pause')}
-					onClick={(e) => messageQueueStore.toggleStopped()}
-					title={ (messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording') }
-				/>
-				<div className={'header__auto-scroll fa-arrow-alt-circle-down '
-					+ (messageQueueStore.getAutoScroll() ? 'fas' : 'far')}
-					onClick={(e) => messageQueueStore.toggleAutoScroll()}
-					title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
-				/>
+
+				<div style={{
+					opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
+					pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
+					}}>
+					<div className="header__trash fa fa-trash-alt" title="Clear log"
+						onClick={() => {
+							messageQueueStore.clear();
+							filterStore.setFilter('');
+							socketStore.clearMetrics();
+						}}
+					/>
+					<div className={'header__stop fas '
+						+ (messageQueueStore.getStopped() ? 'fa-play' : 'fa-pause')}
+						onClick={(e) => messageQueueStore.toggleStopped()}
+						title={ (messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording') }
+					/>
+					<div className={'header__auto-scroll fa-arrow-alt-circle-down '
+						+ (messageQueueStore.getAutoScroll() ? 'fas' : 'far')}
+						onClick={(e) => messageQueueStore.toggleAutoScroll()}
+						title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
+					/>
+				</div>
+
 				<div className="header__filter">
 					<input className="header__filter-input" type="text"
 						style={{
