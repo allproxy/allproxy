@@ -50,7 +50,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 							value={ value }
 							label={
 								<div className={'snapshot__tab'}>
-									<div>{i === 0 ? value : 'SAVED ('+store.getSnapshotSize(value)+')'}</div>
+									<div>{(i === 0 ? value : 'SAVED') + ' ('+store.getSnapshotSize(value)+')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
 										? <div className={ 'snapshot__camera fa fa-camera' }
 											title="Take snapshot"
