@@ -53,6 +53,10 @@ const SnapshotTabs = observer(({ store }: Props) => {
 									<div>{(i === 0 ? value : 'SAVED') + ' ('+store.getSnapshotSize(value)+')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
 										? <div className={ 'snapshot__camera fa fa-camera' }
+											style={{
+												pointerEvents: store.getSnapshotSize(value) === 0 ? 'none' : undefined,
+												opacity: store.getSnapshotSize(value) === 0 ? .2 : undefined,
+											}}
 											title="Take snapshot"
 											onClick={() => handleTakeSnapshot(value)}
 											/>
