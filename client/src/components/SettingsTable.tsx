@@ -1,6 +1,5 @@
 import SettingsStore from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
-import pickIcon from '../PickIcon';
 
 type Props = {
 	store: SettingsStore,

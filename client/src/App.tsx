@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'bootstrap-css-only/css/bootstrap.css';
-import Dashboard from './components/Dashboard';
+import Snapshots from './components/SnapshotTabs';
 import Header from './components/Header';
 import { filterStore } from './store/FilterStore';
 import { socketStore } from './store/SocketStore';
@@ -16,7 +16,7 @@ function App() {
         filterStore={filterStore}
         messageQueueStore={messageQueueStore}
       />
-      <Dashboard messageQueueStore={ messageQueueStore }/>
+      <Snapshots store={ messageQueueStore }/>
     </div>
   );
 }

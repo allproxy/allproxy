@@ -180,18 +180,49 @@ td input {
 	color: red;
 }
 
+.snapshot__container {
+	margin-top: 3rem;
+}
+.snapshot__container .MuiTabs-root {
+	z-index: 99;
+	position: fixed;
+	top: 3rem;
+	height: 3rem;
+	background: rgb(228, 227, 227);
+}
+
+.snapshot__container .Mui-selected {
+	background: whitesmoke
+}
+
+.snapshot__container .MuiTabPanel-root {
+	padding: 0 !important;
+}
+
+.snapshot__tab {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.snapshot__close,
+.snapshot__camera {
+	cursor: pointer;
+}
+
 .request-response__container {
-	margin: 3rem 0 0 0;
 	display: -webkit-flex; /* Safari */
-  display: flex;
+  	display: flex;
+	  padding-top: 3rem;
 }
 
 .request__container {
 	padding-right: .5rem;
 	overflow: auto;
 	width: 600px;
-	height: calc(100vh - 3rem);
-	max-height: calc(100vh - 3rem);
+	height: calc(100vh - 6rem);
+	max-height: calc(100vh - 6rem);
 	resize: both;
 	border-right: solid grey;
 	margin: 0 1rem 0 0;
@@ -257,8 +288,8 @@ td input {
 
 .response__loading,
 .response__container {
-	height: calc(100vh - 3rem);
-	max-height: calc(100vh - 3rem);
+	height: calc(100vh - 6rem);
+	max-height: calc(100vh - 6rem);
 	overflow-y: auto;
 	overflow-x: auto;
 	-webkit-flex: 1;

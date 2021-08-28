@@ -4,14 +4,72 @@ import MessageStore from './MessageStore';
 
 const DEFAULT_LIMIT = 1000;
 
+export const ACTIVE_SNAPSHOT_NAME = 'Active';
+
+class Snapshots {
+	private snapshots: Map<string, MessageStore[]> = new Map();
+
+	constructor() {
+		makeAutoObservable(this);
+	}
+
+	public get(key: string): MessageStore[] {
+		return this.snapshots.get(key)!;
+	}
+
+	public set(key: string, snapshot: MessageStore[]) {
+		this.snapshots.set(key, snapshot);
+	}
+
+	public delete(key: string) {
+		this.snapshots.delete(key);
+	}
+}
+
 export default class MessageQueueStore {
-	private stores: MessageStore[] = [];
+	private selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
+	private snapshots: Snapshots = new Snapshots();
 	private limit: number = DEFAULT_LIMIT;
 	private stopped: boolean = false;
 	private autoScroll: boolean = false;
 
 	public constructor() {
-			makeAutoObservable(this)
+		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, []);
+		makeAutoObservable(this);
+	}
+
+	public isActiveSnapshotSelected() {
+		return this.selectedSnapshotName === ACTIVE_SNAPSHOT_NAME;
+	}
+
+	public getSnapshotSize(name: string) {
+		return this.snapshots.get(name).length;
+	}
+
+	public getSelectedSnapshotName(): string {
+		return this.selectedSnapshotName;
+	}
+
+	@action public setSelectedSnapshotName(name: string) {
+		this.selectedSnapshotName = name;
+	}
+
+	@action public newSnapshot(): string {
+		const padTime = (num: number) => (num+'').padStart(2, '0');
+		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
+		const date = new Date();
+		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
+		const name = 'Saved ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
+		this.snapshots.set(name, activeSnapshot.slice());
+		activeSnapshot.splice(0, activeSnapshot.length);
+		return name;
+	}
+
+	public deleteSnapshot(name: string) {
+		this.snapshots.delete(name);
+		if (this.selectedSnapshotName === name) {
+			this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
+		}
 	}
 
 	public getLimit(): number {
@@ -43,20 +101,23 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		while(this.stores.length > 0) {
-			this.stores.pop();
+		while(this.snapshots.get(ACTIVE_SNAPSHOT_NAME).length > 0) {
+			this.snapshots.get(ACTIVE_SNAPSHOT_NAME).pop();
 		}
 		this.stopped = false;
 	}
 
 	public getMessages(): MessageStore[] {
-		return this.stores;
+		const snapshot = this.snapshots.get(this.selectedSnapshotName);
+		return snapshot;
 	}
 
 	@action public insertBatch(messages: Message[]) {
 		if (this.stopped) return;
 
-		const copyMessages = this.stores.slice(); // shallow copy
+		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
+
+		const copyMessages = activeSnapshot.slice(); // shallow copy
 		for (const message of messages) {
 			if (!message.proxyConfig?.recording) return;
 
@@ -100,7 +161,8 @@ export default class MessageQueueStore {
 			}
 		}
 
-		this.stores = copyMessages;
+		activeSnapshot.splice(0, activeSnapshot.length);
+		Array.prototype.push.apply(activeSnapshot, copyMessages);
 	}
 }
 
