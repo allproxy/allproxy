@@ -262,7 +262,8 @@ export default class SocketIoManager {
         let emitted = false;
         this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
             for (const proxyConfig of socketInfo.configs) {
-                if (inProxyConfig === undefined || proxyConfig.path === path) {
+                if (inProxyConfig === undefined ||
+                    proxyConfig.path === path && inProxyConfig.protocol === proxyConfig.protocol) {
                     if (key === socketId) continue;
                     if (!proxyConfig.recording) continue;
                     socketId = key;
