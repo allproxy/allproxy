@@ -8,6 +8,7 @@ export const ACTIVE_SNAPSHOT_NAME = 'Active';
 
 class Snapshots {
 	private snapshots: Map<string, MessageStore[]> = new Map();
+	private names: string[] = [];
 
 	constructor() {
 		makeAutoObservable(this);
@@ -19,10 +20,20 @@ class Snapshots {
 
 	public set(key: string, snapshot: MessageStore[]) {
 		this.snapshots.set(key, snapshot);
+		this.names.push(key);
 	}
 
 	public delete(key: string) {
 		this.snapshots.delete(key);
+		this.names.splice(this.names.indexOf(key), 1);
+	}
+
+	public count() {
+		return this.names.length;
+	}
+
+	public getNames(): string[] {
+		return this.names;
 	}
 }
 
@@ -42,6 +53,14 @@ export default class MessageQueueStore {
 		return this.selectedSnapshotName === ACTIVE_SNAPSHOT_NAME;
 	}
 
+	public getSnapshotNames(): string[] {
+		return this.snapshots.getNames();
+	}
+
+	public getSnapshotCount() {
+		return this.snapshots.count();
+	}
+
 	public getSnapshotSize(name: string) {
 		return this.snapshots.get(name).length;
 	}
@@ -54,14 +73,18 @@ export default class MessageQueueStore {
 		this.selectedSnapshotName = name;
 	}
 
-	@action public newSnapshot(): string {
+	@action public newSnapshot(snapshot?: MessageStore[]): string {
 		const padTime = (num: number) => (num+'').padStart(2, '0');
 		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
-		const name = 'Saved ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
-		this.snapshots.set(name, activeSnapshot.slice());
-		activeSnapshot.splice(0, activeSnapshot.length);
+		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
+		if(snapshot) {
+			this.snapshots.set(name, snapshot);
+		} else {
+			this.snapshots.set(name, activeSnapshot.slice());
+			activeSnapshot.splice(0, activeSnapshot.length);
+		}
 		return name;
 	}
 
@@ -70,6 +93,29 @@ export default class MessageQueueStore {
 		if (this.selectedSnapshotName === name) {
 			this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
 		}
+	}
+
+	public deleteAllSnapshots() {
+		for(const name of this.snapshots.getNames()) {
+			if(name !== ACTIVE_SNAPSHOT_NAME) {
+				this.deleteSnapshot(name);
+			}
+		}
+		this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
+	}
+
+	public exportSelectedSnapshot() {
+		const element = document.createElement("a");
+		const file = new Blob([JSON.stringify(this.getMessages())], {type: 'text/plain'});
+		element.href = URL.createObjectURL(file);
+		element.download = this.getSelectedSnapshotName()+'.middleman';
+		document.body.appendChild(element); // Required for this to work in FireFox
+		element.click();
+	}
+
+	public importSnapshot(snapshot: string) {
+		const messageStores = JSON.parse(snapshot);
+		this.newSnapshot(messageStores);
 	}
 
 	public getLimit(): number {

@@ -10,7 +10,6 @@ type Props = {
 };
 const SnapshotTabs = observer(({ store }: Props) => {
 	const [tabValue, setTabValue] = React.useState(store.getSelectedSnapshotName());
-	const [tabValues, setTabValues] = React.useState([ACTIVE_SNAPSHOT_NAME]);
 
 	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
@@ -21,7 +20,6 @@ const SnapshotTabs = observer(({ store }: Props) => {
 	function handleTakeSnapshot(value: string) {
 		// console.log('handleTakeSnapshot', value);
 		const name = store.newSnapshot();
-		setTabValues(tabValues.concat([name]));
 	}
 
 	function handleDeleteTab(event: any, value: string) {
@@ -32,8 +30,6 @@ const SnapshotTabs = observer(({ store }: Props) => {
 			store.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
 		store.deleteSnapshot(value);
-		tabValues.splice(tabValues.indexOf(value), 1);
-		setTabValues(tabValues.slice());
 	}
 
 	return (
@@ -45,14 +41,16 @@ const SnapshotTabs = observer(({ store }: Props) => {
 					indicatorColor="primary"
 					textColor="primary"
 					aria-label="Snapshots">
-					{tabValues.map((value, i) => (
+					{store.getSnapshotNames().map((value, i) => (
 						<Tab
 							value={ value }
 							label={
 								<div className={'snapshot__tab'}>
-									<div>{(i === 0 ? value : 'SNAPSHOT') + ' ('+store.getSnapshotSize(value)+')'}</div>
+									<div>{(i === 0
+										? store.getStopped() ? 'Stopped' : 'Recording'
+										: 'SNAPSHOT') + ' ('+store.getSnapshotSize(value)+')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
-										? <div className={ 'snapshot__camera fa fa-camera' }
+										? <div className={ 'snapshot__folder-plus fa fa-folder-plus' }
 											style={{
 												pointerEvents: store.getSnapshotSize(value) === 0 ? 'none' : undefined,
 												opacity: store.getSnapshotSize(value) === 0 ? .2 : undefined,
@@ -70,7 +68,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 						</Tab>
 					))}
 				</Tabs>
-				{tabValues.map(value => (
+				{store.getSnapshotNames().map(value => (
 					<TabPanel value={value}>
 						<SnapshotTabContent messageQueueStore={ store }/>
 					</TabPanel>

@@ -122,23 +122,13 @@ td input {
 	font-weight: 100;
 	cursor: pointer;
 }
-.header__trash {
-	float: left;
-	margin: 0 0 0 1rem;
-	cursor: pointer;
-	color: whitesmoke;
-	font-size: large !important;
-}
 
+.header__import,
+.header__export,
+.header__folder-minus,
+.header__trash,
+.header__auto-scroll,
 .header__stop {
-	float: left;
-	margin: 0 0 0 1rem;
-	cursor: pointer;
-	color: whitesmoke;
-	font-size: large !important;
-}
-
-.header__auto-scroll {
 	float: left;
 	margin: 0 0 0 1rem;
 	cursor: pointer;
@@ -207,7 +197,7 @@ td input {
 }
 
 .snapshot__close,
-.snapshot__camera {
+.snapshot__folder-plus {
 	cursor: pointer;
 }
 
