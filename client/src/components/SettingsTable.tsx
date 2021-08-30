@@ -6,6 +6,25 @@ type Props = {
 	protocol: string,
 };
 const SettingsTable = observer(({ store, protocol }: Props) => {
+	const pathLabel = () => {
+		switch (protocol) {
+			case 'browser:':
+				return 'Paths';
+			case 'grpc:':
+			case 'mongo:':
+			case 'redis:':
+			case 'sql:':
+				return 'Source Port';
+			case 'http:':
+			case 'https:':
+				return 'Path';
+			case 'log:':
+				return 'Command';
+			default:
+				return 'Port';
+		}
+	};
+
 	return (
 		<table className="table settings-modal__table">
 			{store.getEntries().length > 0 ?
@@ -13,8 +32,8 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				<tr>
 					<td></td>
 					<td></td>
-					<td className="text-primary"><label>Path or Port</label></td>
-						<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Host'}</label></td>
+					<td className="text-primary"><label>{pathLabel()}</label></td>
+					<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Host'}</label></td>
 					<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Port'}</label></td>
 					<td className="text-primary"><label>Comment</label></td>
 					<td className="text-primary"><label>Status</label></td>
