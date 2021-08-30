@@ -102,6 +102,7 @@ export default class LogProxy {
 
 		Global.log(`sendToBrowser log: ${this.command}`);
 		const seqNo = ++Global.nextSequenceNumber;
+		const commandTokens = this.command.split(' ');
 		const message = await SocketIoMessage.buildRequest(
 			Date.now(),
 			seqNo,
@@ -110,7 +111,7 @@ export default class LogProxy {
 			this.buffer.toString().split('\n')[0], // url
 			'', // endpoint
 			{ middleman_inner_body: this.command }, // req body
-			'log', // clientIp
+			'log:' + commandTokens[commandTokens.length - 1], // clientIp
 			streamName, // serverHost
 			'', // path
 			0
