@@ -8,6 +8,7 @@ import { HostStatus, settingsStore } from '../store/SettingsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MetricsModal from './MetricsModal';
 import { metricsStore } from '../store/MetricsStore';
+import { useFilePicker } from "use-file-picker";
 
 /**
  * Header view
@@ -21,6 +22,11 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
+	const [openFileSelector, {filesContent, errors}] = useFilePicker({
+		multiple: false,
+		accept: ".middleman"
+	  });
+
 	const statusClassName = 'fa ' + (socketStore.isConnected()
 		? 'success fa-circle' : 'error fa-exclamation-triangle');
 	return (
@@ -35,10 +41,37 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
+				<div hidden style={{
+					opacity: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
+					pointerEvents: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
+					}}>
+					<div className="header__export fa fa-download" title="Export snapshot file"
+						onClick={() => {
+							messageQueueStore.exportSelectedSnapshot()
+						}}
+					/>
+				</div>
 				<div style={{
 					opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
 					pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
 					}}>
+					<div hidden className="header__import fa fa-upload" title="Import snapshot file"
+						onClick={() => {
+							openFileSelector();
+							if(errors.length === 0) {
+								messageQueueStore.importSnapshot(filesContent[0].content);
+							}
+						}}
+					/>
+					<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
+						style={{
+							opacity: messageQueueStore.getSnapshotCount() > 1 ? undefined : 0.3,
+							pointerEvents: messageQueueStore.getSnapshotCount() > 1 ? undefined : 'none'
+						}}
+						onClick={() => {
+							messageQueueStore.deleteAllSnapshots()
+						}}
+					/>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
 							messageQueueStore.clear();
