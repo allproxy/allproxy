@@ -69,7 +69,7 @@ export default class MessageStore {
     }
 
     public isRequestBodyJson() {
-        return this.message.requestBody 
+        return this.message.requestBody
             && typeof this.message.requestBody === 'object'
             && (this.message.protocol === 'http:' || this.message.protocol === 'https:' || this.message.protocol === 'browser:');
     }
@@ -82,7 +82,10 @@ export default class MessageStore {
             if(jsonBody['middleman_inner_body']) {
                 body += jsonBody['middleman_inner_body'];
             }
-            else {
+            else if(this.message.requestHeaders['content-type'] === 'application/x-www-form-urlencoded') {
+                const params = this.message.requestBody.split('&');
+                body += JSON.stringify(params, null, 2);
+            } else {
                 body += JSON.stringify(this.message.requestBody, null, 2);
             }
             body = Util.fixNewlines(body);
