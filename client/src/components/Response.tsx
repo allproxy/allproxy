@@ -18,7 +18,7 @@ const Response = ({ message }: Props) => {
 	return (
 		<div>
 			<React.Fragment>
-				<div className={message.status < 300 ? '' : 'error'}>
+				<div className={message.status < 400 ? '' : 'error'}>
 					<b>Status:&nbsp;</b>{message.status}
 				</div>
 				<div>
@@ -41,7 +41,7 @@ const Response = ({ message }: Props) => {
 						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 							<b>Response Headers:</b>
 						</AccordionSummary>
-						<AccordionDetails>							
+						<AccordionDetails>
 							<pre>
 								{JSON.stringify(message.responseHeaders, null, 2)}
 							</pre>
@@ -66,7 +66,7 @@ const Response = ({ message }: Props) => {
 						<b>Response Data:</b>
 					</AccordionSummary>
 					<AccordionDetails>
-						{typeof responseBody === 'string' 
+						{typeof responseBody === 'string'
 							? <pre>{responseBody}</pre>
 							: responseBody
 						}
@@ -91,12 +91,12 @@ const Response = ({ message }: Props) => {
 		return new Promise((resolve) => {
 			let response: string | ReactElement<any,any>;
 			if(typeof message.responseBody === 'object') {
-				response = <ReactJson 
-								src={message.responseBody} 
+				response = <ReactJson
+								src={message.responseBody}
 								name={false}
 								displayDataTypes={false}
 								quotesOnKeys={false}
-								/>;				
+								/>;
 			} else {
 				response = message.responseBody;
 			}
