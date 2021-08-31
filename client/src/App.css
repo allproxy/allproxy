@@ -84,12 +84,10 @@ td input {
 .request__msg-icon {
   margin: .3rem 0 0 .5rem;
   font-size: 1rem;
-  float: left;
 }
 .request__msg-caret {
 	margin: .3rem .1rem 0 .5rem;
 	font-size: 1rem;
-	float: left;
 }
 
 .header__container {
@@ -230,47 +228,33 @@ td input {
 	flex-wrap: nowrap;
 }
 
-.request__msg-seqno-container {
-	display: none;
-	width: 0;
-}
-
 .request__msg-time-bar-container {
 	margin-left: .5rem;
-	width: 7ch;
+	min-width: 7ch;
 	display: flex;
 	align-items: center;
 	justify-content: right;
 	height: 24px;
 }
 .request__msg-time-bar {
-	height: 10px;
+  height: 10px;
   background: #007bff;
   opacity: .5;
 }
-.request__msg-timestamp {
-	margin-right: .1rem;
-	font-family: 'Courier New', Courier, monospace;
-}
 
 .request__msg {
-	display: inline-block;
 	cursor: pointer;
-	margin: 0;
-	padding: .0;
-	width: calc(100% - 100px);
 	white-space: nowrap;
 }
 .request__msg.active {
-	background-color: yellow;
+	background: yellow;
 }
 .request__endpoint {
 	color: green;
 }
 
 .request__body {
-	float: left;
-	margin: 0 0 0 1rem;
+	margin-left: .5rem;
 	width: auto;
 	white-space: pre;
 	font-family: 'Courier New', Courier, monospace;
@@ -317,7 +301,6 @@ td input {
   	border-top: .5rem solid transparent;
   	border-bottom: .5rem solid transparent;
   	border-left: .5rem solid;
-  	float: left;
   	margin: .5rem .1rem 0 0 !important;
   	cursor: pointer;
 }
@@ -330,7 +313,6 @@ td input {
   	border-left: .5rem solid transparent;
   	border-right: .5rem solid transparent;
   	border-top: .5rem solid;
-  	float: left;
 }
 
 .twisty-label {
