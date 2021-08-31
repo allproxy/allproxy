@@ -52,6 +52,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 									{value === ACTIVE_SNAPSHOT_NAME
 										? <div className={ 'snapshot__folder-plus fa fa-folder-plus' }
 											style={{
+												marginLeft: '.5rem',
 												pointerEvents: store.getSnapshotSize(value) === 0 ? 'none' : undefined,
 												opacity: store.getSnapshotSize(value) === 0 ? .2 : undefined,
 											}}
@@ -59,6 +60,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 											onClick={() => handleTakeSnapshot(value)}
 											/>
 										: <div className={ 'snapshot__close fa fa-times' }
+											style={{marginLeft: '.5rem'}}
 											title="Delete snapshot"
 											onClick={(e) => handleDeleteTab(e, value)}
 											/>
