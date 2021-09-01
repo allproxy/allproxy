@@ -78,12 +78,13 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 										<input type="text" className="form-control settings-modal__add-input"
 											placeholder={
 												store.getProtocol() === 'log:'
-												? 'Enter log tail command (e.g., docker logs -f container)'
+												? 'Log tail command (e.g., docker logs -f container)'
 													: store.getProtocol() === 'http:'
-														|| store.getProtocol() === 'https:'
-														|| store.getProtocol() === 'browser:'
-												? 'Enter path (e.g., /xxx/yyy or .*/xxx)'
-												: 'Entry source TCP port'
+													|| store.getProtocol() === 'https:'
+												? 'Path: /xxx, .*/xxx, or hostname/xxx'
+												: store.getProtocol() === 'browser:'
+													? 'Path: /xxx, or .*/xxx'
+													: 'Source TCP port'
 											}
 											value={ store.getPath() }
 											onChange={(e) => store.setPath(e.target.value)}
@@ -92,7 +93,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
 											hidden={ store.isProxyOrLog() }
-											placeholder={store.isProxyOrLog() ? '' : 'Entry host name'}
+											placeholder={store.isProxyOrLog() ? '' : 'Target host name'}
 											value={ store.getTargetHost() }
 											onChange={(e) => store.setTargetHost(e.target.value)}
 										/>
@@ -100,14 +101,14 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
 											hidden={ store.isProxyOrLog() }
-											placeholder={store.isProxyOrLog() ? '' : 'Enter port number'}
+											placeholder={store.isProxyOrLog() ? '' : 'Target port number'}
 											value={ store.getTargetPort() }
 											onChange={(e) => store.setTargetPort(e.target.value)}
 										/>
 									</td>
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
-											placeholder={'Enter optional comment'}
+											placeholder={'Optional comment'}
 											value={ store.getComment() }
 											onChange={(e) => store.setComment(e.target.value)}
 										/>
