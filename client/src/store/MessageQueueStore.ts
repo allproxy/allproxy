@@ -96,7 +96,7 @@ export default class MessageQueueStore {
 	}
 
 	public deleteAllSnapshots() {
-		for(const name of this.snapshots.getNames()) {
+		for(const name of this.snapshots.getNames().slice()) {
 			if(name !== ACTIVE_SNAPSHOT_NAME) {
 				this.deleteSnapshot(name);
 			}
