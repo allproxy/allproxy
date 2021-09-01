@@ -225,10 +225,15 @@ export default class SocketIoManager {
 
     /**
      * Find proxy config matching URL
+     * @params protocol
+     * @params clientHostName
      * @param {*} reqUrl
      * @returns ProxyConfig
      */
-    findProxyConfigMatchingURL(protocol: string, reqUrl: url.UrlWithStringQuery): ProxyConfig|undefined {
+    findProxyConfigMatchingURL(
+        protocol: string,
+        clientHostName: string,
+        reqUrl: url.UrlWithStringQuery): ProxyConfig|undefined {
         const reqUrlPath = reqUrl.pathname!.replace(/\/\//g, '/');
         const isForwardProxy = reqUrl.protocol !== null;
 
@@ -238,8 +243,9 @@ export default class SocketIoManager {
             for (const proxyConfig of socketInfo.configs) {
                 if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue;
                 if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'browser:') continue;
-                if (this.isMatch(proxyConfig.path, reqUrlPath) &&
-                    isForwardProxy === (proxyConfig.protocol === 'browser:')) {
+                if ((this.isMatch(proxyConfig.path, reqUrlPath)
+                    || this.isMatch(proxyConfig.path, clientHostName + reqUrlPath))
+                    && isForwardProxy === (proxyConfig.protocol === 'browser:')) {
                     if (matchingProxyConfig === undefined || proxyConfig.path.length > matchingProxyConfig.path.length) {
                         matchingProxyConfig = proxyConfig;
                     }

@@ -15,7 +15,7 @@ export default class HttpsProxy {
     }
 
     onRequest(proxy: Proxy.IProxy, proxyHost: string, proxyPort: number) {
-        proxy.onRequest(function (ctx, callback) {
+        proxy.onRequest(async function (ctx, callback) {
             var startTime = Date.now();
             ctx.use(Proxy.gunzip);
 
@@ -42,14 +42,15 @@ export default class HttpsProxy {
             // Find matching proxy configuration
             let proxyConfig;
 
+            const clientHostName = await Global.resolveIp(client_req.socket.remoteAddress);
             if (!connectRequest) {
-                proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', reqUrl);
+                proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl);
                 if (proxyConfig !== undefined) {
                     ctx.proxyToServerRequestOptions.headers['host'] = proxyConfig.hostname;
                     client_req.url = 'https://' + proxyConfig.hostname + client_req.url;
                 }
             } else {
-                proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', reqUrl);
+                proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl);
                 // Always proxy forward proxy requests
                 if (proxyConfig === undefined) {
                     proxyConfig = new ProxyConfig();

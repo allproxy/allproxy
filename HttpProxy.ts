@@ -79,7 +79,8 @@ export default class HttpProxy {
                 client_res.end(JSON.stringify(configs, null, 2));
             } else {
                 // Find matching proxy configuration
-                let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('http:', reqUrl);
+                const clientHostName = await Global.resolveIp(client_req.socket.remoteAddress);
+                let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('http:', clientHostName, reqUrl);
                 // Always proxy forward proxy requests
                 if (proxyConfig === undefined && reqUrl.protocol !== null) {
                     Global.log('No match found for forward proxy');
@@ -276,7 +277,7 @@ export const getHttpEndpoint = (client_req: IncomingMessage, requestBody: string
         endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
     }
 
-    if(client_req.method !== 'OPTIONS' 
+    if(client_req.method !== 'OPTIONS'
         && (client_req.url?.endsWith('/graphql') || client_req.url?.endsWith('/graphql-public'))) {
         endpoint = '';
         if(requestBody && Array.isArray(requestBody)) {

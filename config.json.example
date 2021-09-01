@@ -1,6 +1,24 @@
 {
   "configs": [
     {
+      "path": "/",
+      "protocol": "browser:",
+      "hostname": "",
+      "port": 0,
+      "recording": true,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
+      "path": "/socket.io",
+      "protocol": "browser:",
+      "hostname": "",
+      "port": 0,
+      "recording": false,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
       "path": "24601",
       "protocol": "grpc:",
       "hostname": "backend-asset-sharing",
@@ -141,7 +159,7 @@
       "hostname": "search",
       "port": 50068,
       "recording": true,
-      "hostReachable": false,
+      "hostReachable": true,
       "comment": "SEARCH_HOST=middleman"
     },
     {
@@ -161,6 +179,15 @@
       "recording": true,
       "hostReachable": true,
       "comment": "TOOLSHED_API_URL TOOLSHED_BASEURL TOOLSHED_HOST_URL"
+    },
+    {
+      "path": "backend-search/",
+      "protocol": "http:",
+      "hostname": "elsearch",
+      "port": 9200,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Default to Elasticsearch"
     },
     {
       "path": "/v1/payments/toolshed",
@@ -190,6 +217,15 @@
       "comment": "Scrap app log"
     },
     {
+      "path": "docker logs -f backend-report",
+      "protocol": "log:",
+      "hostname": "",
+      "port": 0,
+      "recording": true,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
       "path": "docker logs -f fpm",
       "protocol": "log:",
       "hostname": "",
@@ -206,15 +242,6 @@
       "recording": false,
       "hostReachable": true,
       "comment": "MONGO_HOST=middleman"
-    },
-    {
-      "path": "/",
-      "protocol": "browser:",
-      "hostname": "",
-      "port": 0,
-      "recording": true,
-      "hostReachable": true,
-      "comment": "Forward proxy everything"
     },
     {
       "path": "6379",
@@ -249,7 +276,7 @@
       "hostname": "memcached",
       "port": 11211,
       "recording": false,
-      "hostReachable": true
+      "hostReachable": false
     }
   ]
 }

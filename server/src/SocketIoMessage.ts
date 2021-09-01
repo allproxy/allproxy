@@ -1,9 +1,9 @@
 const decompressResponse = require('decompress-response');
 import Message from '../../common/Message';
 import { IncomingHttpHeaders, IncomingMessage } from 'http';
-import dns from 'dns';
 import querystring from 'querystring';
 import { getHttpEndpoint } from '../../HttpProxy';
+import Global from './Global';
 
 export default class SocketMessage {
 	/**
@@ -107,23 +107,10 @@ export default class SocketMessage {
 async function buildRequest(timestamp:number, sequenceNumber:number, requestHeaders:{}, method:string|undefined, url:string|undefined, endpoint:string, requestBody:{}|string, clientIp:string|undefined, serverHost:string, path:string, elapsedTime:number)
 	: Promise<Message>
 {
-	return new Promise<Message>((resolve) => {
+	return new Promise<Message>(async (resolve) => {
 		if (clientIp) {
-			try {
-				clientIp = clientIp.replace('::ffff:', '');
-				dns.reverse(clientIp, (err, hosts) => {
-					if (err === null && hosts.length > 0) {
-						clientIp = hosts[0];
-						const host = clientIp.split('.')[0]; // un-qualify host name
-						if (isNaN(+host)) {
-							clientIp = host;
-						}
-					}
-					resolve(initMessage());
-				});
-			} catch (e) {
-				resolve(initMessage());
-			}
+			clientIp = await Global.resolveIp(clientIp);
+			resolve(initMessage());
 		} else {
 			clientIp = 'unknown';
 			resolve(initMessage());
