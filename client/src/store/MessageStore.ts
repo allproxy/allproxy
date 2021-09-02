@@ -92,7 +92,8 @@ export default class MessageStore {
             if(jsonBody['middleman_inner_body']) {
                 body += jsonBody['middleman_inner_body'];
             }
-            else if(this.message.requestHeaders['content-type'].includes('application/x-www-form-urlencoded')) {
+            else if(this.message.requestHeaders['content-type'] &&
+                this.message.requestHeaders['content-type'].includes('application/x-www-form-urlencoded')) {
                 const params = this.message.requestBody.split('&');
                 body += JSON.stringify(params, null, 2);
             } else {
