@@ -44,15 +44,15 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 							message.status + ' '}
 						{message.method+' '}
 						<b>{message.endpoint+' '}</b>
-						({message.clientIp+'->' + message.serverHost}) {store.getUrl()}
+						{store.getRequestLine()}
 					</div>
 				</div>
 			</div>
-			<div className="request__body" hidden={!isActive}>			
+			<div className="request__body" hidden={!isActive}>
 				{!store.isRequestBodyJson()
 					? store.getRequestBody()
-					: <ReactJson 
-						src={message.requestBody as object} 
+					: <ReactJson
+						src={message.requestBody as object}
 						name={false}
 						displayDataTypes={false}
 						quotesOnKeys={false}
