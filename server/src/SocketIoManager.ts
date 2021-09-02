@@ -16,7 +16,7 @@ const CONFIG_JSON = process.env.NODE_ENV === "production"
 const CACHE_SOCKET_ID = 'cache';
 //Global.log('Config file:', CONFIG_JSON);
 
-const WINDOW_SIZE = 64; // windows size - maximum outstanding messages
+const WINDOW_SIZE = 500; // windows size - maximum outstanding messages
 const MAX_OUT = 2; // two message batches
 
 class SocketInfo {

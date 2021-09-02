@@ -64,6 +64,16 @@ export default class MessageStore {
         return this.visited;
     }
 
+    public getRequestLine(): string {
+        let str;
+        if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'browser:') {
+            str = `${this.message.clientIp}->${this.getUrl()}`;
+        } else {
+            str = `(${this.message.clientIp}->${this.message.serverHost}) ${this.getUrl()}`;
+        }
+        return str;
+    }
+
     @action public setVisited(value: boolean) {
         this.visited = true;
     }
