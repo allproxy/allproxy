@@ -121,17 +121,21 @@ td input {
 	cursor: pointer;
 }
 
-.header__import,
-.header__export,
 .header__folder-minus,
 .header__trash,
 .header__auto-scroll,
-.header__stop {
+.header__stop,
+.header__more-menu {
 	float: left;
 	margin: 0 0 0 1rem;
 	cursor: pointer;
 	color: whitesmoke;
 	font-size: large !important;
+}
+
+.header__import,
+.header__export {
+	cursor: pointer;
 }
 
 .header__filter {
