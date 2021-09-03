@@ -96,8 +96,10 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 						</div>
 					</MenuItem>
 					<MenuItem style={{
-							opacity: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
-							pointerEvents: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
+							opacity: !messageQueueStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+								? undefined : 0.3,
+							pointerEvents: !messageQueueStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+								? undefined : 'none'
 							}}>
 						<div className="header__export fa fa-download" title="Export snapshot file"
 							onClick={() => {
@@ -108,10 +110,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 							&nbsp;Export Snapshot
 						</div>
 					</MenuItem>
-					<MenuItem style={{
-						opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
-						pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
-						}}>
+					<MenuItem>
 						<div className="header__import fa fa-upload" title="Import snapshot file"
 							onClick={() => {
 								openFileSelector();
