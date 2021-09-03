@@ -69,7 +69,7 @@ export default class MessageQueueStore {
 	public getSnapshotName(name: string): string {
 		const fileName = this.snapshots.getFileName(name);
 		if (fileName) {
-			return fileName.replace('.middlename', '');
+			return fileName.replace('.middleman', '');
 		} else {
 			return 'SNAPSHOT';
 		}
