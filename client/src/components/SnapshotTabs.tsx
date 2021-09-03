@@ -19,7 +19,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 
 	function handleTakeSnapshot(value: string) {
 		// console.log('handleTakeSnapshot', value);
-		const name = store.newSnapshot();
+		store.newSnapshot();
 	}
 
 	function handleDeleteTab(event: any, value: string) {
@@ -48,7 +48,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 								<div className={'snapshot__tab'}>
 									<div>{(i === 0
 										? store.getStopped() ? 'Stopped' : 'Recording'
-										: 'SNAPSHOT') + ' ('+store.getSnapshotSize(value)+')'}</div>
+										: store.getSnapshotName(value)) + ' ('+store.getSnapshotSize(value)+')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
 										? <div className={ 'snapshot__folder-plus fa fa-folder-plus' }
 											style={{
