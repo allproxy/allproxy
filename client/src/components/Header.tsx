@@ -52,15 +52,6 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
 					pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
 					}}>
-					<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
-						style={{
-							opacity: messageQueueStore.getSnapshotCount() > 1 ? undefined : 0.3,
-							pointerEvents: messageQueueStore.getSnapshotCount() > 1 ? undefined : 'none'
-						}}
-						onClick={() => {
-							messageQueueStore.deleteAllSnapshots()
-						}}
-					/>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
 							messageQueueStore.clear();
@@ -88,6 +79,20 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					open={Boolean(moreMenuIcon)}
 					onClose={() => setMoreMenuIcon(null)}
 					>
+					<MenuItem
+						style={{
+							opacity: messageQueueStore.getSnapshotCount() > 1 ? undefined : 0.3,
+							pointerEvents: messageQueueStore.getSnapshotCount() > 1 ? undefined : 'none'
+						}}>
+						<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
+							onClick={() => {
+								messageQueueStore.deleteAllSnapshots();
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;Delete Snapshots
+						</div>
+					</MenuItem>
 					<MenuItem style={{
 							opacity: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
 							pointerEvents: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'

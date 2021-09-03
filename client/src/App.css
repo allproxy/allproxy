@@ -121,7 +121,6 @@ td input {
 	cursor: pointer;
 }
 
-.header__folder-minus,
 .header__trash,
 .header__auto-scroll,
 .header__stop,
@@ -133,6 +132,7 @@ td input {
 	font-size: large !important;
 }
 
+.header__folder-minus,
 .header__import,
 .header__export {
 	cursor: pointer;
