@@ -9,6 +9,7 @@ import MessageQueueStore from '../store/MessageQueueStore';
 import MetricsModal from './MetricsModal';
 import { metricsStore } from '../store/MetricsStore';
 import { useFilePicker } from "use-file-picker";
+import { Menu, MenuItem } from '@material-ui/core';
 
 /**
  * Header view
@@ -22,10 +23,16 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
-	const [openFileSelector, {filesContent, errors}] = useFilePicker({
+	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement|null>(null);
+	const [openFileSelector, {filesContent, clear}] = useFilePicker({
 		multiple: false,
 		accept: ".middleman"
 	  });
+
+	if (!!filesContent.length && filesContent[0].content) {
+		messageQueueStore.importSnapshot(filesContent[0].content);
+		clear();
+	}
 
 	const statusClassName = 'fa ' + (socketStore.isConnected()
 		? 'success fa-circle' : 'error fa-exclamation-triangle');
@@ -41,28 +48,10 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
-				<div hidden style={{
-					opacity: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
-					pointerEvents: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
-					}}>
-					<div className="header__export fa fa-download" title="Export snapshot file"
-						onClick={() => {
-							messageQueueStore.exportSelectedSnapshot()
-						}}
-					/>
-				</div>
 				<div style={{
 					opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
 					pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
 					}}>
-					<div hidden className="header__import fa fa-upload" title="Import snapshot file"
-						onClick={() => {
-							openFileSelector();
-							if(errors.length === 0) {
-								messageQueueStore.importSnapshot(filesContent[0].content);
-							}
-						}}
-					/>
 					<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
 						style={{
 							opacity: messageQueueStore.getSnapshotCount() > 1 ? undefined : 0.3,
@@ -90,6 +79,42 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 						title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
 					/>
 				</div>
+
+				<div className={'header__more-menu fa fa-ellipsis-v'}
+					onClick={(e) => setMoreMenuIcon(e.currentTarget)}
+				/>
+				<Menu
+					anchorEl={moreMenuIcon}
+					open={Boolean(moreMenuIcon)}
+					onClose={() => setMoreMenuIcon(null)}
+					>
+					<MenuItem style={{
+							opacity: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
+							pointerEvents: !messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
+							}}>
+						<div className="header__export fa fa-download" title="Export snapshot file"
+							onClick={() => {
+								messageQueueStore.exportSelectedSnapshot();
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;Export Snapshot
+						</div>
+					</MenuItem>
+					<MenuItem style={{
+						opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
+						pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
+						}}>
+						<div className="header__import fa fa-upload" title="Import snapshot file"
+							onClick={() => {
+								openFileSelector();
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;Import Snapshot
+						</div>
+					</MenuItem>
+				</Menu>
 
 				<div className="header__filter">
 					<input className="header__filter-input" type="text"

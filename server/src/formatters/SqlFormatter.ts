@@ -15,6 +15,8 @@ export default class SqlFormatter{
 		this.formattedQuery = this._formatQuery(reqBuf);
 		this.formattedResults = rspBuf
 			? (this.getCommand() === 'Query'
+				|| this.getCommand() === 'Prepare'
+				|| this.getCommand() === 'Execute'
 				?	this._formatResults(rspBuf)
 				: HexFormatter.format(rspBuf))
 			: this.getCommand() === 'Quit'
@@ -42,7 +44,10 @@ export default class SqlFormatter{
 		} else {
 			const command = buf.readUInt8(4);
 			this.command = SqlCommand.toString(command);
-			if(this.command === 'Query') {
+			if(this.command === 'Query'
+				|| this.getCommand() === 'Prepare'
+				|| this.getCommand() === 'Execute'
+			) {
 				const str = buf.toString('utf8', 5); // query string
 				return sqlFormatter.format(str.split('\n').join(' '));
 			}

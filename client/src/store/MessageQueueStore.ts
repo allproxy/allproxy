@@ -106,15 +106,24 @@ export default class MessageQueueStore {
 
 	public exportSelectedSnapshot() {
 		const element = document.createElement("a");
-		const file = new Blob([JSON.stringify(this.getMessages())], {type: 'text/plain'});
+		let messages: Message[] = [];
+		for (const messageStore of this.getMessages()) {
+			messages.push(messageStore.getMessage());
+		}
+		const file = new Blob([JSON.stringify(messages, null, 2)], {type: 'text/plain'});
 		element.href = URL.createObjectURL(file);
-		element.download = this.getSelectedSnapshotName()+'.middleman';
+		element.download = `SNAPSHOT (${this.getMessages().length})`+'.middleman';
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}
 
 	public importSnapshot(snapshot: string) {
-		const messageStores = JSON.parse(snapshot);
+		const parsedBlob = JSON.parse(snapshot);
+		const messageStores: MessageStore[] = [];
+		for (const message of parsedBlob) {
+			const ms = new MessageStore(message);
+			messageStores.push(ms);
+		}
 		this.newSnapshot(messageStores);
 	}
 
