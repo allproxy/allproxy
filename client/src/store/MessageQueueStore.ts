@@ -9,6 +9,7 @@ export const ACTIVE_SNAPSHOT_NAME = 'Active';
 class Snapshots {
 	private snapshots: Map<string, MessageStore[]> = new Map();
 	private names: string[] = [];
+	private fileNameMap: Map<string, string> = new Map();
 
 	constructor() {
 		makeAutoObservable(this);
@@ -18,14 +19,18 @@ class Snapshots {
 		return this.snapshots.get(key)!;
 	}
 
-	public set(key: string, snapshot: MessageStore[]) {
+	public set(key: string, snapshot: MessageStore[], fileName?: string) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
+		if (fileName) {
+			this.fileNameMap.set(key, fileName);
+		}
 	}
 
 	public delete(key: string) {
 		this.snapshots.delete(key);
 		this.names.splice(this.names.indexOf(key), 1);
+		this.fileNameMap.delete(key);
 	}
 
 	public count() {
@@ -34,6 +39,10 @@ class Snapshots {
 
 	public getNames(): string[] {
 		return this.names;
+	}
+
+	public getFileName(key: string): string | undefined {
+		return this.fileNameMap.get(key);
 	}
 }
 
@@ -57,6 +66,15 @@ export default class MessageQueueStore {
 		return this.snapshots.getNames();
 	}
 
+	public getSnapshotName(name: string): string {
+		const fileName = this.snapshots.getFileName(name);
+		if (fileName) {
+			return fileName.replace('.middlename', '');
+		} else {
+			return 'SNAPSHOT';
+		}
+	}
+
 	public getSnapshotCount() {
 		return this.snapshots.count();
 	}
@@ -73,16 +91,16 @@ export default class MessageQueueStore {
 		this.selectedSnapshotName = name;
 	}
 
-	@action public newSnapshot(snapshot?: MessageStore[]): string {
+	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
 		const padTime = (num: number) => (num+'').padStart(2, '0');
 		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
 		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
 		if(snapshot) {
-			this.snapshots.set(name, snapshot);
+			this.snapshots.set(name, snapshot, fileName);
 		} else {
-			this.snapshots.set(name, activeSnapshot.slice());
+			this.snapshots.set(name, activeSnapshot.slice(), fileName);
 			activeSnapshot.splice(0, activeSnapshot.length);
 		}
 		return name;
@@ -104,7 +122,7 @@ export default class MessageQueueStore {
 		this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
 	}
 
-	public exportSelectedSnapshot() {
+	public exportSelectedSnapshot(fileName: string) {
 		const element = document.createElement("a");
 		let messages: Message[] = [];
 		for (const messageStore of this.getMessages()) {
@@ -112,19 +130,19 @@ export default class MessageQueueStore {
 		}
 		const file = new Blob([JSON.stringify(messages, null, 2)], {type: 'text/plain'});
 		element.href = URL.createObjectURL(file);
-		element.download = `SNAPSHOT (${this.getMessages().length})`+'.middleman';
+		element.download = fileName + '.middleman';
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}
 
-	public importSnapshot(snapshot: string) {
+	public importSnapshot(fileName: string, snapshot: string) {
 		const parsedBlob = JSON.parse(snapshot);
 		const messageStores: MessageStore[] = [];
 		for (const message of parsedBlob) {
 			const ms = new MessageStore(message);
 			messageStores.push(ms);
 		}
-		this.newSnapshot(messageStores);
+		this.newSnapshot(fileName, messageStores);
 	}
 
 	public getLimit(): number {

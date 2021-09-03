@@ -172,6 +172,11 @@ td input {
 	color: red;
 }
 
+.export__input-file-name {
+	margin: 0 1rem 1rem 1rem;
+	width: calc(100% - 2rem);
+}
+
 .snapshot__container {
 	margin-top: 3rem;
 }

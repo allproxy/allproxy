@@ -10,6 +10,7 @@ import MetricsModal from './MetricsModal';
 import { metricsStore } from '../store/MetricsStore';
 import { useFilePicker } from "use-file-picker";
 import { Menu, MenuItem } from '@material-ui/core';
+import ExportDialog from './ExportDialog';
 
 /**
  * Header view
@@ -24,13 +25,14 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement|null>(null);
+	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openFileSelector, {filesContent, clear}] = useFilePicker({
 		multiple: false,
 		accept: ".middleman"
 	  });
 
 	if (!!filesContent.length && filesContent[0].content) {
-		messageQueueStore.importSnapshot(filesContent[0].content);
+		messageQueueStore.importSnapshot(filesContent[0].name, filesContent[0].content);
 		clear();
 	}
 
@@ -99,7 +101,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 							}}>
 						<div className="header__export fa fa-download" title="Export snapshot file"
 							onClick={() => {
-								messageQueueStore.exportSelectedSnapshot();
+								setOpenExportDialog(true);
 								setMoreMenuIcon(null);
 							}}
 						>
@@ -167,6 +169,13 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				open={showSettingsModal}
 				onClose={() => setShowSettingsModal(false)}
 				store={ settingsStore }
+			/>
+			<ExportDialog
+				open={openExportDialog}
+				onClose={(fileName) => {
+					setOpenExportDialog(false);
+					messageQueueStore.exportSelectedSnapshot(fileName);
+				}}
 			/>
 		</div>
 	)
