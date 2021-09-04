@@ -140,11 +140,13 @@ export default class FilterStore {
         const message = messageStore.getMessage();
         if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
         if (this.isMatch(needle, message.protocol)) return false;
-        if (this.isMatch(needle, message.status+'')) return false;
-        if (this.isMatch(needle, message.method)) return false;
-        if (this.isMatch(needle, message.clientIp!+'->'+message.serverHost)) return false;
+        if (this.isMatch(needle,
+                        message.status + ' ' + message.method
+                        + ' '
+                        + message.clientIp!+'->'+message.serverHost
+                        + ' '
+                        + messageStore.getUrl())) return false;
         if (this.isMatch(needle, message.endpoint)) return false;
-        if (this.isMatch(needle, messageStore.getUrl())) return false;
         if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
         if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
         if(this.isMatch(needle, messageStore.getRequestBody())) return false;
