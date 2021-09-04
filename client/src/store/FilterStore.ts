@@ -9,6 +9,9 @@ export default class FilterStore {
     private boolString = '';
     private boolOperands: string[] = [];
     private resetScroll = false;
+    private _matchCase = false;
+    private _regex = false;
+    private _logical = false;
 
     public constructor() {
 		makeAutoObservable(this);
@@ -20,6 +23,30 @@ export default class FilterStore {
 
     @action public setResetScroll(value: boolean) {
         this.resetScroll = value;
+    }
+
+    public matchCase(): boolean {
+        return this._matchCase;
+    }
+
+    @action public toggleMatchCase() {
+        this._matchCase = !this._matchCase;
+    }
+
+    public regex(): boolean {
+        return this._regex;
+    }
+
+    @action public toggleRegex() {
+        this._regex = !this._regex;
+    }
+
+    public logical(): boolean {
+        return this._logical;
+    }
+
+    @action public toggleLogical() {
+        this._logical = !this._logical;
     }
 
     @action public setFilter(filter: string) {
@@ -90,7 +117,7 @@ export default class FilterStore {
     public isFiltered(messageStore: MessageStore) {
         this.invalidFilterSyntax = false;
         if (this.searchFilter.length === 0) return false;
-        if (this.boolString.length > 0) {
+        if (this._logical && this.boolString.length > 0) {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
                 const filtered = this.isMessageFiltered(this.boolOperands[i], messageStore);
@@ -127,11 +154,12 @@ export default class FilterStore {
 
 	private isMatch(needle: string, haystack: string | undefined) {
         if (haystack === undefined) return false;
-        if(needle === needle.toLowerCase()) {
+        if(!this._matchCase) {
+            needle = needle.toLowerCase();
             haystack = haystack.toLowerCase();
         }
 
-        if(needle.indexOf('.*') !== -1) {
+        if(this._regex) {
             return haystack.search(needle) !== -1;
         }
         else {
