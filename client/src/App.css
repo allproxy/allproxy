@@ -442,11 +442,16 @@ td input {
 .settings-modal__proxy-comment {
 	padding-top: .5rem;
 }
+.settings-modal__proxy-host
+.settings-modal__proxy-port
 .settings-modal__status-container,
 .settings-modal__recording-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+.settings-modal__proxy-port {
+	width: 8ch;
 }
 
 .settings-modal__status,

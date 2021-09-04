@@ -60,6 +60,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 						</td>
 						<td className="settings-modal__proxy-path-container">
 							<input className="form-control settings-modal__proxy-path"
+								style={{width: pathLabel().includes('Port') ? '7ch' : undefined}}
 								onChange={ (e) => store.updateEntryPath(index, e.target.value) }
 								value={entry.path} />
 						</td>
@@ -70,7 +71,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 								value={entry.hostname} />
 						</td>
 						<td className="settings-modal__proxy-host-container">
-							<input className="form-control settings-modal__proxy-host"
+							<input className="form-control settings-modal__proxy-port"
 								hidden={ entry.protocol === 'browser:' || entry.protocol === 'log:' }
 								onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 								value={entry.port} />
