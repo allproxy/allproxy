@@ -150,6 +150,23 @@ td input {
 	background-color: lightyellow;
 }
 
+.header__filter-case,
+.header__filter-regex,
+.header__filter-logical {
+	margin-left: .5rem;
+	color: whitesmoke;
+	cursor: pointer;
+	width: 2ch;
+	text-align: center;
+}
+.header__filter-case.active,
+.header__filter-regex.active,
+.header__filter-logical.active {
+	color: black;
+	background: whitesmoke;
+	border-radius: .5rem;
+}
+
 .header__count {
 	margin: 0 0 0 1rem;
 	color: whitesmoke;
