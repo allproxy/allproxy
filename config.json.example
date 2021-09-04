@@ -14,9 +14,9 @@
       "protocol": "browser:",
       "hostname": "",
       "port": 0,
-      "recording": false,
+      "recording": true,
       "hostReachable": true,
-      "comment": ""
+      "comment": "socket.io messages are not recorded"
     },
     {
       "path": "24601",
@@ -96,7 +96,7 @@
       "hostname": "backend-report",
       "port": 50052,
       "recording": true,
-      "hostReachable": true,
+      "hostReachable": false,
       "comment": "BACKEND_REPORT_GRPC_HOST=middleman"
     },
     {
@@ -187,7 +187,7 @@
       "port": 9200,
       "recording": true,
       "hostReachable": true,
-      "comment": "Default to Elasticsearch"
+      "comment": "backend-search to elsearch"
     },
     {
       "path": "/v1/payments/toolshed",
