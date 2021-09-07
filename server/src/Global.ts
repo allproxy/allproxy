@@ -25,7 +25,8 @@ export default class Global {
                     ipAddr = ipAddr.replace('::ffff:', '');
                     dns.reverse(ipAddr, (err: any, hosts: any) => {
                         if (err === null && hosts.length > 0) {
-                            ipAddr = hosts[0];
+                            ipAddr = hosts.sort((a:string , b:string) => a.length - b.length)[0];
+                            console.log(hosts);
                             const host = ipAddr!.split('.')[0]; // un-qualify host name
                             if (isNaN(+host)) {
                                 ipAddr = host;
