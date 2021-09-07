@@ -137,6 +137,7 @@ export default class TcpProxy {
                     let responseString = '';
                     let url = '';
                     let status = 0;
+                    let noResponseRequired = false;
                     switch (proxyConfig.protocol) {
                         case 'sql:':
                             const sqlFormatter = new SqlFormatter(request.data, response!);
@@ -148,6 +149,7 @@ export default class TcpProxy {
                                 url += line + ' ';
                                 if (url.length >= 64) break;
                             }
+                            noResponseRequired = sqlFormatter.getCommand() === 'Close';
                             break;
                         case 'mongo:':
                             const mongoFormatter = new MongoFormatter(request.data, response!);
@@ -198,7 +200,7 @@ export default class TcpProxy {
                         message.protocol = proxyConfig.protocol;
                         Global.socketIoManager.emitMessageToBrowser(
                             response === null
-                                ? responseString === NO_RESPONSE
+                                ? responseString === NO_RESPONSE && noResponseRequired === false
                                     ? MessageType.REQUEST : MessageType.REQUEST_AND_RESPONSE
                                 : MessageType.RESPONSE,
                             message,
