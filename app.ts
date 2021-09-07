@@ -79,8 +79,6 @@ Global.socketIoManager = new SocketIoManager();
 const httpProxy = new HttpProxy();
 const httpsProxy = new HttpsProxy();
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // trust all certificates
-
 const httpsOptions = {
 	key: fs.readFileSync(__dirname + '/private/keys/server.key'),
 	cert: fs.readFileSync(__dirname + '/private/keys/server.crt')
