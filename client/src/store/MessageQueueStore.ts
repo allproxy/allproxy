@@ -230,7 +230,7 @@ export default class MessageQueueStore {
 
 			// Shrink array
 			if (copyMessages.length >= this.limit + this.limit / 2) {
-				copyMessages.splice(0, this.limit / 2);
+				copyMessages.splice(0, copyMessages.length - this.limit);
 			}
 		}
 
