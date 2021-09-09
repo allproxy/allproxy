@@ -22,6 +22,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			if (activeRequestSeqNum !== Number.MAX_SAFE_INTEGER) {
+				console.log('reset scroll');
 				setScrollTo(activeRequestSeqNum);
 			}
 		} else if (messageQueueStore.getAutoScroll()) {
@@ -29,6 +30,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 				const messages = messageQueueStore.getMessages();
 				const lastMessage = messages[messages.length - 1];
 				if (lastMessage) {
+					console.log('auto scroll set scroll');
 					setScrollTo(lastMessage.getMessage().sequenceNumber);
 				}
 			}

@@ -166,7 +166,7 @@ export default class MessageQueueStore {
 	}
 
 	public getAutoScroll(): boolean {
-		return this.autoScroll;
+		return this.selectedSnapshotName === ACTIVE_SNAPSHOT_NAME && this.autoScroll;
 	}
 
 	@action public toggleAutoScroll() {
