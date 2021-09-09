@@ -9,11 +9,9 @@ type Props = {
 	store: MessageQueueStore,
 };
 const SnapshotTabs = observer(({ store }: Props) => {
-	const [tabValue, setTabValue] = React.useState(store.getSelectedSnapshotName());
 
 	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
-		setTabValue(value);
 		store.setSelectedSnapshotName(value);
 	}
 
@@ -25,8 +23,7 @@ const SnapshotTabs = observer(({ store }: Props) => {
 	function handleDeleteTab(event: any, value: string) {
 		// console.log('handleDeleteSnapshot', value);
 ;		event.stopPropagation();
-		if (tabValue === value) {
-			setTabValue(ACTIVE_SNAPSHOT_NAME);
+		if (store.getSelectedSnapshotName() === value) {
 			store.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
 		store.deleteSnapshot(value);
@@ -34,9 +31,9 @@ const SnapshotTabs = observer(({ store }: Props) => {
 
 	return (
 		<div className="snapshot__container">
-			<TabContext value={tabValue}>
+			<TabContext value={store.getSelectedSnapshotName()}>
 				<Tabs
-					value={tabValue}
+					value={store.getSelectedSnapshotName()}
 					onChange={handleTabChange}
 					indicatorColor="primary"
 					textColor="primary"
