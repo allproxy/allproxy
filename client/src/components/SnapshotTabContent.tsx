@@ -16,6 +16,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 	const [activeRequestSeqNum, setActiveRequestSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendMessage, setResendMessage] = React.useState<Message>();
+
 	const ref = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
@@ -45,6 +46,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 		});
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
+	let matchCount = 0;
 	return (
 		<div className="request-response__container">
 			{messageQueueStore.getMessages().length > 0 &&
@@ -56,9 +58,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = activeRequestSeqNum === seqNum;
-							if (isActiveRequest) {
-								activeRequestIndex = index;
-							}
+							matchCount++;
 							const timeBarPercent = maxElapsedTime > 0
 								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
 								: 0;
@@ -77,6 +77,11 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 								/>)
 						}
 					})}
+					{matchCount === 0 && (
+						<div className="center">
+							No matching request or response found.  Adjust your filter criteria.
+						</div>
+					)}
 				</div>
 			}
 			{messageQueueStore.getMessages().length === 0 &&
