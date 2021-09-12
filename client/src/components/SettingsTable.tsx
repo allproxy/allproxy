@@ -32,9 +32,9 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				<tr>
 					<td></td>
 					<td></td>
-					<td className="text-primary"><label>{pathLabel()}</label></td>
+					<td className="text-primary" style={{width: pathLabel().includes('Port') ? '12ch' : undefined}}><label>{pathLabel()}</label></td>
 					<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Host'}</label></td>
-					<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Port'}</label></td>
+					<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Port'}</label></td>
 					<td className="text-primary"><label>Comment</label></td>
 					<td className="text-primary"><label>Status</label></td>
 				</tr>

@@ -258,7 +258,7 @@ td input {
 
 .request__msg-time-bar-container {
 	margin-left: .5rem;
-	min-width: 7ch;
+	min-width: 8ch;
 	display: flex;
 	align-items: center;
 	justify-content: right;
