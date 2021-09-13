@@ -1,9 +1,11 @@
 import React from 'react';
 import FilterStore from '../store/FilterStore';
 import SocketStore from '../store/SocketStore';
+import {noCaptureStore} from '../store/NoCaptureStore';
 import { observer } from 'mobx-react-lite';
 import ReachableHostsModal from './ReachableHostsModal';
 import SettingsModal from './SettingsModal';
+import NoCaptureModal from './NoCaptureModal';
 import { HostStatus, settingsStore } from '../store/SettingsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MetricsModal from './MetricsModal';
@@ -22,6 +24,7 @@ type Props = {
 };
 const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props) : JSX.Element => {
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement|null>(null);
@@ -155,6 +158,9 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
 					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
 				</div>
+				<div className="header__settings fa fa-ban" title="No Capture List"
+					onClick={() => { setShowNoCaptureModal(true); } }>
+				</div>
 				<div className="header__settings fa fa-cog" title="Settings"
 					onClick={() => { setShowSettingsModal(true); settingsStore.reset(); } }>
 				</div>
@@ -174,6 +180,11 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				open={showSettingsModal}
 				onClose={() => setShowSettingsModal(false)}
 				store={ settingsStore }
+			/>
+			<NoCaptureModal
+				open={showNoCaptureModal}
+				onClose={() => setShowNoCaptureModal(false)}
+				store={ noCaptureStore }
 			/>
 			<ExportDialog
 				open={openExportDialog}
