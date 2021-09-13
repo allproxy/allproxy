@@ -386,6 +386,10 @@ td input {
 	max-width: 90vw;
 }
 
+.settings-modal__proxy-row.nocapture {
+	background: rgb(245, 206, 206);
+}
+
 .settings-modal__scroll-container {
 	overflow-y: auto;
 	height: calc(90vh - 400px);
