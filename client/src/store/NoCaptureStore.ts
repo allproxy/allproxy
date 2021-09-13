@@ -1,4 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
+import Message from "../common/Message";
 
 const LOCAL_STORAGE = 'middleman-no-capture';
 
@@ -31,8 +32,8 @@ export default class NoCaptureStore {
 		}
 	}
 
-	public contains(client: string): boolean {
-		return this.clientList.find(name => this.isMatch(name, client)) === undefined;
+	public contains(message: Message): boolean {
+		return this.clientList.find(name => this.isMatch(name, message.clientIp!)) === undefined;
 	}
 
 	public getClientList() {

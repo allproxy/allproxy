@@ -23,7 +23,6 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			if (activeRequestSeqNum !== Number.MAX_SAFE_INTEGER) {
-				console.log('reset scroll');
 				setScrollTo(activeRequestSeqNum);
 			}
 		} else if (messageQueueStore.getAutoScroll()) {
@@ -31,7 +30,6 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 				const messages = messageQueueStore.getMessages();
 				const lastMessage = messages[messages.length - 1];
 				if (lastMessage) {
-					console.log('auto scroll set scroll');
 					setScrollTo(lastMessage.getMessage().sequenceNumber);
 				}
 			}
@@ -58,6 +56,9 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = activeRequestSeqNum === seqNum;
+							if (isActiveRequest) {
+								activeRequestIndex = index;
+							}
 							matchCount++;
 							const timeBarPercent = maxElapsedTime > 0
 								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
@@ -67,7 +68,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 									key={seqNum}
 									isActive={isActiveRequest}
 									timeBarPercent={timeBarPercent + '%'}
-									onClick={() => handleClick(seqNum)}
+									onClick={handleClick.bind(null, seqNum)}
 									onResend={() => {
 										if (message.protocol === 'http:' || message.protocol === 'https:') {
 											setResendMessage(message);
