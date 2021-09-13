@@ -149,7 +149,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				</div>
 			</div>
 			<div>
-				<div className="header__settings fa fa-table" title="Metrics"
+				<div className="header__settings fa fa-chart-bar" title="Metrics"
 					onClick={() => { setShowMetricsModal(true); } }>
 				</div>
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
