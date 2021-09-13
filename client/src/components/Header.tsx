@@ -159,7 +159,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
 				</div>
 				<div className="header__settings fa fa-ban" title="No Capture List"
-					onClick={() => { setShowNoCaptureModal(true); } }>
+					onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); } }>
 				</div>
 				<div className="header__settings fa fa-cog" title="Settings"
 					onClick={() => { setShowSettingsModal(true); settingsStore.reset(); } }>

@@ -63,7 +63,7 @@ const NoCaptureModal = observer(({ open, onClose, store }: Props) => {
 											title="Remove client"
 											onClick={() => handleDeleteClient(i)}/>
 										<input className="form-control"
-											placeholder="Client host or IP"
+											placeholder="Client host or IP (regex allowed)"
 											value={clientHost}
 											onChange={(e) => onChange(e, i)}
 										/>
