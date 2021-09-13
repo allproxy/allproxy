@@ -6,6 +6,7 @@ import { messageQueueStore } from './MessageQueueStore';
 import ProxyConfig from '../common/ProxyConfig';
 import { metricsStore } from './MetricsStore';
 import { mapProtocolToIndex } from './MetricsStore';
+import { noCaptureStore } from "./NoCaptureStore";
 
 export default class SocketStore {
 	private socket?: SocketIOClient.Socket = undefined;
@@ -47,7 +48,11 @@ export default class SocketStore {
 			for (const message of messages) {
 				this.countMetrics(message);
 			}
-			messageQueueStore.insertBatch(messages);
+
+			// Filter messages from clients that are in the No Capture List
+			const filteredMessages = messages.filter(message => noCaptureStore.contains(message.clientIp!));
+			messageQueueStore.insertBatch(filteredMessages);
+
 			if (callback) {
 				const first = messages[0];
 				callback(`${messageTypeTOString(first)} seq=${first.sequenceNumber}`);
@@ -60,7 +65,7 @@ export default class SocketStore {
 					case MessageType.RESPONSE:
 						return 'res';
 					case MessageType.REQUEST_AND_RESPONSE:
-						return 'req/res';						
+						return 'req/res';
 				}
 				return 'unknown';
 			}
