@@ -50,7 +50,7 @@ export default class SocketStore {
 			}
 
 			// Filter messages from clients that are in the No Capture List
-			const filteredMessages = messages.filter(message => noCaptureStore.contains(message.clientIp!));
+			const filteredMessages = messages.filter(message => noCaptureStore.contains(message));
 			messageQueueStore.insertBatch(filteredMessages);
 
 			if (callback) {

@@ -53,7 +53,7 @@ const NoCaptureModal = observer(({ open, onClose, store }: Props) => {
 							<div>(The list is stored in browser local storage.)</div>
 							<div className="no-capture-modal__add-button fa fa-plus-circle"
 								onClick={handleAddClient}>
-								&nbsp;Click to add client
+								&nbsp;Add client
 							</div>
 							<List>
 								{store.getClientList().map((clientHost, i) => (
