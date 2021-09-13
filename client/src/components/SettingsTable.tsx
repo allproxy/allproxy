@@ -42,8 +42,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 			: null }
 			<tbody>
 				{store.getEntries().map((entry, index) => entry.protocol === protocol && (
-					<tr className= "settings-modal__proxy-row" key = { index }
-						style={{opacity: entry.recording ? 1 : .5}}
+					<tr className={"settings-modal__proxy-row" + (entry.recording ? '' : ' nocapture')} key = { index }
 					>
 						<td>
 							<button className="settings-modal__proxy-delete-button btn btn-xs btn-danger"
