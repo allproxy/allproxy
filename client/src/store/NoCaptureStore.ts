@@ -23,8 +23,16 @@ export default class NoCaptureStore {
 		localStorage.setItem(LOCAL_STORAGE, JSON.stringify(clientList));
 	}
 
+	private isMatch(needle: string, haystack: string): boolean {
+		if (needle.includes('.*')) {
+			return haystack.toLowerCase().search(needle.toLowerCase()) !== -1;
+		} else {
+			return needle.toLowerCase() === haystack.toLowerCase();
+		}
+	}
+
 	public contains(client: string): boolean {
-		return this.clientList.find(name => name.toLocaleLowerCase() === client.toLocaleLowerCase()) === undefined;
+		return this.clientList.find(name => this.isMatch(name, client)) === undefined;
 	}
 
 	public getClientList() {
