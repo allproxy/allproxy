@@ -1,8 +1,10 @@
 import { makeAutoObservable, action } from "mobx"
+import { getTsBuildInfoEmitOutputFilePath } from "typescript";
 import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
 
 const DEFAULT_LIMIT = 1000;
+const LOCAL_STORAGE_LIMIT = 'middleman-limit';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
 
@@ -49,13 +51,22 @@ class Snapshots {
 export default class MessageQueueStore {
 	private selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
 	private snapshots: Snapshots = new Snapshots();
-	private limit: number = DEFAULT_LIMIT;
+	private limit: number = this._getLimit();
 	private stopped: boolean = false;
 	private autoScroll: boolean = false;
 
 	public constructor() {
 		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, []);
 		makeAutoObservable(this);
+	}
+
+	private _getLimit(): number {
+		const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
+		if (limit) {
+			return Number(limit);
+		}
+		localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
+		return DEFAULT_LIMIT;
 	}
 
 	public isActiveSnapshotSelected() {
@@ -150,6 +161,7 @@ export default class MessageQueueStore {
 	}
 
 	@action public setLimit(limit: number) {
+		localStorage.setItem(LOCAL_STORAGE_LIMIT, limit + '');
 		this.limit = limit;
 	}
 
