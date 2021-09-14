@@ -16,14 +16,19 @@ const CONFIG_JSON = process.env.NODE_ENV === "production"
 const CACHE_SOCKET_ID = 'cache';
 //Global.log('Config file:', CONFIG_JSON);
 
-const WINDOW_SIZE = 500; // windows size - maximum outstanding messages
+// Under heavy load, messages are batched into batches of 500 to reduce the number of round trips to the browser.
+// The client middleman application can efficiently handle batches of 500 messages, which reduces the frequency the
+// UI updates.  When the number of outstanding (unacknowledged) batches reaches 2 (MAX_OUT), messages are queued until an
+// outstanding batch is acknowledged (consumed by the client).  The MAX_OUT and BATCH_SIZE also prevent the client
+// end of the socket from being overrun and abnormally disconnecting.
+const BATCH_SIZE = 500; // batch size - maximum outstanding messages
 const MAX_OUT = 2; // two message batches
 
 class SocketInfo {
     socket: io.Socket | undefined = undefined;
     configs: ProxyConfig[] = [];
     seqNum = 0;
-    remainingWindow = WINDOW_SIZE;
+    remainingWindow = BATCH_SIZE;
     messagesOut = 0;
     queuedMessages: Message[] = [];
 
