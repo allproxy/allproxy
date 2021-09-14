@@ -39,7 +39,7 @@ const MetricsModal = observer(({ open, onClose, store }: Props) => {
 										.map((entry, i) => (
 											<tr className="settings-modal__proxy-row" key={i}>
 												<td className="settings-modal__proxy-host-container">
-													<div className={'fa ' + pickIcon(PROTOCOLS[i])}>
+													<div className={pickIcon(PROTOCOLS[i])}>
 														<span style={{ marginLeft: '.25rem' }}>{PROTOCOLS[i]}</span>
 													</div>
 												</td>

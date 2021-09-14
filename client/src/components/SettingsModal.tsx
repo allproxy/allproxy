@@ -44,7 +44,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 							{store.getProtocols().map(protocol => (
 								<Tab value={protocol}
 									label={
-										<div className={'fa ' + pickIcon(protocol)}>
+										<div className={pickIcon(protocol)}>
 											<span style={{ marginLeft: '.25rem' }}>{protocol}</span>
 										</div>
 									}
