@@ -12,6 +12,7 @@ export default class FilterStore {
     private _matchCase = false;
     private _regex = false;
     private _logical = false;
+    private _deleteFiltered = false;
 
     public constructor() {
 		makeAutoObservable(this);
@@ -47,6 +48,14 @@ export default class FilterStore {
 
     @action public toggleLogical() {
         this._logical = !this._logical;
+    }
+
+    public deleteFiltered(): boolean {
+        return this._deleteFiltered;
+    }
+
+    @action public toggleDeleteFiltered() {
+        this._deleteFiltered = !this._deleteFiltered;
     }
 
     @action public setFilter(filter: string) {

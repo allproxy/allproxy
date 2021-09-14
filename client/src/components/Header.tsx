@@ -142,6 +142,8 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					title="Use regular expression" onClick={() => filterStore.toggleRegex()}>.*</div>
 				<div className={`header__filter-logical ${filterStore.logical() ? 'active' : ''}`}
 					title="Use (), &&, ||, !" onClick={() => filterStore.toggleLogical()}>&&</div>
+				<div className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
+					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div>
 			<div>
 				<div className="header__count" title="Received messages">
