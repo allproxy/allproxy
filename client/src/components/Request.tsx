@@ -23,7 +23,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 						<div className={'request__msg-time-bar'}
 							style={{ width: timeBarPercent }} />
 					</div>
-					<div className={`fa ${store.getIconClass()} request__msg-icon`}
+					<div className={`${store.getIconClass()} request__msg-icon`}
 						title={store.getTooltip()}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
 						onClick={ onResend }

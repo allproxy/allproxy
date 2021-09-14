@@ -1,7 +1,7 @@
 import { assert } from 'console';
 import Message from './common/Message';
 
-const colors = ['blue', 'green', 'darkorange', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];
+const colors = ['darkorange', 'blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];
 let count = 0;
 let colorMap: Map<string, string> = new Map();
 
