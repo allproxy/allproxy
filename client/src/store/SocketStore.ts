@@ -7,6 +7,8 @@ import ProxyConfig from '../common/ProxyConfig';
 import { metricsStore } from './MetricsStore';
 import { mapProtocolToIndex } from './MetricsStore';
 import { noCaptureStore } from "./NoCaptureStore";
+import { filterStore } from "./FilterStore";
+import MessageStore from "./MessageStore";
 
 export default class SocketStore {
 	private socket?: SocketIOClient.Socket = undefined;
@@ -49,8 +51,15 @@ export default class SocketStore {
 				this.countMetrics(message);
 			}
 
-			// Filter messages from clients that are in the No Capture List
-			const filteredMessages = messages.filter(message => noCaptureStore.contains(message));
+			// Filter messages:
+			// 1) From clients that are in the No Capture List
+			// 2) If delete filtered (X) is selected, and message doesn't match filter criteria
+			const filteredMessages = messages.filter(
+				message => !noCaptureStore.contains(message)
+				&& (filterStore.getFilter().length === 0
+					|| !filterStore.deleteFiltered()
+					|| !filterStore.isFiltered(new MessageStore(message)))
+			);
 			messageQueueStore.insertBatch(filteredMessages);
 
 			if (callback) {

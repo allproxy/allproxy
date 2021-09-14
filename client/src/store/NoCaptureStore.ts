@@ -33,7 +33,7 @@ export default class NoCaptureStore {
 	}
 
 	public contains(message: Message): boolean {
-		return this.clientList.find(name => this.isMatch(name, message.clientIp!)) === undefined;
+		return this.clientList.find(name => this.isMatch(name, message.clientIp!)) !== undefined;
 	}
 
 	public getClientList() {
