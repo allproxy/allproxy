@@ -7,6 +7,7 @@ import Header from './components/Header';
 import { filterStore } from './store/FilterStore';
 import { socketStore } from './store/SocketStore';
 import { messageQueueStore } from './store/MessageQueueStore';
+import { snapshotStore } from './store/SnapshotStore';
 
 function App() {
   return (
@@ -15,8 +16,12 @@ function App() {
         socketStore={socketStore}
         filterStore={filterStore}
         messageQueueStore={messageQueueStore}
+        snapshotStore={snapshotStore}
       />
-      <Snapshots store={ messageQueueStore }/>
+      <Snapshots
+        messageQueueStore={ messageQueueStore }
+        snapshotStore={ snapshotStore }
+      />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { metricsStore } from '../store/MetricsStore';
 import { useFilePicker } from "use-file-picker";
 import { Menu, MenuItem } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
+import SnapshotStore from '../store/SnapshotStore';
 
 /**
  * Header view
@@ -20,9 +21,10 @@ import ExportDialog from './ExportDialog';
 type Props = {
 	socketStore: SocketStore,
 	messageQueueStore: MessageQueueStore,
+	snapshotStore: SnapshotStore,
 	filterStore: FilterStore
 };
-const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props) : JSX.Element => {
+const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props) : JSX.Element => {
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
@@ -35,7 +37,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 	  });
 
 	if (!!filesContent.length && filesContent[0].content) {
-		messageQueueStore.importSnapshot(filesContent[0].name, filesContent[0].content);
+		snapshotStore.importSnapshot(filesContent[0].name, filesContent[0].content);
 		clear();
 	}
 
@@ -54,8 +56,8 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
 				<div style={{
-					opacity: messageQueueStore.isActiveSnapshotSelected() ? undefined : 0.3,
-					pointerEvents: messageQueueStore.isActiveSnapshotSelected() ? undefined : 'none'
+					opacity: snapshotStore.isActiveSnapshotSelected() ? undefined : 0.3,
+					pointerEvents: snapshotStore.isActiveSnapshotSelected() ? undefined : 'none'
 					}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
@@ -86,12 +88,12 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 					>
 					<MenuItem
 						style={{
-							opacity: messageQueueStore.getSnapshotCount() > 1 ? undefined : 0.3,
-							pointerEvents: messageQueueStore.getSnapshotCount() > 1 ? undefined : 'none'
+							opacity: snapshotStore.getSnapshotCount() > 1 ? undefined : 0.3,
+							pointerEvents: snapshotStore.getSnapshotCount() > 1 ? undefined : 'none'
 						}}>
 						<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
 							onClick={() => {
-								messageQueueStore.deleteAllSnapshots();
+								snapshotStore.deleteAllSnapshots();
 								setMoreMenuIcon(null);
 							}}
 						>
@@ -99,9 +101,9 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 						</div>
 					</MenuItem>
 					<MenuItem style={{
-							opacity: !messageQueueStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+							opacity: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
 								? undefined : 0.3,
-							pointerEvents: !messageQueueStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+							pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
 								? undefined : 'none'
 							}}>
 						<div className="header__export fa fa-download" title="Export snapshot file"
@@ -192,7 +194,7 @@ const Header = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				open={openExportDialog}
 				onClose={(fileName) => {
 					setOpenExportDialog(false);
-					messageQueueStore.exportSelectedSnapshot(fileName);
+					snapshotStore.exportSelectedSnapshot(fileName);
 				}}
 			/>
 		</div>

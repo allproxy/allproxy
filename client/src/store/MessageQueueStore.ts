@@ -1,70 +1,17 @@
 import { makeAutoObservable, action } from "mobx"
-import { getTsBuildInfoEmitOutputFilePath } from "typescript";
 import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
+import { snapshotStore } from './SnapshotStore';
 
 const DEFAULT_LIMIT = 1000;
 const LOCAL_STORAGE_LIMIT = 'middleman-limit';
 
-export const ACTIVE_SNAPSHOT_NAME = 'Active';
-
-class Snapshots {
-	private snapshots: Map<string, MessageStore[]> = new Map();
-	private names: string[] = [];
-	private selectedReqSeqNumbers: number[] = [];
-	private fileNameMap: Map<string, string> = new Map();
-
-	constructor() {
-		makeAutoObservable(this);
-	}
-
-	public get(key: string): MessageStore[] {
-		return this.snapshots.get(key)!;
-	}
-
-	public set(key: string, snapshot: MessageStore[], fileName?: string) {
-		this.snapshots.set(key, snapshot);
-		this.names.push(key);
-		this.selectedReqSeqNumbers.push(Number.MAX_SAFE_INTEGER);
-		if (fileName) {
-			this.fileNameMap.set(key, fileName);
-		}
-	}
-
-	public delete(key: string) {
-		this.snapshots.delete(key);
-		const index = this.names.indexOf(key);
-		this.names.splice(index, 1);
-		this.selectedReqSeqNumbers.splice(index, 1);
-		this.fileNameMap.delete(key);
-	}
-
-	public count() {
-		return this.names.length;
-	}
-
-	public getNames(): string[] {
-		return this.names;
-	}
-
-	public getSelectedReqSeqNumbers(): number[] {
-		return this.selectedReqSeqNumbers;
-	}
-
-	public getFileName(key: string): string | undefined {
-		return this.fileNameMap.get(key);
-	}
-}
-
 export default class MessageQueueStore {
-	private selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
-	private snapshots: Snapshots = new Snapshots();
 	private limit: number = this._getLimit();
 	private stopped: boolean = false;
 	private autoScroll: boolean = false;
 
 	public constructor() {
-		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, []);
 		makeAutoObservable(this);
 	}
 
@@ -75,97 +22,6 @@ export default class MessageQueueStore {
 		}
 		localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
 		return DEFAULT_LIMIT;
-	}
-
-	public isActiveSnapshotSelected() {
-		return this.selectedSnapshotName === ACTIVE_SNAPSHOT_NAME;
-	}
-
-	public getSnapshotNames(): string[] {
-		return this.snapshots.getNames();
-	}
-
-	public getSelectedReqSeqNumbers(): number[] {
-		return this.snapshots.getSelectedReqSeqNumbers();
-	}
-
-	public getSnapshotName(name: string): string {
-		const fileName = this.snapshots.getFileName(name);
-		if (fileName) {
-			return fileName.replace('.middleman', '');
-		} else {
-			return 'SNAPSHOT';
-		}
-	}
-
-	public getSnapshotCount() {
-		return this.snapshots.count();
-	}
-
-	public getSnapshotSize(name: string) {
-		return this.snapshots.get(name).length;
-	}
-
-	public getSelectedSnapshotName(): string {
-		return this.selectedSnapshotName;
-	}
-
-	@action public setSelectedSnapshotName(name: string) {
-		this.selectedSnapshotName = name;
-	}
-
-	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
-		const padTime = (num: number) => (num+'').padStart(2, '0');
-		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
-		const date = new Date();
-		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
-		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
-		if(snapshot) {
-			this.snapshots.set(name, snapshot, fileName);
-		} else {
-			this.snapshots.set(name, activeSnapshot.slice(), fileName);
-			activeSnapshot.splice(0, activeSnapshot.length);
-		}
-		return name;
-	}
-
-	public deleteSnapshot(name: string) {
-		this.snapshots.delete(name);
-		if (this.selectedSnapshotName === name) {
-			this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
-		}
-	}
-
-	public deleteAllSnapshots() {
-		for(const name of this.snapshots.getNames().slice()) {
-			if(name !== ACTIVE_SNAPSHOT_NAME) {
-				this.deleteSnapshot(name);
-			}
-		}
-		this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
-	}
-
-	public exportSelectedSnapshot(fileName: string) {
-		const element = document.createElement("a");
-		let messages: Message[] = [];
-		for (const messageStore of this.getMessages()) {
-			messages.push(messageStore.getMessage());
-		}
-		const file = new Blob([JSON.stringify(messages, null, 2)], {type: 'text/plain'});
-		element.href = URL.createObjectURL(file);
-		element.download = fileName + '.middleman';
-		document.body.appendChild(element); // Required for this to work in FireFox
-		element.click();
-	}
-
-	public importSnapshot(fileName: string, snapshot: string) {
-		const parsedBlob = JSON.parse(snapshot);
-		const messageStores: MessageStore[] = [];
-		for (const message of parsedBlob) {
-			const ms = new MessageStore(message);
-			messageStores.push(ms);
-		}
-		this.newSnapshot(fileName, messageStores);
 	}
 
 	public getLimit(): number {
@@ -190,7 +46,7 @@ export default class MessageQueueStore {
 	}
 
 	public getAutoScroll(): boolean {
-		return this.selectedSnapshotName === ACTIVE_SNAPSHOT_NAME && this.autoScroll;
+		return snapshotStore.isActiveSnapshotSelected() && this.autoScroll;
 	}
 
 	@action public toggleAutoScroll() {
@@ -198,21 +54,20 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		while(this.snapshots.get(ACTIVE_SNAPSHOT_NAME).length > 0) {
-			this.snapshots.get(ACTIVE_SNAPSHOT_NAME).pop();
+		while(snapshotStore.getActiveSnapshot().length > 0) {
+			snapshotStore.getActiveSnapshot().pop();
 		}
 		this.stopped = false;
 	}
 
 	public getMessages(): MessageStore[] {
-		const snapshot = this.snapshots.get(this.selectedSnapshotName);
-		return snapshot;
+		return snapshotStore.getSelectedMessages();
 	}
 
 	@action public insertBatch(messages: Message[]) {
 		if (this.stopped) return;
 
-		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
+		const activeSnapshot = snapshotStore.getActiveSnapshot();
 
 		const copyMessages = activeSnapshot.slice(); // shallow copy
 		for (const message of messages) {
