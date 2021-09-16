@@ -11,6 +11,7 @@ export const ACTIVE_SNAPSHOT_NAME = 'Active';
 class Snapshots {
 	private snapshots: Map<string, MessageStore[]> = new Map();
 	private names: string[] = [];
+	private selectedReqSeqNumbers: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
 
 	constructor() {
@@ -24,6 +25,7 @@ class Snapshots {
 	public set(key: string, snapshot: MessageStore[], fileName?: string) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
+		this.selectedReqSeqNumbers.push(Number.MAX_SAFE_INTEGER);
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
@@ -31,7 +33,9 @@ class Snapshots {
 
 	public delete(key: string) {
 		this.snapshots.delete(key);
-		this.names.splice(this.names.indexOf(key), 1);
+		const index = this.names.indexOf(key);
+		this.names.splice(index, 1);
+		this.selectedReqSeqNumbers.splice(index, 1);
 		this.fileNameMap.delete(key);
 	}
 
@@ -41,6 +45,10 @@ class Snapshots {
 
 	public getNames(): string[] {
 		return this.names;
+	}
+
+	public getSelectedReqSeqNumbers(): number[] {
+		return this.selectedReqSeqNumbers;
 	}
 
 	public getFileName(key: string): string | undefined {
@@ -75,6 +83,10 @@ export default class MessageQueueStore {
 
 	public getSnapshotNames(): string[] {
 		return this.snapshots.getNames();
+	}
+
+	public getSelectedReqSeqNumbers(): number[] {
+		return this.snapshots.getSelectedReqSeqNumbers();
 	}
 
 	public getSnapshotName(name: string): string {
