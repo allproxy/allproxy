@@ -49,7 +49,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 										? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
 										: snapshotStore.getSnapshotName(value)) + ' ('+snapshotStore.getSnapshotSize(value)+')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
-										? <div className={ 'snapshot__folder-plus fa fa-folder-plus' }
+										? <div className={ 'snapshot__folder-plus fa fa-camera' }
 											style={{
 												marginLeft: '.5rem',
 												pointerEvents: snapshotStore.getSnapshotSize(value) === 0 ? 'none' : undefined,
