@@ -67,9 +67,15 @@ const SnapshotTabs = observer(({ store }: Props) => {
 						</Tab>
 					))}
 				</Tabs>
-				{store.getSnapshotNames().map(value => (
+				{store.getSnapshotNames().map((value, i) => (
 					<TabPanel value={value}>
-						<SnapshotTabContent messageQueueStore={ store }/>
+						<SnapshotTabContent
+							messageQueueStore={ store }
+							selectedReqSeqNum={store.getSelectedReqSeqNumbers()[i]}
+							setSelectedReqSeqNum={
+								(num) => store.getSelectedReqSeqNumbers()[i] = num
+							}
+					/>
 					</TabPanel>
 				))}
 			</TabContext>

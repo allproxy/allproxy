@@ -8,12 +8,14 @@ import Response from './Response';
 import ResendModal from './ResendModal';
 import ResendStore from '../store/ResendStore';
 import Message from '../common/Message';
+import { NumberLiteralType, VoidExpression } from 'typescript';
 
 type Props = {
-	messageQueueStore: MessageQueueStore
+	messageQueueStore: MessageQueueStore,
+	selectedReqSeqNum: number,
+	setSelectedReqSeqNum: (seqNum: number) => void,
 }
-const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
-	const [activeRequestSeqNum, setActiveRequestSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
+const SnapshotTabContent = observer(({ messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum }: Props) => {
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendMessage, setResendMessage] = React.useState<Message>();
 
@@ -22,11 +24,11 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 	React.useEffect(() => {
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
-			if (activeRequestSeqNum !== Number.MAX_SAFE_INTEGER) {
-				setScrollTo(activeRequestSeqNum);
+			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
+				setScrollTo(selectedReqSeqNum);
 			}
 		} else if (messageQueueStore.getAutoScroll()) {
-			if (activeRequestSeqNum === Number.MAX_SAFE_INTEGER) {
+			if (selectedReqSeqNum === Number.MAX_SAFE_INTEGER) {
 				const messages = messageQueueStore.getMessages();
 				const lastMessage = messages[messages.length - 1];
 				if (lastMessage) {
@@ -55,7 +57,7 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 						} else {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
-							const isActiveRequest = activeRequestSeqNum === seqNum;
+							const isActiveRequest = selectedReqSeqNum === seqNum;
 							if (isActiveRequest) {
 								activeRequestIndex = index;
 							}
@@ -114,10 +116,10 @@ const SnapshotTabContent = observer(({ messageQueueStore }: Props) => {
 	);
 
 	function handleClick(seqNum: number) {
-		const curSeqNum = activeRequestSeqNum;
-		setActiveRequestSeqNum(Number.MAX_SAFE_INTEGER);
+		const curSeqNum = selectedReqSeqNum;
+		setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		if (seqNum !== curSeqNum) {
-			setActiveRequestSeqNum(seqNum);
+			setSelectedReqSeqNum(seqNum);
 		}
 	}
 
