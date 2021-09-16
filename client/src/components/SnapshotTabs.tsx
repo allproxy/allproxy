@@ -1,57 +1,59 @@
 import { Tab, Tabs } from '@material-ui/core'
-import MessageQueueStore, { ACTIVE_SNAPSHOT_NAME } from '../store/MessageQueueStore';
+import MessageQueueStore from '../store/MessageQueueStore';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import SnapshotTabContent from './SnapshotTabContent';
+import SnapshotStore, { ACTIVE_SNAPSHOT_NAME } from '../store/SnapshotStore';
 
 type Props = {
-	store: MessageQueueStore,
+	messageQueueStore: MessageQueueStore,
+	snapshotStore: SnapshotStore,
 };
-const SnapshotTabs = observer(({ store }: Props) => {
+const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 
 	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
-		store.setSelectedSnapshotName(value);
+		snapshotStore.setSelectedSnapshotName(value);
 	}
 
 	function handleTakeSnapshot(value: string) {
 		// console.log('handleTakeSnapshot', value);
-		store.newSnapshot();
+		snapshotStore.newSnapshot();
 	}
 
 	function handleDeleteTab(event: any, value: string) {
 		// console.log('handleDeleteSnapshot', value);
 ;		event.stopPropagation();
-		if (store.getSelectedSnapshotName() === value) {
-			store.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
+		if (snapshotStore.getSelectedSnapshotName() === value) {
+			snapshotStore.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
-		store.deleteSnapshot(value);
+		snapshotStore.deleteSnapshot(value);
 	}
 
 	return (
 		<div className="snapshot__container">
-			<TabContext value={store.getSelectedSnapshotName()}>
+			<TabContext value={snapshotStore.getSelectedSnapshotName()}>
 				<Tabs
-					value={store.getSelectedSnapshotName()}
+					value={snapshotStore.getSelectedSnapshotName()}
 					onChange={handleTabChange}
 					indicatorColor="primary"
 					textColor="primary"
 					aria-label="Snapshots">
-					{store.getSnapshotNames().map((value, i) => (
+					{snapshotStore.getSnapshotNames().map((value, i) => (
 						<Tab
 							value={ value }
 							label={
 								<div className={'snapshot__tab'}>
 									<div>{(i === 0
-										? store.getStopped() ? 'Stopped' : 'Recording'
-										: store.getSnapshotName(value)) + ' ('+store.getSnapshotSize(value)+')'}</div>
+										? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
+										: snapshotStore.getSnapshotName(value)) + ' ('+snapshotStore.getSnapshotSize(value)+')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
 										? <div className={ 'snapshot__folder-plus fa fa-folder-plus' }
 											style={{
 												marginLeft: '.5rem',
-												pointerEvents: store.getSnapshotSize(value) === 0 ? 'none' : undefined,
-												opacity: store.getSnapshotSize(value) === 0 ? .2 : undefined,
+												pointerEvents: snapshotStore.getSnapshotSize(value) === 0 ? 'none' : undefined,
+												opacity: snapshotStore.getSnapshotSize(value) === 0 ? .2 : undefined,
 											}}
 											title="Take snapshot"
 											onClick={() => handleTakeSnapshot(value)}
@@ -67,13 +69,13 @@ const SnapshotTabs = observer(({ store }: Props) => {
 						</Tab>
 					))}
 				</Tabs>
-				{store.getSnapshotNames().map((value, i) => (
+				{snapshotStore.getSnapshotNames().map((value, i) => (
 					<TabPanel value={value}>
 						<SnapshotTabContent
-							messageQueueStore={ store }
-							selectedReqSeqNum={store.getSelectedReqSeqNumbers()[i]}
+							messageQueueStore={ messageQueueStore }
+							selectedReqSeqNum={snapshotStore.getSelectedReqSeqNumbers()[i]}
 							setSelectedReqSeqNum={
-								(num) => store.getSelectedReqSeqNumbers()[i] = num
+								(num) => snapshotStore.getSelectedReqSeqNumbers()[i] = num
 							}
 					/>
 					</TabPanel>
