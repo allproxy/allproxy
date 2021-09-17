@@ -35,6 +35,7 @@ declare global {
 		opera: any | undefined;
 		chrome: any | undefined;
 		HTMLElement: any | undefined;
+		StyleMedia: any | undefined;
 	}
 
 	interface Document {
