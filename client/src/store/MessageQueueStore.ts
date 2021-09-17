@@ -4,7 +4,7 @@ import MessageStore from './MessageStore';
 import { snapshotStore } from './SnapshotStore';
 
 const DEFAULT_LIMIT = 1000;
-const LOCAL_STORAGE_LIMIT = 'middleman-limit';
+const LOCAL_STORAGE_LIMIT = 'anyproxy-limit';
 
 export default class MessageQueueStore {
 	private limit: number = this._getLimit();

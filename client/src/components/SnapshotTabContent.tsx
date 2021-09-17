@@ -8,14 +8,17 @@ import Response from './Response';
 import ResendModal from './ResendModal';
 import ResendStore from '../store/ResendStore';
 import Message from '../common/Message';
-import { NumberLiteralType, VoidExpression } from 'typescript';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
 	selectedReqSeqNum: number,
 	setSelectedReqSeqNum: (seqNum: number) => void,
+	scrollTop: number,
+	setScrollTop: (scrollTop: number) => void,
 }
-const SnapshotTabContent = observer(({ messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum }: Props) => {
+const SnapshotTabContent = observer(({
+	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop
+}: Props) => {
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendMessage, setResendMessage] = React.useState<Message>();
 
@@ -35,6 +38,8 @@ const SnapshotTabContent = observer(({ messageQueueStore, selectedReqSeqNum, set
 					setScrollTo(lastMessage.getMessage().sequenceNumber);
 				}
 			}
+		} else {
+			restoreScrollTop();
 		}
 	});
 
@@ -50,7 +55,7 @@ const SnapshotTabContent = observer(({ messageQueueStore, selectedReqSeqNum, set
 	return (
 		<div className="request-response__container">
 			{messageQueueStore.getMessages().length > 0 &&
-				<div className="request__container" ref={ref}>
+				<div className="request__container" ref={ref} onScroll={handleScroll}>
 					{messageQueueStore.getMessages().map((messageStore, index) => {
 						if (filterStore.isFiltered(messageStore)) {
 							return null;
@@ -120,6 +125,20 @@ const SnapshotTabContent = observer(({ messageQueueStore, selectedReqSeqNum, set
 		setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		if (seqNum !== curSeqNum) {
 			setSelectedReqSeqNum(seqNum);
+		}
+	}
+
+	function handleScroll() {
+		const parent = (ref.current as Element);
+		if (parent && parent.childNodes.length > 0) {
+			setScrollTop(parent.scrollTop);
+		}
+	}
+
+	function restoreScrollTop() {
+		const parent = (ref.current as Element);
+		if (parent && parent.childNodes.length > 0) {
+			parent.scrollTop = scrollTop;
 		}
 	}
 

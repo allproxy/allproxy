@@ -83,7 +83,7 @@ export default class ResendStore {
             }
         }
 
-        headers['middleman_proxy'] = 'resend';
+        headers['anyproxy'] = 'resend';
 
         if(!url.startsWith('http:') && !url.startsWith('https:')) {
             const protocolHost = document.location.protocol+'//'+document.location.host;

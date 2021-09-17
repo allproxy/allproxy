@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from "../common/Message";
 
-const LOCAL_STORAGE = 'middleman-no-capture';
+const LOCAL_STORAGE = 'anyproxy-no-capture';
 
 export default class NoCaptureStore {
 	private clientList: string[] = [];

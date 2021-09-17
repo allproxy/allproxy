@@ -30,7 +30,7 @@ export default class HttpProxy {
             : __dirname + path.sep + 'client' + path.sep + 'build';
 
         Global.log(reqUrl.pathname, reqUrl.search);
-        if (reqUrl.pathname === '/'+'middleman') {
+        if (reqUrl.pathname === '/'+'middleman' || reqUrl.pathname === '/'+'anyproxy') {
             Global.log(sequenceNumber, 'loading index.html');
             client_res.writeHead(200, {
                 'Content-type' : 'text/html'
@@ -71,7 +71,7 @@ export default class HttpProxy {
                 });
                 client_res.end(fs.readFileSync(clientDir + reqUrl.pathname));
             } else if (reqUrl.protocol === null
-                && reqUrl.pathname === '/api/middleman/config') {
+                && reqUrl.pathname === '/api/anyproxy/config') {
                 const configs = await Global.socketIoManager.updateHostReachable();
                 client_res.writeHead(200, {
                     'Content-type': 'application/json'
@@ -97,7 +97,7 @@ export default class HttpProxy {
                     let msg = 'No matching proxy configuration found for '+reqUrl.pathname;
                     Global.log(sequenceNumber, msg);
                     if(reqUrl.pathname === '/') {
-                        client_res.writeHead(302, {'Location': reqUrl.href+'middleman'});
+                        client_res.writeHead(302, {'Location': reqUrl.href+'anyproxy'});
                         client_res.end();
                     } else {
                         sendErrorResponse(404, msg);
