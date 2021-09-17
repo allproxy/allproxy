@@ -61,10 +61,10 @@ class ProxyConfigStore {
 
 	public retrieveProxyConfigs(): Promise<ProxyConfig[]> {
 		const headers: {[key: string]: string} = {};
-		headers['middleman_proxy'] = 'config';
+		headers['anyproxy'] = 'config';
 		return new Promise((resolve) => {
 			const url = document.location.protocol + '//' + document.location.host
-			+ '/api/middleman/config';
+			+ '/api/anyproxy/config';
 			fetch(url, headers)
 				.then((response) => response.json())
 				.then(data => {

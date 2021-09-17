@@ -8,6 +8,7 @@ class Snapshots {
 	private snapshots: Map<string, MessageStore[]> = new Map();
 	private names: string[] = [];
 	private selectedReqSeqNumbers: number[] = [];
+	private scrollTop: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
 
 	constructor() {
@@ -22,6 +23,7 @@ class Snapshots {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
 		this.selectedReqSeqNumbers.push(Number.MAX_SAFE_INTEGER);
+		this.scrollTop.push(0);
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
@@ -32,6 +34,7 @@ class Snapshots {
 		const index = this.names.indexOf(key);
 		this.names.splice(index, 1);
 		this.selectedReqSeqNumbers.splice(index, 1);
+		this.scrollTop.splice(index, 1);
 		this.fileNameMap.delete(key);
 	}
 
@@ -45,6 +48,10 @@ class Snapshots {
 
 	public getSelectedReqSeqNumbers(): number[] {
 		return this.selectedReqSeqNumbers;
+	}
+
+	public getScrollTop(): number[] {
+		return this.scrollTop;
 	}
 
 	public getFileName(key: string): string | undefined {
@@ -77,10 +84,14 @@ export default class SnapshotStore {
 		return this.snapshots.getSelectedReqSeqNumbers();
 	}
 
+	public getScrollTop(): number[] {
+		return this.snapshots.getScrollTop();
+	}
+
 	public getSnapshotName(name: string): string {
 		const fileName = this.snapshots.getFileName(name);
 		if (fileName) {
-			return fileName.replace('.middleman', '');
+			return fileName.replace('.anyproxy', '');
 		} else {
 			return 'SNAPSHOT';
 		}
@@ -141,7 +152,7 @@ export default class SnapshotStore {
 		}
 		const file = new Blob([JSON.stringify(messages, null, 2)], {type: 'text/plain'});
 		element.href = URL.createObjectURL(file);
-		element.download = fileName + '.middleman';
+		element.download = fileName + '.anyproxy';
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}

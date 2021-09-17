@@ -77,6 +77,10 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 							setSelectedReqSeqNum={
 								(num) => snapshotStore.getSelectedReqSeqNumbers()[i] = num
 							}
+							scrollTop={snapshotStore.getScrollTop()[i]}
+							setScrollTop={
+								(scrollTop) => snapshotStore.getScrollTop()[i] = scrollTop
+							}
 					/>
 					</TabPanel>
 				))}

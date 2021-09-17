@@ -191,7 +191,7 @@ export default class TcpProxy {
                             '', // method
                             url, // url
                             endpoint, // endpoint
-                            { middleman_inner_body: requestString }, // req body
+                            { anyproxy_inner_body: requestString }, // req body
                             sourceSocket.remoteAddress, // clientIp
                             targetHost + ':' + targetPort, // serverHost
                             '', // path

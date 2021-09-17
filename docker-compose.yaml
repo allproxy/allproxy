@@ -5,14 +5,14 @@ networks:
     external: true
 
 services:
-  middleman:
+  anyproxy:
     build: .
-    container_name: middleman
+    container_name: anyproxy
     working_dir: /app
     networks:
       sharpspring_default:
         aliases:
-          - middleman
+          - anyproxy
     ports:
       - target: 8888
         published: 8888

@@ -19,7 +19,7 @@ export default class MessageStore {
         this._isError = this.isErrorResponse(message);
         this.visited = false;
         this.color = colorPicker(message);
-        if (message.requestHeaders['middleman_proxy'] === 'resend') {
+        if (message.requestHeaders['anyproxy'] === 'resend') {
             this.iconClass = 'fa-clone';
             this.iconClass += ' resend-icon';
         }
@@ -89,8 +89,8 @@ export default class MessageStore {
 
         if(this.message.requestBody) {
             let jsonBody = (this.message.requestBody as any);
-            if(jsonBody['middleman_inner_body']) {
-                body += jsonBody['middleman_inner_body'];
+            if(jsonBody['anyproxy_inner_body']) {
+                body += jsonBody['anyproxy_inner_body'];
             }
             else if(
                 typeof this.message.requestBody === 'string' &&

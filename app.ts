@@ -81,11 +81,6 @@ const httpsProxy = new HttpsProxy();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // trust all certificates
 
-const httpsOptions = {
-	key: fs.readFileSync(__dirname + '/private/keys/server.key'),
-	cert: fs.readFileSync(__dirname + '/private/keys/server.crt')
-};
-
 for(let entry of listen) {
 	let protocol = entry.protocol ? entry.protocol : 'http:';
 	let host = entry.host;
@@ -100,7 +95,7 @@ for(let entry of listen) {
 			(client_req, client_res) => httpProxy.onRequest(client_req, client_res));
 			httpServer.listen(port, host);
 		console.log(`Listening on ${protocol} ${host?host:''} ${port}`);
-		console.log(`Open browser to ${protocol}//localhost:${port}/middleman\n`);
+		console.log(`Open browser to ${protocol}//localhost:${port}/anyproxy\n`);
 
 		Global.socketIoManager.addHttpServer(httpServer);
 	}

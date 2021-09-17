@@ -1,5 +1,5 @@
 {
-  "name": "middleman",
+  "name": "anyproxy",
   "version": "1.0.0",
   "description": "Reverse (transparent) proxy that captures, edits and replays HTTP requests.",
   "main": "main.js",

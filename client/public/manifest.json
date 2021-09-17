@@ -1,6 +1,6 @@
 {
-  "short_name": "Middleman",
-  "name": "Middleman Proxy Tool",
+  "short_name": "AnyProxy",
+  "name": "AnyProxy Debugging Tool",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
