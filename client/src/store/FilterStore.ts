@@ -3,6 +3,7 @@ import MessageStore from './MessageStore';
 import _ from 'lodash';
 
 export default class FilterStore {
+    private enabled = true;
     private filter = '';
     private invalidFilterSyntax = false;
     private searchFilter = '';
@@ -16,6 +17,18 @@ export default class FilterStore {
 
     public constructor() {
 		makeAutoObservable(this);
+    }
+
+    public isEnabled() {
+        return this.enabled;
+    }
+
+    @action toggleEnabled() {
+        this.enabled = !this.enabled;
+    }
+
+    @action setEnabled(enabled: boolean) {
+        this.enabled = enabled;
     }
 
     public shouldResetScroll() {
@@ -34,6 +47,10 @@ export default class FilterStore {
         this._matchCase = !this._matchCase;
     }
 
+    @action public setMatchCase(matchCase: boolean) {
+        this._matchCase = matchCase;
+    }
+
     public regex(): boolean {
         return this._regex;
     }
@@ -42,12 +59,20 @@ export default class FilterStore {
         this._regex = !this._regex;
     }
 
+    @action public setRegex(regex: boolean) {
+        this._regex = regex;
+    }
+
     public logical(): boolean {
         return this._logical;
     }
 
     @action public toggleLogical() {
         this._logical = !this._logical;
+    }
+
+    @action public setLogical(logical: boolean) {
+        this._logical = logical;
     }
 
     public deleteFiltered(): boolean {
@@ -74,6 +99,20 @@ export default class FilterStore {
     }
 
     public isInvalidFilterSyntax(): boolean {
+        this.invalidFilterSyntax = false;
+        if (this._logical && this.boolString.length > 0) {
+            let boolString = this.boolString;
+            for (let i = 0; i < this.boolOperands.length; ++i) {
+                boolString = boolString.replace('###'+i, 'true');
+            }
+            //console.log(boolString);
+            try {
+                return !eval(boolString);
+            } catch (e) {
+                this.invalidFilterSyntax = true;
+                return true;
+            }
+        }
         return this.invalidFilterSyntax;
     }
 

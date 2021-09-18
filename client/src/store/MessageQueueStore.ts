@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message, { NO_RESPONSE } from '../common/Message';
+import { breakpointStore } from "./BreakpointStore";
 import MessageStore from './MessageStore';
 import { snapshotStore } from './SnapshotStore';
 
@@ -105,6 +106,15 @@ export default class MessageQueueStore {
 				copyMessages.splice(m + 1, 0, messageStore);
 			} else if (sn > message.sequenceNumber) {
 				copyMessages.splice(m, 0, messageStore);
+			}
+
+			const breakpoint = breakpointStore.findMatchingBreakpoint(message);
+			if (breakpoint) {
+				activeSnapshot.splice(0, activeSnapshot.length);
+				Array.prototype.push.apply(activeSnapshot, copyMessages);
+				copyMessages.splice(0, copyMessages.length);
+				snapshotStore.newSnapshot(breakpoint.getFilter());
+				breakpoint.setEnabled(false); // disable breakpoint
 			}
 
 			// Shrink array

@@ -1,11 +1,13 @@
 import React from 'react';
 import FilterStore from '../store/FilterStore';
 import SocketStore from '../store/SocketStore';
+import {breakpointStore} from '../store/BreakpointStore';
 import {noCaptureStore} from '../store/NoCaptureStore';
 import { observer } from 'mobx-react-lite';
 import ReachableHostsModal from './ReachableHostsModal';
 import SettingsModal from './SettingsModal';
 import NoCaptureModal from './NoCaptureModal';
+import BreakpointModal from './BreakpointModal';
 import { HostStatus, settingsStore } from '../store/SettingsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MetricsModal from './MetricsModal';
@@ -27,6 +29,7 @@ type Props = {
 const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props) : JSX.Element => {
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
+	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement|null>(null);
@@ -162,6 +165,9 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
 					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
 				</div>
+				<div className="header__settings fa fa-bug" title="Breakpoints"
+					onClick={() => { setShowBreakpointModal(true); breakpointStore.init(); } }>
+				</div>
 				<div className="header__settings fa fa-ban" title="No Capture List"
 					onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); } }>
 				</div>
@@ -184,6 +190,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				open={showSettingsModal}
 				onClose={() => setShowSettingsModal(false)}
 				store={ settingsStore }
+			/>
+			<BreakpointModal
+				open={showBreakpointModal}
+				onClose={() => setShowBreakpointModal(false)}
+				store={ breakpointStore }
 			/>
 			<NoCaptureModal
 				open={showNoCaptureModal}
