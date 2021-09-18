@@ -169,6 +169,18 @@ td input {
 	border-radius: .5rem;
 }
 
+.breakpoint__icon {
+	margin-left: .5rem;
+	cursor: pointer;
+	width: 2ch;
+	text-align: center;
+}
+.breakpoint__icon.active {
+	color: whitesmoke;
+	background: black;
+	border-radius: .5rem;
+}
+
 .header__count {
 	margin: 0 0 0 1rem;
 	color: whitesmoke;
@@ -370,6 +382,7 @@ td input {
 	justify-content: center;
 }
 
+.breakpoint-modal,
 .no-capture-modal,
 .metrics-modal,
 .reachable-modal,
@@ -377,6 +390,10 @@ td input {
 	background: white;
 	width: 99vw;
 	padding: 1rem 1rem;
+}
+
+.breakpoint-modal {
+	max-width: 800px;
 }
 
 .no-capture-modal {
