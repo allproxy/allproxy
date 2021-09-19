@@ -1,7 +1,7 @@
 import { List, ListItem, Modal } from '@material-ui/core'
 import BreakpointStore from '../store/BreakpointStore';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FilterStore from '../store/FilterStore';
 
 type Props = {
@@ -10,17 +10,12 @@ type Props = {
 	store: BreakpointStore,
 };
 const BreakpointModal = observer(({ open, onClose, store }: Props) => {
-	const [saveDisabled, setSaveDisabled] = useState(true);
+	useEffect(() => {
+		store.editing(open);
+	})
 
 	function close() {
-		setSaveDisabled(true);
-		store.init();
 		onClose();
-	}
-
-	function handleSave() {
-		store.save();
-		close();
 	}
 
 	function handleAddBreakpoint() {
@@ -28,13 +23,33 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 	}
 
 	function handleDeleteBreakpoint(i: number) {
-		setSaveDisabled(false);
 		store.deleteEntry(i);
+		store.changed();
+	}
+
+	function handleToggleEnable(breakpoint: FilterStore) {
+		breakpoint.toggleEnabled();
+		store.changed();
 	}
 
 	function handleValueChange(e: any, breakpoint: FilterStore) {
-		setSaveDisabled(false);
 		breakpoint.setFilter(e.currentTarget.value);
+		store.changed();
+	}
+
+	function handleMatchCase(breakpoint: FilterStore) {
+		breakpoint.toggleMatchCase();
+		store.changed();
+	}
+
+	function handleRegex(breakpoint: FilterStore) {
+		breakpoint.toggleRegex();
+		store.changed();
+	}
+
+	function handleLogical(breakpoint: FilterStore) {
+		breakpoint.toggleLogical();
+		store.changed();
 	}
 
 	return (
@@ -64,49 +79,50 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 									<ListItem key={i}
 										style={{
 											display: 'flex', alignItems: 'center',
-											opacity: breakpoint.isEnabled() ? 1 : .5,
 										}}>
 										<div className="no-capture-modal__remove fa fa-minus-circle"
 											title="Remove breakpoint"
 											onClick={() => handleDeleteBreakpoint(i)}/>
-										<button className={`btn ${breakpoint.isEnabled() ? 'btn-danger' : 'btn-success'}`}
-											onClick={() => breakpoint.toggleEnabled()}
+										<button className={`btn ${breakpoint.isEnabled() ? 'btn-primary' : 'btn-secondary'}`}
+											onClick={() => handleToggleEnable(breakpoint)}
 											title={breakpoint.isEnabled() ? 'Disable breakpoint' : 'Enable breakpoint'}
 										>
 											{ breakpoint.isEnabled() ? 'Disable' : 'Enable' }
 										</button>
-										<input className="form-control"
+										<div
 											style={{
-												background: !breakpoint.isInvalidFilterSyntax()
-													? (breakpoint.getFilter().length > 0 ? 'lightGreen' : undefined)
-													: 'lightCoral'
+												display: 'flex', alignItems: 'center',
+												width: '100%',
 											}}
-											placeholder="Take snapshot when breakpoint expression matches any request/response"
-											value={breakpoint.getFilter()}
-											onChange={(e) => handleValueChange(e, breakpoint)}
-										/>
-										<div className={`breakpoint__icon ${breakpoint.matchCase() ? 'active' : ''}`}
-											title="Match case" onClick={() => breakpoint.toggleMatchCase()}>Aa</div>
-										<div className={`breakpoint__icon ${breakpoint.regex() ? 'active' : ''}`}
-											title="Use regular expression" onClick={() => breakpoint.toggleRegex()}>.*</div>
-										<div className={`breakpoint__icon ${breakpoint.logical() ? 'active' : ''}`}
-											title="Use (), &&, ||, !" onClick={() => breakpoint.toggleLogical()}>&&</div>
+										>
+											<input className="form-control"
+												style={{
+													background: !breakpoint.isInvalidFilterSyntax()
+														? undefined
+														: 'lightCoral'
+												}}
+												disabled={breakpoint.isEnabled() ? false : true}
+												placeholder="Take snapshot when breakpoint expression matches any request/response"
+												value={breakpoint.getFilter()}
+												onChange={(e) => handleValueChange(e, breakpoint)}
+											/>
+											<div className={`breakpoint__icon ${breakpoint.matchCase() ? 'active' : ''}`}
+												title="Match case" onClick={() => handleMatchCase(breakpoint)}>Aa</div>
+											<div className={`breakpoint__icon ${breakpoint.regex() ? 'active' : ''}`}
+												title="Use regular expression" onClick={() => handleRegex(breakpoint)}>.*</div>
+											<div className={`breakpoint__icon ${breakpoint.logical() ? 'active' : ''}`}
+												title="Use (), &&, ||, !" onClick={() => handleLogical(breakpoint)}>&&</div>
+										</div>
 									</ListItem>
 								))}
 							</List>
 						</div>
 					</div>
 					<div className="modal-footer">
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-default btn-success"
 							onClick={ close }
 						>
-							Cancel
-						</button>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-success"
-							disabled={saveDisabled}
-							onClick={ handleSave }
-						>
-							Save
+							Done
 						</button>
 					</div>
 				</div>

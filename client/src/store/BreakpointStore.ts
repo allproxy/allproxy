@@ -1,4 +1,4 @@
-import { makeAutoObservable, action, reaction } from "mobx"
+import { makeAutoObservable, action } from "mobx"
 import Message from "../common/Message";
 import FilterStore from "./FilterStore";
 import MessageStore from "./MessageStore";
@@ -7,18 +7,34 @@ const LOCAL_STORAGE = 'anyproxy-breakpoints';
 
 export default class BreakpointStore {
 	private breakpointList: FilterStore[] = [];
+	private _editing = false;
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	@action public editing(editing: boolean) {
+		this._editing = editing;
+	}
+
+	@action public changed() {
+		this.save();
 	}
 
 	@action public init() {
 		const breakpointListJson = localStorage.getItem(LOCAL_STORAGE);
 		if (breakpointListJson) {
 			const breakpointList = JSON.parse(breakpointListJson);
-			this.breakpointList = breakpointList.map((entry: { searchFilter: string, _matchCase: boolean, _logical: boolean }) => {
+			this.breakpointList = breakpointList.map((entry: {
+				enabled: boolean,
+				searchFilter: string,
+				_matchCase: boolean,
+				_regex: boolean,
+				_logical: boolean }) => {
 				const breakpoint = new FilterStore();
+				breakpoint.setEnabled(entry.enabled);
 				breakpoint.setFilter(entry.searchFilter);
+				breakpoint.setRegex(entry._regex);
 				breakpoint.setMatchCase(!!entry._matchCase);
 				breakpoint.setLogical(!!entry._logical);
 				return breakpoint;
@@ -28,21 +44,13 @@ export default class BreakpointStore {
 		}
 	}
 
-	@action public save() {
+	@action private save() {
 		const breakpointList = this.breakpointList.filter(breakpoint => breakpoint.getFilter().length > 0);
 		localStorage.setItem(LOCAL_STORAGE, JSON.stringify(breakpointList));
 	}
 
-	private isMatch(needle: string, haystack: string): boolean {
-		if (needle.includes('.*')) {
-			return haystack.toLowerCase().search(needle.toLowerCase()) !== -1;
-		} else {
-			return needle.toLowerCase() === haystack.toLowerCase();
-		}
-	}
-
 	public findMatchingBreakpoint(message: Message): FilterStore | null {
-		if (this.breakpointList.length === 0) return null;
+		if (this.breakpointList.length === 0 || this._editing) return null;
 		for(const breakpoint of this.breakpointList) {
 			if(breakpoint.isEnabled() && !breakpoint.isFiltered(new MessageStore(message))) {
 				return breakpoint;
@@ -61,11 +69,8 @@ export default class BreakpointStore {
 
 	@action public deleteEntry(index: number) {
 		this.breakpointList.splice(index, 1);
+		this.save();
 	}
  }
-
-reaction(() => breakpointStore, () => {
-	breakpointStore.save();
-});
 
 export const breakpointStore = new BreakpointStore();
