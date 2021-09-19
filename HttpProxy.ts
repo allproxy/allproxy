@@ -33,7 +33,7 @@ export default class HttpProxy {
         if (reqUrl.pathname === '/'+'middleman' || reqUrl.pathname === '/'+'anyproxy') {
             Global.log(sequenceNumber, 'loading index.html');
             client_res.writeHead(200, {
-                'Content-type' : 'text/html'
+                'content-type' : 'text/html'
             });
             client_res.end(fs.readFileSync(clientDir + path.sep+'index.html'));
         } else {
@@ -67,14 +67,14 @@ export default class HttpProxy {
                 // Read local file and return to client
                 Global.log(sequenceNumber, 'loading local file');
                 client_res.writeHead(200, {
-                    'Content-type': contentType
+                    'content-type': contentType
                 });
                 client_res.end(fs.readFileSync(clientDir + reqUrl.pathname));
             } else if (reqUrl.protocol === null
                 && reqUrl.pathname === '/api/anyproxy/config') {
                 const configs = await Global.socketIoManager.updateHostReachable();
                 client_res.writeHead(200, {
-                    'Content-type': 'application/json'
+                    'content-type': 'application/json'
                 });
                 client_res.end(JSON.stringify(configs, null, 2));
             } else {
@@ -250,7 +250,7 @@ export default class HttpProxy {
                     })
 
                     client_res.writeHead(status, {
-                        'Content-type' : 'application/json'
+                        'content-type' : 'application/json'
                     });
 
                     client_res.end(JSON.stringify(message.responseBody, null, 2));
