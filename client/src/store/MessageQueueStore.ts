@@ -115,6 +115,7 @@ export default class MessageQueueStore {
 				copyMessages.splice(0, copyMessages.length);
 				snapshotStore.newSnapshot(breakpoint.getFilter());
 				breakpoint.setEnabled(false); // disable breakpoint
+				breakpointStore.changed();
 			}
 
 			// Shrink array
