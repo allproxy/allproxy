@@ -20,7 +20,7 @@ export default class MessageStore {
         this.visited = false;
         this.color = colorPicker(message);
         if (message.requestHeaders['anyproxy'] === 'resend') {
-            this.iconClass = 'fa-clone';
+            this.iconClass = 'fa fa-clone';
             this.iconClass += ' resend-icon';
         }
         else {

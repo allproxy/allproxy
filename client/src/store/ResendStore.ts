@@ -38,7 +38,10 @@ export default class ResendStore {
     @action public validateBody(body: string) {
         this.body = body;
         if(body) {
-            if(body.length > 0) {
+            if(body.length > 0
+                && this.message.requestHeaders['content-type'] &&
+                this.message.requestHeaders['content-type'].includes('application/json')
+            ) {
                 try {
                     if(!(JSON.parse(body) instanceof Object)) {
                         this.error = 'JSON format invalid!';
