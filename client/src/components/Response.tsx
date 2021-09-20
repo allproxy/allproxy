@@ -108,7 +108,7 @@ const Response = ({ message }: Props) => {
 function getQueryParams(message: Message): string[]|null {
 	// Format query parameters
 	let queryParams: string[] = [];
-	if(message.url!.indexOf('?') !== -1) {
+	if(message.url && message.url.indexOf('?') !== -1) {
 			var temp = message.url!.split('?')[1];
 			temp.split('&').forEach(function(param) {
 					var keyValue = param.split('=');
