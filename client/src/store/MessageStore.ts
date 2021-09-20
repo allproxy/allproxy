@@ -85,7 +85,7 @@ export default class MessageStore {
     }
 
     public getRequestBody(): string {
-        let body = this.message.method!.length > 0 ? this.url + '\n' : '';
+        let body = this.message.method && this.message.method.length > 0 ? this.url + '\n' : '';
 
         if(this.message.requestBody) {
             let jsonBody = (this.message.requestBody as any);
