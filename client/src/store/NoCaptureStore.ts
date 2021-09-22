@@ -8,6 +8,7 @@ export default class NoCaptureStore {
 
 	public constructor() {
 		makeAutoObservable(this);
+		this.init();
 	}
 
 	@action public init() {
@@ -20,8 +21,8 @@ export default class NoCaptureStore {
 	}
 
 	@action public save() {
-		const clientList = this.clientList.filter(client => client.length > 0);
-		localStorage.setItem(LOCAL_STORAGE, JSON.stringify(clientList));
+		this.clientList = this.clientList.filter(client => client.length > 0);
+		localStorage.setItem(LOCAL_STORAGE, JSON.stringify(this.clientList));
 	}
 
 	private isMatch(needle: string, haystack: string): boolean {
@@ -33,7 +34,10 @@ export default class NoCaptureStore {
 	}
 
 	public contains(message: Message): boolean {
-		return this.clientList.find(name => this.isMatch(name, message.clientIp!)) !== undefined;
+		for(const client of this.clientList) {
+			if (this.isMatch(client, message.clientIp!)) return true;
+		}
+		return false;
 	}
 
 	public getClientList() {
@@ -51,6 +55,6 @@ export default class NoCaptureStore {
 	@action public updateEntry(index: number, value: string) {
 		this.clientList[index] = value;
 	}
- }
+}
 
 export const noCaptureStore = new NoCaptureStore();

@@ -55,10 +55,16 @@ export default class SocketStore {
 			// 1) From clients that are in the No Capture List
 			// 2) If delete filtered (X) is selected, and message doesn't match filter criteria
 			const filteredMessages = messages.filter(
-				message => !noCaptureStore.contains(message)
-				&& (filterStore.getFilter().length === 0
-					|| !filterStore.deleteFiltered()
-					|| !filterStore.isFiltered(new MessageStore(message)))
+				message => {
+					if (noCaptureStore.contains(message)) return false;
+					if (
+						filterStore.getFilter().length > 0
+						&& filterStore.deleteFiltered()
+						&& filterStore.isFiltered(new MessageStore(message))) {
+							return false;
+					}
+					return true;
+				}
 			);
 			messageQueueStore.insertBatch(filteredMessages);
 
