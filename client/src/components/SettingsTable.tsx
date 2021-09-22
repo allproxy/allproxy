@@ -59,7 +59,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 						</td>
 						<td className="settings-modal__proxy-path-container">
 							<input className="form-control settings-modal__proxy-path"
-								style={{width: pathLabel().includes('Port') ? '7ch' : undefined}}
+								style={{width: pathLabel().includes('Port') ? '8ch' : undefined}}
 								onChange={ (e) => store.updateEntryPath(index, e.target.value) }
 								value={entry.path} />
 						</td>
