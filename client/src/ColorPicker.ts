@@ -1,6 +1,7 @@
 import Message from './common/Message';
 
-const colors = ['darkorange', 'blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];
+const firefoxColor = 'orangered';
+const colors = ['blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
 let count = 0;
 let colorMap: Map<string, string> = new Map();
 
@@ -8,6 +9,10 @@ export default function colorPicker(message: Message): string {
 	const protocol = message.proxyConfig
 		? message.proxyConfig.protocol
 		: message.protocol;
+
+	if (protocol === 'browser:') {
+		return firefoxColor;
+	}
 
 	let key = '';
 	switch (protocol) {
