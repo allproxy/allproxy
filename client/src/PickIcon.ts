@@ -1,4 +1,4 @@
-export default function pickIcon(protocol: string, userAgent?: string): string {
+export default function pickIcon(protocol: string): string {
 	let iconClass = '';
 	switch (protocol) {
 		case 'http:':

@@ -1,5 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 import Message, { MessageType } from '../common/Message';
 import proxyConfigStore from './ProxyConfigStore';
 import { messageQueueStore } from './MessageQueueStore';
@@ -11,7 +11,7 @@ import { filterStore } from "./FilterStore";
 import MessageStore from "./MessageStore";
 
 export default class SocketStore {
-	private socket?: SocketIOClient.Socket = undefined;
+	private socket?: Socket = undefined;
 	private socketConnected: boolean = false;
 	private queuedCount: number = 0;
 	private requestCount: number = 0;

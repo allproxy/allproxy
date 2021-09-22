@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "types": ["jest", "node"],
     "lib": [
       "dom",
       "dom.iterable",
@@ -15,6 +16,11 @@
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "sourceMap": true,
+    "strictNullChecks": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -22,6 +28,7 @@
     "experimentalDecorators": true
   },
   "include": [
-    "src"
+    "src",
+    "src/test"
   ]
 }

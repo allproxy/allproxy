@@ -54,7 +54,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 						<td className="settings-modal__recording-container">
 							<div className={'settings__recording fas '
 								+ (entry.recording ? 'fa-pause' : 'fa-play')}
-								onClick={(e) => store.toggleEntryCapture(index)}
+								onClick={() => store.toggleEntryCapture(index)}
 							/>
 						</td>
 						<td className="settings-modal__proxy-path-container">

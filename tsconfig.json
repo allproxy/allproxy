@@ -2,6 +2,11 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "sourceMap": true,
+    "strictNullChecks": true,
     "rootDir": "./",
     "outDir": "./build",
     "esModuleInterop": true,

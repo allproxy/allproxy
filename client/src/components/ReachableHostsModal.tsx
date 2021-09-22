@@ -14,7 +14,7 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 	const TAB_VALUES = [HostStatus.Reachable, HostStatus.Unreachable];
 	const [tabValue, setTabValue] = React.useState(initTabValue);
 
-	function handleTabChange(e: React.ChangeEvent<{}>, value: HostStatus) {
+	function handleTabChange(_e: React.ChangeEvent<{}>, value: HostStatus) {
 		setTabValue(value);
 	}
 
