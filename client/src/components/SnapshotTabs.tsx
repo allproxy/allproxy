@@ -12,12 +12,12 @@ type Props = {
 };
 const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 
-	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
+	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
 		snapshotStore.setSelectedSnapshotName(value);
 	}
 
-	function handleTakeSnapshot(value: string) {
+	function handleTakeSnapshot(_value: string) {
 		// console.log('handleTakeSnapshot', value);
 		snapshotStore.newSnapshot();
 	}

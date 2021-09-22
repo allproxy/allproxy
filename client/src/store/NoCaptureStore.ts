@@ -11,7 +11,7 @@ export default class NoCaptureStore {
 		this.init();
 	}
 
-	@action public init() {
+  @action public init() {
 		const clientList = localStorage.getItem(LOCAL_STORAGE);
 		if (clientList) {
 			this.clientList = JSON.parse(clientList);

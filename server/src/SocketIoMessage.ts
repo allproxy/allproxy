@@ -1,148 +1,138 @@
-const decompressResponse = require('decompress-response');
-import Message from '../../common/Message';
-import { IncomingHttpHeaders, IncomingMessage } from 'http';
-import querystring from 'querystring';
-import { getHttpEndpoint } from '../../HttpProxy';
-import Global from './Global';
+import Message from '../../common/Message'
+import { IncomingHttpHeaders, IncomingMessage } from 'http'
+import querystring from 'querystring'
+import { getHttpEndpoint } from '../../HttpProxy'
+import Global from './Global'
+const decompressResponse = require('decompress-response')
 
 export default class SocketMessage {
-	/**
-	 * Parse request data
-	 */
-	public static async parseRequest(client_req: IncomingMessage, startTime: number, sequenceNumber: number, host: string, path: string)
-		: Promise<Message>
-	{
+  /**
+   * Parse request data
+   */
+  public static async parseRequest (clientReq: IncomingMessage, startTime: number, sequenceNumber: number, host: string, path: string)
+    : Promise<Message> {
+    return new Promise(function (resolve) {
+      clientReq.setEncoding('utf8')
+      let rawData = ''
+      clientReq.on('data', function (chunk) {
+        rawData += chunk
+      })
 
-		return new Promise(async function(resolve) {
+      let requestBody: string|{}
+      clientReq.on('end', async function () {
+        try {
+          requestBody = JSON.parse(rawData)
+        } catch (e) {
+          const contentType = clientReq.headers['content-type']
+          if (contentType && contentType.indexOf('application/x-www-form-urlencoded') !== -1) {
+            requestBody = querystring.parse(rawData)
+          } else {
+            requestBody = rawData
+          }
+        }
 
-			client_req.setEncoding('utf8');
-			var rawData = '';
-			client_req.on('data', function(chunk) {
-				rawData += chunk;
-			});
+        const message = await buildRequest(Date.now(),
+          sequenceNumber,
+          clientReq.headers,
+          clientReq.method,
+          clientReq.url,
+          getHttpEndpoint(clientReq, requestBody),
+          requestBody,
+          clientReq.socket.remoteAddress,
+          host, // server host
+          path,
+          Date.now() - startTime)
 
-			var requestBody: string|{};
-			client_req.on('end', async function() {
+        resolve(message)
+      })
+    })
+  }
 
-				try {
-					requestBody = JSON.parse(rawData)
-				} catch (e) {
-					const contentType = client_req.headers['content-type'];
-					if (contentType && contentType.indexOf('application/x-www-form-urlencoded') !== -1) {
-						requestBody = querystring.parse(rawData);
-					} else {
-						requestBody = rawData;
-					}
-				}
+  public static buildRequest (timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
+    : Promise<Message> {
+    return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime)
+  }
 
-				let message = await buildRequest(Date.now(),
-											sequenceNumber,
-											client_req.headers,
-											client_req.method,
-											client_req.url,
-											getHttpEndpoint(client_req, requestBody),
-											requestBody,
-											client_req.socket.remoteAddress,
-											host, // server host
-											path,
-											Date.now() - startTime);
+  /**
+   * Parse response
+   */
+  public static parseResponse (proxyRes: any, startTime: number, message: Message): Promise<Message> {
+    return new Promise((resolve) => {
+      if (proxyRes.headers) {
+        if (proxyRes.headers['content-encoding']) {
+          proxyRes = decompressResponse(proxyRes)
+          // delete proxyRes.headers['content-encoding'];
+        }
 
-				resolve(message);
-			});
+        if (proxyRes.headers['content-type'] &&
+            proxyRes.headers['content-type'].indexOf('utf-8') !== -1) {
+          proxyRes.setEncoding('utf8')
+        }
+      }
 
-		});
-	}
+      let rawData = ''
+      proxyRes.on('data', function (chunk: string) {
+        rawData += chunk
+      })
+      proxyRes.on('end', () => {
+        let parsedData
+        try {
+          parsedData = JSON.parse(rawData) // assume JSON
+        } catch (e) {
+          parsedData = rawData
+        }
 
-	public static buildRequest(timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
-		: Promise<Message>
-	{
-		return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
-	}
+        this.appendResponse(message, proxyRes.headers, parsedData, proxyRes.statusCode, Date.now() - startTime)
 
-	/**
-	 * Parse response
-	 */
-	public static parseResponse(proxyRes: any, startTime: number, message: Message): Promise<Message> {
+        resolve(message)
+      })
+    })
+  }
 
-		return new Promise((resolve) => {
-
-			if(proxyRes.headers) {
-				if(proxyRes.headers['content-encoding']) {
-					proxyRes = decompressResponse(proxyRes);
-					//delete proxyRes.headers['content-encoding'];
-				}
-
-				if(proxyRes.headers['content-type'] &&
-						proxyRes.headers['content-type'].indexOf('utf-8') != -1) {
-					proxyRes.setEncoding('utf8');
-				}
-			}
-
-			var rawData = '';
-			proxyRes.on('data', function(chunk: string) {
-				rawData += chunk;
-			});
-			proxyRes.on('end', () => {
-				var parsedData;
-				try {
-					parsedData = JSON.parse(rawData); // assume JSON
-				}
-				catch(e) {
-					parsedData = rawData;
-				}
-
-				this.appendResponse(message, proxyRes.headers, parsedData, proxyRes.statusCode, Date.now() - startTime);
-
-				resolve(message);
-			});
-		});
-	}
-
-	public static appendResponse(message: Message, responseHeaders: {}, responseBody:{}|string, status:number, elapsedTime:number) {
-		appendResponse(message, responseHeaders, responseBody, status, elapsedTime);
-	}
-
+  public static appendResponse (message: Message, responseHeaders: {}, responseBody:{}|string, status:number, elapsedTime:number) {
+    appendResponse(message, responseHeaders, responseBody, status, elapsedTime)
+  }
 };
 
-async function buildRequest(timestamp:number, sequenceNumber:number, requestHeaders:{}, method:string|undefined, url:string|undefined, endpoint:string, requestBody:{}|string, clientIp:string|undefined, serverHost:string, path:string, elapsedTime:number)
-	: Promise<Message>
-{
-	return new Promise<Message>(async (resolve) => {
-		if (clientIp) {
-			clientIp = await Global.resolveIp(clientIp);
-			resolve(initMessage());
-		} else {
-			clientIp = 'unknown';
-			resolve(initMessage());
-		}
-	});
+async function buildRequest (timestamp:number, sequenceNumber:number, requestHeaders:{}, method:string|undefined, url:string|undefined, endpoint:string, requestBody:{}|string, clientIp:string|undefined, serverHost:string, path:string, elapsedTime:number)
+  : Promise<Message> {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise<Message>(async (resolve) => {
+    if (clientIp) {
+      clientIp = await Global.resolveIp(clientIp)
+      resolve(initMessage())
+    } else {
+      clientIp = 'unknown'
+      resolve(initMessage())
+    }
+  })
 
-	function initMessage(): Message {
-		var message = {
-			timestamp,
-			sequenceNumber,
-			requestHeaders,
-			method,
-			protocol: 'http:',
-			url,
-			endpoint,
-			requestBody,
-			clientIp,
-			serverHost,
-			path,
-			elapsedTime,
-			responseHeaders: {},
-			responseBody: {},
-			status: 0,
-		};
-		return message as Message;
-	}
+  function initMessage (): Message {
+    const message = {
+      timestamp,
+      sequenceNumber,
+      requestHeaders,
+      method,
+      protocol: 'http:',
+      url,
+      endpoint,
+      requestBody,
+      clientIp,
+      serverHost,
+      path,
+      elapsedTime,
+      responseHeaders: {},
+      responseBody: {},
+      status: 0
+    }
+    return message as Message
+  }
 }
 
-function appendResponse(message: Message, responseHeaders: {}, responseBody: {}, status:number, elapsedTime:number) {
-	message.responseHeaders = responseHeaders;
-	message.responseBody = responseBody;
-	message.status = status;
-	message.elapsedTime = elapsedTime;
-	return message;
+function appendResponse (message: Message, responseHeaders: {}, responseBody: {}, status:number, elapsedTime:number) {
+  message.responseHeaders = responseHeaders
+  message.responseBody = responseBody
+  message.status = status
+  message.elapsedTime = elapsedTime
+  return message
 }

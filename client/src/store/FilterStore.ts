@@ -107,6 +107,7 @@ export default class FilterStore {
             }
             //console.log(boolString);
             try {
+                // eslint-disable-next-line no-eval
                 return !eval(boolString);
             } catch (e) {
                 this.invalidFilterSyntax = true;
@@ -173,6 +174,7 @@ export default class FilterStore {
             }
             //console.log(boolString);
             try {
+                // eslint-disable-next-line no-eval
                 return !eval(boolString);
             } catch (e) {
                 this.invalidFilterSyntax = true;

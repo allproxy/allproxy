@@ -75,7 +75,7 @@ export default class MessageStore {
     }
 
     @action public setVisited(value: boolean) {
-        this.visited = true;
+        this.visited = value;
     }
 
     public isRequestBodyJson() {

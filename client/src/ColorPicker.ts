@@ -1,4 +1,3 @@
-import { assert } from 'console';
 import Message from './common/Message';
 
 const colors = ['darkorange', 'blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkred'];

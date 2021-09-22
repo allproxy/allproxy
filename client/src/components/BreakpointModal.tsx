@@ -1,7 +1,7 @@
 import { List, ListItem, Modal } from '@material-ui/core'
 import BreakpointStore from '../store/BreakpointStore';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import FilterStore from '../store/FilterStore';
 
 type Props = {

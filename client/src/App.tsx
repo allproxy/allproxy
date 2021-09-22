@@ -1,4 +1,3 @@
-import React from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'bootstrap-css-only/css/bootstrap.css';

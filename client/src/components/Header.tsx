@@ -71,12 +71,12 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					/>
 					<div className={'header__stop fas '
 						+ (messageQueueStore.getStopped() ? 'fa-play' : 'fa-pause')}
-						onClick={(e) => messageQueueStore.toggleStopped()}
+						onClick={() => messageQueueStore.toggleStopped()}
 						title={ (messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording') }
 					/>
 					<div className={'header__auto-scroll fa-arrow-alt-circle-down '
 						+ (messageQueueStore.getAutoScroll() ? 'fas' : 'far')}
-						onClick={(e) => messageQueueStore.toggleAutoScroll()}
+						onClick={() => messageQueueStore.toggleAutoScroll()}
 						title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
 					/>
 				</div>

@@ -17,7 +17,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 	const [tabValue, setTabValue] = React.useState('browser:');
 	store.setProtocol(tabValue);
 
-	function handleTabChange(e: React.ChangeEvent<{}>, value: string) {
+	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		setTabValue(value);
 		store.setProtocol(value);
 	}
