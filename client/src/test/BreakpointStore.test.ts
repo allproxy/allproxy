@@ -1,5 +1,4 @@
 import {breakpointStore} from '../store/BreakpointStore';
-import MessageStore from '../store/MessageStore';
 import Message from '../common/Message';
 
 test("BreakpointStore", () => {

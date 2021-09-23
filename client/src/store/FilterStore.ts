@@ -118,7 +118,8 @@ export default class FilterStore {
             //console.log(boolString);
             try {
                 // eslint-disable-next-line no-eval
-                return !eval(boolString);
+                eval(boolString);
+                return false;
             } catch (e) {
                 this.invalidFilterSyntax = true;
                 return true;
