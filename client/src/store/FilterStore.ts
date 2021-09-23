@@ -83,6 +83,16 @@ export default class FilterStore {
         this._deleteFiltered = !this._deleteFiltered;
     }
 
+    @action public setFilterNoDebounce(filter: string) {
+        if (this.filter.length > 0 && filter.length === 0) {
+            this.resetScroll = true;
+        }
+
+        this.filter = filter;
+        this.searchFilter = this.filter;
+        this.updateBoolString();
+    }
+
     @action public setFilter(filter: string) {
         if (this.filter.length > 0 && filter.length === 0) {
             this.resetScroll = true;
