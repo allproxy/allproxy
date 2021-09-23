@@ -248,7 +248,7 @@ td input {
 .request__container {
 	padding-right: .5rem;
 	overflow: auto;
-	width: 600px;
+	width: 50%;
 	height: calc(100vh - 6rem);
 	max-height: calc(100vh - 6rem);
 	resize: both;

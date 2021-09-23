@@ -80,7 +80,7 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 														</thead>
 														: null}
 													<tbody>
-														{store.getEntries(value)
+														{store.getEntries(value).sort((a, b) => a.hostname.localeCompare(b.hostname))
 															.map((entry, index) => (
 																<tr className="settings-modal__proxy-row" key={index}>
 																	<td className="settings-modal__proxy-host-container">
