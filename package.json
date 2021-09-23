@@ -15,7 +15,7 @@
     "copy-files": "cp -r ./private ./build/ && cp -r ./node-http-mitm-proxy ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cd ./client && npm run test",
     "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0"
   },
   "author": "Dave Christenson",
