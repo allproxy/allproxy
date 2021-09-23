@@ -2,7 +2,7 @@ import {filterStore} from '../store/FilterStore';
 import MessageStore from '../store/MessageStore';
 import Message from '../common/Message';
 
-test("matchStore", () => {
+test("FilterStore", () => {
   const message = new Message();
   message.requestBody = 'Match1';
   message.url = '/';
