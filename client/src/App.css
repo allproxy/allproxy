@@ -85,6 +85,13 @@ td input {
   margin: .3rem 0 0 .5rem;
   font-size: 1rem;
 }
+.request__msg-resend-btn {
+	display: none;
+	margin-left: .5rem;
+}
+.request__msg-resend-btn.active {
+	display: inline-block;
+}
 .request__msg-caret {
 	margin: .3rem .1rem 0 .5rem;
 	font-size: 1rem;

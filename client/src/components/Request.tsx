@@ -24,11 +24,14 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 							style={{ width: timeBarPercent }} />
 					</div>
 					<div className={`${store.getIconClass()} request__msg-icon`}
-						title={store.getTooltip()}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
-						onClick={ onResend }
 					>
 					</div>
+					<button className={`request__msg-resend-btn ${isActive && canResend() ? 'active' : ''} btn btn-xs btn-success`}
+						onClick={ onResend }
+					>
+						Resend
+					</button>
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
 						${store.isError() ? ' error' : ''}
@@ -61,6 +64,10 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 			</div>
 		</div>
 	)
+
+	function canResend() {
+		return message.protocol === 'http:' || message.protocol === 'https:';
+	}
 })
 
 function formatTimestamp(timestamp: number) {

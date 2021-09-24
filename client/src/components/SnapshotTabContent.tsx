@@ -7,6 +7,7 @@ import Request from './Request';
 import Response from './Response';
 import ResendModal from './ResendModal';
 import ResendStore from '../store/ResendStore';
+import Message from '../common/Message';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -75,12 +76,7 @@ const SnapshotTabContent = observer(({
 									isActive={isActiveRequest}
 									timeBarPercent={timeBarPercent + '%'}
 									onClick={handleClick.bind(null, seqNum)}
-									onResend={() => {
-										if (message.protocol === 'http:' || message.protocol === 'https:') {
-											setResendStore(new ResendStore(message));
-											setOpenModal(true);
-										}
-									}}
+									onResend={() => handleResend(message)}
 								/>)
 						}
 					})}
@@ -132,6 +128,11 @@ const SnapshotTabContent = observer(({
 		if (parent && parent.childNodes.length > 0) {
 			setScrollTop(parent.scrollTop);
 		}
+	}
+
+	function handleResend(message: Message) {
+		setResendStore(new ResendStore(message));
+		setOpenModal(true);
 	}
 
 	function restoreScrollTop() {
