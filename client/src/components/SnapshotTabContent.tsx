@@ -7,7 +7,6 @@ import Request from './Request';
 import Response from './Response';
 import ResendModal from './ResendModal';
 import ResendStore from '../store/ResendStore';
-import Message from '../common/Message';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -20,7 +19,7 @@ const SnapshotTabContent = observer(({
 	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop
 }: Props) => {
 	const [openModal, setOpenModal] = React.useState(false);
-	const [resendMessage, setResendMessage] = React.useState<Message>();
+	const [resendStore, setResendStore] = React.useState<ResendStore>();
 
 	const ref = React.useRef<HTMLDivElement>(null);
 
@@ -78,7 +77,7 @@ const SnapshotTabContent = observer(({
 									onClick={handleClick.bind(null, seqNum)}
 									onResend={() => {
 										if (message.protocol === 'http:' || message.protocol === 'https:') {
-											setResendMessage(message);
+											setResendStore(new ResendStore(message));
 											setOpenModal(true);
 										}
 									}}
@@ -110,11 +109,11 @@ const SnapshotTabContent = observer(({
 					</Fade>
 				}
 			</div>
-			{resendMessage ? (
+			{resendStore ? (
 				<ResendModal
 					open={openModal}
 					onClose={() => setOpenModal(false)}
-					store={new ResendStore(resendMessage)}
+					store={resendStore}
 				/>
 			) : null}
 		</div>

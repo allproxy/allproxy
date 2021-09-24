@@ -35,26 +35,18 @@ export default class ResendStore {
         return this.error;
     }
 
-    @action public validateBody(body: string) {
-        this.body = body;
-        if(body) {
-            if(body.length > 0
-                && this.message.requestHeaders['content-type'] &&
-                this.message.requestHeaders['content-type'].includes('application/json')
-            ) {
-                try {
-                    if(!(JSON.parse(body) instanceof Object)) {
-                        this.error = 'JSON format invalid!';
-                    }
-                    else {
-                        this.error = '';
-                    }
-                }
-                catch(e) {
-                    this.error = 'JSON format invalid!';
-                }
-            }
+    public isBodyJson(): boolean {
+        if (
+            this.message.requestHeaders['content-type'] &&
+            this.message.requestHeaders['content-type'].includes('application/json')
+        ) {
+            return true;
         }
+        return false;
+    }
+
+    @action public setBody(body: string) {
+        this.body = body;
     }
 
     public doResend() {
