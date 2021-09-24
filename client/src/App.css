@@ -134,6 +134,7 @@ td input {
 	text-align: center;
 }
 
+.header__resend,
 .header__folder-minus,
 .header__import,
 .header__export {
@@ -365,8 +366,11 @@ td input {
 
 .resend-modal__url-container,
 .resend-modal__body-container {
-	display: table;
-	width: calc(100%);
+	width: 100%;
+}
+.resend-modal__body-container {
+	max-height: 60vh;
+	overflow-y: auto;
 }
 .resend-modal__body {
 	height: 90vh;
