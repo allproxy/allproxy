@@ -65,7 +65,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
 							messageQueueStore.clear();
-							filterStore.setFilter('');
+							// filterStore.setFilter('');
 							socketStore.clearMetrics();
 						}}
 					/>
