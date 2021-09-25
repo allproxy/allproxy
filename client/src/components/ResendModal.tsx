@@ -48,7 +48,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 							:
 								<textarea className="resend-modal__body form-control" rows={10} cols={300}
 									onChange={ (e) => store.setBody(e.target.value) }
-									value={ store.getBody() }
+									value={ store.getBody() as string }
 									placeholder="Enter request body"/>
 						}
 	        	</div>
@@ -73,17 +73,17 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	);
 
 	function handleEdit(props: InteractionProps) {
-		store.setBody(JSON.stringify(props.updated_src));
+		store.setBody(props.updated_src);
 		return true;
 	}
 
 	function handleAdd(props: InteractionProps) {
-		store.setBody(JSON.stringify(props.updated_src));
+		store.setBody(props.updated_src);
 		return true;
 	}
 
 	function handleDelete(props: InteractionProps) {
-		store.setBody(JSON.stringify(props.updated_src));
+		store.setBody(props.updated_src);
 		return true;
 	}
 })

@@ -4,14 +4,13 @@ import Message from '../common/Message';
 export default class ResendStore {
     private message: Message;
     private methodAndUrl: string;
-    private body: string;
+    private body: string | object;
     private error = '';
 
     public constructor(message: Message) {
         this.message = message;
         this.methodAndUrl = message.method + ' ' + message.url;
-        this.body = message.requestBody ? JSON.stringify(message.requestBody, null, 2) : '';
-        this.body = this.body.replace(/\\n/g, ' ');
+        this.body = message.requestBody;
 		makeAutoObservable(this);
     }
 
@@ -25,10 +24,6 @@ export default class ResendStore {
 
     @action setMethodAndUrl(value: string) {
         this.methodAndUrl = value;
-    }
-
-    public getBody() {
-        return this.body;
     }
 
     public getError() {
@@ -45,7 +40,11 @@ export default class ResendStore {
         return false;
     }
 
-    @action public setBody(body: string) {
+    public getBody() {
+        return this.body;
+    }
+
+    @action public setBody(body: string | object) {
         this.body = body;
     }
 
@@ -85,10 +84,17 @@ export default class ResendStore {
             url = protocolHost+url;
         }
 
+        let body: undefined | string;
+        if (this.isBodyJson()) {
+            body = JSON.stringify(this.body);
+        } else if (typeof this.body === 'string' && this.body.length > 0) {
+            body = this.body;
+        }
+
         fetch(url, {
             method,
             headers,
-            body: method !== 'GET' ? this.body : undefined,
+            body,
         })
         .then((response) => response.json())
         .then(/*data => console.log(data)*/);
