@@ -56,7 +56,8 @@ const resend = async (
     headers
   }).then((response) => recordHttpResponse(response))
     .catch(error => {
-      console.log(error)
+      // console.log(error)
+      recordHttpResponse(error.response)
     })
 
   function recordHttpRequest (): HttpMessage {
