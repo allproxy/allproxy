@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
+import { socketStore } from "./SocketStore";
 
 export default class ResendStore {
     private message: Message;
@@ -60,43 +61,22 @@ export default class ResendStore {
             method = 'GET';
         }
 
-        const headers: {[key: string]: string} = {};
-        const unsafeHeaders = ['host',
-                                'connection',
-                                'content-length',
-                                'origin', 'user-agent',
-                                'referer',
-                                'accept-encoding',
-                                'cookie',
-                                'sec-fetch-dest',
-                                'proxy-connection',
-                            ];
-        for(var header in this.message.requestHeaders) {
-            if(unsafeHeaders.indexOf(header) === -1) {
-                headers[header] = this.message.requestHeaders[header];
-            }
+        const forwardProxy = url.startsWith('http:') || url.startsWith('https:');
+        if (!forwardProxy) {
+            const protocolHost = document.location.protocol + '//' + document.location.host
+            url = protocolHost + url
         }
 
-        headers['anyproxy'] = 'resend';
+        const body = typeof this.body === 'string' && this.body.length === 0
+            ? undefined
+            : this.body;
 
-        if(!url.startsWith('http:') && !url.startsWith('https:')) {
-            const protocolHost = document.location.protocol+'//'+document.location.host;
-            url = protocolHost+url;
-        }
-
-        let body: undefined | string;
-        if (this.isBodyJson()) {
-            body = JSON.stringify(this.body);
-        } else if (typeof this.body === 'string' && this.body.length > 0) {
-            body = this.body;
-        }
-
-        fetch(url, {
+        socketStore.emitResend(
+            forwardProxy,
             method,
-            headers,
-            body,
-        })
-        .then((response) => response.json())
-        .then(/*data => console.log(data)*/);
+            url,
+            this.message,
+            body
+        );
     }
 }
