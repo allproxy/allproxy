@@ -147,6 +147,10 @@ export default class SocketStore {
 	public emitConfig(event: string, proxyConfig: ProxyConfig[]) {
 		this.socket?.emit(event, proxyConfig);
 	}
+
+	public emitResend(forwardProxy: boolean, method: string, url: string, message: Message, body?: string | object) {
+		this.socket?.emit('resend', forwardProxy, method, url, message, body);
+	}
 }
 
 export const socketStore = new SocketStore();

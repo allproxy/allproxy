@@ -9,6 +9,7 @@ import url from 'url'
 import net from 'net'
 import Ping from './Ping'
 import Global from './Global'
+import resend from './Resend'
 
 const CONFIG_JSON = process.env.NODE_ENV === 'production'
   ? `${__dirname + '' + path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
@@ -158,6 +159,16 @@ export default class SocketIoManager {
 
         this.activateConfig(proxyConfigs, socket)
         // this.updateHostReachable();
+      })
+
+      socket.on('resend', (
+        forwardProxy: boolean,
+        method: string,
+        url: string,
+        message: Message,
+        body?: string | object
+      ) => {
+        resend(forwardProxy, method, url, message, body)
       })
 
       socket.on('disconnect', () => {
