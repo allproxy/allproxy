@@ -5,21 +5,31 @@ import Global from './Global'
 
 export default class HttpMessage {
   private startTime: number;
-  private proxyConfig: ProxyConfig;
+  private proxyConfig: ProxyConfig | undefined;
   private sequenceNumber = 0;
   private remoteAddress: string;
+  private method: string;
+  private url: string;
+  private reqHeaders: {};
 
-  public constructor (proxyConfig: ProxyConfig, sequenceNumber: number, remoteAddress: string) {
+  public constructor (
+    proxyConfig: ProxyConfig | undefined,
+    sequenceNumber: number,
+    remoteAddress: string,
+    method: string,
+    url: string,
+    reqHeaders: {}
+  ) {
     this.startTime = Date.now()
     this.proxyConfig = proxyConfig
     this.sequenceNumber = sequenceNumber
     this.remoteAddress = remoteAddress
+    this.method = method
+    this.url = url
+    this.reqHeaders = reqHeaders
   }
 
   public async emitMessageToBrowser (
-    method: string,
-    url: string,
-    reqHeaders: {} = {},
     reqBody: string | object = '',
     resStatus = 0,
     resHeaders = {},
@@ -27,19 +37,21 @@ export default class HttpMessage {
   ) {
     const reqBodyJson = typeof reqBody === 'object' ? reqBody : this.toJSON(reqBody)
     const resBodyJson = resBody === NO_RESPONSE || typeof resBody === 'object' ? resBody : this.toJSON(resBody)
-    const host = this.getHostPort(this.proxyConfig)
+    const host = this.proxyConfig ? this.getHostPort(this.proxyConfig) : 'Unknown'
 
-    const message = await SocketMessage.buildRequest(Date.now(),
+    const message = await SocketMessage.buildRequest(
+      Date.now(),
       this.sequenceNumber,
-      reqHeaders,
-      method,
-      url,
-      this.getHttpEndpoint(method, url, reqBodyJson),
+      this.reqHeaders,
+      this.method,
+      this.url,
+      this.getHttpEndpoint(this.method, this.url, reqBodyJson),
       reqBodyJson,
       this.remoteAddress,
       host, // server host
       this.proxyConfig ? this.proxyConfig.path : '',
-      Date.now() - this.startTime)
+      Date.now() - this.startTime
+    )
 
     SocketMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime)
 

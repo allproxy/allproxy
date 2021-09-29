@@ -21,6 +21,7 @@
   "author": "Dave Christenson",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.4",
     "bufferutil": "^4.0.3",
     "decompress-response": "^3.3.0",
     "dns": "^0.2.2",
