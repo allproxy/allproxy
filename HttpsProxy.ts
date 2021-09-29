@@ -1,11 +1,8 @@
 import url from 'url'
-import SocketMessage from './server/src/SocketIoMessage'
 import Global from './server/src/Global'
 import ProxyConfig from './common/ProxyConfig'
 import Proxy from './node-http-mitm-proxy'
-import { MessageType, NO_RESPONSE } from './common/Message'
-import { getHttpEndpoint } from './HttpProxy'
-import { IncomingMessage } from 'http'
+import HttpMessage from './server/src/HttpMessage'
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -13,7 +10,6 @@ import { IncomingMessage } from 'http'
 export default class HttpsProxy {
   onRequest (proxy: Proxy.IProxy) {
     proxy.onRequest(async function (ctx, callback) {
-      const startTime = Date.now()
       ctx.use(Proxy.gunzip)
 
       const clientReq = ctx.clientToProxyRequest
@@ -61,23 +57,27 @@ export default class HttpsProxy {
         }
       }
 
+      const httpMessage = new HttpMessage(
+        proxyConfig,
+        sequenceNumber,
+        remoteAddress!,
+        clientReq.method!,
+        clientReq.url!,
+        reqHeaders
+      )
+
       if (proxyConfig === undefined) {
         const msg = 'No matching proxy configuration found for ' + reqUrl.pathname
         Global.log(sequenceNumber, msg)
         ctx.proxyToClientResponse.end('404 ' + msg)
-        emitRequestToBrowser(
-          undefined,
-                      clientReq.url!,
-                      reqHeaders,
-                      msg
-        )
+        httpMessage.emitMessageToBrowser(msg)
       } else {
-        proxyRequest(proxyConfig)
+        proxyRequest()
       }
 
       callback()
 
-      function proxyRequest (proxyConfig: ProxyConfig) {
+      function proxyRequest () {
         // Global.log(sequenceNumber, 'proxyRequest');
 
         clientReq.on('close', function () {
@@ -90,12 +90,7 @@ export default class HttpsProxy {
 
         clientRes.on('error', function (error) {
           Global.error(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2))
-          emitRequestToBrowser(
-            undefined,
-                          clientReq.url!,
-                          reqHeaders,
-                          JSON.stringify(error, null, 2)
-          )
+          httpMessage.emitMessageToBrowser(JSON.stringify(error, null, 2))
         })
 
         let reqChunks: string = ''
@@ -106,12 +101,7 @@ export default class HttpsProxy {
         })
 
         ctx.onRequestEnd(function (_ctx, callback) {
-          emitRequestToBrowser(
-            proxyConfig,
-                          clientReq.url!,
-                          reqHeaders,
-                          reqChunks
-          )
+          httpMessage.emitMessageToBrowser(reqChunks)
           return callback()
         })
 
@@ -126,13 +116,11 @@ export default class HttpsProxy {
           })
 
           ctx.onResponseEnd(function (ctx, callback) {
-            emitRequestToBrowser(
-              proxyConfig,
-                              clientReq.url!,
-                              reqHeaders,
-                              reqChunks,
-                              ctx.serverToProxyResponse,
-                              resChunks
+            httpMessage.emitMessageToBrowser(
+              reqChunks,
+              ctx.serverToProxyResponse.statusCode,
+              ctx.serverToProxyResponse.headers,
+              resChunks
             )
             return callback()
           })
@@ -140,51 +128,6 @@ export default class HttpsProxy {
           return callback()
         })
       }
-
-      async function emitRequestToBrowser (
-        proxyConfig: ProxyConfig | undefined,
-        url: string,
-        reqHeaders: {} = {},
-        reqBody: string = '',
-        res: IncomingMessage | undefined = undefined,
-        resBody: string = NO_RESPONSE
-      ) {
-        const reqBodyJson = HttpsProxy.toJSON(reqBody)
-        const resBodyJson = resBody === NO_RESPONSE ? resBody : HttpsProxy.toJSON(resBody)
-        const host = HttpsProxy.getHostPort(proxyConfig!)
-
-        const message = await SocketMessage.buildRequest(Date.now(),
-          sequenceNumber,
-          reqHeaders,
-                      clientReq.method!,
-                      url,
-                      getHttpEndpoint(clientReq, reqBodyJson),
-                      reqBodyJson,
-                      clientReq.socket.remoteAddress!,
-                      host, // server host
-                      proxyConfig ? proxyConfig.path : '',
-                      Date.now() - startTime)
-        const status = res && res.statusCode ? res.statusCode : 0
-        SocketMessage.appendResponse(message, res ? res.headers : {}, resBodyJson, status, Date.now() - startTime)
-        Global.socketIoManager.emitMessageToBrowser(
-          resBody === NO_RESPONSE ? MessageType.REQUEST : MessageType.RESPONSE,
-          message,
-          proxyConfig)
-      }
     })
-  }
-
-  static getHostPort (proxyConfig: ProxyConfig) {
-    let host = proxyConfig.hostname
-    if (proxyConfig.port) host += ':' + proxyConfig.port
-    return host
-  }
-
-  static toJSON (s: string): {} {
-    try {
-      return JSON.parse(s)
-    } catch (e) {
-      return s
-    }
   }
 }

@@ -73,14 +73,14 @@ const resend = async (
         : +reqUrl.port
     }
     const sequenceNumber = ++Global.nextSequenceNumber
-    const httpMessage = new HttpMessage(proxyConfig, sequenceNumber, clientHostName)
-    httpMessage.emitMessageToBrowser(method, url, headers, body)
+    const httpMessage = new HttpMessage(proxyConfig, sequenceNumber, clientHostName, method, url, headers)
+    httpMessage.emitMessageToBrowser(body)
 
     return httpMessage
   }
 
   function recordHttpResponse (response: AxiosResponse) {
-    httpMessage.emitMessageToBrowser(method, url, headers, body, response.status, response.headers, response.data)
+    httpMessage.emitMessageToBrowser(body, response.status, response.headers, response.data)
   }
 }
 
