@@ -1,9 +1,10 @@
 import ProxyConfig from '../../common/ProxyConfig'
 import { MessageType, NO_RESPONSE } from '../../common/Message'
-import SocketMessage from './SocketIoMessage'
+import SocketMessage from './SocketMessage'
 import Global from './Global'
 
 export default class HttpMessage {
+  private emitCount = 0;
   private startTime: number;
   private proxyConfig: ProxyConfig | undefined;
   private sequenceNumber = 0;
@@ -56,9 +57,15 @@ export default class HttpMessage {
     SocketMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime)
 
     Global.socketIoManager.emitMessageToBrowser(
-      resBody === NO_RESPONSE ? MessageType.REQUEST : MessageType.RESPONSE,
+      resBody === NO_RESPONSE
+        ? MessageType.REQUEST
+        : this.emitCount === 0
+          ? MessageType.REQUEST_AND_RESPONSE
+          : MessageType.RESPONSE,
       message,
-      this.proxyConfig)
+      this.proxyConfig
+    )
+    ++this.emitCount
   }
 
   private toJSON (s: string): object | string {

@@ -54,10 +54,15 @@ const resend = async (
     url,
     data: body,
     headers
-  }).then((response) => recordHttpResponse(response))
+  }).then((response) => {
+    if (forwardProxy) {
+      recordHttpResponse(response)
+    }
+  })
     .catch(error => {
-      // console.log(error)
-      recordHttpResponse(error.response)
+      if (forwardProxy) {
+        recordHttpResponse(error.response)
+      }
     })
 
   function recordHttpRequest (): HttpMessage {
