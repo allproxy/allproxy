@@ -3,16 +3,18 @@ import path from 'path'
 import url from 'url'
 import http, { IncomingMessage } from 'http'
 import https from 'https'
-import SocketMessage from './server/src/SocketIoMessage'
 import Global from './server/src/Global'
 import ProxyConfig from './common/ProxyConfig'
-import Message, { MessageType, NO_RESPONSE } from './common/Message'
+import HttpMessage from './server/src/HttpMessage'
+import querystring from 'querystring'
+const decompressResponse = require('decompress-response')
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class HttpProxy {
   async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
+    console.log(clientReq.url)
     const sequenceNumber = ++Global.nextSequenceNumber
     const remoteAddress = clientReq.socket.remoteAddress
     Global.log(sequenceNumber, remoteAddress + ': ', clientReq.method, clientReq.url)
@@ -20,9 +22,8 @@ export default class HttpProxy {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
 
-    let parseRequestPromise: Promise<any>
+    let httpMessage: HttpMessage
 
-    const startTime = Date.now()
     const clientDir = __dirname.endsWith(path.sep + 'build')
       ? __dirname + '' + path.sep + '..' + path.sep + 'client' + path.sep + 'build'
       : __dirname + '' + path.sep + 'client' + path.sep + 'build'
@@ -91,42 +92,37 @@ export default class HttpProxy {
             : +reqUrl.port
         }
 
+        httpMessage = new HttpMessage(
+          proxyConfig,
+          sequenceNumber,
+          remoteAddress!,
+          clientReq.method!,
+          clientReq.url!,
+          clientReq.headers
+        )
+
+        const requestBodyPromise = getReqBody(clientReq)
+
         if (proxyConfig === undefined) {
-          const msg = 'No matching proxy configuration found for ' + reqUrl.pathname
-          Global.log(sequenceNumber, msg)
+          const requestBody = await requestBodyPromise
+          const error = 'No matching proxy configuration found for ' + reqUrl.pathname
+          Global.log(sequenceNumber, error)
           if (reqUrl.pathname === '/') {
             clientRes.writeHead(302, { Location: reqUrl.href + 'anyproxy' })
             clientRes.end()
           } else {
-            sendErrorResponse(404, msg)
+            httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error })
           }
         } else {
-          emitRequestToBrowser(proxyConfig)
-          proxyRequest(proxyConfig)
+          httpMessage.emitMessageToBrowser('') // No request body received yet
+          proxyRequest(proxyConfig, requestBodyPromise)
         }
       }
     }
 
-    async function emitRequestToBrowser (proxyConfig: ProxyConfig) {
-      const host = HttpProxy.getHostPort(proxyConfig!)
-
-      const message = await SocketMessage.buildRequest(Date.now(),
-        sequenceNumber,
-        clientReq.headers,
-                  clientReq.method!,
-                  clientReq.url!,
-                  getHttpEndpoint(clientReq, {}),
-                  {},
-                  clientReq.socket.remoteAddress!,
-                  host, // server host
-                  proxyConfig.path,
-                  Date.now() - startTime)
-      SocketMessage.appendResponse(message, {}, NO_RESPONSE, 0, 0)
-      Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST, message, proxyConfig)
-    }
-
-    function proxyRequest (proxyConfig: ProxyConfig) {
-      // Global.log(sequenceNumber, 'proxyRequest');
+    function proxyRequest (proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {
+      console.log('proxyRequest')
+      // Global.log(sequenceNumber, 'forwardRequest');
 
       clientReq.on('close', function () {
         Global.log(sequenceNumber, 'Client closed connection')
@@ -169,47 +165,40 @@ export default class HttpProxy {
       if (options.protocol === 'https:') {
         // options.cert: fs.readFileSync('/home/davidchr/imlTrust.pem');
         // options.headers.Authorization = 'Basic ' + new Buffer.from('elastic:imliml').toString('base64'); // hardcoded authentication
-        proxy = https.request(options, proxyRequest)
+        proxy = https.request(options, handleResponse)
       } else {
-        proxy = http.request(options, proxyRequest)
+        proxy = http.request(options, handleResponse)
       }
+      console.log('start proxy')
 
-      const host = proxyConfig.protocol === 'browser:' && hostname !== null
-        ? hostname.split('.')[0]
-        : HttpProxy.getHostPort(proxyConfig)
-      parseRequestPromise = SocketMessage.parseRequest(
-        clientReq,
-        startTime,
-        sequenceNumber,
-        host,
-        proxyConfig.path)
+      async function handleResponse (proxyRes: http.IncomingMessage) {
+        console.log('handleResponse')
 
-      function proxyRequest (proxyRes: http.IncomingMessage) {
-        parseRequestPromise.then(function (message) {
-          const parseResponsePromise = SocketMessage.parseResponse(proxyRes, startTime, message)
+        const requestBody = await requestBodyPromise
+        if (
+          typeof requestBody === 'object' ||
+          (typeof requestBody === 'string' && requestBody.length > 0)
+        ) {
+          console.log('handleResponse reqBody', requestBody)
+          httpMessage.emitMessageToBrowser(requestBody)
+        }
 
-          /**
-                     * Forward the response back to the client
-                     */
-          clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers)
-          proxyRes.pipe(clientRes, {
-            end: true
-          })
-          parseResponsePromise.then(function (message: Message) {
-            Global.socketIoManager.emitMessageToBrowser(MessageType.RESPONSE, message, proxyConfig)
-          })
-            .catch(function (error: any) {
-              Global.log(sequenceNumber, 'Parse response promise emit error:', error)
-            })
+        /**
+         * Forward the response back to the client
+         */
+        clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers)
+        proxyRes.pipe(clientRes, {
+          end: true
         })
-          .catch(function (error) {
-            Global.error(sequenceNumber, 'Parse request promise rejected:', error)
-          })
+
+        const resBody = await getResBody(proxyRes)
+        httpMessage.emitMessageToBrowser(requestBody, clientRes.statusCode, clientRes.getHeaders(), resBody)
       }
 
-      proxy.on('error', function (error) {
+      proxy.on('error', async function (error) {
         Global.error(sequenceNumber, 'Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig)
-        sendErrorResponse(404, 'Proxy connect error', error, proxyConfig)
+        const requestBody = await requestBodyPromise
+        httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, config: proxyConfig })
       })
 
       clientReq.pipe(proxy, {
@@ -217,76 +206,58 @@ export default class HttpProxy {
       })
     }
 
-    function sendErrorResponse (status: number,
-      responseMessage: string,
-      jsonData?: { [key: string]: any },
-      proxyConfig?: ProxyConfig) {
-      Global.log(sequenceNumber, 'sendErrorResponse', responseMessage)
-      const path = proxyConfig ? proxyConfig.path : ''
-      if (parseRequestPromise === undefined) {
-        const host = 'error'
-        parseRequestPromise = SocketMessage.parseRequest(clientReq, startTime, sequenceNumber, host, path)
-      }
+    function getReqBody (clientReq: IncomingMessage): Promise<string | {}> {
+      return new Promise<string | {}>(resolve => {
+        let requestBody: string | {} = ''
+        clientReq.setEncoding('utf8')
+        let rawData = ''
+        clientReq.on('data', function (chunk) {
+          rawData += chunk
+        })
+        clientReq.on('end', async function () {
+          try {
+            requestBody = JSON.parse(rawData)
+          } catch (e) {
+            const contentType = clientReq.headers['content-type']
+            if (contentType && contentType.indexOf('application/x-www-form-urlencoded') !== -1) {
+              requestBody = querystring.parse(rawData)
+            } else {
+              requestBody = rawData
+            }
+          }
+          resolve(requestBody)
+        })
+      })
+    }
 
-      parseRequestPromise.then(function (message) {
-        message.responseHeaders = {}
-        message.responseBody = { error: responseMessage }
-        if (jsonData && typeof jsonData === 'object') {
-          for (const key in jsonData) {
-            message.responseBody[key] = jsonData[key]
+    function getResBody (proxyRes: any): Promise<object | string> {
+      return new Promise<string | {}>(resolve => {
+        if (proxyRes.headers) {
+          if (proxyRes.headers['content-encoding']) {
+            proxyRes = decompressResponse(proxyRes)
+            // delete proxyRes.headers['content-encoding'];
+          }
+
+          if (proxyRes.headers['content-type'] &&
+              proxyRes.headers['content-type'].indexOf('utf-8') !== -1) {
+            proxyRes.setEncoding('utf8')
           }
         }
-        message.status = status
 
-        Global.socketIoManager.emitMessageToBrowser(MessageType.RESPONSE, message, proxyConfig) // Send error to all browsers
-
-        if (responseMessage !== 'Client closed connection') {
-          clientRes.on('error', function (error) {
-            Global.error(sequenceNumber, 'sendErrorResponse error handled', JSON.stringify(error))
-          })
-
-          clientRes.writeHead(status, {
-            'content-type': 'application/json'
-          })
-
-          clientRes.end(JSON.stringify(message.responseBody, null, 2))
-        }
-      })
-        .catch(function (error) {
-          Global.log(sequenceNumber, 'sendErrorResponse: Parse request promise rejected:', error.message)
+        let rawData = ''
+        proxyRes.on('data', function (chunk: string) {
+          rawData += chunk
         })
-    }
-  }
-
-  static getHostPort (proxyConfig: ProxyConfig) {
-    let host = proxyConfig.hostname
-    if (proxyConfig.port) host += ':' + proxyConfig.port
-    return host
-  }
-}
-
-export const getHttpEndpoint = (clientReq: IncomingMessage, requestBody: string | {}): string => {
-  let endpoint = clientReq.url?.split('?')[0]
-  const tokens = endpoint?.split('/')
-  endpoint = tokens ? tokens[tokens.length - 1] : ''
-  if (!isNaN(+endpoint) && tokens && tokens.length > 1) {
-    endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1]
-  }
-
-  if (clientReq.method !== 'OPTIONS' &&
-        (clientReq.url?.endsWith('/graphql') || clientReq.url?.endsWith('/graphql-public'))) {
-    endpoint = ''
-    if (requestBody && Array.isArray(requestBody)) {
-      requestBody.forEach((entry) => {
-        if (entry.operationName) {
-          if (endpoint!.length > 0) endpoint += ','
-          endpoint += ' ' + entry.operationName
-        }
+        let parsedData = ''
+        proxyRes.on('end', () => {
+          try {
+            parsedData = JSON.parse(rawData) // assume JSON
+          } catch (e) {
+            parsedData = rawData
+          }
+          resolve(parsedData)
+        })
       })
     }
-    const tag = clientReq.url?.endsWith('/graphql-public') ? 'GQLP' : 'GQL'
-    endpoint = ' ' + tag + endpoint
   }
-  if ('/' + endpoint === clientReq.url) endpoint = ''
-  return endpoint
 }
