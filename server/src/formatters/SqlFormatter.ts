@@ -2,7 +2,6 @@ import sqlFormatter from 'sql-formatter'
 import { NO_RESPONSE } from '../../../common/Message'
 import HexFormatter from './HexFormatter'
 import SqlCommand from './SqlCommand'
-import Global from '../Global'
 
 export default class SqlFormatter {
   formattedQuery: any;
@@ -70,7 +69,6 @@ export default class SqlFormatter {
       // Error?
       if (fieldCount === 255) {
         this.errorCode = buf.readUInt16LE(5)
-        Global.log('SQL error code:', this.errorCode)
         return HexFormatter.format(buf)
       }
 
@@ -84,7 +82,7 @@ export default class SqlFormatter {
 
         pktOffset = packet.nextOffset() // next payload packet
       }
-      // Global.log(colNames);
+
       for (; pktOffset !== null; pktOffset = packet.nextOffset(), ++rowCount) {
         // Skip EOF markers
         for (let len = buf.readUInt8(pktOffset + 4);
@@ -107,8 +105,6 @@ export default class SqlFormatter {
 
             const colName = colNames[i]
             const fieldValue = isNull ? 'NULL' : buf.toString('utf8', subCvOffset, subCvOffset + len)
-            // Global.log(colName, '=', fieldValue);
-
             formattedResults.push(`  ${colName} = ${fieldValue}`)
             if (!isNull) subCvOffset += len
           }
@@ -167,7 +163,6 @@ class MySqlPacket {
     this.offset = offset
     this.packetLength = this.toUInt24(offset)
     this.packetNumber = this.buf.readUInt8(offset + 3)
-    // Global.log(`Payload Packet: number=${this.packetNumber} length=${this.packetOffset}`);
 
     return offset
   }

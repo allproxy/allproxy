@@ -12,12 +12,10 @@ import { MessageType, NO_RESPONSE } from '../../common/Message'
 
 export default class TcpProxy {
   constructor (proxyConfig: ProxyConfig) {
-    // Global.log('TcpProxy.ctor', proxyConfig);
     this.startProxy(proxyConfig)
   }
 
   static destructor (proxyConfig: ProxyConfig) {
-    // Global.log('TcpProxy.dtor', proxyConfig);
     if (proxyConfig._server) proxyConfig._server.close()
   }
 
@@ -51,7 +49,7 @@ export default class TcpProxy {
       if (++retries < 10) {
         setTimeout(() => listen(server), wait *= 2)
       } else {
-        Global.log('TcpProxy server error', err)
+        console.error('TcpProxy server error', err)
       }
     })
 
@@ -59,7 +57,7 @@ export default class TcpProxy {
 
     function listen (server: net.Server) {
       server.listen(sourcePort, function () {
-        Global.log('Listening on port ' + sourcePort + ' for target host ' + targetHost + ':' + targetPort)
+        console.log('Listening on port ' + sourcePort + ' for target host ' + targetHost + ':' + targetPort)
       })
       proxyConfig._server = server
     }
@@ -78,25 +76,24 @@ export default class TcpProxy {
           let targetSocket: net.Socket | tls.TLSSocket
           if (!targetUseTls) {
             targetSocket = net.connect(targetPort, targetHost, () => {
-              // Global.log('connected to target');
+              // console.log('connected to target');
             })
           } else {
             targetSocket = tls.connect(targetPort, targetHost, {}, () => {
-              // Global.log('connected to target');
+              // console.log('connected to target');
             })
           }
 
           sourceSocket.on('error', (err: any) => {
-            Global.error(`TcpProxy client error ${sourcePort}: ${err}`)
+            console.error(`TcpProxy client error ${sourcePort}: ${err}`)
           })
 
           targetSocket.on('error', (err) => {
-            Global.error(`TcpProxy server error ${sourcePort}: ${err}`)
+            console.error(`TcpProxy server error ${sourcePort}: ${err}`)
           })
 
           // Handle data from source (client)
           sourceSocket.on('data', async (data: Buffer) => {
-            // Global.log('request');
             const request = {
               data,
               startTime: Date.now(),
@@ -109,7 +106,6 @@ export default class TcpProxy {
 
           // Handle data from target (e.g., database)
           targetSocket.on('data', async (data) => {
-            // Global.log('response');
             sourceSocket.write(data)
             if (requests.length > 0) {
               const request = requests.pop()
@@ -119,13 +115,11 @@ export default class TcpProxy {
 
           // Handle source socket closed
           sourceSocket.on('close', () => {
-            Global.log(`TcpProxy client closed ${sourcePort} source connection`)
             targetSocket.end()
           })
 
           // Handle target socket closed
           targetSocket.on('close', () => {
-            Global.log(`TcpProxy server ${targetPort} closed target connection`)
             sourceSocket.end()
           })
 
@@ -183,7 +177,6 @@ export default class TcpProxy {
               }
 
               if (requestString.length > 0) {
-                // Global.log('processData', sequenceNumber);
                 const endpoint = ''
 
                 const message = await SocketIoMessage.buildRequest(

@@ -8,14 +8,12 @@ import Message, { MessageType } from '../../common/Message'
 import url from 'url'
 import net from 'net'
 import Ping from './Ping'
-import Global from './Global'
 import resend from './Resend'
 
 const CONFIG_JSON = process.env.NODE_ENV === 'production'
   ? `${__dirname + '' + path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
   : `${__dirname + '' + path.sep}.${path.sep}config.json`
 const CACHE_SOCKET_ID = 'cache'
-// Global.log('Config file:', CONFIG_JSON);
 
 const WINDOW_SIZE = 500 // windows size - maximum outstanding messages
 const MAX_OUT = 2 // two message batches
@@ -80,18 +78,16 @@ export default class SocketIoManager {
         this.resolveQueue.push(resolve)
         if (this.resolveQueue.length > 1) return
 
-        Global.log('Start: updateHostReachable')
         let count = 0
 
         const done = () => {
           if (++count === configs.length) {
-            const queueCount = this.resolveQueue.length
+            // const queueCount = this.resolveQueue.length
             let func
             // eslint-disable-next-line no-cond-assign
             while (func = this.resolveQueue.pop()) {
               func(configs)
             }
-            Global.log(`End: updateHostReachable (${queueCount})`)
           }
         }
         configs.forEach(config => {
@@ -107,13 +103,11 @@ export default class SocketIoManager {
               } else {
                 const socket = net.connect(config.port, config.hostname, () => {
                   config.hostReachable = true
-                  Global.log('Reachable', config.hostname, config.port)
                   socket.end()
                   done()
                 })
 
                 socket.on('error', (_err) => {
-                  // Global.log('ProxyConfigs:', config.hostname, config.port, err);
                   done()
                   socket.end()
                 })
@@ -127,7 +121,6 @@ export default class SocketIoManager {
     private saveConfig (proxyConfigs: ProxyConfig[]) {
       // Cache the config, to configure the proxy on the next start up prior
       // to receiving the config from the browser.
-      Global.log(`Updating config file: ${CONFIG_JSON}`)
       fs.writeFileSync(CONFIG_JSON,
         JSON.stringify({ configs: proxyConfigs }, null, 2))
     }
@@ -138,8 +131,6 @@ export default class SocketIoManager {
     }
 
     _socketConnection (socket: io.Socket) {
-      Global.log('ProxyConfigs: socket connected', socket.conn.id)
-
       const config = this.getConfig()
 
       socket.emit('proxy config', config) // send config to browser
@@ -172,13 +163,12 @@ export default class SocketIoManager {
       })
 
       socket.on('disconnect', () => {
-        Global.log('ProxyConfigs: socket disconnect', socket.conn.id)
         this.closeAnyServersWithSocket(socket.conn.id)
         this.socketIoMap.delete(socket.conn.id)
       })
 
       socket.on('error', (e: any) => {
-        Global.error('error', e)
+        console.error('error', e)
       })
     }
 
@@ -217,7 +207,6 @@ export default class SocketIoManager {
 
     // Close 'any:' protocol servers the specified listening port
     closeAnyServerWithPort (port: number) {
-      // Global.log('closeAnyServerWithPort', port);
       this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
           if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
@@ -276,7 +265,6 @@ export default class SocketIoManager {
     emitMessageToBrowser (messageType:MessageType, message: Message, inProxyConfig?: ProxyConfig) {
       message.type = messageType
       const path = inProxyConfig ? inProxyConfig.path : ''
-      // Global.log('emitMessageToBrowser()', message.url);
       let socketId: string
       let emitted = false
       this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
@@ -296,7 +284,7 @@ export default class SocketIoManager {
         }
       })
       if (!emitted) {
-        Global.log(message.sequenceNumber, 'no browser socket to emit to', message.url)
+        // console.error(message.sequenceNumber, 'no browser socket to emit to', message.url)
       }
     }
 
@@ -305,10 +293,6 @@ export default class SocketIoManager {
         socketInfo.queuedMessages = socketInfo.queuedMessages.concat(messages)
       } else {
         if (socketInfo.socket) {
-          // Global.log(messages[0].sequenceNumber,
-          //     socketInfo.delayedMessages.length,
-          //     'socket emit',
-          //     messages[0].url, socketId);
           const batchCount = messages.length
           socketInfo.remainingWindow -= batchCount
           ++socketInfo.seqNum
@@ -318,15 +302,15 @@ export default class SocketIoManager {
             messages,
             socketInfo.queuedMessages.length,
             // callback:
-            (response: string) => {
+            (_response: string) => {
               --socketInfo.messagesOut
               socketInfo.remainingWindow += batchCount
 
-              Global.log(
-                            `out=${socketInfo.messagesOut}`,
-                            `win=${socketInfo.remainingWindow}`,
-                            `queued=${socketInfo.queuedMessages.length}`,
-                            `(${response})`)
+              // console.log(
+              //             `out=${socketInfo.messagesOut}`,
+              //             `win=${socketInfo.remainingWindow}`,
+              //             `queued=${socketInfo.queuedMessages.length}`,
+              //             `(${response})`)
 
               const count = Math.min(socketInfo.remainingWindow, socketInfo.queuedMessages.length)
               if (count > 0) {
