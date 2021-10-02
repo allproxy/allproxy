@@ -14,7 +14,6 @@ export default class HttpsProxy {
 
       const clientReq = ctx.clientToProxyRequest
       const clientRes = ctx.proxyToClientResponse
-      // Global.log(ctx);
 
       const sequenceNumber = ++Global.nextSequenceNumber
       const remoteAddress = clientReq.socket.remoteAddress
@@ -28,10 +27,6 @@ export default class HttpsProxy {
 
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
-
-      Global.log(sequenceNumber, remoteAddress + ': ', clientReq.method, clientReq.url)
-
-      Global.log(reqUrl.protocol, reqUrl.pathname, reqUrl.search)
 
       // Find matching proxy configuration
       let proxyConfig
@@ -68,7 +63,6 @@ export default class HttpsProxy {
 
       if (proxyConfig === undefined) {
         const msg = 'No matching proxy configuration found for ' + reqUrl.pathname
-        Global.log(sequenceNumber, msg)
         ctx.proxyToClientResponse.end('404 ' + msg)
         httpMessage.emitMessageToBrowser(msg)
       } else {
@@ -78,24 +72,21 @@ export default class HttpsProxy {
       callback()
 
       function proxyRequest () {
-        // Global.log(sequenceNumber, 'proxyRequest');
-
         clientReq.on('close', function () {
-          Global.log(sequenceNumber, 'Client closed connection')
+
         })
 
         clientReq.on('error', function (error) {
-          Global.error(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2))
+          console.log(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2))
         })
 
         clientRes.on('error', function (error) {
-          Global.error(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2))
+          console.error(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2))
           httpMessage.emitMessageToBrowser(JSON.stringify(error, null, 2))
         })
 
         let reqChunks: string = ''
         ctx.onRequestData(function (_ctx, chunk, callback) {
-          // Global.log('request data length: ' + chunk.length);
           reqChunks += chunk.toString()
           return callback(undefined, chunk)
         })
@@ -106,11 +97,8 @@ export default class HttpsProxy {
         })
 
         ctx.onResponse(function (ctx, callback) {
-          // Global.log('RESPONSE: http://' + ctx.clientToProxyRequest.headers.host + ctx.clientToProxyRequest.url);
-
           let resChunks: string = ''
           ctx.onResponseData(function (_ctx, chunk, callback) {
-            // Global.log('response data length: ' + chunk.length);
             resChunks += chunk.toString()
             return callback(undefined, chunk)
           })

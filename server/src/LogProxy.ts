@@ -19,13 +19,12 @@ export default class LogProxy {
     if (proxyConfig.logProxyProcess) {
       try {
         const proc = proxyConfig.logProxyProcess
-        // Global.log('killing:', proc.pid);
         proc.stdout.removeAllListeners()
         proc.stderr.removeAllListeners()
         proc.removeAllListeners()
         proc.kill('SIGINT')
       } catch (e) {
-        Global.error(e)
+        console.error(e)
       }
     }
   }
@@ -33,7 +32,6 @@ export default class LogProxy {
   start () {
     LogProxy.destructor(this.proxyConfig)
     this.retry = true
-    Global.log(`Monitoring log: ${this.command}`)
     const tokens = this.command.split(' ')
     const proc = spawn(tokens[0], tokens.slice(1))
     // ('start', proc.pid);
@@ -53,11 +51,10 @@ export default class LogProxy {
     })
 
     proc.on('error', error => {
-      Global.error(`error: ${error} - ${this.command}`)
+      console.error(`error: ${error} - ${this.command}`)
     })
 
     proc.on('exit', _rc => {
-      Global.log('LogProxy exiting:', this.command)
       proc.stdout.removeAllListeners()
       proc.stderr.removeAllListeners()
       proc.removeAllListeners()
@@ -101,7 +98,6 @@ export default class LogProxy {
       return
     }
 
-    Global.log(`sendToBrowser log: ${this.command}`)
     const seqNo = ++Global.nextSequenceNumber
     const commandTokens = this.command.split(' ')
     const message = await SocketIoMessage.buildRequest(
@@ -121,7 +117,6 @@ export default class LogProxy {
     message.protocol = 'log:'
     Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig)
 
-    // Global.log('buffered:', this.recordCount, this.buffer.toString());
     this.buffer = ''
     this.recordCount = 0
   }
