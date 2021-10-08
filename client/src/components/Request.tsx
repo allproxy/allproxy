@@ -66,7 +66,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 	)
 
 	function canResend() {
-		return (message.protocol === 'http:' || message.protocol === 'https:')
+		return ((message.protocol === 'http:' || message.protocol === 'https:') && message.proxyConfig?.protocol !== 'grpc:')
 			&& (message.method === 'GET' || message.method === 'POST' || message.method === 'HEAD');
 	}
 })

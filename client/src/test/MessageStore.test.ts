@@ -14,7 +14,7 @@ test("MessageStore", () => {
   const messageStore = new MessageStore(message);
   expect(messageStore.getMessage()).toBe(message);
 
-  expect(messageStore.getRequestBody()).toBe('"requestBody"');
+  expect(messageStore.getRequestBody()).toBe('requestBody');
   expect(messageStore.getUrl()).toBe('/url');
   expect(messageStore.getRequestLine()).toBe('(clientIp->serverHost) /url');
 

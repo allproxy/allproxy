@@ -182,7 +182,7 @@ export default class HttpProxy {
       proxy.on('error', async function (error) {
         console.error(sequenceNumber, 'Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig)
         const requestBody = await requestBodyPromise
-        httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, config: proxyConfig })
+        httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, 'anyproxy-config': proxyConfig })
       })
 
       clientReq.pipe(proxy, {

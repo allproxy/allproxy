@@ -98,10 +98,12 @@ export default class MessageStore {
                 this.message.requestHeaders['content-type'].includes('application/x-www-form-urlencoded')) {
                 const params = this.message.requestBody.split('&');
                 body += JSON.stringify(params, null, 2);
+            } else if (typeof this.message.requestBody === 'string') {
+                body += this.message.requestBody as string;
             } else {
                 body += JSON.stringify(this.message.requestBody, null, 2);
             }
-            body = Util.fixNewlines(body);
+            // body = Util.fixNewlines(body);
         }
         return body;
     }

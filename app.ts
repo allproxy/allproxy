@@ -69,7 +69,7 @@ function usage () {
  */
 process.on('uncaughtException', (err) => {
   console.error(err.stack)
-  process.exit()
+  // process.exit()
 })
 
 Global.socketIoManager = new SocketIoManager()

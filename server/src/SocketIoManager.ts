@@ -9,6 +9,7 @@ import url from 'url'
 import net from 'net'
 import Ping from './Ping'
 import resend from './Resend'
+import Http2Proxy from '../../Http2Proxy'
 
 const CONFIG_JSON = process.env.NODE_ENV === 'production'
   ? `${__dirname + '' + path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
@@ -177,6 +178,9 @@ export default class SocketIoManager {
         if (proxyConfig.protocol === 'log:') {
           // eslint-disable-next-line no-new
           new LogProxy(proxyConfig)
+        } else if (proxyConfig.protocol === 'grpc:') {
+          // eslint-disable-next-line no-new
+          new Http2Proxy(proxyConfig)
         } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
           // eslint-disable-next-line no-new
           new TcpProxy(proxyConfig)
@@ -198,6 +202,8 @@ export default class SocketIoManager {
         for (const proxyConfig of socketInfo.configs) {
           if (proxyConfig.protocol === 'log:') {
             LogProxy.destructor(proxyConfig)
+          } if (proxyConfig.protocol === 'grpc:') {
+            Http2Proxy.destructor(proxyConfig)
           } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
             TcpProxy.destructor(proxyConfig)
           }
@@ -210,7 +216,11 @@ export default class SocketIoManager {
       this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
           if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
-            TcpProxy.destructor(proxyConfig)
+            if (proxyConfig.protocol === 'grpc:') {
+              Http2Proxy.destructor(proxyConfig)
+            } else {
+              TcpProxy.destructor(proxyConfig)
+            }
           }
         }
       })
