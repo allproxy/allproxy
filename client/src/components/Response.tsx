@@ -4,7 +4,6 @@ import { Accordion, AccordionSummary, AccordionDetails, CircularProgress } from 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
 
-
 type Props = {
 	message: Message,
 };
