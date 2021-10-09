@@ -71,7 +71,8 @@ const SnapshotTabContent = observer(({
 								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
 								: 0;
 							return (
-								<Request store={messageStore}
+								<Request
+									store={messageStore}
 									key={seqNum}
 									isActive={isActiveRequest}
 									timeBarPercent={timeBarPercent + '%'}
@@ -95,6 +96,7 @@ const SnapshotTabContent = observer(({
 			<div className="response__container">
 				{activeRequestIndex < messageQueueStore.getMessages().length ?
 					<Response
+						store={messageQueueStore.getMessages()[activeRequestIndex]}
 						message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
 					/>
 					:

@@ -3,11 +3,13 @@ import Message from '../common/Message';
 import { Accordion, AccordionSummary, AccordionDetails, CircularProgress } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
+import MessageStore from '../store/MessageStore';
 
 type Props = {
 	message: Message,
+	store: MessageStore,
 };
-const Response = ({ message }: Props) => {
+const Response = ({ message, store }: Props) => {
 	const LOADING = 'Loading...';
 	const [responseBody, setResponseBody] = React.useState<string | ReactElement<any,any>>(LOADING);
 
@@ -20,6 +22,11 @@ const Response = ({ message }: Props) => {
 				<div className={message.status < 400 ? '' : 'error'}>
 					<b>Status:&nbsp;</b>{message.status}
 				</div>
+				{store.isGrpc() && (
+					<div className={store.getGrpcStatus() === 0 ? '' : 'error'}>
+						<b>GRPC Status:&nbsp;</b>{store.getGrpcStatus()}
+					</div>
+				)}
 				<div>
 					<b>Elapsed time:&nbsp;</b>{message.elapsedTime} ms
 				</div>
