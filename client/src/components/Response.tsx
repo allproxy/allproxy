@@ -23,8 +23,13 @@ const Response = ({ message, store }: Props) => {
 					<b>Status:&nbsp;</b>{message.status}
 				</div>
 				{store.isGrpc() && (
-					<div className={store.getGrpcStatus() === 0 ? '' : 'error'}>
-						<b>GRPC Status:&nbsp;</b>{store.getGrpcStatus()}
+					<div>
+						<div className={store.getGrpcStatus() === 0 ? '' : 'error'}>
+							<b>GRPC Status:&nbsp;</b>{store.getGrpcStatus()}
+						</div>
+						<div>
+							<b>GRPC Message:&nbsp;</b>{store.getGrpcMessage()}
+						</div>
 					</div>
 				)}
 				<div>
