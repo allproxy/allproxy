@@ -114,6 +114,15 @@ export default class MessageStore {
             || this.message.protocol === 'https:';
     }
 
+    public isGrpc(): boolean {
+        return this.message.proxyConfig?.protocol === 'grpc:';
+    }
+
+    public getGrpcStatus(): number {
+        const status = this.message.responseHeaders['grpc-status'];
+        return status ? Number(status) : 0;
+    }
+
     private formatUrl(urlStr: string): string {
         //var url = urlStr.indexOf('?') !== -1 ? urlStr.split('?')[0] : urlStr;
         let url = unescape(urlStr);
@@ -124,6 +133,9 @@ export default class MessageStore {
     private isErrorResponse(message: Message): boolean {
         // Set error class to make text red
         return message.status >= 400
+            || (message.proxyConfig?.protocol === 'grpc:'
+                && message.responseHeaders['grpc-status']
+                && Number(message.responseHeaders['grpc-status']) > 0)
             || (message.protocol === 'sql:' && message.status !== 0)
             || Util.isGraphQlError(message);
     }
