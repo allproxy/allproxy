@@ -123,6 +123,11 @@ export default class MessageStore {
         return status ? Number(status) : 0;
     }
 
+    public getGrpcMessage(): string {
+        const grpcMessage = this.message.responseHeaders['grpc-message'];
+        return grpcMessage ? grpcMessage : '';
+    }
+
     private formatUrl(urlStr: string): string {
         //var url = urlStr.indexOf('?') !== -1 ? urlStr.split('?')[0] : urlStr;
         let url = unescape(urlStr);
