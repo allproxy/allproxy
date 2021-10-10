@@ -2,9 +2,20 @@ import { makeAutoObservable } from 'mobx';
 import net from "net";
 import tls from 'tls';
 
+export type ConfigProtocol =
+  'browser:'
+  | 'grpc:'
+  | 'http:'
+  | 'https:'
+  | 'log:'
+  | 'mongo:'
+  | 'redis:'
+  | 'sql:'
+  | 'tcp:';
+
 export default class ProxyConfig {
 	path: string = '';
-	protocol: string = '';
+	protocol: ConfigProtocol = 'http:';
 	hostname: string = '';
 	port: number = 0;
 	recording: boolean = true;

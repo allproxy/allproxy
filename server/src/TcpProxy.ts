@@ -8,7 +8,7 @@ import SqlFormatter from './formatters/SqlFormatter'
 import MongoFormatter from './formatters/MongoFormatter'
 import RedisFormatter from './formatters/RedisFormatter'
 import ProxyConfig from '../../common/ProxyConfig'
-import { MessageType, NO_RESPONSE } from '../../common/Message'
+import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message'
 
 export default class TcpProxy {
   constructor (proxyConfig: ProxyConfig) {
@@ -192,7 +192,7 @@ export default class TcpProxy {
                   '', // path
                   Date.now() - request.startTime)
                 SocketIoMessage.appendResponse(message, {}, responseString, status, Date.now() - request.startTime)
-                message.protocol = proxyConfig.protocol
+                message.protocol = proxyConfig.protocol as MessageProtocol
                 Global.socketIoManager.emitMessageToBrowser(
                   response === null
                     ? responseString === NO_RESPONSE && noResponseRequired === false

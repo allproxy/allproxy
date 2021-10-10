@@ -4,7 +4,7 @@ import url from 'url'
 import http, { IncomingMessage } from 'http'
 import https from 'https'
 import Global from './server/src/Global'
-import ProxyConfig from './common/ProxyConfig'
+import ProxyConfig, { ConfigProtocol } from './common/ProxyConfig'
 import HttpMessage from './server/src/HttpMessage'
 import querystring from 'querystring'
 const decompressResponse = require('decompress-response')
@@ -78,7 +78,7 @@ export default class HttpProxy {
         if (proxyConfig === undefined && reqUrl.protocol !== null) {
           proxyConfig = new ProxyConfig()
           proxyConfig.path = reqUrl.pathname!
-          proxyConfig.protocol = reqUrl.protocol
+          proxyConfig.protocol = reqUrl.protocol as ConfigProtocol
           proxyConfig.hostname = reqUrl.hostname!
           proxyConfig.port = reqUrl.port === null
             ? reqUrl.protocol === 'http:' ? 80 : 443

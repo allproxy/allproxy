@@ -1,10 +1,12 @@
 import {breakpointStore} from '../store/BreakpointStore';
 import Message from '../common/Message';
+import ProxyConfig from '../common/ProxyConfig';
 
 test("BreakpointStore", () => {
   const message = new Message();
   message.requestBody = 'breakpoint1';
   message.url = '/';
+  message.proxyConfig = new ProxyConfig();
   console.log(message);
 
   breakpointStore.extend();

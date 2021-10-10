@@ -1,11 +1,13 @@
 import {filterStore} from '../store/FilterStore';
 import MessageStore from '../store/MessageStore';
 import Message from '../common/Message';
+import ProxyConfig from '../common/ProxyConfig';
 
 test("FilterStore", () => {
   const message = new Message();
   message.requestBody = 'Match1';
   message.url = '/';
+  message.proxyConfig = new ProxyConfig();
   console.log(message);
   const messageStore = new MessageStore(message);
 

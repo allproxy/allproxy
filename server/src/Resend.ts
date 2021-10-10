@@ -2,7 +2,7 @@ import urlParser from 'url'
 import Message from '../../common/Message'
 import HttpMessage from './HttpMessage'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import ProxyConfig from '../../common/ProxyConfig'
+import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
 import Global from './Global'
 
 const resend = async (
@@ -29,6 +29,7 @@ const resend = async (
     }
   }
 
+  // eslint-disable-next-line node/no-deprecated-api
   const reqUrl = urlParser.parse(url)
 
   headers.anyproxy = 'resend'
@@ -71,7 +72,7 @@ const resend = async (
     if (proxyConfig === undefined) {
       proxyConfig = new ProxyConfig()
       proxyConfig.path = reqUrl.pathname!
-      proxyConfig.protocol = reqUrl.protocol!
+      proxyConfig.protocol = reqUrl.protocol! as ConfigProtocol
       proxyConfig.hostname = reqUrl.hostname!
       proxyConfig.port = reqUrl.port === null
         ? reqUrl.protocol === 'http:' ? 80 : 443

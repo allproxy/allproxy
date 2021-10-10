@@ -6,9 +6,7 @@ let count = 0;
 let colorMap: Map<string, string> = new Map();
 
 export default function colorPicker(message: Message): string {
-	const protocol = message.proxyConfig
-		? message.proxyConfig.protocol
-		: message.protocol;
+	const protocol = message.proxyConfig!.protocol;
 
 	if (protocol === 'browser:') {
 		return firefoxColor;
@@ -16,9 +14,6 @@ export default function colorPicker(message: Message): string {
 
 	let key = '';
 	switch (protocol) {
-		case 'browser:':
-			key = protocol;
-			break;
 		case 'log:':
 			const command = message.proxyConfig!.path.trim();
 			const tokens = command.split(' ');
@@ -38,6 +33,10 @@ export default function colorPicker(message: Message): string {
 			color = colors[count % colors.length];
 			++count;
 			colorMap.set(key, color);
+
+			if (!colors.includes(color)) {
+				console.error(`Color is undefined key=${key} count=${count}, ${colorMap}`);
+			}
 		}
 	}
 

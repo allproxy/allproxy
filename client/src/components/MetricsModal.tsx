@@ -1,7 +1,8 @@
 import { Modal } from '@material-ui/core'
-import MetricsStore, { PROTOCOLS } from '../store/MetricsStore';
+import MetricsStore from '../store/MetricsStore';
 import { observer } from 'mobx-react-lite';
 import pickIcon from '../PickIcon';
+import { ConfigProtocols } from '../store/SettingsStore';
 
 type Props = {
 	open: boolean,
@@ -39,8 +40,8 @@ const MetricsModal = observer(({ open, onClose, store }: Props) => {
 										.map((entry, i) => (
 											<tr className="settings-modal__proxy-row" key={i}>
 												<td className="settings-modal__proxy-host-container">
-													<div className={pickIcon(PROTOCOLS[i])}>
-														<span style={{ marginLeft: '.25rem' }}>{PROTOCOLS[i]}</span>
+													<div className={pickIcon(  ConfigProtocols[i])}>
+														<span style={{ marginLeft: '.25rem' }}>{  ConfigProtocols[i]}</span>
 													</div>
 												</td>
 												<td className="settings-modal__proxy-host-container">

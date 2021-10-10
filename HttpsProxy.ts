@@ -1,6 +1,6 @@
 import url from 'url'
 import Global from './server/src/Global'
-import ProxyConfig from './common/ProxyConfig'
+import ProxyConfig, { ConfigProtocol } from './common/ProxyConfig'
 import Proxy from './node-http-mitm-proxy'
 import HttpMessage from './server/src/HttpMessage'
 
@@ -44,7 +44,7 @@ export default class HttpsProxy {
         if (proxyConfig === undefined) {
           proxyConfig = new ProxyConfig()
           proxyConfig.path = reqUrl.pathname!
-          proxyConfig.protocol = reqUrl.protocol!
+          proxyConfig.protocol = reqUrl.protocol! as ConfigProtocol
           proxyConfig.hostname = reqUrl.hostname!
           proxyConfig.port = reqUrl.port === null
             ? reqUrl.protocol === 'http:' ? 80 : 443

@@ -7,6 +7,7 @@ import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
 import pickIcon from '../PickIcon';
+import { ConfigProtocol } from '../common/ProxyConfig';
 
 type Props = {
 	open: boolean,
@@ -15,11 +16,11 @@ type Props = {
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
 	const [tabValue, setTabValue] = React.useState('browser:');
-	store.setProtocol(tabValue);
+	store.setProtocol(tabValue as ConfigProtocol);
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		setTabValue(value);
-		store.setProtocol(value);
+		store.setProtocol(value as ConfigProtocol);
 	}
 
 	return (
@@ -66,7 +67,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 								<tr>
 									<td className="settings-modal__select-protocol-container">
 										<select className="form-control settings-modal__select-protocol"
-											onChange={(e) => store.setProtocol(e.target.value)}
+											onChange={(e) => store.setProtocol(e.target.value as ConfigProtocol)}
 											value={ store.getProtocol() }
 										>
 											{store.getProtocols().map((protocol) => {

@@ -7,6 +7,15 @@ export enum MessageType {
 	REQUEST_AND_RESPONSE,
 }
 
+export type MessageProtocol =
+  | 'http:'
+  | 'https:'
+  | 'log:'
+  | 'mongo:'
+  | 'redis:'
+  | 'sql:'
+  | 'tcp:';
+
 export default class Message  {
 	type: MessageType = MessageType.REQUEST_AND_RESPONSE;
 	timestamp: number = 0;
@@ -14,7 +23,7 @@ export default class Message  {
 	requestHeaders: {[key: string]: string} = {};
 	responseHeaders: {[key: string]: string} = {};
 	method: string | undefined = '';
-	protocol: string = '';
+	protocol: MessageProtocol | '' = '';
 	url: string|undefined = '';
 	endpoint: string = '';
 	requestBody: string|{[key: string]:any} = '';
