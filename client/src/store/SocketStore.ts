@@ -88,7 +88,7 @@ export default class SocketStore {
 	}
 
 	@action private countMetrics(message: Message) {
-		const protocol = message.proxyConfig ? message.proxyConfig.protocol : message.protocol;
+		const protocol = message.proxyConfig!.protocol;
 		const i = mapProtocolToIndex.get(protocol);
 		if (i === undefined) {
 			console.error(`Unknown protocol ${protocol} for message ${message}`);

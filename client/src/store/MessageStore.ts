@@ -24,9 +24,7 @@ export default class MessageStore {
             this.iconClass += ' resend-icon';
         }
         else {
-            this.iconClass = pickIcon(message.proxyConfig
-                ? message.proxyConfig.protocol
-                : message.protocol);
+            this.iconClass = pickIcon(message.proxyConfig!.protocol);
         }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
@@ -81,7 +79,7 @@ export default class MessageStore {
     public isRequestBodyJson() {
         return this.message.requestBody
             && typeof this.message.requestBody === 'object'
-            && (this.message.protocol === 'http:' || this.message.protocol === 'https:' || this.message.protocol === 'browser:');
+            && (this.message.protocol === 'http:' || this.message.protocol === 'https:');
     }
 
     public getRequestBody(): string {
@@ -109,8 +107,7 @@ export default class MessageStore {
     }
 
     public isHttpOrHttps() {
-        return this.message.protocol === 'browser:'
-            || this.message.protocol === 'http:'
+        return this.message.protocol === 'http:'
             || this.message.protocol === 'https:';
     }
 

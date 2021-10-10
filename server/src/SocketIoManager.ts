@@ -11,6 +11,7 @@ import Ping from './Ping'
 import resend from './Resend'
 import Http2Proxy from '../../Http2Proxy'
 
+const USE_HTTP2 = false
 const CONFIG_JSON = process.env.NODE_ENV === 'production'
   ? `${__dirname + '' + path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
   : `${__dirname + '' + path.sep}.${path.sep}config.json`
@@ -61,7 +62,7 @@ export default class SocketIoManager {
         : this.defaultConfig()
       let modified = false
       for (const config of (configs as ProxyConfig[])) {
-        if (config.protocol === 'proxy:') {
+        if (config.protocol as string === 'proxy:') {
           config.protocol = 'browser:'
           modified = true
         }
@@ -178,7 +179,7 @@ export default class SocketIoManager {
         if (proxyConfig.protocol === 'log:') {
           // eslint-disable-next-line no-new
           new LogProxy(proxyConfig)
-        } else if (proxyConfig.protocol === 'grpc:') {
+        } else if (proxyConfig.protocol === 'grpc:' && USE_HTTP2) {
           // eslint-disable-next-line no-new
           new Http2Proxy(proxyConfig)
         } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
@@ -216,7 +217,7 @@ export default class SocketIoManager {
       this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
           if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
-            if (proxyConfig.protocol === 'grpc:') {
+            if (proxyConfig.protocol === 'grpc:' && USE_HTTP2) {
               Http2Proxy.destructor(proxyConfig)
             } else {
               TcpProxy.destructor(proxyConfig)
@@ -243,7 +244,7 @@ export default class SocketIoManager {
      * @returns ProxyConfig
      */
     findProxyConfigMatchingURL (
-      protocol: string,
+      protocol: 'http:' | 'https:',
       clientHostName: string,
       reqUrl: url.UrlWithStringQuery): ProxyConfig|undefined {
       const reqUrlPath = reqUrl.pathname!.replace(/\/\//g, '/')
@@ -253,7 +254,6 @@ export default class SocketIoManager {
       // Find matching proxy configuration
       this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
-          if (!ProxyConfig.isHttpOrHttps(proxyConfig)) continue
           if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'browser:') continue
           if ((this.isMatch(proxyConfig.path, reqUrlPath) ||
                     this.isMatch(proxyConfig.path, clientHostName + reqUrlPath)) &&

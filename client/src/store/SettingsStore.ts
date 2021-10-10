@@ -1,9 +1,9 @@
 import { makeAutoObservable, action } from "mobx";
-import ProxyConfig from '../common/ProxyConfig';
+import ProxyConfig, { ConfigProtocol } from '../common/ProxyConfig';
 import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
-const PROTOCOLS = [
+export const ConfigProtocols: ConfigProtocol[] = [
 	'browser:',
 	'grpc:',
 	'http:',
@@ -35,7 +35,7 @@ export enum HostStatus {
 
 export default class SettingsStore {
 	private changed = false;
-	private protocol = 'http:';
+	private protocol: ConfigProtocol | '' = '';
 	private path = '';
 	private targetHost = '';
 	private targetPort = '';
@@ -92,11 +92,11 @@ export default class SettingsStore {
 		return this.changed;
 	}
 
-	public getProtocols() {
-		return PROTOCOLS;
+	public getProtocols(): ConfigProtocol[] {
+		return ConfigProtocols;
 	}
 
-	public getTooltip(protocol: string): string {
+	public getTooltip(protocol: ConfigProtocol): string {
 		const tooltip = TOOLTIP.get(protocol);
 		return tooltip ? tooltip : 'Tooltip text not found!';
 	}
@@ -105,7 +105,7 @@ export default class SettingsStore {
 		return this.protocol;
 	}
 
-	@action public setProtocol(protocol: string) {
+	@action public setProtocol(protocol: ConfigProtocol) {
 		this.protocol = protocol;
 		this.error = '';
 	}
@@ -178,7 +178,7 @@ export default class SettingsStore {
 
 		if (this.error.length === 0) {
 			const proxyConfig = new ProxyConfig();
-			proxyConfig.protocol = this.protocol;
+			proxyConfig.protocol = this.protocol as ConfigProtocol;
 			proxyConfig.path = this.path;
 			proxyConfig.hostname = this.targetHost;
 			proxyConfig.port = +this.targetPort;
@@ -198,7 +198,7 @@ export default class SettingsStore {
 		this.changed = true;
 	}
 
-	@action public updateEntryProtocol(index: number, value: string) {
+	@action public updateEntryProtocol(index: number, value: ConfigProtocol) {
 		const entry = { ...this.entries[index] };
 		entry.protocol = value;
 		this.entries.splice(index, 1, entry);

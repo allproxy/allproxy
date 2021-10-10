@@ -1,4 +1,6 @@
-export default function pickIcon(protocol: string): string {
+import { ConfigProtocol } from "./common/ProxyConfig";
+
+export default function pickIcon(protocol: ConfigProtocol): string {
 	let iconClass = '';
 	switch (protocol) {
 		case 'http:':

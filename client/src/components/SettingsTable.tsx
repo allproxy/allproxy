@@ -1,9 +1,10 @@
 import SettingsStore from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
+import { ConfigProtocol } from '../common/ProxyConfig';
 
 type Props = {
 	store: SettingsStore,
-	protocol: string,
+	protocol: ConfigProtocol,
 };
 const SettingsTable = observer(({ store, protocol }: Props) => {
 	const pathLabel = () => {
