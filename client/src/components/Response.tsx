@@ -27,9 +27,10 @@ const Response = ({ message, store }: Props) => {
 						<div className={store.getGrpcStatus() === 0 ? '' : 'error'}>
 							<b>GRPC Status:&nbsp;</b>{store.getGrpcStatus()}
 						</div>
+						{store.getGrpcMessage().length > 0 && (
 						<div>
 							<b>GRPC Message:&nbsp;</b>{store.getGrpcMessage()}
-						</div>
+						</div>)}
 					</div>
 				)}
 				<div>
