@@ -1,18 +1,24 @@
 import url from 'url'
-import http2, { ClientHttp2Stream, Http2ServerRequest, Http2ServerResponse } from 'http2'
+import http2, { Http2ServerRequest, Http2ServerResponse } from 'http2'
 import Global from './server/src/Global'
 import ProxyConfig from './common/ProxyConfig'
 import HttpMessage from './server/src/HttpMessage'
 import querystring from 'querystring'
 import HexFormatter from './server/src/formatters/HexFormatter'
-const decompressResponse = require('decompress-response')
+// const decompressResponse = require('decompress-response')
+
+const debug = false
+
+const settings = { maxConcurrentStreams: undefined }
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class HttpProxy {
   public constructor (proxyConfig: ProxyConfig) {
-    const server = http2.createServer() // HTTPS is not currently supported
+    const server = http2.createServer({
+      settings
+    }) // HTTPS is not currently supported
     proxyConfig._server = server
 
     listen(server)
@@ -24,15 +30,15 @@ export default class HttpProxy {
       if (++retries < 10) {
         setTimeout(() => listen(server), wait *= 2)
       } else {
-        console.error('Http2Proxy server error', err)
+        if (debug) console.error('Http2Proxy server error', err)
       }
     })
 
     server.on('request', onRequest)
 
     function listen (server: http2.Http2Server) {
-      server.listen(proxyConfig.port, () => {
-        console.log(`Listening on http2 port ${proxyConfig.port} for target host ${proxyConfig.hostname}`)
+      server.listen(proxyConfig.path, () => {
+        if (debug) console.log(`Listening on http2 port ${proxyConfig.path} for target host ${proxyConfig.hostname}`)
       })
     }
 
@@ -57,18 +63,14 @@ export default class HttpProxy {
       proxyRequest(proxyConfig!, requestBodyPromise)
 
       function proxyRequest (proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {
-        clientReq.on('close', function () {
-          // sendErrorResponse(499, "Client closed connection", undefined, proxyConfig.path);
-        })
-
         clientReq.on('error', function (error) {
           console.error(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2))
         })
 
         const headers = clientReq.headers
-        headers.host = proxyConfig.hostname
-        if (proxyConfig.port) headers.host += ':' + proxyConfig.port
-        headers[http2.constants.HTTP2_HEADER_AUTHORITY] = headers.host
+        let authority = proxyConfig.hostname
+        if (proxyConfig.port) authority += ':' + proxyConfig.port
+        headers[http2.constants.HTTP2_HEADER_AUTHORITY] = authority
 
         let { hostname, port } = proxyConfig.protocol === 'browser:' || proxyConfig.protocol === 'log:'
           ? reqUrl
@@ -77,40 +79,51 @@ export default class HttpProxy {
           port = proxyConfig.protocol === 'https:' ? 443 : 80
         }
 
-        const proxyClient = http2.connect(`http://${hostname}:${port}`)
+        const proxyClient = http2.connect(
+          `http://${hostname}:${port}`,
+          { settings }
+        )
 
         proxyClient.on('error', async (err) => {
           const requestBody = await requestBodyPromise
           httpMessage.emitMessageToBrowser(requestBody, 404, {}, { err, 'anyproxy-config': proxyConfig })
         })
 
-        const proxyReq = proxyClient.request(headers)
-        clientReq.pipe(proxyReq, {
-          end: true
+        const chunks: Buffer[] = []
+        const proxyStream = proxyClient.request(headers)
+
+        proxyStream.on('trailers', (headers, _flags) => {
+          if (debug) console.log('trailers', headers)
+          clientRes.addTrailers(headers)
         })
 
-        proxyReq.on('response', async (headers, _flags) => {
-          const requestBody = await requestBodyPromise
-          /**
-          * Forward the response back to the client
-          */
-          const headers2 = { ...headers }
-          for (const header in headers2) {
-            if (header.includes(':')) {
-              delete headers2[header]
-            }
-          }
-          clientRes.writeHead(Number(headers[':status']), headers2)
-          proxyReq.pipe(clientRes, {
-            end: true
+        proxyStream.on('response', (headers, flags) => {
+          if (debug) console.log('on response', clientReq.url, headers, flags)
+          clientRes.stream.respond(headers, { waitForTrailers: true })
+          // proxyStream.pipe(clientRes, {
+          //   end: true
+          // })
+          proxyStream.on('data', function (chunk: Buffer) {
+            clientRes.write(chunk)
+            chunks.push(chunk)
           })
 
-          const resBody = await getResBody(proxyReq, headers)
-          httpMessage.emitMessageToBrowser(requestBody, headers[':status'], headers, resBody)
+          proxyStream.on('end', async () => {
+            if (debug) console.log('end of response received')
+            clientRes.end()
+            proxyClient.close()
+
+            const requestBody = await requestBodyPromise
+
+            // chunks.push(headers)
+            const resBody = getResBody(chunks)
+            httpMessage.emitMessageToBrowser(requestBody, headers[':status'], headers, resBody)
+          })
         })
 
-        proxyReq.on('end', () => {
-          proxyClient.close()
+        // Forward the client request
+        clientReq.pipe(proxyStream, {
+          end: true
         })
       }
 
@@ -118,7 +131,6 @@ export default class HttpProxy {
         return new Promise<string | {}>(resolve => {
           // eslint-disable-next-line no-unreachable
           let requestBody: string | {} = ''
-          clientReq.setEncoding('utf8')
           let rawData = ''
           clientReq.on('data', function (chunk) {
             rawData += chunk
@@ -143,29 +155,23 @@ export default class HttpProxy {
         })
       }
 
-      function getResBody (proxyRes: ClientHttp2Stream, headers: http2.IncomingHttpHeaders): Promise<object | string> {
-        return new Promise<string | {}>(resolve => {
-          if (headers['content-encoding']) {
-            proxyRes = decompressResponse(proxyRes)
-          }
-
-          let rawData = ''
-          proxyRes.on('data', function (chunk: string) {
-            rawData += chunk
-          })
-          let parsedData = ''
-          proxyRes.on('end', () => {
-            try {
-              parsedData = JSON.parse(rawData) // assume JSON
-            } catch (e) {
-              parsedData = rawData
-            }
-            if (proxyConfig.protocol === 'grpc:') {
-              parsedData = HexFormatter.format(Buffer.from(parsedData, 'utf-8'))
-            }
-            resolve(parsedData)
-          })
-        })
+      function getResBody (chunks: Buffer[]): object | string {
+        if (chunks.length === 0) return ''
+        const resBuffer = chunks.reduce(
+          (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)
+        )
+        const resString = resBuffer.toString()
+        let resBody = ''
+        try {
+          resBody = JSON.parse(resString) // assume JSON
+        } catch (e) {
+          resBody = resString
+        }
+        // gRPC is binary data
+        if (proxyConfig.protocol === 'grpc:') {
+          resBody = HexFormatter.format(Buffer.from(resBody, 'utf-8'))
+        }
+        return resBody
       }
     }
   }

@@ -11,7 +11,7 @@ import Ping from './Ping'
 import resend from './Resend'
 import Http2Proxy from '../../Http2Proxy'
 
-const USE_HTTP2 = false
+const USE_HTTP2 = true
 const CONFIG_JSON = process.env.NODE_ENV === 'production'
   ? `${__dirname + '' + path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
   : `${__dirname + '' + path.sep}.${path.sep}config.json`
