@@ -90,11 +90,13 @@ export default class HttpProxy {
         })
 
         const chunks: Buffer[] = []
+        let trailers = {}
         const proxyStream = proxyClient.request(headers)
 
         proxyStream.on('trailers', (headers, _flags) => {
           if (debug) console.log('trailers', headers)
           clientRes.addTrailers(headers)
+          trailers = headers
         })
 
         proxyStream.on('response', (headers, flags) => {
@@ -117,7 +119,11 @@ export default class HttpProxy {
 
             // chunks.push(headers)
             const resBody = getResBody(chunks)
-            httpMessage.emitMessageToBrowser(requestBody, headers[':status'], headers, resBody)
+            const allHeaders = {
+              ...headers,
+              ...trailers
+            }
+            httpMessage.emitMessageToBrowser(requestBody, headers[':status'], allHeaders, resBody)
           })
         })
 
