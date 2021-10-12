@@ -30,7 +30,7 @@ export default class HttpProxy {
       if (++retries < 10) {
         setTimeout(() => listen(server), wait *= 2)
       } else {
-        if (debug) console.error('Http2Proxy server error', err)
+        console.error('Http2Proxy server error', err)
       }
     })
 
@@ -38,7 +38,7 @@ export default class HttpProxy {
 
     function listen (server: http2.Http2Server) {
       server.listen(proxyConfig.path, () => {
-        if (debug) console.log(`Listening on http2 port ${proxyConfig.path} for target host ${proxyConfig.hostname}`)
+        console.log(`Listening on http2 port ${proxyConfig.path} for target host ${proxyConfig.hostname}`)
       })
     }
 
