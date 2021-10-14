@@ -129,6 +129,7 @@ td input {
 }
 
 .header__trash,
+.header__show-errors,
 .header__auto-scroll,
 .header__stop,
 .header__more-menu {
@@ -139,6 +140,10 @@ td input {
 	font-size: large !important;
 	min-width: 2ch;
 	text-align: center;
+}
+
+.header__show-errors.active {
+	color: red;
 }
 
 .header__resend,

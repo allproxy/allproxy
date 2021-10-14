@@ -14,6 +14,7 @@ export default class FilterStore {
     private _regex = false;
     private _logical = false;
     private _deleteFiltered = false;
+    private showErrors = false;
 
     public constructor() {
 		makeAutoObservable(this);
@@ -81,6 +82,14 @@ export default class FilterStore {
 
     @action public toggleDeleteFiltered() {
         this._deleteFiltered = !this._deleteFiltered;
+    }
+
+    public getShowErrors(): boolean {
+        return this.showErrors;
+    }
+
+    @action public toggleShowErrors() {
+        this.showErrors = !this.showErrors;
     }
 
     @action public setFilterNoDebounce(filter: string) {
@@ -175,6 +184,8 @@ export default class FilterStore {
     }
 
     public isFiltered(messageStore: MessageStore) {
+        if (this.showErrors && !messageStore.isError()) return true;
+
         this.invalidFilterSyntax = false;
         if (this.searchFilter.length === 0) return false;
         if (this._logical && this.boolString.length > 0) {
