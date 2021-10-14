@@ -79,12 +79,13 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						onClick={() => messageQueueStore.toggleAutoScroll()}
 						title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
 					/>
-					<div className={'header__show-errors fa-bug fa '
+				</div>
+
+				<div className={'header__show-errors fa-bug fa '
 						+ (filterStore.getShowErrors() ? 'active' : '')}
 						onClick={() => filterStore.toggleShowErrors()}
 						title={ 'Toggle show only errors' }
 					/>
-				</div>
 
 				<div className={'header__more-menu fa fa-ellipsis-v'}
 					onClick={(e) => setMoreMenuIcon(e.currentTarget)}
