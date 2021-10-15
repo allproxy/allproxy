@@ -2,6 +2,8 @@
 
 Web and SQL debugging proxy with GUI captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log messages, and TCP request/response messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
 
+![ ](https://github.com/davechri/anyproxy/blob/master/images/dashboard.png)
+
 **Features:**
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
 * captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
@@ -9,14 +11,9 @@ Web and SQL debugging proxy with GUI captures browser HTTP/HTTPS, SQL, gRPC, Mon
 * modify and resend HTTP requests
 * search entire request/response message for matching text
 * stop/start recording
+* take snapshots of captured messages
+* export and import captured messages
 * supports multiple dashboard browser tabs
-
-Implementation:
-- **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.
-- **HTTPS proxy** - The *node-http-mitm-proxy* package is used to build certificates to capture decrypted HTTPS traffic as either a forward or reverse proxy.
-- **TCP proxy** - The *net* package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
-- **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
-- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard.
 
 ### Table of Contents
 
@@ -40,8 +37,11 @@ Implementation:
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
+  * [Snapshots](#snapshots)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
 * [Certificates](#certificates)
+* [Implementation](#imlementation)
+* [Limitations](#limitations)
 
 ## Quick Start
 
@@ -150,7 +150,7 @@ The AnyProxy is configured to proxy MySQL requests to the MySQL server:
 ![ ](https://github.com/davechri/anyproxy/blob/master/images/mysql-settings.png)
 
 ### gRPC Proxy
-The gRPC proxy can transparently capture gRPC messages sent to backend microservices.
+The gRPC proxy can transparently capture gRPC HTTP/2 messages sent to backend microservices.  Only unsecure connections are supported.  Secure TLS support may be added in the future.
 
 Example gRPC microservice config file:
 ```sh
@@ -234,17 +234,21 @@ The AnyProxy dashboard is stated from the browser with URL http://localhost:8888
 The recording of messages can be temporarily stopped, to allow time to examine the messages without the log wrapping.
 
 ### Filter Messages
-Filtering allows you to find messages matching a search filter, and hide other messages.  The entire message is search for a match.  The filter may be *case insensitive*, *case sensitive*, or a *regular expression*.
+Filtering allows you to find messages matching a search filter, and hide other messages.  The entire message is search for a match.  The filter may be *case insensitive*, *case sensitive*, a *logical expression*, or a *regular expression*.
 
 Types of filters:
-* **case insensitive** - If the filter only contains lower case characters, a *case insensitive* match is performed.
-* **case ensensitive** - If the filter contains upper and lower case characters, a *case insensitive* match is performed.
-* **regular expression** - If the filter includes ".*", a *regular express* match is performed.
+* **case insensitive** - If *Aa* is not selected, a case insensitive search is performed.
+* **case ensensitive** - If *Aa* is selected, a case sensitive search is performed.
+* **logical expression** - If *&&* is selected, &&, ||, (), and ! operators may be used to build a logical expression.
+* **regular expression** - If *.** is selected, regular expression match in performed.
 
 Boolean filters can use &&, ||, !, and parenthesis.
 
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
+
+### Snapshots
+Clicking on the camera icon will take a snapshot of the currently captured messages, and create a new snapshot tab.  A snapshot tab may be exported to a file, and later imported again.
 
 ### Multiple Browser Tabs
 Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record messages.
@@ -255,6 +259,18 @@ Each Dashboard instance keeps its own copy of the messages, so clearing or stopp
 Certificates are managed by the [node-http-mitm-proxy](https://github.com/joeferner/node-http-mitm-proxy/tree/master/examples) package.
 
 Generated certificates are stored in anyproxy/.http-mitm-proxy/certs-.  The '/anyproxy/.http-mitm-proxy/certs/ca.pem' CA certificate can be imported to your browser to trust certificates generated by the AnyProxy.
+
+## Implementation:
+- **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.
+- **HTTPS proxy** - The *node-http-mitm-proxy* package is used to build certificates to capture decrypted HTTPS traffic as either a forward or reverse proxy.
+- **TCP proxy** - The *net* package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
+- **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
+- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard.
+
+## Limitations
+1. Only unsecure HTTP/2 is supported.  You can only connect to gRPC without TLS.
+2. Only HTTP/2 reverse proxy is supported.  HTTP/2 forward proxy is not supported.
+3. The TCP proxy does not support TLS.  You can only connect to memcached without TLS.
 
 ## License
 

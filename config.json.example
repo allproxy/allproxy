@@ -14,7 +14,7 @@
       "protocol": "browser:",
       "hostname": "",
       "port": 0,
-      "recording": true,
+      "recording": false,
       "hostReachable": true,
       "comment": "socket.io messages are not recorded"
     },
@@ -25,7 +25,16 @@
       "port": 24601,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_ASSET_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_ASSET_GRPC_HOST=middleman"
+    },
+    {
+      "path": "11111",
+      "protocol": "grpc:",
+      "hostname": "backend-company",
+      "port": 50051,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Testing only"
     },
     {
       "path": "50051",
@@ -34,7 +43,7 @@
       "port": 50051,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_COMPANY_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_COMPANY_GRPC_HOST=middleman"
     },
     {
       "path": "50050",
@@ -43,7 +52,7 @@
       "port": 50050,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_CRM_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_CRM_GRPC_HOST=middleman"
     },
     {
       "path": "50070",
@@ -52,7 +61,7 @@
       "port": 50070,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_ECOMMERCE_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_ECOMMERCE_GRPC_HOST=middleman"
     },
     {
       "path": "50058",
@@ -60,8 +69,8 @@
       "hostname": "backend-email",
       "port": 50058,
       "recording": true,
-      "hostReachable": false,
-      "comment": "BACKEND_EMAIL_GRPC_HOST=anyproxy"
+      "hostReachable": true,
+      "comment": "BACKEND_EMAIL_GRPC_HOST=middleman"
     },
     {
       "path": "50060",
@@ -70,7 +79,7 @@
       "port": 50060,
       "recording": true,
       "hostReachable": false,
-      "comment": "???GRPC_HOST=anyproxy"
+      "comment": "???GRPC_HOST=middleman"
     },
     {
       "path": "50055",
@@ -79,7 +88,7 @@
       "port": 50055,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_FULL_CONTACT_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_FULL_CONTACT_GRPC_HOST=middleman"
     },
     {
       "path": "50059",
@@ -88,7 +97,7 @@
       "port": 50059,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_GUIDANCE_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_GUIDANCE_GRPC_HOST=middleman"
     },
     {
       "path": "50052",
@@ -96,8 +105,8 @@
       "hostname": "backend-report",
       "port": 50052,
       "recording": true,
-      "hostReachable": false,
-      "comment": "BACKEND_REPORT_GRPC_HOST=anyproxy"
+      "hostReachable": true,
+      "comment": "BACKEND_REPORT_GRPC_HOST=middleman"
     },
     {
       "path": "50053",
@@ -106,7 +115,7 @@
       "port": 50053,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_REPORT_DASH_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_REPORT_DASH_GRPC_HOST=middleman"
     },
     {
       "path": "50058",
@@ -115,7 +124,7 @@
       "port": 50058,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_USER_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_USER_GRPC_HOST=middleman"
     },
     {
       "path": "50058",
@@ -124,7 +133,7 @@
       "port": 50058,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_FORMS_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_FORMS_GRPC_HOST=middleman"
     },
     {
       "path": "50067",
@@ -133,7 +142,7 @@
       "port": 50067,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_BILLING_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_BILLING_GRPC_HOST=middleman"
     },
     {
       "path": "50056",
@@ -142,7 +151,7 @@
       "port": 50056,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_CHATBOT_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_CHATBOT_GRPC_HOST=middleman"
     },
     {
       "path": "50040",
@@ -151,7 +160,7 @@
       "port": 50040,
       "recording": true,
       "hostReachable": false,
-      "comment": "MEETINGS_HOST=anyproxy"
+      "comment": "MEETINGS_HOST=middleman"
     },
     {
       "path": "50068",
@@ -160,7 +169,7 @@
       "port": 50068,
       "recording": true,
       "hostReachable": true,
-      "comment": "SEARCH_HOST=anyproxy"
+      "comment": "SEARCH_HOST=middleman"
     },
     {
       "path": "/graphql",
@@ -169,7 +178,7 @@
       "port": 80,
       "recording": true,
       "hostReachable": true,
-      "comment": "GRAPHQL_INTERNAL_URL=http://anyproxy:8888/graphql"
+      "comment": "GRAPHQL_INTERNAL_URL=http://middleman:8888/graphql"
     },
     {
       "path": "/toolshedapi",
@@ -181,7 +190,7 @@
       "comment": "TOOLSHED_API_URL TOOLSHED_BASEURL TOOLSHED_HOST_URL"
     },
     {
-      "path": "backend-search/",
+      "path": "/",
       "protocol": "http:",
       "hostname": "elsearch",
       "port": 9200,
@@ -190,13 +199,31 @@
       "comment": "backend-search to elsearch"
     },
     {
+      "path": "backend-db-event-sync/",
+      "protocol": "http:",
+      "hostname": "elsearch",
+      "port": 9200,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Don't record health checks for elsearch"
+    },
+    {
+      "path": "/xxx",
+      "protocol": "http:",
+      "hostname": "gcp-emulator",
+      "port": 8283,
+      "recording": true,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
       "path": "/v1/payments/toolshed",
       "protocol": "http:",
       "hostname": "payments-nginx",
       "port": 80,
       "recording": true,
       "hostReachable": false,
-      "comment": "PAYMENTS_API_URL=http://anyproxy:8888/v1/payments/toolshed/"
+      "comment": "PAYMENTS_API_URL=http://middleman:8888/v1/payments/toolshed/"
     },
     {
       "path": "/graphql",
@@ -205,7 +232,7 @@
       "port": 80,
       "recording": true,
       "hostReachable": true,
-      "comment": "GRAPHQL_INTERNAL_URL=http://anyproxy:8888/graphql"
+      "comment": "GRAPHQL_INTERNAL_URL=http://middleman:8888/graphql"
     },
     {
       "path": "docker logs -f app",
@@ -215,15 +242,6 @@
       "recording": true,
       "hostReachable": true,
       "comment": "Scrap app log"
-    },
-    {
-      "path": "docker logs -f backend-report",
-      "protocol": "log:",
-      "hostname": "",
-      "port": 0,
-      "recording": true,
-      "hostReachable": true,
-      "comment": ""
     },
     {
       "path": "docker logs -f fpm",
@@ -241,7 +259,7 @@
       "port": 27017,
       "recording": false,
       "hostReachable": true,
-      "comment": "MONGO_HOST=anyproxy"
+      "comment": "MONGO_HOST=middleman"
     },
     {
       "path": "6379",
@@ -276,7 +294,8 @@
       "hostname": "memcached",
       "port": 11211,
       "recording": false,
-      "hostReachable": false
+      "hostReachable": true,
+      "comment": ""
     }
   ]
 }

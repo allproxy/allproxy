@@ -22,6 +22,10 @@ services:
         published: 9999
         protocol: tcp
         mode: host
+      - target: 11111
+        published: 11111
+        protocol: tcp
+        mode: host
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "app.sharpspring.localhost.com:host-gateway"
