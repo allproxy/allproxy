@@ -93,13 +93,22 @@ export default class HttpMessage {
     if (method !== 'OPTIONS' &&
           (url.endsWith('/graphql') || url.endsWith('/graphql-public'))) {
       endpoint = ''
-      if (requestBody && Array.isArray(requestBody)) {
-        requestBody.forEach((entry) => {
-          if (entry.operationName) {
-            if (endpoint!.length > 0) endpoint += ','
-            endpoint += ' ' + entry.operationName
+      if (typeof requestBody === 'object') {
+        if (Array.isArray(requestBody)) {
+          requestBody.forEach((entry) => {
+            if (entry.operationName) {
+              if (endpoint!.length > 0) endpoint += ','
+              endpoint += ' ' + entry.operationName
+            }
+          })
+        } else {
+          for (const key in requestBody) {
+            if (key === 'operationName') {
+              if (endpoint!.length > 0) endpoint += ','
+              endpoint += ' ' + (requestBody as {[key:string]: string})[key]
+            }
           }
-        })
+        }
       }
       const tag = url.endsWith('/graphql-public') ? 'GQLP' : 'GQL'
       endpoint = ' ' + tag + endpoint
