@@ -1,4 +1,4 @@
-<h1 align="center" style="border-bottom: none;">AnyProxy Debugging Tool</h1>
+<h1 align="center" style="border-bottom: none;">AnyProxy: HTTP, SQL, gRPC... Debugging Tool</h1>
 
 Web and SQL debugging proxy with GUI captures browser HTTP/HTTPS, SQL, gRPC, MongoDB, Redis, log messages, and TCP request/response messages, and integrates them into an easy to use dashboard.  The dashboard shows each captured request message, and its formatted response message.
 
