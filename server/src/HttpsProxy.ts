@@ -1,8 +1,8 @@
 import url from 'url'
-import Global from './server/src/Global'
-import ProxyConfig, { ConfigProtocol } from './common/ProxyConfig'
-import Proxy from './node-http-mitm-proxy'
-import HttpMessage from './server/src/HttpMessage'
+import Global from './Global'
+import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
+import Proxy from '../../node-http-mitm-proxy'
+import HttpMessage from './HttpMessage'
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.

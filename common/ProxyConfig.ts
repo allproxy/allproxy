@@ -13,6 +13,7 @@ export type ConfigProtocol =
   | 'tcp:';
 
 export default class ProxyConfig {
+  isSecure: boolean = false;
   path: string = '';
   protocol: ConfigProtocol = 'http:';
   hostname: string = '';

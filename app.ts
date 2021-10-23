@@ -3,8 +3,8 @@ import { exit } from 'process'
 import https from 'https'
 import Global from './server/src/Global'
 import SocketIoManager from './server/src/SocketIoManager'
-import HttpProxy from './HttpProxy'
-import HttpsProxy from './HttpsProxy'
+import HttpProxy from './server/src/HttpProxy'
+import HttpsProxy from './server/src/HttpsProxy'
 import HttpMitmProxy from './node-http-mitm-proxy'
 const httpMitmProxy = HttpMitmProxy()
 

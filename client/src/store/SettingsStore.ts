@@ -244,6 +244,18 @@ export default class SettingsStore {
 		this.changed = true;
 	}
 
+	public isEntrySecure(index: number) {
+		const entry = { ...this.entries[index] };
+		return entry.isSecure;
+	}
+
+	@action public toggleEntryIsSecure(index: number) {
+		const entry = { ...this.entries[index] };
+		entry.isSecure = !entry.isSecure;
+		this.entries.splice(index, 1, entry);
+		this.changed = true;
+	}
+
 	public getEntries(hostStatus: HostStatus = HostStatus.All): ProxyConfig[] {
 		if (hostStatus === HostStatus.All) {
 			return this.entries;

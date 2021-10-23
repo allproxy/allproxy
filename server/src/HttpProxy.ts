@@ -3,10 +3,11 @@ import path from 'path'
 import url from 'url'
 import http, { IncomingMessage } from 'http'
 import https from 'https'
-import Global from './server/src/Global'
-import ProxyConfig, { ConfigProtocol } from './common/ProxyConfig'
-import HttpMessage from './server/src/HttpMessage'
+import Global from './Global'
+import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
+import HttpMessage from './HttpMessage'
 import querystring from 'querystring'
+import Paths from './Paths'
 const decompressResponse = require('decompress-response')
 
 /**
@@ -21,17 +22,15 @@ export default class HttpProxy {
 
     let httpMessage: HttpMessage
 
-    const clientDir = __dirname.endsWith(path.sep + 'build')
-      ? __dirname + '' + path.sep + '..' + path.sep + 'client' + path.sep + 'build'
-      : __dirname + '' + path.sep + 'client' + path.sep + 'build'
+    const clientBuildDir = Paths.clientDir() + path.sep + 'build'
 
     if (reqUrl.pathname === '/' + 'middleman' || reqUrl.pathname === '/' + 'anyproxy') {
       clientRes.writeHead(200, {
         'content-type': 'text/html'
       })
-      clientRes.end(fs.readFileSync(clientDir + path.sep + 'index.html'))
+      clientRes.end(fs.readFileSync(clientBuildDir + path.sep + 'index.html'))
     } else {
-      const dir = clientDir + reqUrl.pathname?.replace(/\//g, path.sep)
+      const dir = clientBuildDir + reqUrl.pathname?.replace(/\//g, path.sep)
       // File exists locally?
       if (reqUrl.protocol === null &&
                 fs.existsSync(dir) && fs.lstatSync(dir).isFile()) {
@@ -62,7 +61,7 @@ export default class HttpProxy {
         clientRes.writeHead(200, {
           'content-type': contentType
         })
-        clientRes.end(fs.readFileSync(clientDir + reqUrl.pathname))
+        clientRes.end(fs.readFileSync(clientBuildDir + reqUrl.pathname))
       } else if (reqUrl.protocol === null &&
                 reqUrl.pathname === '/api/anyproxy/config') {
         const configs = await Global.socketIoManager.updateHostReachable()

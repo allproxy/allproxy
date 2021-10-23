@@ -1,24 +1,36 @@
 import url from 'url'
 import http2, { Http2ServerRequest, Http2ServerResponse } from 'http2'
-import Global from './server/src/Global'
-import ProxyConfig from './common/ProxyConfig'
-import HttpMessage from './server/src/HttpMessage'
+import Global from './Global'
+import ProxyConfig from '../../common/ProxyConfig'
+import HttpMessage from './HttpMessage'
 import querystring from 'querystring'
-import HexFormatter from './server/src/formatters/HexFormatter'
+import HexFormatter from './formatters/HexFormatter'
+import Paths from './Paths'
+import fs from 'fs'
 // const decompressResponse = require('decompress-response')
 
 const debug = false
 
 const settings = { maxConcurrentStreams: undefined }
 
+const tlsOptions = {
+  key: fs.readFileSync(Paths.serverKey()),
+  cert: fs.readFileSync(Paths.serverCrt())
+}
+
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class HttpProxy {
   public constructor (proxyConfig: ProxyConfig) {
-    const server = http2.createServer({
-      settings
-    }) // HTTPS is not currently supported
+    const server = proxyConfig.isSecure
+      ? http2.createSecureServer({
+        settings,
+        ...tlsOptions
+      })
+      : http2.createServer({
+        settings
+      }) // HTTPS is not currently supported
     proxyConfig._server = server
 
     listen(server)
