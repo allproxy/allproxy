@@ -26,7 +26,6 @@ export default class TcpProxy {
      */
   startProxy (proxyConfig: ProxyConfig) {
     const sourcePort = proxyConfig.path
-    const targetUseTls = false
     const targetHost = proxyConfig.hostname
     const targetPort = proxyConfig.port
 
@@ -74,7 +73,7 @@ export default class TcpProxy {
 
           // Connect to target host
           let targetSocket: net.Socket | tls.TLSSocket
-          if (!targetUseTls) {
+          if (!proxyConfig.isSecure) {
             targetSocket = net.connect(targetPort, targetHost, () => {
               // console.log('connected to target');
             })
