@@ -1,6 +1,7 @@
 import SettingsStore from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
 import { ConfigProtocol } from '../common/ProxyConfig';
+import {Checkbox} from '@material-ui/core'
 
 type Props = {
 	store: SettingsStore,
@@ -33,6 +34,9 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				<tr>
 					<td></td>
 					<td></td>
+					{(protocol === 'grpc:' || protocol === 'tcp:') &&
+						<td className="text-primary">Secure?</td>
+					}
 					<td className="text-primary" style={{width: pathLabel().includes('Port') ? '12ch' : undefined}}><label>{pathLabel()}</label></td>
 					<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Host'}</label></td>
 					<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Port'}</label></td>
@@ -58,6 +62,11 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 								onClick={() => store.toggleEntryCapture(index)}
 							/>
 						</td>
+						{(protocol === 'grpc:' || protocol === 'tcp:') &&
+							<td className="settings-modal__secure-container">
+								<Checkbox checked={store.isEntrySecure(index)} onChange={() => store.toggleEntryIsSecure(index)}/>
+							</td>
+						}
 						<td className="settings-modal__proxy-path-container">
 							<input className="form-control settings-modal__proxy-path"
 								style={{width: pathLabel().includes('Port') ? '8ch' : undefined}}

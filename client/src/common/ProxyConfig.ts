@@ -14,6 +14,7 @@ export type ConfigProtocol =
   | 'tcp:';
 
 export default class ProxyConfig {
+	isSecure: boolean = false;
 	path: string = '';
 	protocol: ConfigProtocol = 'http:';
 	hostname: string = '';
@@ -27,6 +28,7 @@ export default class ProxyConfig {
 	constructor(proxyConfig?: ProxyConfig) {
 		makeAutoObservable(this);
 		if (proxyConfig) {
+			this.isSecure = proxyConfig.isSecure || proxyConfig.protocol === 'https:';
 			this.path = proxyConfig.path;
 			this.protocol = proxyConfig.protocol;
 			this.hostname = proxyConfig.hostname;

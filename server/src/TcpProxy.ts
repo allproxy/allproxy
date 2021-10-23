@@ -9,6 +9,7 @@ import MongoFormatter from './formatters/MongoFormatter'
 import RedisFormatter from './formatters/RedisFormatter'
 import ProxyConfig from '../../common/ProxyConfig'
 import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message'
+import Paths from './Paths'
 
 export default class TcpProxy {
   constructor (proxyConfig: ProxyConfig) {
@@ -24,7 +25,6 @@ export default class TcpProxy {
      * @param proxyConfig
      */
   startProxy (proxyConfig: ProxyConfig) {
-    const sourceUseTls = false
     const sourcePort = proxyConfig.path
     const targetUseTls = false
     const targetHost = proxyConfig.hostname
@@ -32,10 +32,10 @@ export default class TcpProxy {
 
     let server: net.Server | tls.Server
 
-    if (sourceUseTls) {
+    if (proxyConfig.isSecure) {
       const tlsOptions = {
-        key: fs.readFileSync([__dirname, '/../../private/keys/server.key'].join()),
-        cert: fs.readFileSync([__dirname, '/../../private/keys/server.crt'].join())
+        key: fs.readFileSync(Paths.serverKey()),
+        cert: fs.readFileSync(Paths.serverCrt())
       }
 
       server = tls.createServer(tlsOptions, onConnect)

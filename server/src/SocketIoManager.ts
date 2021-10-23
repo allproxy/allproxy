@@ -2,19 +2,17 @@ import io from 'socket.io'
 import TcpProxy from './TcpProxy'
 import LogProxy from './LogProxy'
 import fs from 'fs'
-import path from 'path'
 import ProxyConfig from '../../common/ProxyConfig'
 import Message, { MessageType } from '../../common/Message'
 import url from 'url'
 import net from 'net'
 import Ping from './Ping'
 import resend from './Resend'
-import Http2Proxy from '../../Http2Proxy'
+import Http2Proxy from './Http2Proxy'
+import Paths from './Paths'
 
 const USE_HTTP2 = true
-const CONFIG_JSON = process.env.NODE_ENV === 'production'
-  ? `${__dirname + '' + path.sep}..${path.sep}..${path.sep}..${path.sep}config.json`
-  : `${__dirname + '' + path.sep}.${path.sep}config.json`
+const CONFIG_JSON = Paths.configJson()
 const CACHE_SOCKET_ID = 'cache'
 
 const WINDOW_SIZE = 500 // windows size - maximum outstanding messages
@@ -45,6 +43,7 @@ export default class SocketIoManager {
       // proxy all http by default
       return [
         {
+          isSecure: false,
           protocol: 'browser:',
           path: '/',
           hostname: '',
