@@ -91,8 +91,9 @@ export default class HttpProxy {
           port = proxyConfig.protocol === 'https:' ? 443 : 80
         }
 
+        const protocol = proxyConfig.isSecure ? 'https' : 'http'
         const proxyClient = http2.connect(
-          `http://${hostname}:${port}`,
+          `${protocol}://${hostname}:${port}`,
           { settings }
         )
 
