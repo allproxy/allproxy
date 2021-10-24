@@ -7,7 +7,6 @@ import querystring from 'querystring'
 import HexFormatter from './formatters/HexFormatter'
 import Paths from './Paths'
 import fs from 'fs'
-// const decompressResponse = require('decompress-response')
 
 const debug = false
 
@@ -22,7 +21,19 @@ const tlsOptions = {
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class Http2Proxy {
-  public constructor (proxyConfig: ProxyConfig) {
+  public static forwardProxy (port: number, isSecure: boolean = false) {
+    const proxyConfig = new ProxyConfig()
+    proxyConfig.isSecure = isSecure
+    proxyConfig.protocol = 'browser:'
+    proxyConfig.path = port.toString()
+    Http2Proxy.start(proxyConfig)
+  }
+
+  public static reverseProxy (proxyConfig: ProxyConfig) {
+    Http2Proxy.start(proxyConfig)
+  }
+
+  private static start (proxyConfig: ProxyConfig) {
     const server = proxyConfig.isSecure
       ? http2.createSecureServer({
         settings,
@@ -50,16 +61,17 @@ export default class Http2Proxy {
 
     function listen (server: http2.Http2Server) {
       server.listen(proxyConfig.path, () => {
-        console.log(`Listening on http2 port ${proxyConfig.path} for target host ${proxyConfig.hostname}`)
+        const msg = proxyConfig.protocol === 'browser:' ? '' : `, target host ${proxyConfig.hostname}`
+        console.log(`Listening on http2 port ${proxyConfig.path} ${msg}`)
       })
     }
 
     async function onRequest (clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
-      const sequenceNumber = ++Global.nextSequenceNumber
-      const remoteAddress = clientReq.socket.remoteAddress
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
 
+      const sequenceNumber = ++Global.nextSequenceNumber
+      const remoteAddress = clientReq.socket.remoteAddress
       const httpMessage = new HttpMessage(
         proxyConfig,
         sequenceNumber,
@@ -84,11 +96,11 @@ export default class Http2Proxy {
         if (proxyConfig.port) authority += ':' + proxyConfig.port
         headers[http2.constants.HTTP2_HEADER_AUTHORITY] = authority
 
-        let { protocol, hostname, port } = reqUrl.protocol
+        let { protocol, hostname, port } = proxyConfig.protocol === 'browser:'
           ? reqUrl
           : proxyConfig
 
-        if (!reqUrl.protocol) {
+        if (proxyConfig.protocol !== 'browser:') {
           protocol = proxyConfig.isSecure ? 'https:' : 'http:'
         }
 
