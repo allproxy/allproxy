@@ -21,7 +21,7 @@ const tlsOptions = {
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
-export default class HttpProxy {
+export default class Http2Proxy {
   public constructor (proxyConfig: ProxyConfig) {
     const server = proxyConfig.isSecure
       ? http2.createSecureServer({
@@ -84,16 +84,20 @@ export default class HttpProxy {
         if (proxyConfig.port) authority += ':' + proxyConfig.port
         headers[http2.constants.HTTP2_HEADER_AUTHORITY] = authority
 
-        let { hostname, port } = proxyConfig.protocol === 'browser:' || proxyConfig.protocol === 'log:'
+        let { protocol, hostname, port } = reqUrl.protocol
           ? reqUrl
           : proxyConfig
-        if (port === undefined) {
-          port = proxyConfig.protocol === 'https:' ? 443 : 80
+
+        if (!reqUrl.protocol) {
+          protocol = proxyConfig.isSecure ? 'https:' : 'http:'
         }
 
-        const protocol = proxyConfig.isSecure ? 'https' : 'http'
+        if (port === undefined) {
+          port = protocol === 'https:' ? 443 : 80
+        }
+
         const proxyClient = http2.connect(
-          `${protocol}://${hostname}:${port}`,
+          `${protocol}//${hostname}:${port}`,
           { settings }
         )
 
