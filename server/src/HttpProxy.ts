@@ -1,5 +1,3 @@
-import fs from 'fs'
-import path from 'path'
 import url from 'url'
 import http, { IncomingMessage } from 'http'
 import https from 'https'
@@ -7,7 +5,7 @@ import Global from './Global'
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
 import HttpMessage from './HttpMessage'
 import querystring from 'querystring'
-import Paths from './Paths'
+import AnyProxyApp from './AnyProxyApp'
 const decompressResponse = require('decompress-response')
 
 /**
@@ -15,100 +13,54 @@ const decompressResponse = require('decompress-response')
  */
 export default class HttpProxy {
   async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
-    const sequenceNumber = ++Global.nextSequenceNumber
-    const remoteAddress = clientReq.socket.remoteAddress
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
 
-    let httpMessage: HttpMessage
+    // Request is from AnyProxy app?
+    if (AnyProxyApp(clientRes, reqUrl)) {
+      return
+    }
 
-    const clientBuildDir = Paths.clientDir() + path.sep + 'build'
+    const sequenceNumber = ++Global.nextSequenceNumber
+    const remoteAddress = clientReq.socket.remoteAddress
 
-    if (reqUrl.pathname === '/' + 'middleman' || reqUrl.pathname === '/' + 'anyproxy') {
-      clientRes.writeHead(200, {
-        'content-type': 'text/html'
-      })
-      clientRes.end(fs.readFileSync(clientBuildDir + path.sep + 'index.html'))
-    } else {
-      const dir = clientBuildDir + reqUrl.pathname?.replace(/\//g, path.sep)
-      // File exists locally?
-      if (reqUrl.protocol === null &&
-                fs.existsSync(dir) && fs.lstatSync(dir).isFile()) {
-        const extname = path.extname(reqUrl.pathname!)
-        let contentType = 'text/html'
-        switch (extname) {
-          case '.js':
-            contentType = 'text/javascript'
-            break
-          case '.css':
-            contentType = 'text/css'
-            break
-          case '.json':
-            contentType = 'application/json'
-            break
-          case '.png':
-            contentType = 'image/png'
-            break
-          case '.jpg':
-            contentType = 'image/jpg'
-            break
-          case '.wav':
-            contentType = 'audio/wav'
-            break
-        }
+    // Find matching proxy configuration
+    const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress)
+    let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('http:', clientHostName, reqUrl)
+    // Always proxy forward proxy requests
+    if (proxyConfig === undefined && reqUrl.protocol !== null) {
+      proxyConfig = new ProxyConfig()
+      proxyConfig.path = reqUrl.pathname!
+      proxyConfig.protocol = reqUrl.protocol as ConfigProtocol
+      proxyConfig.hostname = reqUrl.hostname!
+      proxyConfig.port = reqUrl.port === null
+        ? reqUrl.protocol === 'http:' ? 80 : 443
+        : +reqUrl.port
+    }
 
-        // Read local file and return to client
-        clientRes.writeHead(200, {
-          'content-type': contentType
-        })
-        clientRes.end(fs.readFileSync(clientBuildDir + reqUrl.pathname))
-      } else if (reqUrl.protocol === null &&
-                reqUrl.pathname === '/api/anyproxy/config') {
-        const configs = await Global.socketIoManager.updateHostReachable()
-        clientRes.writeHead(200, {
-          'content-type': 'application/json'
-        })
-        clientRes.end(JSON.stringify(configs, null, 2))
+    const httpMessage = new HttpMessage(
+      proxyConfig,
+      sequenceNumber,
+        remoteAddress!,
+        clientReq.method!,
+        clientReq.url!,
+        clientReq.headers
+    )
+
+    const requestBodyPromise = getReqBody(clientReq)
+
+    if (proxyConfig === undefined) {
+      const requestBody = await requestBodyPromise
+      const error = 'No matching proxy configuration found for ' + reqUrl.pathname
+      if (reqUrl.pathname === '/') {
+        clientRes.writeHead(302, { Location: reqUrl.href + 'anyproxy' })
+        clientRes.end()
       } else {
-        // Find matching proxy configuration
-        const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress)
-        let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('http:', clientHostName, reqUrl)
-        // Always proxy forward proxy requests
-        if (proxyConfig === undefined && reqUrl.protocol !== null) {
-          proxyConfig = new ProxyConfig()
-          proxyConfig.path = reqUrl.pathname!
-          proxyConfig.protocol = reqUrl.protocol as ConfigProtocol
-          proxyConfig.hostname = reqUrl.hostname!
-          proxyConfig.port = reqUrl.port === null
-            ? reqUrl.protocol === 'http:' ? 80 : 443
-            : +reqUrl.port
-        }
-
-        httpMessage = new HttpMessage(
-          proxyConfig,
-          sequenceNumber,
-          remoteAddress!,
-          clientReq.method!,
-          clientReq.url!,
-          clientReq.headers
-        )
-
-        const requestBodyPromise = getReqBody(clientReq)
-
-        if (proxyConfig === undefined) {
-          const requestBody = await requestBodyPromise
-          const error = 'No matching proxy configuration found for ' + reqUrl.pathname
-          if (reqUrl.pathname === '/') {
-            clientRes.writeHead(302, { Location: reqUrl.href + 'anyproxy' })
-            clientRes.end()
-          } else {
-            httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error })
-          }
-        } else {
-          httpMessage.emitMessageToBrowser('') // No request body received yet
-          proxyRequest(proxyConfig, requestBodyPromise)
-        }
+        httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error })
       }
+    } else {
+      httpMessage.emitMessageToBrowser('') // No request body received yet
+      proxyRequest(proxyConfig, requestBodyPromise)
     }
 
     function proxyRequest (proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {

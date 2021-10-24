@@ -179,8 +179,7 @@ export default class SocketIoManager {
           // eslint-disable-next-line no-new
           new LogProxy(proxyConfig)
         } else if (proxyConfig.protocol === 'grpc:' && USE_HTTP2) {
-          // eslint-disable-next-line no-new
-          new Http2Proxy(proxyConfig)
+          Http2Proxy.reverseProxy(proxyConfig)
         } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
           // eslint-disable-next-line no-new
           new TcpProxy(proxyConfig)
