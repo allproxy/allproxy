@@ -90,10 +90,13 @@ export default class FilterStore {
 
     @action public toggleShowErrors() {
         this.showErrors = !this.showErrors;
+        if (!this.showErrors && this.filter.length === 0) {
+            this.resetScroll = true;
+        }
     }
 
     @action public setFilterNoDebounce(filter: string) {
-        if (this.filter.length > 0 && filter.length === 0) {
+        if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
         }
 
