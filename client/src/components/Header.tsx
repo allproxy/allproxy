@@ -33,6 +33,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement|null>(null);
+	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement|null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openFileSelector, {filesContent, clear}] = useFilePicker({
 		multiple: false,
@@ -171,16 +172,39 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
 					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
 				</div>
-				<div className="header__settings fa fa-bug" title="Breakpoints"
-					onClick={() => { setShowBreakpointModal(true); breakpointStore.init(); } }>
-				</div>
-				<div className="header__settings fa fa-ban" title="No Capture List"
-					onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); } }>
-				</div>
-				<div className="header__settings fa fa-cog" title="Settings"
-					onClick={() => { setShowSettingsModal(true); settingsStore.reset(); } }>
-				</div>
+				<div className={'header__settings fa fa-cog'} title="Settings"
+					onClick={(e) => setSettingsMenuIcon(e.currentTarget)}
+				/>
+				<Menu
+					anchorEl={settingsMenuIcon}
+					open={Boolean(settingsMenuIcon)}
+					onClose={() => setSettingsMenuIcon(null)}
+					>
+					<MenuItem>
+						<div className="fa fa-network-wired"
+							onClick={() => {setShowSettingsModal(true);	settingsStore.reset(); setSettingsMenuIcon(null);}}
+						>
+							&nbsp;Proxy Configuration
+						</div>
+					</MenuItem>
+					<MenuItem>
+						<div className="fa fa-bug" title="Breakpoints"
+							onClick={() => { setShowBreakpointModal(true); breakpointStore.init(); setSettingsMenuIcon(null); } }>
+								&nbsp;Breakpoints
+						</div>
+					</MenuItem>
+					<MenuItem>
+						<div className="fa fa-ban" title="No Capture List"
+							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); } }>
+								&nbsp;No Capture List
+						</div>
+					</MenuItem>
+				</Menu>
 			</div>
+
+			{/*
+				Modals
+			*/}
 			<MetricsModal
 				open={showMetricsModal}
 				onClose={() => setShowMetricsModal(false)}
