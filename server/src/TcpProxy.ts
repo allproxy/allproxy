@@ -11,6 +11,8 @@ import ProxyConfig from '../../common/ProxyConfig'
 import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message'
 import Paths from './Paths'
 
+const MAX_URL = 1024
+
 export default class TcpProxy {
   constructor (proxyConfig: ProxyConfig) {
     this.startProxy(proxyConfig)
@@ -166,11 +168,10 @@ export default class TcpProxy {
                   responseString = response
                     ? '\n' + HexFormatter.format(response) + '\n'
                     : NO_RESPONSE
-                  if (requestString.length <= 64) {
-                    url = requestString
+                  if (requestString.length > MAX_URL) {
+                    url = requestString.substring(0, MAX_URL)
                   } else {
-                    url = requestString.substring(0, Math.min(requestString.indexOf('\n'), requestString.length))
-                    if (url.length < 16) url = requestString.substring(0, Math.min(requestString.indexOf('\n', url.length + 1), requestString.length))
+                    url = requestString
                   }
                   break
               }
