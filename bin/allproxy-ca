@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-CA_PEM=$DIR/../.http-mitm-proxy/certs/ca.pemx
+CA_PEM=$DIR/../.http-mitm-proxy/certs/ca.pem
 if [ ! -f $CA_PEM ]; then
     SCRIPT=$(which allproxy)
     BIN_DIR=$(dirname $SCRIPT)
