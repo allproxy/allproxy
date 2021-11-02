@@ -31,7 +31,7 @@
     "clean": "rm -rf ./build",
     "clean-client": "rm -rf ./client/build",
     "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
-    "symbolic-links": "ln -s .http-mitm-proxy/certs/ca.pem && [ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/",
+    "symbolic-links": "ln -sf .http-mitm-proxy/certs/ca.pem && [ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "cd ./client && npm run test",
