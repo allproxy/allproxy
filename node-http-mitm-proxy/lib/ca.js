@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
-var FS = require('fs');
-var path = require('path');
-var Forge = require('node-forge');
-var pki = Forge.pki;
-var mkdirp = require('mkdirp');
-var async = require('async');
+const FS = require('fs')
+const path = require('path')
+const Forge = require('node-forge')
+const pki = Forge.pki
+const mkdirp = require('mkdirp')
+const async = require('async')
 
-var CAattrs = [{
+const CAattrs = [{
   name: 'commonName',
-  value: 'NodeMITMProxyCA'
+  value: 'AllProxyCA'
 }, {
   name: 'countryName',
   value: 'Internet'
@@ -21,13 +21,13 @@ var CAattrs = [{
   value: 'Internet'
 }, {
   name: 'organizationName',
-  value: 'Node MITM Proxy CA'
+  value: 'AllProxy CA'
 }, {
   shortName: 'OU',
   value: 'CA'
-}];
+}]
 
-var CAextensions = [{
+const CAextensions = [{
   name: 'basicConstraints',
   cA: true
 }, {
@@ -55,9 +55,9 @@ var CAextensions = [{
   objCA: true
 }, {
   name: 'subjectKeyIdentifier'
-}];
+}]
 
-var ServerAttrs = [{
+const ServerAttrs = [{
   name: 'countryName',
   value: 'Internet'
 }, {
@@ -68,13 +68,13 @@ var ServerAttrs = [{
   value: 'Internet'
 }, {
   name: 'organizationName',
-  value: 'Node MITM Proxy CA'
+  value: 'AllProxy CA'
 }, {
   shortName: 'OU',
-  value: 'Node MITM Proxy Server Certificate'
-}];
+  value: 'AllProxy Server Certificate'
+}]
 
-var ServerExtensions = [{
+const ServerExtensions = [{
   name: 'basicConstraints',
   cA: false
 }, {
@@ -102,16 +102,16 @@ var ServerExtensions = [{
   objCA: false
 }, {
   name: 'subjectKeyIdentifier'
-}];
+}]
 
-var CA = function () {
-};
+const CA = function () {
+}
 
 CA.create = function (caFolder, callback) {
-  var ca = new CA();
-  ca.baseCAFolder = caFolder;
-  ca.certsFolder = path.join(ca.baseCAFolder, 'certs');
-  ca.keysFolder = path.join(ca.baseCAFolder, 'keys');
+  const ca = new CA()
+  ca.baseCAFolder = caFolder
+  ca.certsFolder = path.join(ca.baseCAFolder, 'certs')
+  ca.keysFolder = path.join(ca.baseCAFolder, 'keys')
   async.series([
     mkdirp.bind(null, ca.baseCAFolder),
     mkdirp.bind(null, ca.certsFolder),
@@ -119,127 +119,127 @@ CA.create = function (caFolder, callback) {
     function (callback) {
       FS.exists(path.join(ca.certsFolder, 'ca.pem'), function (exists) {
         if (exists) {
-          ca.loadCA(callback);
+          ca.loadCA(callback)
         } else {
-          ca.generateCA(callback);
+          ca.generateCA(callback)
         }
-      });
+      })
     }
   ], function (err) {
     if (err) {
-      return callback(err);
+      return callback(err)
     }
-    return callback(null, ca);
-  });
-};
+    return callback(null, ca)
+  })
+}
 
 CA.prototype.randomSerialNumber = function () {
-	// generate random 16 bytes hex string
-	var sn = '';
-	for (var i=0; i<4; i++) {
-		sn += ('00000000' + Math.floor(Math.random()*Math.pow(256, 4)).toString(16)).slice(-8);
-	}
-	return sn;
+  // generate random 16 bytes hex string
+  let sn = ''
+  for (let i = 0; i < 4; i++) {
+    sn += ('00000000' + Math.floor(Math.random() * Math.pow(256, 4)).toString(16)).slice(-8)
+  }
+  return sn
 }
 
 CA.prototype.generateCA = function (callback) {
-  var self = this;
-  pki.rsa.generateKeyPair({bits: 2048}, function(err, keys) {
+  const self = this
+  pki.rsa.generateKeyPair({ bits: 2048 }, function (err, keys) {
     if (err) {
-      return callback(err);
+      return callback(err)
     }
-    var cert = pki.createCertificate();
-    cert.publicKey = keys.publicKey;
-    cert.serialNumber = self.randomSerialNumber();
-    cert.validity.notBefore = new Date();
-    cert.validity.notBefore.setDate(cert.validity.notBefore.getDate() - 1);
-    cert.validity.notAfter = new Date();
-    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 2);
-    cert.setSubject(CAattrs);
-    cert.setIssuer(CAattrs);
-    cert.setExtensions(CAextensions);
-    cert.sign(keys.privateKey, Forge.md.sha256.create());
-    self.CAcert = cert;
-    self.CAkeys = keys;
+    const cert = pki.createCertificate()
+    cert.publicKey = keys.publicKey
+    cert.serialNumber = self.randomSerialNumber()
+    cert.validity.notBefore = new Date()
+    cert.validity.notBefore.setDate(cert.validity.notBefore.getDate() - 1)
+    cert.validity.notAfter = new Date()
+    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 2)
+    cert.setSubject(CAattrs)
+    cert.setIssuer(CAattrs)
+    cert.setExtensions(CAextensions)
+    cert.sign(keys.privateKey, Forge.md.sha256.create())
+    self.CAcert = cert
+    self.CAkeys = keys
     async.parallel([
       FS.writeFile.bind(null, path.join(self.certsFolder, 'ca.pem'), pki.certificateToPem(cert)),
       FS.writeFile.bind(null, path.join(self.keysFolder, 'ca.private.key'), pki.privateKeyToPem(keys.privateKey)),
       FS.writeFile.bind(null, path.join(self.keysFolder, 'ca.public.key'), pki.publicKeyToPem(keys.publicKey))
-    ], callback);
-  });
-};
+    ], callback)
+  })
+}
 
 CA.prototype.loadCA = function (callback) {
-  var self = this;
+  const self = this
   async.auto({
     certPEM: function (callback) {
-      FS.readFile(path.join(self.certsFolder, 'ca.pem'), 'utf-8', callback);
+      FS.readFile(path.join(self.certsFolder, 'ca.pem'), 'utf-8', callback)
     },
     keyPrivatePEM: function (callback) {
-      FS.readFile(path.join(self.keysFolder, 'ca.private.key'), 'utf-8', callback);
+      FS.readFile(path.join(self.keysFolder, 'ca.private.key'), 'utf-8', callback)
     },
     keyPublicPEM: function (callback) {
-      FS.readFile(path.join(self.keysFolder, 'ca.public.key'), 'utf-8', callback);
+      FS.readFile(path.join(self.keysFolder, 'ca.public.key'), 'utf-8', callback)
     }
   }, function (err, results) {
     if (err) {
-      return callback(err);
+      return callback(err)
     }
-    self.CAcert = pki.certificateFromPem(results.certPEM);
+    self.CAcert = pki.certificateFromPem(results.certPEM)
     self.CAkeys = {
       privateKey: pki.privateKeyFromPem(results.keyPrivatePEM),
       publicKey: pki.publicKeyFromPem(results.keyPublicPEM)
-    };
-    return callback();
-  });
-};
+    }
+    return callback()
+  })
+}
 
 CA.prototype.generateServerCertificateKeys = function (hosts, cb) {
-  var self = this;
-  if (typeof(hosts) === "string") hosts = [hosts];
-  var mainHost = hosts[0];
-  var keysServer = pki.rsa.generateKeyPair(2048);
-  var certServer = pki.createCertificate();
-  certServer.publicKey = keysServer.publicKey;
-  certServer.serialNumber = this.randomSerialNumber();
-  certServer.validity.notBefore = new Date();
-  certServer.validity.notBefore.setDate(certServer.validity.notBefore.getDate() - 1);
-  certServer.validity.notAfter = new Date();
-  certServer.validity.notAfter.setFullYear(certServer.validity.notBefore.getFullYear() + 2);
-  var attrsServer = ServerAttrs.slice(0);
+  const self = this
+  if (typeof (hosts) === 'string') hosts = [hosts]
+  const mainHost = hosts[0]
+  const keysServer = pki.rsa.generateKeyPair(2048)
+  const certServer = pki.createCertificate()
+  certServer.publicKey = keysServer.publicKey
+  certServer.serialNumber = this.randomSerialNumber()
+  certServer.validity.notBefore = new Date()
+  certServer.validity.notBefore.setDate(certServer.validity.notBefore.getDate() - 1)
+  certServer.validity.notAfter = new Date()
+  certServer.validity.notAfter.setFullYear(certServer.validity.notBefore.getFullYear() + 2)
+  const attrsServer = ServerAttrs.slice(0)
   attrsServer.unshift({
     name: 'commonName',
     value: mainHost
   })
-  certServer.setSubject(attrsServer);
-  certServer.setIssuer(this.CAcert.issuer.attributes);
+  certServer.setSubject(attrsServer)
+  certServer.setIssuer(this.CAcert.issuer.attributes)
   certServer.setExtensions(ServerExtensions.concat([{
     name: 'subjectAltName',
-    altNames: hosts.map(function(host) {
+    altNames: hosts.map(function (host) {
       if (host.match(/^[\d\.]+$/)) {
-        return {type: 7, ip: host};
+        return { type: 7, ip: host }
       }
-      return {type: 2, value: host};
+      return { type: 2, value: host }
     })
-  }]));
-  certServer.sign(this.CAkeys.privateKey, Forge.md.sha256.create());
-  var certPem = pki.certificateToPem(certServer);
-  var keyPrivatePem = pki.privateKeyToPem(keysServer.privateKey)
-  var keyPublicPem = pki.publicKeyToPem(keysServer.publicKey)
-  FS.writeFile(this.certsFolder + '/' + mainHost.replace(/\*/g, '_') + '.pem', certPem, function(error) {
-    if (error) console.error("Failed to save certificate to disk in "+self.certsFolder, error);
-  });
-  FS.writeFile(this.keysFolder + '/' + mainHost.replace(/\*/g, '_') + '.key', keyPrivatePem, function(error) {
-    if (error) console.error("Failed to save private key to disk in "+self.keysFolder, error);
-  });
-  FS.writeFile(this.keysFolder + '/' + mainHost.replace(/\*/g, '_') + '.public.key', keyPublicPem, function(error) {
-    if (error) console.error("Failed to save public key to disk in "+self.keysFolder, error);
-  });
+  }]))
+  certServer.sign(this.CAkeys.privateKey, Forge.md.sha256.create())
+  const certPem = pki.certificateToPem(certServer)
+  const keyPrivatePem = pki.privateKeyToPem(keysServer.privateKey)
+  const keyPublicPem = pki.publicKeyToPem(keysServer.publicKey)
+  FS.writeFile(this.certsFolder + '/' + mainHost.replace(/\*/g, '_') + '.pem', certPem, function (error) {
+    if (error) console.error('Failed to save certificate to disk in ' + self.certsFolder, error)
+  })
+  FS.writeFile(this.keysFolder + '/' + mainHost.replace(/\*/g, '_') + '.key', keyPrivatePem, function (error) {
+    if (error) console.error('Failed to save private key to disk in ' + self.keysFolder, error)
+  })
+  FS.writeFile(this.keysFolder + '/' + mainHost.replace(/\*/g, '_') + '.public.key', keyPublicPem, function (error) {
+    if (error) console.error('Failed to save public key to disk in ' + self.keysFolder, error)
+  })
   // returns synchronously even before files get written to disk
-  cb(certPem, keyPrivatePem);
-};
+  cb(certPem, keyPrivatePem)
+}
 
 CA.prototype.getCACertPath = function () {
-  return this.certsFolder + '/ca.pem';
-};
-module.exports = CA;
+  return this.certsFolder + '/ca.pem'
+}
+module.exports = CA
