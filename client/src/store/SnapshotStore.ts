@@ -91,7 +91,7 @@ export default class SnapshotStore {
 	public getSnapshotName(name: string): string {
 		const fileName = this.snapshots.getFileName(name);
 		if (fileName) {
-			return fileName.replace('.anyproxy', '');
+			return fileName.replace('.allproxy', '');
 		} else {
 			return 'SNAPSHOT';
 		}
@@ -152,7 +152,7 @@ export default class SnapshotStore {
 		}
 		const file = new Blob([JSON.stringify(messages, null, 2)], {type: 'text/plain'});
 		element.href = URL.createObjectURL(file);
-		element.download = fileName + '.anyproxy';
+		element.download = fileName + '.allproxy';
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}

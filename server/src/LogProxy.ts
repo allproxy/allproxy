@@ -107,7 +107,7 @@ export default class LogProxy {
       '', // method
       this.buffer.toString().split('\n')[0], // url
       '', // endpoint
-      { anyproxy_inner_body: this.command }, // req body
+      { allproxy_inner_body: this.command }, // req body
       'log:' + commandTokens[commandTokens.length - 1], // clientIp
       streamName, // serverHost
       '', // path

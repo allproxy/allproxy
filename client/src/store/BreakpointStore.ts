@@ -3,7 +3,7 @@ import Message from "../common/Message";
 import FilterStore from "./FilterStore";
 import MessageStore from "./MessageStore";
 
-const LOCAL_STORAGE = 'anyproxy-breakpoints';
+const LOCAL_STORAGE = 'allproxy-breakpoints';
 
 export default class BreakpointStore {
 	private breakpointList: FilterStore[] = [];

@@ -28,7 +28,7 @@
       "port": 24601,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_ASSET_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_ASSET_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -48,7 +48,7 @@
       "port": 50051,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_COMPANY_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_COMPANY_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -58,7 +58,7 @@
       "port": 50050,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_CRM_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_CRM_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -68,7 +68,7 @@
       "port": 50070,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_ECOMMERCE_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_ECOMMERCE_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -78,7 +78,7 @@
       "port": 50058,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_EMAIL_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_EMAIL_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -88,7 +88,7 @@
       "port": 50060,
       "recording": true,
       "hostReachable": false,
-      "comment": "???GRPC_HOST=anyproxy"
+      "comment": "???GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -98,7 +98,7 @@
       "port": 50055,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_FULL_CONTACT_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_FULL_CONTACT_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -108,7 +108,7 @@
       "port": 50059,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_GUIDANCE_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_GUIDANCE_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -118,7 +118,7 @@
       "port": 50052,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_REPORT_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_REPORT_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -128,7 +128,7 @@
       "port": 50053,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_REPORT_DASH_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_REPORT_DASH_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -138,7 +138,7 @@
       "port": 50058,
       "recording": true,
       "hostReachable": true,
-      "comment": "BACKEND_USER_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_USER_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -148,7 +148,7 @@
       "port": 50058,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_FORMS_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_FORMS_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -158,7 +158,7 @@
       "port": 50067,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_BILLING_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_BILLING_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -168,7 +168,7 @@
       "port": 50056,
       "recording": true,
       "hostReachable": false,
-      "comment": "BACKEND_CHATBOT_GRPC_HOST=anyproxy"
+      "comment": "BACKEND_CHATBOT_GRPC_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -178,7 +178,7 @@
       "port": 50040,
       "recording": true,
       "hostReachable": false,
-      "comment": "MEETINGS_HOST=anyproxy"
+      "comment": "MEETINGS_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -188,7 +188,7 @@
       "port": 50068,
       "recording": true,
       "hostReachable": true,
-      "comment": "SEARCH_HOST=anyproxy"
+      "comment": "SEARCH_HOST=allproxy"
     },
     {
       "isSecure": false,
@@ -198,7 +198,7 @@
       "port": 80,
       "recording": true,
       "hostReachable": true,
-      "comment": "GRAPHQL_INTERNAL_URL=http://anyproxy:8888/graphql"
+      "comment": "GRAPHQL_INTERNAL_URL=http://allproxy:8888/graphql"
     },
     {
       "isSecure": false,
@@ -248,7 +248,7 @@
       "port": 80,
       "recording": true,
       "hostReachable": false,
-      "comment": "PAYMENTS_API_URL=http://anyproxy:8888/v1/payments/toolshed/"
+      "comment": "PAYMENTS_API_URL=http://allproxy:8888/v1/payments/toolshed/"
     },
     {
       "isSecure": true,
@@ -258,7 +258,7 @@
       "port": 80,
       "recording": true,
       "hostReachable": true,
-      "comment": "GRAPHQL_INTERNAL_URL=http://anyproxy:8888/graphql"
+      "comment": "GRAPHQL_INTERNAL_URL=http://allproxy:8888/graphql"
     },
     {
       "isSecure": false,
@@ -298,7 +298,7 @@
       "port": 27017,
       "recording": false,
       "hostReachable": true,
-      "comment": "MONGO_HOST=anyproxy"
+      "comment": "MONGO_HOST=allproxy"
     },
     {
       "isSecure": false,

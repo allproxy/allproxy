@@ -37,7 +37,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openFileSelector, {filesContent, clear}] = useFilePicker({
 		multiple: false,
-		accept: ".anyproxy"
+		accept: ".allproxy"
 	  });
 
 	if (!!filesContent.length && filesContent[0].content) {
@@ -51,11 +51,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 		<div className="header__container">
 			<div className="header__left-container">
 				<div className="header__icon" onClick={ () => window.location.reload() }>
-					<img src="favicon.ico" alt="AnyProxy Debugging Tool"
+					<img src="favicon.ico" alt="AllProxy Debugging Tool"
 						width="24" height="24" />
 				</div>
 				<div className="header__title" onClick={() => window.location.reload()}>
-					AnyProxy
+					AllProxy
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 

@@ -115,7 +115,7 @@ export default class Http2Proxy {
 
         proxyClient.on('error', async (err) => {
           const requestBody = await requestBodyPromise
-          httpMessage.emitMessageToBrowser(requestBody, 404, {}, { err, 'anyproxy-config': proxyConfig })
+          httpMessage.emitMessageToBrowser(requestBody, 404, {}, { err, 'allproxy-config': proxyConfig })
         })
 
         const chunks: Buffer[] = []
