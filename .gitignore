@@ -1,6 +1,7 @@
 .http-mitm-proxy
 config.json
 build/
+ca.pem
 
 # Logs
 *.log
