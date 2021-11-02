@@ -1,8 +1,8 @@
-<h1 align="center" style="border-bottom: none;">AnyProxy: HTTP, SQL, gRPC... Debugging Tool</h1>
+<h1 align="center" style="border-bottom: none;">AllProxy: HTTP, SQL, gRPC Debugging Tool</h1>
 
-AnyProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
+AllProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
-![ ](https://github.com/davechri/anyproxy/blob/master/images/dashboard.png)
+![ ](https://github.com/davechri/allproxy/blob/master/images/dashboard.png)
 
 **Features:**
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
@@ -19,9 +19,9 @@ AnyProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also 
 
 * [Quick Start](#quick-start)
   * [Node Version](#node-version)
-  * [Install AnyProxy](#install-anyproxy-proxy)
-  * [Build AnyProxy](#build-anyproxy-proxy)
-  * [Start the AnyProxy](#start-the-anyproxy-proxy)
+  * [Install AllProxy](#install-allproxy-proxy)
+  * [Start the AllProxy](#start-the-allproxy-proxy)
+  * [Install CA Certificate](#install-ca-certificate)
   * [Open Dashboard in Browser](#open-dashboard-in-browser)
   * [Configure Browser Proxy](#configure-browser-proxy)
 * [Screenshots](#screenshots)
@@ -46,20 +46,23 @@ AnyProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also 
 ## Quick Start
 
 ### Node Version
-The AnyProxy has been tested with node versions v10.22.1, and v12.19.1.  Version 10 or higher is recommended.  Use nvm to install the appropriate node version.
+Version 10 or higher is required.  Use nvm to install the appropriate node version.
 
-### Install AnyProxy
+### Install AllProxy
+The AllProxy may be install from either NPM or GitHub.
+
+#### Install From NPM
 ```sh
-$ cd ~/git/anyproxy
-anyproxy$ npm install
+$ npm install -g allproxy
 ```
 
-### Build AnyProxy
+#### Install From GitHub Project
 ```sh
-anyproxy$ npm run build
+$ cd ~/git/allproxy
+allproxy$ npm install
 ```
 
-#### AnyProxy Parameters
+#### AllProxy Parameters
 ```sh
 Usage: npm start [--listen [host:]port] [--listenHttps [host:]port]
 
@@ -70,27 +73,52 @@ Options:
 Example: npm start -- --listen 8888 --listenHttps 9999
 ```
 
-### Start the AnyProxy
-
-   ```sh
-   anyproxy$ npm start
-
-    > anyproxy@1.0.0 start /home/davechri/anyproxy-proxy
-    > if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js
+### Start the AllProxy Server
+The AllProxy server is started using either the NPM installed **allproxy** script or using npm start, depending on how it was installed.
+#### Start NPM Package
+  ```sh
+  $ allproxy
 
     Listening on http:  8888
-    Open browser to http://localhost:8888/anyproxy
+    Open browser to http://localhost:8888/allproxy
+
+    Listening on https:  9999
+  ```
+
+#### Start GitHub Project
+   ```sh
+   allproxy$ npm start
+
+    Listening on http:  8888
+    Open browser to http://localhost:8888/allproxy
 
     Listening on https:  9999
    ```
+### Install CA Certificate
+
+The **anyproxy-ca** script is provided to install the CA certificate in your browser so it is trusted.
+
+#### NPM Package
+
+```sh
+$ allproxy-ca
+```
+
+#### GitHub Project
+
+```sh
+$ cd ~/git/allproxy/bin
+bin$ ./allproxy-ca
+```
+
 ### Open Dashboard in Browser
 
-Enter http://localhost:8888/anyproxy in browser.
+Enter http://localhost:8888/allproxy in browser.
 
 ### Configure Browser Proxy
 
-To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the AnyProxy.  The default is to proxy HTTP messages to port 8888, and HTTPS messages to port 9999.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
-![ ](https://github.com/davechri/anyproxy/blob/master/images/firefox-proxy.png)
+To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the AllProxy.  The default is to proxy HTTP messages to port 8888, and HTTPS messages to port 9999.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
+![ ](https://github.com/davechri/allproxy/blob/master/images/firefox-proxy.png)
 
 for chrome and chromium you can set the browser proxy using environment variables http_proxy and https_proxy.
 ```sh
@@ -98,23 +126,23 @@ $ http_proxy=http://localhost:8888 https_proxy://9999 chromium-browser
 ```
 ## Screenshots
 ### Dashboard
-![ ](https://github.com/davechri/anyproxy/blob/master/images/dashboard.png)
+![ ](https://github.com/davechri/allproxy/blob/master/images/dashboard.png)
 
 ### Settings
-![ ](https://github.com/davechri/anyproxy/blob/master/images/settings.png)
+![ ](https://github.com/davechri/allproxy/blob/master/images/settings.png)
 
 ### Reachable Hosts
-![ ](https://github.com/davechri/anyproxy/blob/master/images/reachable.png)
+![ ](https://github.com/davechri/allproxy/blob/master/images/reachable.png)
 
 ## Configuration
 
-This section gives example on how to configure the AnyProxy.  Clicking the settings icon in the upper right corner opens the Setting modal.
+This section gives example on how to configure the AllProxy.  Clicking the settings icon in the upper right corner opens the Setting modal.
 
 <h3 id="http-https-proxy">HTTP/HTTPS Proxy</h3>
 
 Both a forward and reverse proxy is supported for HTTP/HTTPS messages.  Your browser must be configured to proxy HTTP/HTTPS messages to the forward proxy.  See [Configure Browser Proxy](#configure-browser-proxy) for more information on configuring your browser.
 
-The reverse proxy can be used to transparently capture HTTP/HTTPS messages sent by backend services.  The backend service is configured to send the HTTP/HTTPS messages to the AnyProxy.  For example, a -search- microservice could be configured to send Elasticsearch messages to the AnyProxy by setting environment variables.
+The reverse proxy can be used to transparently capture HTTP/HTTPS messages sent by backend services.  The backend service is configured to send the HTTP/HTTPS messages to the AllProxy.  For example, a -search- microservice could be configured to send Elasticsearch messages to the AllProxy by setting environment variables.
 
 Example -search- microservice configuration:
 ```sh
@@ -124,12 +152,12 @@ ELASTIC_PORT=9200
 
 Modified -search- micorservice configuration:
 ```sh
-ELASTIC_HOST=anyproxy   # anyproxy is the docker container host name
-ELASTIC_PORT=8888       # anyproxy HTTP port is 8888.  Use 9999 for HTTPS.
+ELASTIC_HOST=allproxy   # allproxy is the docker container host name
+ELASTIC_PORT=8888       # allproxy HTTP port is 8888.  Use 9999 for HTTPS.
 ```
 
 An HTTP path is added to proxy HTTP requests to the elasticsearch host.  All HTTP requests matching path /_search are proxied to the elasticsearch host on port 9200.
-![ ](https://github.com/davechri/anyproxy/blob/master/images/elasticsearch-settings.png)
+![ ](https://github.com/davechri/allproxy/blob/master/images/elasticsearch-settings.png)
 
 ### MySQL Proxy
 The SQL proxy can transparently capture SQL messages sent by backend microservices to a MySQL server.
@@ -142,12 +170,12 @@ MYSQL_PORT=3306
 
 Modified microservice config file:
 ```sh
-MYSQL_HOST=anyproxy    # Proxy queries to the AnyProxy
+MYSQL_HOST=allproxy    # Proxy queries to the AllProxy
 MYSQL_PORT=3306
 ```
 
-The AnyProxy is configured to proxy MySQL requests to the MySQL server:
-![ ](https://github.com/davechri/anyproxy/blob/master/images/mysql-settings.png)
+The AllProxy is configured to proxy MySQL requests to the MySQL server:
+![ ](https://github.com/davechri/allproxy/blob/master/images/mysql-settings.png)
 
 ### gRPC Proxy
 The gRPC proxy can transparently capture gRPC HTTP/2 messages sent to backend microservices.  Only unsecure connections are supported.  Secure TLS support may be added in the future.
@@ -160,12 +188,12 @@ GRPC_PORT=12345       # gRPC port number
 
 Modified gRPC microservice config file:
 ```sh
-GRPC_HOST=anyproxy    # Proxy gRPC requests to the AnyProxy
+GRPC_HOST=allproxy    # Proxy gRPC requests to the AllProxy
 GRPC_PORT=12345
 ```
 
-The AnyProxy is configured to proxy gRPC requests to a microservice:
-![ ](https://github.com/davechri/anyproxy/blob/master/images/grpc-settings.png)
+The AllProxy is configured to proxy gRPC requests to a microservice:
+![ ](https://github.com/davechri/allproxy/blob/master/images/grpc-settings.png)
 
 ### MongoDB Proxy
 The MongoDB proxy can transparently capture MongoDB messages sent by backend microservices.
@@ -178,12 +206,12 @@ MONGO_PORT=27017       # MongoDB port number
 
 Modified MongoDB microservice config file:
 ```sh
-MONGO_HOST=anyproxy    # Proxy MongoDB requests to the AnyProxy
+MONGO_HOST=allproxy    # Proxy MongoDB requests to the AllProxy
 MONGO_PORT=27017
 ```
 
-The AnyProxy is configured to proxy MongoDB requests to a microservice:
-![ ](https://github.com/davechri/anyproxy/blob/master/images/mongodb-settings.png)
+The AllProxy is configured to proxy MongoDB requests to a microservice:
+![ ](https://github.com/davechri/allproxy/blob/master/images/mongodb-settings.png)
 
 ### Redis Proxy
 The Redis proxy can transparently capture Redis messages sent by backend microservices.
@@ -196,12 +224,12 @@ REDIS_PORT=6379     # Redis port number
 
 Modified Redis microservice config file:
 ```sh
-REDIS_HOST=anyproxy    # Proxy Redis requests to the AnyProxy
+REDIS_HOST=allproxy    # Proxy Redis requests to the AllProxy
 REDIS_PORT=6379
 ```
 
-The AnyProxy is configured to proxy Redis requests to a microservice:
-![ ](https://github.com/davechri/anyproxy/blob/master/images/redis-settings.png)
+The AllProxy is configured to proxy Redis requests to a microservice:
+![ ](https://github.com/davechri/allproxy/blob/master/images/redis-settings.png)
 
 ### TCP Proxy
 The TCP proxy can transparently capture TCP request/response messages sent by backend microservices.  For example, the TCP proxy can be used to capture memcached messages.
@@ -214,21 +242,21 @@ MEMCACHED_PORT=11211        # Memcached port number
 
 Modified Memcached microservice config file:
 ```sh
-MEMCACHED_HOST=anyproxy    # Proxy Memcached requests to the AnyProxy
+MEMCACHED_HOST=allproxy    # Proxy Memcached requests to the AllProxy
 MEMCACHED_PORT=11211
 ```
 
-The AnyProxy is configured to proxy Memcached requests to a microservice:
-![ ](https://github.com/davechri/anyproxy/blob/master/images/memcached-settings.png)
+The AllProxy is configured to proxy Memcached requests to a microservice:
+![ ](https://github.com/davechri/allproxy/blob/master/images/memcached-settings.png)
 
 ### Dockers Logs
 The Docker log proxy can capture log messages.
 
-The AnyProxy is configured to capture Dockers log messages:
-![ ](https://github.com/davechri/anyproxy/blob/master/images/log-settings.png)
+The AllProxy is configured to capture Dockers log messages:
+![ ](https://github.com/davechri/allproxy/blob/master/images/log-settings.png)
 
 ## Dashboard
-The AnyProxy dashboard is stated from the browser with URL http://localhost:8888/anyproxy.
+The AllProxy dashboard is stated from the browser with URL http://localhost:8888/allproxy.
 
 ### Pause Recording
 The recording of messages can be temporarily stopped, to allow time to examine the messages without the log wrapping.
@@ -258,7 +286,11 @@ Each Dashboard instance keeps its own copy of the messages, so clearing or stopp
 ## Certificates
 Certificates are managed by the [node-http-mitm-proxy](https://github.com/joeferner/node-http-mitm-proxy/tree/master/examples) package.
 
-Generated certificates are stored in anyproxy/.http-mitm-proxy/certs/.  The '/anyproxy/.http-mitm-proxy/certs/ca.pem' CA certificate can be imported to your browser to trust certificates generated by the AnyProxy.
+Generated certificates are stored in allproxy/.http-mitm-proxy/certs/.  The '/allproxy/.http-mitm-proxy/certs/ca.pem' CA certificate can be imported to your browser to trust certificates generated by the AllProxy.
+
+The **allproxy-ca** script can be used to install the CA certificate on MacOS and Linux.
+
+For Windows, execute the allproxy-ca script to get the path of the CA certificate, and manually import it to your browser.
 
 ## Implementation:
 - **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.
@@ -267,10 +299,12 @@ Generated certificates are stored in anyproxy/.http-mitm-proxy/certs/.  The '/an
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
 - **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard.
 
+### Configuration File
+* When running from a GitHub package, **config.json** file is stored in the root directory of your GitHub project.
+* When running from an NPM package (allproxy script), the **.allproxy.json** file is stored in your home directory.
+
 ## Limitations
-1. Only unsecure HTTP/2 is supported.  You can only connect to gRPC without TLS.
-2. Only HTTP/2 reverse proxy is supported.  HTTP/2 forward proxy is not supported.
-3. The TCP proxy does not support TLS.  You can only connect to memcached without TLS.
+1. Only HTTP/2 reverse proxy is supported.  HTTP/2 forward proxy is not supported.
 
 ## License
 

@@ -5,7 +5,7 @@ import Global from './Global'
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
 import HttpMessage from './HttpMessage'
 import querystring from 'querystring'
-import AnyProxyApp from './AnyProxyApp'
+import AllProxyApp from './AllProxyApp'
 const decompressResponse = require('decompress-response')
 
 /**
@@ -16,8 +16,8 @@ export default class HttpProxy {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
 
-    // Request is from AnyProxy app?
-    if (AnyProxyApp(clientRes, reqUrl)) {
+    // Request is from AllProxy app?
+    if (AllProxyApp(clientRes, reqUrl)) {
       return
     }
 
@@ -53,7 +53,7 @@ export default class HttpProxy {
       const requestBody = await requestBodyPromise
       const error = 'No matching proxy configuration found for ' + reqUrl.pathname
       if (reqUrl.pathname === '/') {
-        clientRes.writeHead(302, { Location: reqUrl.href + 'anyproxy' })
+        clientRes.writeHead(302, { Location: reqUrl.href + 'allproxy' })
         clientRes.end()
       } else {
         httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error })
@@ -133,7 +133,7 @@ export default class HttpProxy {
       proxy.on('error', async function (error) {
         console.error(sequenceNumber, 'Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig)
         const requestBody = await requestBodyPromise
-        httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, 'anyproxy-config': proxyConfig })
+        httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, 'allproxy-config': proxyConfig })
       })
 
       clientReq.pipe(proxy, {

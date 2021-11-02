@@ -6,6 +6,7 @@ import SocketIoManager from './server/src/SocketIoManager'
 import HttpProxy from './server/src/HttpProxy'
 import HttpsProxy from './server/src/HttpsProxy'
 import HttpMitmProxy from './node-http-mitm-proxy'
+import Paths from './server/src/Paths'
 const httpMitmProxy = HttpMitmProxy()
 
 const listen: {protocol?: string,
@@ -84,7 +85,7 @@ for (const entry of listen) {
   const port = entry.port
 
   if (protocol === 'https:') {
-    httpMitmProxy.listen({ port: port })
+    httpMitmProxy.listen({ port: port, sslCaDir: Paths.sslCaDir() })
     console.log(`Listening on ${protocol} ${host || ''} ${port}`)
     httpsProxy.onRequest(httpMitmProxy)
   } else {
@@ -92,7 +93,7 @@ for (const entry of listen) {
       (clientReq, clientRes) => httpProxy.onRequest(clientReq, clientRes))
     httpServer.listen(port, host)
     console.log(`Listening on ${protocol} ${host || ''} ${port}`)
-    console.log(`Open browser to ${protocol}//localhost:${port}/anyproxy\n`)
+    console.log(`Open browser to ${protocol}//localhost:${port}/allproxy\n`)
 
     Global.socketIoManager.addHttpServer(httpServer)
   }

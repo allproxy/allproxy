@@ -5,13 +5,14 @@ networks:
     external: true
 
 services:
-  anyproxy:
+  allproxy:
     build: .
-    container_name: anyproxy
+    container_name: allproxy
     working_dir: /app
     networks:
       sharpspring_default:
         aliases:
+          - allproxy
           - anyproxy
     ports:
       - target: 8888

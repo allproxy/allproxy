@@ -1,25 +1,52 @@
 {
-  "name": "anyproxy",
-  "version": "1.0.0",
-  "description": "Reverse (transparent) proxy that captures, edits and replays HTTP requests.",
-  "main": "main.js",
+  "name": "allproxy",
+  "version": "1.0.4",
+  "description": "AllProxy: HTTP, SQL, gRPC Debugging Tool.",
+  "keywords": [
+    "proxy",
+    "debug",
+    "http",
+    "sql",
+    "grpc",
+    "tcp"
+  ],
+  "homepage": "https://github.com/davechri/allproxy",
+  "bugs": {
+    "url": "https://github.com/davechri/allproxy/issues",
+    "email": "davechri58@gmail.com"
+  },
+  "main": "app.js",
+  "bin": {
+    "allproxy": "bin/allproxy",
+    "allproxy-ca": "bin/allproxy-ca"
+  },
   "scripts": {
-    "install": "cd ./client && $npm_execpath install && cd ../node-http-mitm-proxy && $npm_execpath install",
+    "install": "cd ./node-http-mitm-proxy && $npm_execpath install && cd .. && npm run install-client",
+    "install-client": "[ -d ./client/src ] && cd ./client && $npm_execpath install; exit 0",
+    "postinstall": "[ ! -d ./build ] && npm run build || npm run symbolic-links",
     "startdev": "NODE_ENV=development nodemon --config nodemon.json app.ts && tsc --force --project ./tsconfig.json",
     "build": "npm run build-server && npm run build-client",
-    "build-server": "npm run clean && tsc --project ./tsconfig.json && npm run copy-files",
+    "build-server": "npm run clean && tsc --project ./tsconfig.json && npm run symbolic-links",
     "build-client": "npm run clean-client && cd ./client && npm run build",
     "clean": "rm -rf ./build",
     "clean-client": "rm -rf ./client/build",
     "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
-    "copy-files": "cp -r ./private ./build/ && cp -r ./node-http-mitm-proxy ./build/",
+    "symbolic-links": "[ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "cd ./client && npm run test",
     "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davechri/allproxy.git"
+  },
   "author": "Dave Christenson",
-  "license": "ISC",
+  "license": "MIT",
+  "private": false,
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "dependencies": {
     "axios": "^0.21.4",
     "bufferutil": "^4.0.3",

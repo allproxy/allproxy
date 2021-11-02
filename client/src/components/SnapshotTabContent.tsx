@@ -56,8 +56,7 @@ const SnapshotTabContent = observer(({
 		<div className="request-response__container">
 			{messageQueueStore.getMessages().length > 0 &&
 				<div className={'request__container '
-					+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER &&messageQueueStore.getMessages().length > 0
-						? 'unselected' : '')}
+					+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
 					ref={ref} onScroll={handleScroll}>
 					{messageQueueStore.getMessages().map((messageStore, index) => {
 						if (filterStore.isFiltered(messageStore)) {

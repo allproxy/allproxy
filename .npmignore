@@ -1,0 +1,9 @@
+/*
+client/*
+client/package.json
+!bin/
+!build/
+!client/build/
+!package.json
+!node-http-mitm-proxy/package.json
+!private/

@@ -32,7 +32,7 @@ const resend = async (
   // eslint-disable-next-line node/no-deprecated-api
   const reqUrl = urlParser.parse(url)
 
-  headers.anyproxy = 'resend'
+  headers.allproxy = 'resend'
 
   // console.log(`Resend ${method} ${url} \n${body} \n${headers}`)
 

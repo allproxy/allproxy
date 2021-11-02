@@ -6,7 +6,13 @@ export default class Paths {
     : `${__dirname + ''}/../../`
 
   public static configJson (): string {
-    return Paths.platform(`${Paths.baseDir}config.json`)
+    return process.env.ALLPROXY_CONFIG
+      ? process.env.ALLPROXY_CONFIG
+      : Paths.platform(`${Paths.baseDir}config.json`)
+  }
+
+  public static sslCaDir (): string {
+    return Paths.platform(`${Paths.baseDir}/.http-mitm-proxy`)
   }
 
   public static serverKey (): string {

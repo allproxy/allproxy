@@ -6,14 +6,14 @@ import Paths from './Paths'
 import fs from 'fs'
 import Global from './Global'
 
-const AnyProxyApp = (
+const AllProxyApp = (
   clientRes: ServerResponse | Http2ServerResponse,
   reqUrl: UrlWithStringQuery
 ): boolean => {
   let responseSent = true
   const clientBuildDir = Paths.clientDir() + path.sep + 'build'
 
-  if (reqUrl.pathname === '/' + 'middleman' || reqUrl.pathname === '/' + 'anyproxy') {
+  if (reqUrl.pathname === '/' + 'anyproxy' || reqUrl.pathname === '/' + 'allproxy') {
     clientRes.writeHead(200, {
       'content-type': 'text/html'
     })
@@ -52,7 +52,7 @@ const AnyProxyApp = (
       })
       clientRes.end(fs.readFileSync(clientBuildDir + reqUrl.pathname))
     } else if (reqUrl.protocol === null &&
-              reqUrl.pathname === '/api/anyproxy/config') {
+              reqUrl.pathname === '/api/allproxy/config') {
       Global.socketIoManager.updateHostReachable()
         .then((configs) => {
           clientRes.writeHead(200, {
@@ -68,4 +68,4 @@ const AnyProxyApp = (
   return responseSent
 }
 
-export default AnyProxyApp
+export default AllProxyApp
