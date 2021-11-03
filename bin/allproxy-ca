@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-CA_PEM=$DIR/../.http-mitm-proxy/certs/ca.pem
-if [ ! -f $CA_PEM ]; then
-    SCRIPT=$(which allproxy)
-    BIN_DIR=$(dirname $SCRIPT)
-    SYM_LINK_DIR=$(dirname $(readlink $SCRIPT))
-    PACKAGE_DIR=$BIN_DIR/$SYM_LINK_DIR/..
-    CA_PEM=$PACKAGE_DIR/.http-mitm-proxy/certs/ca.pem
-fi
+CA_PEM=$HOME/allproxy/ca.pem
 
 if [ ! -f $CA_PEM ]; then
     echo "No $CA_PEM file found!"
