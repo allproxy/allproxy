@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 
 export default class Paths {
@@ -5,14 +6,24 @@ export default class Paths {
     ? `${__dirname + ''}/../../../`
     : `${__dirname + ''}/../../`
 
+  private static dataDir = process.env.ALLPROXY_DATA_DIR
+    ? `${process.env.ALLPROXY_DATA_DIR}/`
+    : Paths.baseDir
+
   public static configJson (): string {
-    return process.env.ALLPROXY_CONFIG
-      ? process.env.ALLPROXY_CONFIG
-      : Paths.platform(`${Paths.baseDir}config.json`)
+    return Paths.platform(`${Paths.dataDir}config.json`)
   }
 
   public static sslCaDir (): string {
-    return Paths.platform(`${Paths.baseDir}/.http-mitm-proxy`)
+    return Paths.platform(`${Paths.dataDir}.http-mitm-proxy`)
+  }
+
+  public static makeCaPemSymLink () {
+    const target = Paths.platform('.http-mitm-proxy/certs/ca.pem')
+    const path = Paths.platform(Paths.dataDir + 'ca.pem')
+    if (!fs.existsSync(path) || !fs.readlinkSync(path)) {
+      fs.symlinkSync(target, path)
+    }
   }
 
   public static serverKey (): string {

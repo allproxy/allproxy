@@ -3,8 +3,14 @@
 'use strict'
 
 const path = require('path')
+const fs = require('fs')
+
+const DATA_DIR = process.env.HOME + path.sep + 'allproxy'
 
 process.env.NODE_ENV = 'production'
-process.env.ALLPROXY_CONFIG = process.env.HOME + path.sep + '.allproxy.json'
+process.env.ALLPROXY_DATA_DIR = DATA_DIR
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, {})
+}
 
 require('../build/app')

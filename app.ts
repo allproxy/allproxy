@@ -73,6 +73,8 @@ process.on('uncaughtException', (err) => {
   // process.exit()
 })
 
+Paths.makeCaPemSymLink()
+
 Global.socketIoManager = new SocketIoManager()
 const httpProxy = new HttpProxy()
 const httpsProxy = new HttpsProxy()

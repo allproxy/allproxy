@@ -137,9 +137,7 @@ export default class SocketIoManager {
       socket.emit('proxy config', config) // send config to browser
 
       socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
-        console.log('ProxyConfigs: proxy config received',
-          socket.conn.id,
-          proxyConfigs)
+        console.log(`${Paths.configJson()}:\n`, proxyConfigs)
         this.saveConfig(proxyConfigs)
 
         // Make sure all matching 'any:' protocol servers are closed.
