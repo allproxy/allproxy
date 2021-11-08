@@ -132,6 +132,7 @@ To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS m
 ![ ](https://github.com/davechri/allproxy/blob/master/images/firefox-proxy.png)
 
 #### Linux Proxy Configuration
+
 For chrome and chromium you can set the browser proxy using environment variables http_proxy and https_proxy.
 ```sh
 $ http_proxy=http://localhost:8888 https_proxy://9999 chromium-browser
