@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    echo "Usage:"
+    echo "  allproxy-system-proxy enable"
+    echo "  allproxy-system-proxy disable"
+    exit
+}
+
+command() {
+    echo "$@"
+    "$@"
+}
+
+if [ "$#" != 1 ]; then
+  usage
+fi
+
+OP=$@
+if [ $@ == enable ]; then
+    OP=enable
+elif [ $@ == disable ]; then
+    OP=disable
+else
+    usage
+fi
+
+mashine="$(uname -s)"
+case "$mashine" in
+    Darwin*)
+        if [ $OP == "enable" ]; then
+            command networksetup -setwebproxy Wi-Fi 127.0.0.1 8888
+            command networksetup -setsecurewebproxy Wi-Fi 127.0.0.1 9999
+        else
+            command networksetup -setwebproxystate Wi-Fi off
+            command networksetup -setsecurewebproxystate Wi-Fi off
+        fi
+        ;;
+    *)
+        echo "Your operating system is currently not supported."
+        exit 1
+        ;;
+esac

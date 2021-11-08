@@ -1,16 +1,17 @@
-#!/usr/bin/env node
+#!/usr/bin/env bash
+set -euo pipefail
 
-'use strict'
+BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+if [ -f "$BIN_DIR/../app.ts" ]; then
+  DATA_DIR=$BIN_DIR/../
+else
+  DATA_DIR=$HOME/allproxy
+fi
 
-const path = require('path')
-const fs = require('fs')
+export NODE_ENV=production
+export ALLPROXY_DATA_DIR=$DATA_DIR
+if [ ! -d "$DATA_DIR" ]; then
+  mkdir $DATA_DIR
+fi
 
-const DATA_DIR = process.env.HOME + path.sep + 'allproxy'
-
-process.env.NODE_ENV = 'production'
-process.env.ALLPROXY_DATA_DIR = DATA_DIR
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, {})
-}
-
-require('../build/app')
+node $BIN_DIR/../build/app

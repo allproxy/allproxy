@@ -85,16 +85,15 @@ The AllProxy server is started using either the NPM installed **allproxy** scrip
    ```
 ### Install CA Certificate
 
-The **allproxy-ca** is used to install the CA certificate in your browser so it is trusted.
+The **allproxy-ca** can be used to install the CA certificate so it is trusted by your browser.
 
 The **ca.pem** location:
 * *GitHub Project*: ~/git/allproxy/ca.pem # assuming the allproxy project was cloned to ~/git/
 * *NPM Package*: ~/allproxy/ca.pem
 
-You may need to manually install the AllProxy ca.pem.  These online how tos many help:
+If you need to manually install the AllProxy ca.pem.  These online tutorials many help:
 * https://portswigger.net/burp/documentation/desktop/external-browser-config/certificate/ca-cert-firefox
 * https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-D60F08AD-6E54-4959-A272-458D08B8B038.html
-
 
 #### NPM Package
 
@@ -115,15 +114,29 @@ Enter http://localhost:8888/allproxy in browser.
 
 ### Configure Browser Proxy
 
+Chrome will also honor the system proxy configuration for MacOS.  The **allproxy-system-proxy** command can be used to configure the system proxy.
+
+#### NPM Package
+```sh
+$ cd ~/git/allproxy
+allproxy$ allproxy-system-proxy enable
+```
+
+#### GitHub Project
+```sh
+$ allproxy-system-proxy enable
+```
+
+#### Firefox Proxy Configuration
 To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the AllProxy.  The default is to proxy HTTP messages to port 8888, and HTTPS messages to port 9999.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
 ![ ](https://github.com/davechri/allproxy/blob/master/images/firefox-proxy.png)
+
+#### Linux Proxy Configuration
 
 For chrome and chromium you can set the browser proxy using environment variables http_proxy and https_proxy.
 ```sh
 $ http_proxy=http://localhost:8888 https_proxy://9999 chromium-browser
 ```
-Chrome has some extensions that make it easy to configure an http and https proxy:
-* https://chrome.google.com/webstore/detail/proxy-switcher-and-manage/onnfghpihccifgojkpnnncpagjcdbjod?hl=en
 
 ## Screenshots
 ### Dashboard
