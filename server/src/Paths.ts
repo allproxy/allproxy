@@ -19,11 +19,11 @@ export default class Paths {
   }
 
   public static makeCaPemSymLink () {
-    const target = Paths.platform('.http-mitm-proxy/certs/ca.pem')
+    const target = Paths.platform(Paths.platform('.http-mitm-proxy/certs/ca.pem'))
     const path = Paths.platform(Paths.dataDir + 'ca.pem')
-    if (!fs.existsSync(path) || !fs.readlinkSync(path)) {
+    try {
       fs.symlinkSync(target, path)
-    }
+    } catch (e) {} // Already exists
   }
 
   public static serverKey (): string {
