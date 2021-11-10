@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+SYMLINK=$(readlink "${BASH_SOURCE[0]}")
+if [ ! -z "$SYMLINK" ]; then
+  BIN_DIR=$BIN_DIR/$(dirname $SYMLINK)
+fi
+
 if [ -f "$BIN_DIR/../app.ts" ]; then
   DATA_DIR=$BIN_DIR/../
 else
