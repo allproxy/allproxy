@@ -119,8 +119,9 @@ export default class Http2Proxy {
         })
 
         const chunks: Buffer[] = []
-        let trailers = {}
+        let trailers: {[key:string]: any} = {}
         const proxyStream = proxyClient.request(headers)
+        let needToSendTrailers = false
 
         proxyStream.on('trailers', (headers, _flags) => {
           if (debug) console.log('trailers', headers)
@@ -129,7 +130,13 @@ export default class Http2Proxy {
         })
 
         proxyStream.on('response', (headers, flags) => {
-          if (debug) console.log('on response', clientReq.url, headers, flags)
+          if (debug) console.log('on response', clientReq.url, headers, 'flags:', flags)
+          if (headers['grpc-status']) {
+            trailers['grpc-status'] = headers['grpc-status']
+            trailers['grpc-message'] = headers['grpc-message']
+            headers['grpc-status'] = headers['grpc-message'] = undefined
+            needToSendTrailers = true
+          }
           clientRes.stream.respond(headers, { waitForTrailers: true })
           // proxyStream.pipe(clientRes, {
           //   end: true
@@ -141,6 +148,9 @@ export default class Http2Proxy {
 
           proxyStream.on('end', async () => {
             if (debug) console.log('end of response received')
+            if (needToSendTrailers) {
+              clientRes.addTrailers(trailers)
+            }
             clientRes.end()
             proxyClient.close()
 
