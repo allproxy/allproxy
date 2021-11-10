@@ -19,11 +19,17 @@ class Snapshots {
 		return this.snapshots.get(key)!;
 	}
 
-	public set(key: string, snapshot: MessageStore[], fileName?: string) {
+	public set(
+			key: string,
+			snapshot: MessageStore[],
+			fileName?: string,
+			selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
+			scrollTop = 0
+		) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
-		this.selectedReqSeqNumbers.push(Number.MAX_SAFE_INTEGER);
-		this.scrollTop.push(0);
+		this.selectedReqSeqNumbers.push(selectedReqSeqNumber);
+		this.scrollTop.push(scrollTop);
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
@@ -122,7 +128,13 @@ export default class SnapshotStore {
 		if(snapshot) {
 			this.snapshots.set(name, snapshot, fileName);
 		} else {
-			this.snapshots.set(name, activeSnapshot.slice(), fileName);
+			this.snapshots.set(
+				name,
+				activeSnapshot.slice(),
+				fileName,
+				this.getSelectedReqSeqNumbers()[0],
+				this.getScrollTop()[0]
+			);
 			activeSnapshot.splice(0, activeSnapshot.length);
 		}
 		return name;
