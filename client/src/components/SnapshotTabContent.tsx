@@ -22,6 +22,8 @@ const SnapshotTabContent = observer(({
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
 
+	let lastSeqNum = 0;
+
 	const ref = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
@@ -29,14 +31,6 @@ const SnapshotTabContent = observer(({
 			filterStore.setResetScroll(false);
 			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
 				setScrollTo(selectedReqSeqNum);
-			}
-		} else if (messageQueueStore.getAutoScroll()) {
-			if (selectedReqSeqNum === Number.MAX_SAFE_INTEGER) {
-				const messages = messageQueueStore.getMessages();
-				const lastMessage = messages[messages.length - 1];
-				if (lastMessage) {
-					setScrollTo(lastMessage.getMessage().sequenceNumber);
-				}
 			}
 		} else {
 			restoreScrollTop();
@@ -64,6 +58,7 @@ const SnapshotTabContent = observer(({
 						} else {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
+							lastSeqNum = seqNum;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
 							if (isActiveRequest) {
 								activeRequestIndex = index;
@@ -83,6 +78,7 @@ const SnapshotTabContent = observer(({
 								/>)
 						}
 					})}
+					{matchCount > 0 && messageQueueStore.getAutoScroll() && setScrollTo(lastSeqNum)}
 					{matchCount === 0 && (
 						<div className="center">
 							No matching request or response found.  Adjust your filter criteria.
