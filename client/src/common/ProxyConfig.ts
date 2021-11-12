@@ -38,15 +38,4 @@ export default class ProxyConfig {
 			this.comment = proxyConfig.comment;
 		}
 	}
-
-	static isHttpOrHttps(config: ProxyConfig): boolean {
-		switch (config.protocol) {
-			case 'http:':
-			case 'https:':
-			case 'browser:':
-				return true;
-			default:
-				return false;
-		}
-	}
 }

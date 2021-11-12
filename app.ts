@@ -7,12 +7,18 @@ import HttpProxy from './server/src/HttpProxy'
 import HttpsProxy from './server/src/HttpsProxy'
 import HttpMitmProxy from './node-http-mitm-proxy'
 import Paths from './server/src/Paths'
+import GrpcProxy from './server/src/GrpcProxy'
 const httpMitmProxy = HttpMitmProxy()
 
-const listen: {protocol?: string,
-      host?: string,
-      port: number}[] = []
+const listen: {
+  protocol: string,
+  host?: string,
+  port: number
+}[] = []
+
 let httpServer: http.Server | https.Server
+
+console.log(process.argv)
 
 for (let i = 2; i < process.argv.length; ++i) {
   switch (process.argv[i]) {
@@ -21,13 +27,31 @@ for (let i = 2; i < process.argv.length; ++i) {
       exit(1)
       break
     case '--listen':
-    case '--listenHttps': {
+    case '--listenHttp':
+    case '--listenHttps':
+    case '--listenGrpc':
+    case '--listenSecureGrpc': {
       if (i + 1 >= process.argv.length) {
         usage()
-        console.error('\nMissing --listen value.')
+        console.error('\nMissing port number for ' + process.argv[i])
       }
 
-      const protocol = process.argv[i] === '--listenHttps' ? 'https:' : 'http:'
+      let protocol : 'http:' | 'https:' | 'grpc:' | 'securegrpc:' = 'http:'
+      switch (process.argv[i]) {
+        case '--listen':
+        case '--listenHttp':
+          protocol = 'http:'
+          break
+        case '--listenHttps':
+          protocol = 'https:'
+          break
+        case '--listenGrpc':
+          protocol = 'grpc:'
+          break
+        case '--listenSecureGrpc':
+          protocol = 'securegrpc:'
+          break
+      }
       let host
       let port = process.argv[++i]
       const tokens = port.split(':')
@@ -60,8 +84,10 @@ if (listen.length === 0) {
 function usage () {
   console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port] [--debug]')
   console.log('\nOptions:')
-  console.log('\t--listen - listen for incoming http connections.  Default is 8888.')
-  console.log('\t--listenHttps - listen for incoming https connections.')
+  console.log('\t--listenHttp - listen for incoming http connections.  Default is 8888.')
+  console.log('\t--listenHttps - listen for incoming https connections. Defaults is 9999.')
+  console.log('\t--listenGrpc - listen for incoming gRPC connections. (experimental)')
+  console.log('\t--listenSecureGrpc - listen for incoming secure gRPC connections. (experimental)')
   console.log('\nExample: npm start -- --listen 8888 --listenHttps 9999')
 }
 
@@ -82,21 +108,32 @@ const httpsProxy = new HttpsProxy()
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // trust all certificates
 
 for (const entry of listen) {
-  const protocol = entry.protocol ? entry.protocol : 'http:'
+  const protocol = entry.protocol
   const host = entry.host
   const port = entry.port
 
-  if (protocol === 'https:') {
-    httpMitmProxy.listen({ port: port, sslCaDir: Paths.sslCaDir() })
-    console.log(`Listening on ${protocol} ${host || ''} ${port}`)
-    httpsProxy.onRequest(httpMitmProxy)
-  } else {
-    httpServer = http.createServer(
-      (clientReq, clientRes) => httpProxy.onRequest(clientReq, clientRes))
-    httpServer.listen(port, host)
-    console.log(`Listening on ${protocol} ${host || ''} ${port}`)
-    console.log(`Open browser to ${protocol}//localhost:${port}/allproxy\n`)
+  switch (protocol) {
+    case 'https:':
+      httpMitmProxy.listen({ port: port, sslCaDir: Paths.sslCaDir() })
+      console.log(`Listening on ${protocol} ${host || ''} ${port}`)
+      httpsProxy.onRequest(httpMitmProxy)
+      break
+    case 'http:':
+      httpServer = http.createServer(
+        (clientReq, clientRes) => httpProxy.onRequest(clientReq, clientRes))
+      httpServer.listen(port, host)
+      console.log(`Listening on ${protocol} ${host || ''} ${port}`)
+      console.log(`Open browser to ${protocol}//localhost:${port}/allproxy\n`)
 
-    Global.socketIoManager.addHttpServer(httpServer)
+      Global.socketIoManager.addHttpServer(httpServer)
+      break
+    case 'grpc:':
+      GrpcProxy.forwardProxy(port, false)
+      console.log(`Listening on gRPC ${host || ''} ${port}`)
+      break
+    case 'securegrpc:':
+      GrpcProxy.forwardProxy(port, true)
+      console.log(`Listening on secure gRPC ${host || ''} ${port}`)
+      break
   }
 }

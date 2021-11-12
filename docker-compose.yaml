@@ -58,4 +58,4 @@ services:
       - 50067
       - 50068
       - 63790
-    command: 'yarn start --listen 8888 --listenHttps 9999'
+    command: 'yarn start --listenHttp 8888 --listenHttps 9999 --listenGrpc 7777'

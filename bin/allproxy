@@ -18,4 +18,4 @@ if [ ! -d "$DATA_DIR" ]; then
   mkdir $DATA_DIR
 fi
 
-node $BIN_DIR/../build/app
+node $BIN_DIR/../build/app $@

@@ -23,15 +23,4 @@ export default class ProxyConfig {
   logProxyProcess?: any = undefined;
   _server?: net.Server | tls.Server;
   comment:string = '';
-
-  static isHttpOrHttps (config: ProxyConfig): boolean {
-    switch (config.protocol) {
-      case 'http:':
-      case 'https:':
-      case 'browser:':
-        return true
-      default:
-        return false
-    }
-  }
 }
