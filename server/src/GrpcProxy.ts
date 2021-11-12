@@ -20,20 +20,20 @@ const tlsOptions = {
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
-export default class Http2Proxy {
+export default class GrpcProxy {
   public static forwardProxy (port: number, isSecure: boolean = false) {
     const proxyConfig = new ProxyConfig()
     proxyConfig.isSecure = isSecure
-    proxyConfig.protocol = 'browser:'
+    proxyConfig.protocol = 'grpc:'
     proxyConfig.path = port.toString()
-    Http2Proxy.start(proxyConfig)
+    GrpcProxy.start(proxyConfig, true)
   }
 
   public static reverseProxy (proxyConfig: ProxyConfig) {
-    Http2Proxy.start(proxyConfig)
+    GrpcProxy.start(proxyConfig)
   }
 
-  private static start (proxyConfig: ProxyConfig) {
+  private static start (proxyConfig: ProxyConfig, isForwardProxy = false) {
     const server = proxyConfig.isSecure
       ? http2.createSecureServer({
         settings,
@@ -41,8 +41,11 @@ export default class Http2Proxy {
       })
       : http2.createServer({
         settings
-      }) // HTTPS is not currently supported
-    proxyConfig._server = server
+      })
+
+    if (!isForwardProxy) {
+      proxyConfig._server = server
+    }
 
     listen(server)
 
@@ -53,7 +56,7 @@ export default class Http2Proxy {
       if (++retries < 10) {
         setTimeout(() => listen(server), wait *= 2)
       } else {
-        console.error('Http2Proxy server error', err)
+        console.error('GrpcProxy server error', err)
       }
     })
 
@@ -61,14 +64,16 @@ export default class Http2Proxy {
 
     function listen (server: http2.Http2Server) {
       server.listen(proxyConfig.path, () => {
-        const msg = proxyConfig.protocol === 'browser:' ? '' : `, target host ${proxyConfig.hostname}`
-        console.log(`Listening on http2 port ${proxyConfig.path} ${msg}`)
+        const msg = isForwardProxy ? '' : `, target host ${proxyConfig.hostname}`
+        console.log(`Listening on gRPC port ${proxyConfig.path} ${msg}`)
       })
     }
 
     async function onRequest (clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
+
+      if (debug) console.log('request URL', reqUrl)
 
       const sequenceNumber = ++Global.nextSequenceNumber
       const remoteAddress = clientReq.socket.remoteAddress
@@ -96,11 +101,11 @@ export default class Http2Proxy {
         if (proxyConfig.port) authority += ':' + proxyConfig.port
         headers[http2.constants.HTTP2_HEADER_AUTHORITY] = authority
 
-        let { protocol, hostname, port } = proxyConfig.protocol === 'browser:'
+        let { protocol, hostname, port } = isForwardProxy
           ? reqUrl
           : proxyConfig
 
-        if (proxyConfig.protocol !== 'browser:') {
+        if (!isForwardProxy) {
           protocol = proxyConfig.isSecure ? 'https:' : 'http:'
         }
 

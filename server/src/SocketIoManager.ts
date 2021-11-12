@@ -8,7 +8,7 @@ import url from 'url'
 import net from 'net'
 import Ping from './Ping'
 import resend from './Resend'
-import Http2Proxy from './Http2Proxy'
+import GrpcProxy from './GrpcProxy'
 import Paths from './Paths'
 
 const USE_HTTP2 = true
@@ -140,9 +140,9 @@ export default class SocketIoManager {
         console.log(`${Paths.configJson()}:\n`, proxyConfigs)
         this.saveConfig(proxyConfigs)
 
-        // Make sure all matching 'any:' protocol servers are closed.
+        // Make sure all matching connection based servers are closed.
         for (const proxyConfig of proxyConfigs) {
-          if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
+          if (proxyConfig._server) {
             this.closeAnyServerWithPort(proxyConfig.port)
           }
         }
@@ -177,8 +177,12 @@ export default class SocketIoManager {
           // eslint-disable-next-line no-new
           new LogProxy(proxyConfig)
         } else if (proxyConfig.protocol === 'grpc:' && USE_HTTP2) {
-          Http2Proxy.reverseProxy(proxyConfig)
-        } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
+          GrpcProxy.reverseProxy(proxyConfig)
+        } else if (
+          proxyConfig.protocol !== 'http:' &&
+          proxyConfig.protocol !== 'https:' &&
+          proxyConfig.protocol !== 'browser:'
+        ) {
           // eslint-disable-next-line no-new
           new TcpProxy(proxyConfig)
         }
@@ -200,8 +204,8 @@ export default class SocketIoManager {
           if (proxyConfig.protocol === 'log:') {
             LogProxy.destructor(proxyConfig)
           } if (proxyConfig.protocol === 'grpc:') {
-            Http2Proxy.destructor(proxyConfig)
-          } else if (!ProxyConfig.isHttpOrHttps(proxyConfig)) {
+            GrpcProxy.destructor(proxyConfig)
+          } else if (proxyConfig._server) {
             TcpProxy.destructor(proxyConfig)
           }
         }
@@ -212,9 +216,9 @@ export default class SocketIoManager {
     closeAnyServerWithPort (port: number) {
       this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
-          if (!ProxyConfig.isHttpOrHttps(proxyConfig) && proxyConfig.port === port) {
+          if (proxyConfig._server && proxyConfig.port === port) {
             if (proxyConfig.protocol === 'grpc:' && USE_HTTP2) {
-              Http2Proxy.destructor(proxyConfig)
+              GrpcProxy.destructor(proxyConfig)
             } else {
               TcpProxy.destructor(proxyConfig)
             }
