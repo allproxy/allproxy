@@ -313,7 +313,7 @@
     {
       "isSecure": false,
       "path": "3306",
-      "protocol": "sql:",
+      "protocol": "mysql:",
       "hostname": "mariadb",
       "port": 3306,
       "recording": true,
@@ -323,7 +323,7 @@
     {
       "isSecure": false,
       "path": "33306",
-      "protocol": "sql:",
+      "protocol": "mysql:",
       "hostname": "mariadb",
       "port": 3306,
       "recording": true,

@@ -15,7 +15,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 			case 'grpc:':
 			case 'mongo:':
 			case 'redis:':
-			case 'sql:':
+			case 'mysql:':
 				return 'Source Port';
 			case 'http:':
 			case 'https:':
@@ -47,7 +47,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				</thead>
 				: null }
 				<tbody>
-					{store.getProtocolEntries(protocol).map((entry, index) => (
+					{store.getEntries().map((entry, index) => entry.protocol === protocol && (
 						<tr className={"settings-modal__proxy-row" + (entry.recording ? '' : ' nocapture')} key = { index }
 						>
 							<td>
@@ -107,7 +107,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 					))}
 				</tbody>
 			</table>
-			{store.getProtocolEntries(protocol).length === 0 && <div className="center">Add new entries below</div>}
+			{store.getEntries().filter(e => e.protocol === protocol).length === 0 && <div className="center">Add new entries below</div>}
 		</div>
 	);
 });

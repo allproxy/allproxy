@@ -442,9 +442,11 @@ td input {
 	max-width: 90vw;
 }
 
-.settings-modal__proxy-row.nocapture {
-	background: rgb(245, 206, 206);
+.settings-modal__proxy-row.nocapture,
+.settings-modal__proxy-row.nocapture input {
+	background: rgba(216, 214, 214, 0.3);
 }
+
 
 .settings-modal__scroll-container {
 	overflow-y: auto;
@@ -521,7 +523,7 @@ td input {
 	cursor: pointer;
 }
 .settings__recording {
-	color: steelblue;
+	color: rgba(6, 29, 230, 0.76);
 }
 
 .settings-modal__label-max-messages {

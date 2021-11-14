@@ -10,7 +10,7 @@ export default function pickIcon(protocol: ConfigProtocol): string {
 		case 'browser:':
 			iconClass = browserIcon();
 			break;
-		case 'sql:':
+		case 'mysql:':
 			iconClass = 'fa fa-database';
 			break;
 		case 'mongo:':
