@@ -3,6 +3,23 @@ import ProxyConfig, { ConfigProtocol } from '../common/ProxyConfig';
 import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
+export type ConfigCategory =
+	'BROWSER'
+	| 'DATA STORES'
+	| 'GRPC'
+	| 'HTTP'
+	| 'LOGGING'
+	| 'TCP';
+
+export const ConfigCategories: ConfigCategory[] = [
+	'BROWSER',
+	'DATA STORES',
+	'GRPC',
+	'HTTP',
+	'LOGGING',
+	'TCP',
+];
+
 export const ConfigProtocols: ConfigProtocol[] = [
 	'browser:',
 	'grpc:',
@@ -14,6 +31,14 @@ export const ConfigProtocols: ConfigProtocol[] = [
 	'sql:',
 	'tcp:',
 ];
+
+export const ConfigCategoryGroups: Map<ConfigCategory, ConfigProtocol[]> = new Map();
+ConfigCategoryGroups.set('BROWSER', ['browser:']);
+ConfigCategoryGroups.set('DATA STORES', ['mongo:', 'redis:', 'sql:']);
+ConfigCategoryGroups.set('GRPC', ['grpc:']);
+ConfigCategoryGroups.set('HTTP', ['http:', 'https:']);
+ConfigCategoryGroups.set('LOGGING', ['log:']);
+ConfigCategoryGroups.set('TCP', ['tcp:']);
 
 const TOOLTIP: Map<string, string> = new Map([
 	['browser:', `Forward proxy for HTTP and HTTPS.  Listen on port 8888 (default) for HTTP requests, and port 9999 (default) for HTTPS requests.  Your browser must be configured to proxy HTTP and HTTPS messages to localhost:8888 and localhost:9999, respectively.`],
@@ -35,6 +60,7 @@ export enum HostStatus {
 
 export default class SettingsStore {
 	private changed = false;
+	private configCategory: ConfigCategory = 'BROWSER';
 	private protocol: ConfigProtocol | '' = '';
 	private path = '';
 	private targetHost = '';
@@ -92,6 +118,10 @@ export default class SettingsStore {
 		return this.changed;
 	}
 
+	public getConfigCategories(): ConfigCategory[] {
+		return ConfigCategories;
+	}
+
 	public getProtocols(): ConfigProtocol[] {
 		return ConfigProtocols;
 	}
@@ -99,6 +129,15 @@ export default class SettingsStore {
 	public getTooltip(protocol: ConfigProtocol): string {
 		const tooltip = TOOLTIP.get(protocol);
 		return tooltip ? tooltip : 'Tooltip text not found!';
+	}
+
+	public getConfigCategory() {
+		return this.configCategory;
+	}
+
+	@action public setConfigCategory(configCategory: ConfigCategory) {
+		this.configCategory = configCategory;
+		this.error = '';
 	}
 
 	public getProtocol() {
@@ -254,6 +293,10 @@ export default class SettingsStore {
 		entry.isSecure = !entry.isSecure;
 		this.entries.splice(index, 1, entry);
 		this.changed = true;
+	}
+
+	public getProtocolEntries(protocol: ConfigProtocol) {
+		return this.getEntries().filter(entry => entry.protocol === protocol);
 	}
 
 	public getEntries(hostStatus: HostStatus = HostStatus.All): ProxyConfig[] {

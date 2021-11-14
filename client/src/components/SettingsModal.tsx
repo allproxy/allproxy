@@ -1,12 +1,11 @@
 import { Modal } from '@material-ui/core'
 import SettingsTable from './SettingsTable';
-import SettingsStore from '../store/SettingsStore';
+import SettingsStore, { ConfigCategory, ConfigCategoryGroups } from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
 import { Tab, Tabs } from '@material-ui/core';
 import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
-import pickIcon from '../PickIcon';
 import { ConfigProtocol } from '../common/ProxyConfig';
 
 type Props = {
@@ -15,11 +14,22 @@ type Props = {
 	store: SettingsStore,
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
-	const [tabValue, setTabValue] = React.useState('browser:');
-	store.setProtocol(tabValue as ConfigProtocol);
+	const [tabCategory, setTabCategory] = React.useState<ConfigCategory>('BROWSER');
+	const [tabProtocol, setTabProtocol] = React.useState<ConfigProtocol>(ConfigCategoryGroups.get(tabCategory)![0]);
 
-	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
-		setTabValue(value);
+	store.setConfigCategory(tabCategory as ConfigCategory);
+	store.setProtocol(ConfigCategoryGroups.get(store.getConfigCategory())![0]);
+
+	function handleTabCategoryChange(_e: React.ChangeEvent<{}>, value: string) {
+		setTabCategory(value as ConfigCategory);
+		store.setConfigCategory(value as ConfigCategory);
+
+		store.setProtocol(ConfigCategoryGroups.get(store.getConfigCategory())![0]);
+		setTabProtocol(store.getProtocol() as ConfigProtocol);
+	}
+
+	function handleTabProtocolChange(_e: React.ChangeEvent<{}>, value: string) {
+		setTabProtocol(value as ConfigProtocol);
 		store.setProtocol(value as ConfigProtocol);
 	}
 
@@ -35,29 +45,63 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 			<div className="settings-modal" role="dialog">
 				<div>
 					<h3>Settings</h3>
-					<TabContext value={tabValue}>
+					<TabContext value={tabCategory}>
 						<Tabs
-							value={tabValue}
-							onChange={handleTabChange}
+							value={tabCategory}
+							onChange={handleTabCategoryChange}
 							indicatorColor="primary"
 							textColor="primary"
+							variant="scrollable"
+  						scrollButtons="auto"
 							aria-label="Settings table">
-							{store.getProtocols().map(protocol => (
-								<Tab value={protocol}
+							{store.getConfigCategories().map(category => (
+								<Tab value={category}
 									label={
-										<div className={pickIcon(protocol)}>
-											<span style={{ marginLeft: '.25rem' }}>{protocol}</span>
+										<div>
+											<span style={{ marginLeft: '.25rem' }}>{category}</span>
 										</div>
 									}
-									title={store.getTooltip(protocol)}>
+									>
 								</Tab>
 							))}
 						</Tabs>
-						{store.getProtocols().map(protocol => (
-							<TabPanel value={ protocol }>
-								<div className="settings-modal__scroll-container">
-									<SettingsTable store={store} protocol={ protocol }></SettingsTable>
-								</div>
+						{store.getConfigCategories().map(category => (
+							<TabPanel value={ category }>
+								{ConfigCategoryGroups.get(store.getConfigCategory())!.length === 1
+									?
+										<div className="settings-modal__scroll-container">
+											<SettingsTable store={store} protocol={ store.getProtocol() as ConfigProtocol }></SettingsTable>
+										</div>
+									:
+										<TabContext value={tabProtocol}>
+											<Tabs
+												style={{background: 'whitesmoke'}}
+												value={tabProtocol}
+												onChange={handleTabProtocolChange}
+												indicatorColor="secondary"
+												textColor="secondary"
+												variant="fullWidth"
+												aria-label="Settings table">
+												{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocol => (
+													<Tab value={protocol}
+														label={
+															<div>
+																<span style={{ marginLeft: '.25rem' }}>{protocol}</span>
+															</div>
+														}
+														>
+													</Tab>
+												))}
+											</Tabs>
+											{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocol => (
+												<TabPanel value={ protocol }>
+													<div className="settings-modal__scroll-container">
+														<SettingsTable store={store} protocol={ protocol }></SettingsTable>
+													</div>
+												</TabPanel>
+											))}
+									</TabContext>
+								}
 							</TabPanel>
 						))}
 					</TabContext>
@@ -65,16 +109,6 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 						<table>
 							<tbody>
 								<tr>
-									<td className="settings-modal__select-protocol-container">
-										<select className="form-control settings-modal__select-protocol"
-											onChange={(e) => store.setProtocol(e.target.value as ConfigProtocol)}
-											value={ store.getProtocol() }
-										>
-											{store.getProtocols().map((protocol) => {
-												return <option key={ protocol }>{ protocol }</option>
-											})};
-										</select>
-									</td>
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
 											placeholder={
