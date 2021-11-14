@@ -133,7 +133,7 @@ export default class TcpProxy {
               let status = 0
               let noResponseRequired = false
               switch (proxyConfig.protocol) {
-                case 'sql:': {
+                case 'mysql:': {
                   const sqlFormatter = new SqlFormatter(request.data, response!)
                   requestString = sqlFormatter.getQuery()
                   responseString = sqlFormatter.getResults()

@@ -138,7 +138,8 @@ export default class MessageStore {
             || (message.proxyConfig?.protocol === 'grpc:'
                 && message.responseHeaders['grpc-status']
                 && Number(message.responseHeaders['grpc-status']) > 0)
-            || (message.protocol === 'sql:' && message.status !== 0)
+            || ((message.protocol === 'mysql:')
+                && message.status !== 0)
             || Util.isGraphQlError(message);
     }
 }

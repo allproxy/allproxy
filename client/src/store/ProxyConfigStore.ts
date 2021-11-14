@@ -56,6 +56,10 @@ class ProxyConfigStore {
 			if(proxyConfig.protocol as string === 'any:' || proxyConfig.protocol as string === 'other:') {
 				proxyConfig.protocol = 'tcp:';
 			}
+			// 'sql:' is deprecated and replaced with 'mysql:'
+			if(proxyConfig.protocol as string === 'sql:') {
+				proxyConfig.protocol = 'mysql:';
+			}
 		});
 		// Send configs to server
 		socketStore.emitConfig('proxy config', proxyDirectives);

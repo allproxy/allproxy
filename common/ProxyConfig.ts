@@ -9,7 +9,7 @@ export type ConfigProtocol =
   | 'log:'
   | 'mongo:'
   | 'redis:'
-  | 'sql:'
+  | 'mysql:'
   | 'tcp:';
 
 export default class ProxyConfig {

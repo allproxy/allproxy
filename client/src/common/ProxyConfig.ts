@@ -10,8 +10,8 @@ export type ConfigProtocol =
   | 'log:'
   | 'mongo:'
   | 'redis:'
-  | 'sql:'
-  | 'tcp:';
+  | 'mysql:'
+	| 'tcp:';
 
 export default class ProxyConfig {
 	isSecure: boolean = false;

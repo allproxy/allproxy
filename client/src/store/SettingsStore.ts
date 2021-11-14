@@ -28,13 +28,13 @@ export const ConfigProtocols: ConfigProtocol[] = [
 	'log:',
 	'mongo:',
 	'redis:',
-	'sql:',
+	'mysql:',
 	'tcp:',
 ];
 
 export const ConfigCategoryGroups: Map<ConfigCategory, ConfigProtocol[]> = new Map();
 ConfigCategoryGroups.set('BROWSER', ['browser:']);
-ConfigCategoryGroups.set('DATA STORES', ['mongo:', 'redis:', 'sql:']);
+ConfigCategoryGroups.set('DATA STORES', ['mongo:', 'redis:', 'mysql:']);
 ConfigCategoryGroups.set('GRPC', ['grpc:']);
 ConfigCategoryGroups.set('HTTP', ['http:', 'https:']);
 ConfigCategoryGroups.set('LOGGING', ['log:']);
@@ -48,7 +48,7 @@ const TOOLTIP: Map<string, string> = new Map([
 	['log:', `Monitor dockers log. The "docker logs -f CONTAINER" command will pull log messages from a dockers container.`],
 	['mongo:', `Proxy and capture MongoDB messages.  Listen on the specified port for MongoDB requests, and pass the requests to the target MongoDB service.`],
 	['redis:', `Proxy and capture Redis messages.  Listen on the specified port for Redis requests, and pass the requests to the target Redis service.`],
-	['sql:', `Proxy and capture SQL messages.  Listen on the specified port for SQL requests, and pass the requests to the target SQL service.  It has only been tested with MariaDB (MySQL).`],
+	['mysql:', `Proxy and capture SQL messages.  Listen on the specified port for SQL requests, and pass the requests to the target SQL service.  It has only been tested with MariaDB (MySQL).`],
 	['tcp:', `TCP proxy.  Can proxy and capture any TCP request/response protocol.`],
 ]);
 
@@ -293,10 +293,6 @@ export default class SettingsStore {
 		entry.isSecure = !entry.isSecure;
 		this.entries.splice(index, 1, entry);
 		this.changed = true;
-	}
-
-	public getProtocolEntries(protocol: ConfigProtocol) {
-		return this.getEntries().filter(entry => entry.protocol === protocol);
 	}
 
 	public getEntries(hostStatus: HostStatus = HostStatus.All): ProxyConfig[] {

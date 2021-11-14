@@ -13,7 +13,7 @@ export type MessageProtocol =
   | 'log:'
   | 'mongo:'
   | 'redis:'
-  | 'sql:'
+  | 'mysql:'
   | 'tcp:';
 
 export default class Message {
