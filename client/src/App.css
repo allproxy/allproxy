@@ -17,8 +17,8 @@ td input {
 	width: 100%;
 }
 
-.MuiTabs-flexContainer {
-	overflow-x: auto;
+.MuiTab-root {
+	min-width: 140px !important;
 }
 
 .btn-group-xs > .btn, .btn-xs {
