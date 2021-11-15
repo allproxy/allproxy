@@ -7,6 +7,7 @@ import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
 import { ConfigProtocol } from '../common/ProxyConfig';
+import portConfigStore from '../store/PortConfigStore';
 
 type Props = {
 	open: boolean,
@@ -31,6 +32,18 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 	function handleTabProtocolChange(_e: React.ChangeEvent<{}>, value: string) {
 		setTabProtocol(value as ConfigProtocol);
 		store.setProtocol(value as ConfigProtocol);
+	}
+
+	function getProtocolLabel(protocol: ConfigProtocol) {
+		const httpPort = portConfigStore.getConfig().httpPort;
+		const httpsPort = portConfigStore.getConfig().httpsPort;
+		if (protocol === 'http:' && httpPort) {
+			return `${protocol} (port ${httpPort})`;
+		}
+		else if (protocol === 'https:' && httpsPort) {
+			return `${protocol} (port ${httpsPort})`;
+		}
+		return protocol;
 	}
 
 	return (
@@ -90,11 +103,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 												{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
 													<Tab
 														value={protocolDesc.protocol}
-														label={
-															<div>
-																<span style={{ marginLeft: '.25rem' }}>{protocolDesc.protocol}</span>
-															</div>
-														}
+														label={getProtocolLabel(protocolDesc.protocol)}
 														>
 													</Tab>
 												))}

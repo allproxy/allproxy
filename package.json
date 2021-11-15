@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "AllProxy: HTTP, SQL, gRPC Debugging Tool.",
   "keywords": [
     "proxy",

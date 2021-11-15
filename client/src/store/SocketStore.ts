@@ -2,8 +2,10 @@ import { makeAutoObservable, action } from "mobx"
 import io, { Socket } from "socket.io-client";
 import Message, { MessageType } from '../common/Message';
 import proxyConfigStore from './ProxyConfigStore';
+import portConfigStore from "./PortConfigStore";
 import { messageQueueStore } from './MessageQueueStore';
 import ProxyConfig from '../common/ProxyConfig';
+import PortConfig from '../common/PortConfig';
 import { metricsStore } from './MetricsStore';
 import { mapProtocolToIndex } from './MetricsStore';
 import { noCaptureStore } from "./NoCaptureStore";
@@ -34,6 +36,10 @@ export default class SocketStore {
 			//console.log('proxy configs', proxyConfigs);
 			proxyConfigStore.setProxyConfigs(proxyConfigs);
 			proxyConfigStore.load(); // send to server
+		});
+
+		this.socket.on('port config', (portConfig: PortConfig) => {
+			portConfigStore.setConfig(portConfig);
 		});
 
 		this.socket.on('disconnect', () => {
