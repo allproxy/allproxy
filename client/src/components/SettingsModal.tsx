@@ -15,16 +15,16 @@ type Props = {
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
 	const [tabCategory, setTabCategory] = React.useState<ConfigCategory>('BROWSER');
-	const [tabProtocol, setTabProtocol] = React.useState<ConfigProtocol>(ConfigCategoryGroups.get(tabCategory)![0]);
+	const [tabProtocol, setTabProtocol] = React.useState<ConfigProtocol>(ConfigCategoryGroups.get(tabCategory)![0].protocol);
 
 	store.setConfigCategory(tabCategory as ConfigCategory);
-	store.setProtocol(ConfigCategoryGroups.get(store.getConfigCategory())![0]);
+	store.setProtocol(tabProtocol);
 
 	function handleTabCategoryChange(_e: React.ChangeEvent<{}>, value: string) {
 		setTabCategory(value as ConfigCategory);
 		store.setConfigCategory(value as ConfigCategory);
 
-		store.setProtocol(ConfigCategoryGroups.get(store.getConfigCategory())![0]);
+		store.setProtocol(ConfigCategoryGroups.get(store.getConfigCategory())![0].protocol);
 		setTabProtocol(store.getProtocol() as ConfigProtocol);
 	}
 
@@ -44,7 +44,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 		>
 			<div className="settings-modal" role="dialog">
 				<div>
-					<h3>Settings</h3>
+					<h3>Setting: <span style={{color: 'steelblue'}}>{store.getSubTitle()}</span></h3>
 					<TabContext value={tabCategory}>
 						<Tabs
 							value={tabCategory}
@@ -55,7 +55,9 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
   						scrollButtons="auto"
 							aria-label="Settings table">
 							{store.getConfigCategories().map(category => (
-								<Tab value={category}
+								<Tab
+									key={ category }
+									value={category}
 									label={
 										<div>
 											<span style={{ marginLeft: '.25rem' }}>{category}</span>
@@ -66,11 +68,14 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 							))}
 						</Tabs>
 						{store.getConfigCategories().map(category => (
-							<TabPanel value={ category }>
+							<TabPanel value={ category } key={ category }>
 								{ConfigCategoryGroups.get(store.getConfigCategory())!.length === 1
 									?
 										<div className="settings-modal__scroll-container">
-											<SettingsTable store={store} protocol={ store.getProtocol() as ConfigProtocol }></SettingsTable>
+											<SettingsTable
+												store={store}
+												protocol={ store.getProtocol() as ConfigProtocol }
+											/>
 										</div>
 									:
 										<TabContext value={tabProtocol}>
@@ -82,21 +87,25 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 												textColor="secondary"
 												variant="fullWidth"
 												aria-label="Settings table">
-												{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocol => (
-													<Tab value={protocol}
+												{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
+													<Tab
+														value={protocolDesc.protocol}
 														label={
 															<div>
-																<span style={{ marginLeft: '.25rem' }}>{protocol}</span>
+																<span style={{ marginLeft: '.25rem' }}>{protocolDesc.protocol}</span>
 															</div>
 														}
 														>
 													</Tab>
 												))}
 											</Tabs>
-											{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocol => (
-												<TabPanel value={ protocol }>
+											{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
+												<TabPanel value={ protocolDesc.protocol } key={ protocolDesc.protocol }>
 													<div className="settings-modal__scroll-container">
-														<SettingsTable store={store} protocol={ protocol }></SettingsTable>
+														<SettingsTable
+															store={store}
+															protocol={ protocolDesc.protocol }
+														/>
 													</div>
 												</TabPanel>
 											))}
@@ -194,6 +203,5 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 		</Modal>
 	);
 });
-
 
 export default SettingsModal;

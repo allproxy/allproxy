@@ -32,13 +32,82 @@ export const ConfigProtocols: ConfigProtocol[] = [
 	'tcp:',
 ];
 
-export const ConfigCategoryGroups: Map<ConfigCategory, ConfigProtocol[]> = new Map();
-ConfigCategoryGroups.set('BROWSER', ['browser:']);
-ConfigCategoryGroups.set('DATA STORES', ['mongo:', 'redis:', 'mysql:']);
-ConfigCategoryGroups.set('GRPC', ['grpc:']);
-ConfigCategoryGroups.set('HTTP', ['http:', 'https:']);
-ConfigCategoryGroups.set('LOGGING', ['log:']);
-ConfigCategoryGroups.set('TCP', ['tcp:']);
+interface ConfigProtocolDescription {
+	protocol: ConfigProtocol,
+	title: string,
+	ports: number[],
+}
+
+export const ConfigCategoryGroups: Map<ConfigCategory, ConfigProtocolDescription[]> = new Map();
+ConfigCategoryGroups.set('BROWSER',
+	[
+		{
+			protocol: 'browser:',
+			title: 'Browser Forward Proxy',
+			ports: [8888, 9999],
+		},
+	]
+);
+ConfigCategoryGroups.set('DATA STORES',
+	[
+		{
+			protocol: 'mongo:',
+			title: 'MongoDb Reverse Proxy',
+			ports: [27017],
+		},
+		{
+			protocol: 'redis:',
+			title: 'Redis Reverse Proxy',
+			ports: [6379],
+		},
+		{
+			protocol: 'mysql:',
+			title: 'MySQL Reverse Proxy',
+			ports: [3306],
+		},
+	]
+);
+ConfigCategoryGroups.set('GRPC',
+	[
+		{
+			protocol: 'grpc:',
+			title: 'gRPC Reverse Proxy',
+			ports: [],
+		},
+	]
+);
+ConfigCategoryGroups.set('HTTP',
+	[
+		{
+			protocol: 'http:',
+			title: 'HTTP Reverse Proxy',
+			ports: [8888],
+		},
+		{
+			protocol: 'https:',
+			title: 'HTTPS Reverse Proxy',
+			ports: [9999],
+		},
+	]
+);
+ConfigCategoryGroups.set('LOGGING',
+	[
+		{
+			protocol: 'log:',
+			title: 'Log Snooper',
+			ports: [],
+		},
+	]
+);
+ConfigCategoryGroups.set('TCP',
+	[
+		{
+			protocol: 'tcp:',
+			title: 'TCP Proxy',
+			ports: [],
+		},
+	]
+);
 
 const TOOLTIP: Map<string, string> = new Map([
 	['browser:', `Forward proxy for HTTP and HTTPS.  Listen on port 8888 (default) for HTTP requests, and port 9999 (default) for HTTPS requests.  Your browser must be configured to proxy HTTP and HTTPS messages to localhost:8888 and localhost:9999, respectively.`],
@@ -116,6 +185,11 @@ export default class SettingsStore {
 
 	public isChanged() {
 		return this.changed;
+	}
+
+	public getSubTitle() {
+		const c = ConfigCategoryGroups.get(this.getConfigCategory())!.find(e => e.protocol === this.protocol);
+		return c ? c.title : '';
 	}
 
 	public getConfigCategories(): ConfigCategory[] {
