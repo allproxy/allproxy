@@ -1,10 +1,12 @@
 import SocketIoManager from './SocketIoManager'
 import dns from 'dns'
+import PortConfig from '../../common/PortConfig'
 
 export default class Global {
     static socketIoManager: SocketIoManager;
     static nextSequenceNumber: number = 0;
     static debug = false;
+    static portConfig: PortConfig;
 
     static resolveIp (ipAddr: string | undefined): Promise<string> {
       return new Promise<string>((resolve) => {

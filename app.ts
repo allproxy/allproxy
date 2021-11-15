@@ -8,6 +8,7 @@ import HttpsProxy from './server/src/HttpsProxy'
 import HttpMitmProxy from './node-http-mitm-proxy'
 import Paths from './server/src/Paths'
 import GrpcProxy from './server/src/GrpcProxy'
+import PortConfig from './common/PortConfig'
 const httpMitmProxy = HttpMitmProxy()
 
 const listen: {
@@ -101,6 +102,7 @@ process.on('uncaughtException', (err) => {
 
 Paths.makeCaPemSymLink()
 
+Global.portConfig = new PortConfig()
 Global.socketIoManager = new SocketIoManager()
 const httpProxy = new HttpProxy()
 const httpsProxy = new HttpsProxy()
@@ -117,6 +119,7 @@ for (const entry of listen) {
       httpMitmProxy.listen({ port: port, sslCaDir: Paths.sslCaDir() })
       console.log(`Listening on ${protocol} ${host || ''} ${port}`)
       httpsProxy.onRequest(httpMitmProxy)
+      Global.portConfig.httpsPort = port
       break
     case 'http:':
       httpServer = http.createServer(
@@ -126,14 +129,17 @@ for (const entry of listen) {
       console.log(`Open browser to ${protocol}//localhost:${port}/allproxy\n`)
 
       Global.socketIoManager.addHttpServer(httpServer)
+      Global.portConfig.httpPort = port
       break
     case 'grpc:':
       GrpcProxy.forwardProxy(port, false)
       console.log(`Listening on gRPC ${host || ''} ${port}`)
+      Global.portConfig.grpcPort = port
       break
     case 'securegrpc:':
       GrpcProxy.forwardProxy(port, true)
       console.log(`Listening on secure gRPC ${host || ''} ${port}`)
+      Global.portConfig.grpcSecurePort = port
       break
   }
 }

@@ -10,6 +10,7 @@ import Ping from './Ping'
 import resend from './Resend'
 import GrpcProxy from './GrpcProxy'
 import Paths from './Paths'
+import Global from './Global'
 
 const USE_HTTP2 = true
 const CONFIG_JSON = Paths.configJson()
@@ -133,6 +134,8 @@ export default class SocketIoManager {
 
     _socketConnection (socket: io.Socket) {
       const config = this.getConfig()
+
+      socket.emit('port config', Global.portConfig) // send port config to browser
 
       socket.emit('proxy config', config) // send config to browser
 
