@@ -3,6 +3,7 @@ import Global from './Global'
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
 import Proxy from '../../node-http-mitm-proxy'
 import HttpMessage from './HttpMessage'
+import replaceResponse from './ReplaceResponse'
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -85,6 +86,11 @@ export default class HttpsProxy {
           httpMessage.emitMessageToBrowser(JSON.stringify(error, null, 2))
         })
 
+        let replaceRes: Buffer | null = null
+        if (reqUrl.pathname) {
+          replaceRes = replaceResponse(reqUrl.pathname)
+        }
+
         let reqChunks: string = ''
         ctx.onRequestData(function (_ctx, chunk, callback) {
           reqChunks += chunk.toString()
@@ -99,8 +105,12 @@ export default class HttpsProxy {
         ctx.onResponse(function (ctx, callback) {
           let resChunks: string = ''
           ctx.onResponseData(function (_ctx, chunk, callback) {
-            resChunks += chunk.toString()
-            return callback(undefined, chunk)
+            if (replaceRes) {
+              return callback()
+            } else {
+              resChunks += chunk.toString()
+              return callback(undefined, chunk)
+            }
           })
 
           ctx.onResponseEnd(function (ctx, callback) {
@@ -108,8 +118,11 @@ export default class HttpsProxy {
               reqChunks,
               ctx.serverToProxyResponse.statusCode,
               ctx.serverToProxyResponse.headers,
-              resChunks
+              replaceRes ? replaceRes.toString() : resChunks
             )
+            if (replaceRes) {
+              ctx.proxyToClientResponse.write(replaceRes)
+            }
             return callback()
           })
 
