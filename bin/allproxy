@@ -18,4 +18,9 @@ if [ ! -d "$DATA_DIR" ]; then
   mkdir $DATA_DIR
 fi
 
+REPLACE_RESPONSES_DIR=$DATA_DIR/replace-responses
+if [ ! -d "$REPLACE_RESPONSES_DIR" ]; then
+  mkdir $REPLACE_RESPONSES_DIR
+fi
+
 node $BIN_DIR/../build/app $@

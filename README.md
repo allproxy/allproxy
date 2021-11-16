@@ -37,6 +37,7 @@ AllProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also 
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
+  * [Modify HTTPS Responses](#modify-https-responses)
   * [Snapshots](#snapshots)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
 * [Certificates](#certificates)
@@ -288,6 +289,22 @@ Boolean filters can use &&, ||, !, and parenthesis.
 
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
+
+### Modify HTTPS Responses
+An HTTPS response can be replaced with your own hard coded response.  Simply create a file in the **replace-responses** directory matching the request URL path.
+
+For example:
+* To replace responses for URL https://myapp/lib/js/test.js
+
+Create test.js file in **replace-responses** directory.  It's path must match the URL: /lib/js/test.js.
+```sh
+$ cd allproxy/replace-responses
+replace-responses$ mkdir -p lib/js
+replace-responses$ echo 'My test response' > test.js
+```
+WHenever AllProxy receives URL /lib/js/test.js, it will replace the response with the content from file replace-responses/lib/js/test.js.
+
+Note, the AllProxy must be restarted after adding new files to the **replace-responses** directory.
 
 ### Snapshots
 Clicking on the camera icon will take a snapshot of the currently captured messages, and create a new snapshot tab.  A snapshot tab may be exported to a file, and later imported again.
