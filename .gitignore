@@ -2,6 +2,7 @@
 config.json
 build/
 ca.pem
+replace-responses/**
 
 # Logs
 *.log
