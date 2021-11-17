@@ -114,13 +114,22 @@ export default class HttpsProxy {
           })
 
           ctx.onResponseEnd(function (ctx, callback) {
+            const resHeaders = ctx.serverToProxyResponse.headers
+            if (replaceRes) {
+              resHeaders['allproxy-replaced-response'] = 'yes'
+            }
             httpMessage.emitMessageToBrowser(
               reqChunks,
               ctx.serverToProxyResponse.statusCode,
-              ctx.serverToProxyResponse.headers,
+              resHeaders,
               replaceRes ? replaceRes.toString() : resChunks
             )
             if (replaceRes) {
+              ctx.proxyToClientResponse.writeHead(
+                ctx.serverToProxyResponse.statusCode!,
+                undefined,
+                resHeaders
+              )
               ctx.proxyToClientResponse.write(replaceRes)
             }
             return callback()
