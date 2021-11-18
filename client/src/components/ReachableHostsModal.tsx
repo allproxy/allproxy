@@ -70,7 +70,7 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 										<TabPanel value={value}>
 											{store.getEntries(value).length === 0
 												? <div>No hosts are {value.toLocaleLowerCase()} !</div>
-												: <table className="table settings-modal__table">
+												: <table className="table table-compact settings-modal__table" style={{pointerEvents: 'none'}}>
 													{store.getEntries(value).length > 0 ?
 														<thead>
 															<tr>
@@ -84,10 +84,14 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 															.map((entry, index) => (
 																<tr className="settings-modal__proxy-row" key={index}>
 																	<td className="settings-modal__proxy-host-container">
-																		<input className="form-control settings-modal__proxy-host" value={entry.hostname} disabled />
+																		<input className="form-control settings-modal__proxy-host"
+																			style={{border: 'none'}}
+																			value={entry.hostname}/>
 																	</td>
 																	<td className="settings-modal__proxy-host-container">
-																		<input className="form-control settings-modal__proxy-host" value={entry.port} disabled />
+																		<input className="form-control settings-modal__proxy-host"
+																			style={{border: 'none'}}
+																			value={entry.port}/>
 																	</td>
 																</tr>
 															))}
