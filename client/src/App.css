@@ -16,6 +16,10 @@ pre {
 td input {
 	width: 100%;
 }
+.table-compact th, .table-compact td {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+}
 
 .MuiTab-root {
 	min-width: 140px !important;
@@ -42,6 +46,10 @@ td input {
     display: table; /* This is important */
     overflow-y: auto;
     overflow-x: auto;
+}
+.modal-footer {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
 }
 .center {
 	text-align: center;
@@ -450,7 +458,7 @@ td input {
 
 .settings-modal__scroll-container {
 	overflow-y: auto;
-	height: calc(90vh - 400px);
+	height: calc(100vh - 400px);
 }
 
 .no-capture-modal__scroll-container,
@@ -464,7 +472,7 @@ td input {
 	width: 99vw;
 }
 
-.table settings-modal__table {
+.settings-modal__table {
 	white-space: nowrap;
 }
 

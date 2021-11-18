@@ -29,7 +29,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 
 	return (
 		<div style={{height: '100%'}}>
-			<table className="table settings-modal__table">
+			<table className="table table-compact settings-modal__table">
 				{store.getEntries().length > 0 ?
 				<thead>
 					<tr>
