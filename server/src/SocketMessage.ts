@@ -1,15 +1,15 @@
-import Message from '../../common/Message'
-import { IncomingHttpHeaders } from 'http'
-import Global from './Global'
+import Message from '../../common/Message';
+import { IncomingHttpHeaders } from 'http';
+import Global from './Global';
 
 export default class SocketMessage {
   public static buildRequest (timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
     : Promise<Message> {
-    return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime)
+    return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);
   }
 
   public static appendResponse (message: Message, responseHeaders: {}, responseBody:{}|string, status:number, elapsedTime:number) {
-    appendResponse(message, responseHeaders, responseBody, status, elapsedTime)
+    appendResponse(message, responseHeaders, responseBody, status, elapsedTime);
   }
 };
 
@@ -18,13 +18,13 @@ async function buildRequest (timestamp:number, sequenceNumber:number, requestHea
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<Message>(async (resolve) => {
     if (clientIp) {
-      clientIp = await Global.resolveIp(clientIp)
-      resolve(initMessage())
+      clientIp = await Global.resolveIp(clientIp);
+      resolve(initMessage());
     } else {
-      clientIp = 'unknown'
-      resolve(initMessage())
+      clientIp = 'unknown';
+      resolve(initMessage());
     }
-  })
+  });
 
   function initMessage (): Message {
     const message = {
@@ -43,15 +43,15 @@ async function buildRequest (timestamp:number, sequenceNumber:number, requestHea
       responseHeaders: {},
       responseBody: {},
       status: 0
-    }
-    return message as Message
+    };
+    return message as Message;
   }
 }
 
 function appendResponse (message: Message, responseHeaders: {}, responseBody: {}, status:number, elapsedTime:number) {
-  message.responseHeaders = responseHeaders
-  message.responseBody = responseBody
-  message.status = status
-  message.elapsedTime = elapsedTime
-  return message
+  message.responseHeaders = responseHeaders;
+  message.responseBody = responseBody;
+  message.status = status;
+  message.elapsedTime = elapsedTime;
+  return message;
 }

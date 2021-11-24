@@ -1,27 +1,28 @@
-//definitions by jason swearingen.  jasons aat novaleaf doot coom.  for node-htt-mitm-proxy v0.5.2.  
+// definitions by jason swearingen.  jasons aat novaleaf doot coom.  for node-htt-mitm-proxy v0.5.2.
 
- import http = require("http");
- import https = require("https");
- import net = require("net");
-
+ import http = require('http');
+ import https = require('https');
+ import net = require('net');
 
  declare namespace HttpMitmProxy {
      export interface IProxyStatic {
          (): IProxy;
-         /** mod to pass to the use() function: Gunzip response filter (uncompress gzipped content before onResponseData and compress back after)*/
+         /** mod to pass to the use() function: Gunzip response filter (uncompress gzipped content before onResponseData and compress back after) */
          gunzip: any;
-         /** mod to pass to the use() function: Generates wilcard certificates by default (so less certificates are generated)*/
+         /** mod to pass to the use() function: Generates wilcard certificates by default (so less certificates are generated) */
          wildcard: any;
+
+         ca: any;
      }
 
      export interface IProxyOptions {
-         /**port - The port or named socket to listen on (default: 8080).*/
+         /** port - The port or named socket to listen on (default: 8080). */
          port?: number;
-         /**host - The hostname or local address to listen on.*/
+         /** host - The hostname or local address to listen on. */
          host?: string;
-         /** - Path to the certificates cache directory (default: process.cwd() + '/.http-mitm-proxy')*/
+         /** - Path to the certificates cache directory (default: process.cwd() + '/.http-mitm-proxy') */
          sslCaDir?: string;
-         /**  - enable HTTP persistent connection*/
+         /**  - enable HTTP persistent connection */
          keepAlive?: boolean;
          /**  - The number of milliseconds of inactivity before a socket is presumed to have timed out. Defaults to no timeout. */
          timeout?: number;
@@ -42,17 +43,16 @@
          listen(/** An object with the following options: */ options?: IProxyOptions, callback?: Function): void;
          /** proxy.close
          Stops the proxy listening.
-        
+
          Example
-        
+
          proxy.close(); */
          close(): void;
-
 
          onCertificateRequired(hostname: string, callback: (error: Error | undefined, certDetails: { keyFile: string; certFile: string; hosts: string[]; }) => void): void;
          onCertificateMissing(ctx: IContext, files: any, callback: (error: Error | undefined, certDetails: { keyFileData: string; certFileData: string; hosts: string[]; }) => void): void;
 
-         //undocumented helpers
+         // undocumented helpers
          onConnect(fcn: (req: http.IncomingMessage, socket: net.Socket, head: any, callback: (error?: Error) => void) => void): void;
          onRequestHeaders(fcn: (ctx: IContext, callback: (error?: Error) => void) => void): void;
          onResponseHeaders(fcn: (ctx: IContext, callback: (error?: Error) => void) => void): void;
@@ -80,19 +80,19 @@
 
      /** signatures for various callback functions */
      export interface ICallbacks {
-         onError(/**Adds a function to the list of functions to get called if an error occures.
+         onError(/** Adds a function to the list of functions to get called if an error occures.
 
  Arguments
 
- fn(ctx, err, errorKind) - The function to be called on an error.*/callback: (context: IContext, err?: Error, errorKind?: string) => void): void;
+ fn(ctx, err, errorKind) - The function to be called on an error. */callback: (context: IContext, err?: Error, errorKind?: string) => void): void;
 
          /** Adds a function to get called at the beginning of a request.
-        
+
          Arguments
-        
+
          fn(ctx, callback) - The function that gets called on each request.
          Example
-        
+
          proxy.onRequest(function(ctx, callback) {
            console.log('REQUEST:', ctx.clientToProxyRequest.url);
            return callback();
@@ -103,12 +103,12 @@
 
          onRequestEnd(fcn: (ctx: IContext, callback: (error?: Error) => void) => void): void;
          /** Adds a function to get called at the beginning of the response.
-        
+
          Arguments
-        
+
          fn(ctx, callback) - The function that gets called on each response.
          Example
-        
+
          proxy.onResponse(function(ctx, callback) {
            console.log('BEGIN RESPONSE');
            return callback();
@@ -146,10 +146,7 @@
              Proxy.wildcard Generates wilcard certificates by default (so less certificates are generated) */
          use(mod: any): void;
 
-
-
      }
-
 
      export type IContext = ICallbacks & {
          isSSL: boolean;
@@ -161,7 +158,6 @@
          proxyToClientResponse: http.ServerResponse;
          proxyToServerRequest: http.ClientRequest;
          serverToProxyResponse: http.IncomingMessage;
-
 
          /** instance of WebSocket object from https://github.com/websockets/ws */
          clientToProxyWebSocket: any;
@@ -179,7 +175,7 @@
              [key: string]: any;
          }
 
-         /**Adds a stream into the request body stream.
+         /** Adds a stream into the request body stream.
 
  Arguments
 
@@ -204,7 +200,7 @@
          /** filters added by .addResponseFilter() */
          responseFilters: any[];
 
-         /** undocumented, allows adjusting the request in callbacks (such as .onRequest()) before sending  upstream (to proxy or target host)..  
+         /** undocumented, allows adjusting the request in callbacks (such as .onRequest()) before sending  upstream (to proxy or target host)..
           * FYI these values seem pre-populated with defaults based on the request, you can modify them to change behavior. */
          proxyToServerRequestOptions: {
              /** ex: "GET" */
@@ -223,11 +219,9 @@
          onResponseDataHandlers:Function[];
          onResponseEndHandlers:Function[];
 
-
-
      }
  }
 
- declare const HttpMitmProxy: HttpMitmProxy.IProxyStatic
+declare const HttpMitmProxy: HttpMitmProxy.IProxyStatic;
  export = HttpMitmProxy;
  export as namespace HttpMitmProxy;

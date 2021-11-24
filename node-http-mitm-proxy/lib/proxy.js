@@ -1,28 +1,29 @@
 'use strict';
 
-var async = require('async');
-var net = require('net');
-var http = require('http');
-var https = require('https');
-var util = require('util');
-var fs = require('fs');
-var path = require('path');
-var events = require('events');
-var WebSocket = require('ws');
-var url = require('url');
-var semaphore = require('semaphore');
-var ca = require('./ca.js');
+const async = require('async');
+const net = require('net');
+const http = require('http');
+const https = require('https');
+const util = require('util');
+const fs = require('fs');
+const path = require('path');
+const events = require('events');
+const WebSocket = require('ws');
+const url = require('url');
+const semaphore = require('semaphore');
+const ca = require('./ca.js');
 const nodeCommon = require('_http_common');
 const debug = require('debug')('http-mitm-proxy');
 
-module.exports = function() {
+module.exports = function () {
   return new Proxy();
 };
 
 module.exports.gunzip = require('./middleware/gunzip');
 module.exports.wildcard = require('./middleware/wildcard');
+module.exports.ca = require('./ca');
 
-var Proxy = function() {
+var Proxy = function () {
   this.onConnectHandlers = [];
   this.onRequestHandlers = [];
   this.onRequestHeadersHandlers = [];
@@ -42,22 +43,22 @@ var Proxy = function() {
 
 module.exports.Proxy = Proxy;
 
-Proxy.prototype.listen = function(options, callback = e => {}) {
-  var self = this;
+Proxy.prototype.listen = function (options, callback = e => {}) {
+  const self = this;
   this.options = options || {};
   this.httpPort = options.port || options.port === 0 ? options.port : 8080;
   this.httpHost = options.host;
   this.timeout = options.timeout || 0;
   this.keepAlive = !!options.keepAlive;
-  this.httpAgent = typeof(options.httpAgent) !== "undefined" ? options.httpAgent : new http.Agent({ keepAlive: this.keepAlive });
-  this.httpsAgent = typeof(options.httpsAgent) !== "undefined" ? options.httpsAgent : new https.Agent({ keepAlive: this.keepAlive });
+  this.httpAgent = typeof (options.httpAgent) !== 'undefined' ? options.httpAgent : new http.Agent({ keepAlive: this.keepAlive });
+  this.httpsAgent = typeof (options.httpsAgent) !== 'undefined' ? options.httpsAgent : new https.Agent({ keepAlive: this.keepAlive });
   this.forceSNI = !!options.forceSNI;
   if (this.forceSNI) {
     debug('SNI enabled. Clients not supporting SNI may fail');
   }
   this.httpsPort = this.forceSNI ? options.httpsPort : undefined;
   this.sslCaDir = options.sslCaDir || path.resolve(process.cwd(), '.http-mitm-proxy');
-  ca.create(this.sslCaDir, function(err, ca) {
+  ca.create(this.sslCaDir, function (err, ca) {
     if (err) {
       return callback(err);
     }
@@ -81,15 +82,15 @@ Proxy.prototype.listen = function(options, callback = e => {}) {
     };
     if (self.forceSNI) {
       // start the single HTTPS server now
-      self._createHttpsServer({}, function(port, httpsServer, wssServer) {
-        debug('https server started on '+port);
+      self._createHttpsServer({}, function (port, httpsServer, wssServer) {
+        debug('https server started on ' + port);
         self.httpsServer = httpsServer;
         self.wssServer = wssServer;
         self.httpsPort = port;
         self.httpServer.listen(listenOptions, () => {
           self.httpPort = self.httpServer.address().port;
           callback();
-	});
+        });
       });
     } else {
       self.httpServer.listen(listenOptions, () => {
@@ -101,40 +102,38 @@ Proxy.prototype.listen = function(options, callback = e => {}) {
   return this;
 };
 
-
 Proxy.prototype._createHttpsServer = function (options, callback) {
-  var httpsServer = https.createServer(options);
+  const httpsServer = https.createServer(options);
   httpsServer.timeout = this.timeout;
   httpsServer.on('error', this._onError.bind(this, 'HTTPS_SERVER_ERROR', null));
   httpsServer.on('clientError', this._onError.bind(this, 'HTTPS_CLIENT_ERROR', null));
   httpsServer.on('connect', this._onHttpServerConnect.bind(this));
   httpsServer.on('request', this._onHttpServerRequest.bind(this, true));
-  var self = this;
-  var wssServer = new WebSocket.Server({ server: httpsServer });
-  wssServer.on('connection', function(ws, req){
-		ws.upgradeReq = req;
-		self._onWebSocketServerConnect.call(self, true, ws, req)
-	});
-  var listenArgs = [function() {
+  const self = this;
+  const wssServer = new WebSocket.Server({ server: httpsServer });
+  wssServer.on('connection', function (ws, req) {
+    ws.upgradeReq = req;
+    self._onWebSocketServerConnect.call(self, true, ws, req);
+  });
+  const listenArgs = [function () {
     if (callback) callback(httpsServer.address().port, httpsServer, wssServer);
   }];
   // Using listenOptions to bind the server to a particular IP if requested via options.host
   // port 0 to get the first available port
-  var listenOptions = {
+  const listenOptions = {
     port: 0
   };
   if (this.httpsPort && !options.hosts) {
     listenOptions.port = this.httpsPort;
   }
-  if (this.httpHost)
-    listenOptions.host = this.httpHost;
+  if (this.httpHost) { listenOptions.host = this.httpHost; }
   listenArgs.unshift(listenOptions);
 
   httpsServer.listen.apply(httpsServer, listenArgs);
 };
 
 Proxy.prototype.close = function () {
-  var self = this;
+  const self = this;
   this.httpServer.close();
   delete this.httpServer;
   if (this.httpsServer) {
@@ -145,7 +144,7 @@ Proxy.prototype.close = function () {
   }
   if (this.sslServers) {
     (Object.keys(this.sslServers)).forEach(function (srvName) {
-      var server = self.sslServers[srvName].server;
+      const server = self.sslServers[srvName].server;
       if (server) server.close();
       delete self.sslServers[srvName];
     });
@@ -153,7 +152,7 @@ Proxy.prototype.close = function () {
   return this;
 };
 
-Proxy.prototype.onError = function(fn) {
+Proxy.prototype.onError = function (fn) {
   this.onErrorHandlers.push(fn);
   return this;
 };
@@ -161,89 +160,89 @@ Proxy.prototype.onError = function(fn) {
  * Add custom handler for CONNECT method
  * @augments fn(req,socket,head,callback) be called on receiving CONNECT method
  */
-Proxy.prototype.onConnect = function(fn) {
+Proxy.prototype.onConnect = function (fn) {
   this.onConnectHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onRequestHeaders = function(fn) {
+Proxy.prototype.onRequestHeaders = function (fn) {
   this.onRequestHeadersHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onRequest = function(fn) {
+Proxy.prototype.onRequest = function (fn) {
   this.onRequestHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onWebSocketConnection = function(fn) {
+Proxy.prototype.onWebSocketConnection = function (fn) {
   this.onWebSocketConnectionHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onWebSocketSend = function(fn) {
-  this.onWebSocketFrameHandlers.push(function(ctx, type, fromServer, data, flags, callback) {
+Proxy.prototype.onWebSocketSend = function (fn) {
+  this.onWebSocketFrameHandlers.push(function (ctx, type, fromServer, data, flags, callback) {
     if (!fromServer && type === 'message') return this(ctx, data, flags, callback);
     else callback(null, data, flags);
   }.bind(fn));
   return this;
 };
 
-Proxy.prototype.onWebSocketMessage = function(fn) {
-  this.onWebSocketFrameHandlers.push(function(ctx, type, fromServer, data, flags, callback) {
+Proxy.prototype.onWebSocketMessage = function (fn) {
+  this.onWebSocketFrameHandlers.push(function (ctx, type, fromServer, data, flags, callback) {
     if (fromServer && type === 'message') return this(ctx, data, flags, callback);
     else callback(null, data, flags);
   }.bind(fn));
   return this;
 };
 
-Proxy.prototype.onWebSocketFrame = function(fn) {
+Proxy.prototype.onWebSocketFrame = function (fn) {
   this.onWebSocketFrameHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onWebSocketClose = function(fn) {
+Proxy.prototype.onWebSocketClose = function (fn) {
   this.onWebSocketCloseHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onWebSocketError = function(fn) {
+Proxy.prototype.onWebSocketError = function (fn) {
   this.onWebSocketErrorHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onRequestData = function(fn) {
+Proxy.prototype.onRequestData = function (fn) {
   this.onRequestDataHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onRequestEnd = function(fn) {
+Proxy.prototype.onRequestEnd = function (fn) {
   this.onRequestEndHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onResponse = function(fn) {
+Proxy.prototype.onResponse = function (fn) {
   this.onResponseHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onResponseHeaders = function(fn) {
+Proxy.prototype.onResponseHeaders = function (fn) {
   this.onResponseHeadersHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.onResponseData = function(fn) {
+Proxy.prototype.onResponseData = function (fn) {
   this.onResponseDataHandlers.push(fn);
   this.responseContentPotentiallyModified = true;
   return this;
 };
 
-Proxy.prototype.onResponseEnd = function(fn) {
+Proxy.prototype.onResponseEnd = function (fn) {
   this.onResponseEndHandlers.push(fn);
   return this;
 };
 
-Proxy.prototype.use = function(mod) {
+Proxy.prototype.use = function (mod) {
   if (mod.onError) {
     this.onError(mod.onError);
   }
@@ -278,13 +277,13 @@ Proxy.prototype.use = function(mod) {
     this.onWebSocketConnection(mod.onWebSocketConnection);
   }
   if (mod.onWebSocketSend) {
-    this.onWebSocketFrame(function(ctx, type, fromServer, data, flags, callback) {
+    this.onWebSocketFrame(function (ctx, type, fromServer, data, flags, callback) {
       if (!fromServer && type === 'message') return this(ctx, data, flags, callback);
       else callback(null, data, flags);
     }.bind(mod.onWebSocketSend));
   }
   if (mod.onWebSocketMessage) {
-    this.onWebSocketFrame(function(ctx, type, fromServer, data, flags, callback) {
+    this.onWebSocketFrame(function (ctx, type, fromServer, data, flags, callback) {
       if (fromServer && type === 'message') return this(ctx, data, flags, callback);
       else callback(null, data, flags);
     }.bind(mod.onWebSocketMessage));
@@ -302,7 +301,7 @@ Proxy.prototype.use = function(mod) {
 };
 
 // Since node 0.9.9, ECONNRESET on sockets are no longer hidden
-Proxy.prototype._onSocketError = function(socketDescription, err) {
+Proxy.prototype._onSocketError = function (socketDescription, err) {
   if (err.errno === 'ECONNRESET') {
     debug('Got ECONNRESET on ' + socketDescription + ', ignoring.');
   } else {
@@ -310,35 +309,35 @@ Proxy.prototype._onSocketError = function(socketDescription, err) {
   }
 };
 
-Proxy.prototype._onHttpServerConnect = function(req, socket, head) {
-  var self = this;
+Proxy.prototype._onHttpServerConnect = function (req, socket, head) {
+  const self = this;
 
   socket.on('error', self._onSocketError.bind(self, 'CLIENT_TO_PROXY_SOCKET'));
 
   // you can forward HTTPS request directly by adding custom CONNECT method handler
   return async.forEach(self.onConnectHandlers, function (fn, callback) {
-    return fn.call(self, req, socket, head, callback)
+    return fn.call(self, req, socket, head, callback);
   }, function (err) {
     if (err) {
       return self._onError('ON_CONNECT_ERROR', null, err);
     }
     // we need first byte of data to detect if request is SSL encrypted
     if (!head || head.length === 0) {
-        socket.once('data', self._onHttpServerConnectData.bind(self, req, socket));
-        socket.write('HTTP/1.1 200 OK\r\n');
-        if (self.keepAlive && req.headers['proxy-connection'] === 'keep-alive') {
-          socket.write('Proxy-Connection: keep-alive\r\n');
-          socket.write('Connection: keep-alive\r\n');
-        }
-        return socket.write('\r\n');
+      socket.once('data', self._onHttpServerConnectData.bind(self, req, socket));
+      socket.write('HTTP/1.1 200 OK\r\n');
+      if (self.keepAlive && req.headers['proxy-connection'] === 'keep-alive') {
+        socket.write('Proxy-Connection: keep-alive\r\n');
+        socket.write('Connection: keep-alive\r\n');
+      }
+      return socket.write('\r\n');
     } else {
-      self._onHttpServerConnectData(req, socket, head)
+      self._onHttpServerConnectData(req, socket, head);
     }
-  })
+  });
 };
 
-Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
-  var self = this;
+Proxy.prototype._onHttpServerConnectData = function (req, socket, head) {
+  const self = this;
 
   socket.pause();
 
@@ -353,17 +352,17 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
   */
   if (head[0] == 0x16 || head[0] == 0x80 || head[0] == 0x00) {
     // URL is in the form 'hostname:port'
-    var hostname = req.url.split(':', 2)[0];
-    var sslServer = this.sslServers[hostname];
+    const hostname = req.url.split(':', 2)[0];
+    const sslServer = this.sslServers[hostname];
     if (sslServer) {
       return makeConnection(sslServer.port);
     }
-    var wildcardHost = hostname.replace(/[^\.]+\./, '*.');
-    var sem = self.sslSemaphores[wildcardHost];
+    const wildcardHost = hostname.replace(/[^\.]+\./, '*.');
+    let sem = self.sslSemaphores[wildcardHost];
     if (!sem) {
       sem = self.sslSemaphores[wildcardHost] = semaphore(1);
     }
-    sem.take(function() {
+    sem.take(function () {
       if (self.sslServers[hostname]) {
         process.nextTick(sem.leave.bind(sem));
         return makeConnection(self.sslServers[hostname].port);
@@ -375,7 +374,7 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
         };
         return makeConnection(self.sslServers[hostname].port);
       }
-      getHttpsServer(hostname, function(err, port) {
+      getHttpsServer(hostname, function (err, port) {
         process.nextTick(sem.leave.bind(sem));
         if (err) {
           return self._onError('OPEN_HTTPS_SERVER_ERROR', null, err);
@@ -387,12 +386,12 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
     return makeConnection(this.httpPort);
   }
 
-  function makeConnection(port) {
+  function makeConnection (port) {
     // open a TCP connection to the remote host
     var conn = net.connect({
       port: port,
       allowHalfOpen: true
-    }, function() {
+    }, function () {
       // create a tunnel between the two hosts
       conn.on('finish', () => {
         socket.destroy();
@@ -400,41 +399,41 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
       socket.on('close', () => {
         conn.end();
       });
-      var connectKey = conn.localPort + ':' + conn.remotePort;
+      const connectKey = conn.localPort + ':' + conn.remotePort;
       self.connectRequests[connectKey] = req;
       socket.pipe(conn);
       conn.pipe(socket);
       socket.emit('data', head);
-      conn.on('end', function() { delete self.connectRequests[connectKey]; });
+      conn.on('end', function () { delete self.connectRequests[connectKey]; });
       return socket.resume();
     });
     conn.on('error', self._onSocketError.bind(self, 'PROXY_TO_PROXY_SOCKET'));
   }
 
-  function getHttpsServer(hostname, callback) {
+  function getHttpsServer (hostname, callback) {
     self.onCertificateRequired(hostname, function (err, files) {
       if (err) {
         return callback(err);
       }
       async.auto({
-        'keyFileExists': function(callback) {
-          return fs.exists(files.keyFile, function(exists) {
+        keyFileExists: function (callback) {
+          return fs.exists(files.keyFile, function (exists) {
             return callback(null, exists);
           });
         },
-        'certFileExists': function(callback) {
-          return fs.exists(files.certFile, function(exists) {
+        certFileExists: function (callback) {
+          return fs.exists(files.certFile, function (exists) {
             return callback(null, exists);
           });
         },
-        'httpsOptions': ['keyFileExists', 'certFileExists', function(data, callback) {
+        httpsOptions: ['keyFileExists', 'certFileExists', function (data, callback) {
           if (data.keyFileExists && data.certFileExists) {
-            return fs.readFile(files.keyFile, function(err, keyFileData) {
+            return fs.readFile(files.keyFile, function (err, keyFileData) {
               if (err) {
                 return callback(err);
               }
 
-              return fs.readFile(files.certFile, function(err, certFileData) {
+              return fs.readFile(files.certFile, function (err, certFileData) {
                 if (err) {
                   return callback(err);
                 }
@@ -447,13 +446,13 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
               });
             });
           } else {
-            var ctx = {
-              'hostname': hostname,
-              'files': files,
-              'data': data
+            const ctx = {
+              hostname: hostname,
+              files: files,
+              data: data
             };
 
-            return self.onCertificateMissing(ctx, files, function(err, files) {
+            return self.onCertificateMissing(ctx, files, function (err, files) {
               if (err) {
                 return callback(err);
               }
@@ -466,11 +465,11 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
             });
           }
         }]
-      }, function(err, results) {
+      }, function (err, results) {
         if (err) {
           return callback(err);
         }
-        var hosts;
+        let hosts;
         if (results.httpsOptions && results.httpsOptions.hosts && results.httpsOptions.hosts.length) {
           hosts = results.httpsOptions.hosts;
           if (hosts.indexOf(hostname) === -1) {
@@ -482,22 +481,22 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
         delete results.httpsOptions.hosts;
         if (self.forceSNI && !hostname.match(/^[\d\.]+$/)) {
           debug('creating SNI context for ' + hostname);
-          hosts.forEach(function(host) {
+          hosts.forEach(function (host) {
             self.httpsServer.addContext(host, results.httpsOptions);
-            self.sslServers[host] = { port : self.httpsPort };
+            self.sslServers[host] = { port: self.httpsPort };
           });
           return callback(null, self.httpsPort);
         } else {
           debug('starting server for ' + hostname);
           results.httpsOptions.hosts = hosts;
-          self._createHttpsServer(results.httpsOptions, function(port, httpsServer, wssServer) {
+          self._createHttpsServer(results.httpsOptions, function (port, httpsServer, wssServer) {
             debug('https server started for %s on %s', hostname, port);
-            var sslServer = {
+            const sslServer = {
               server: httpsServer,
               wsServer: wssServer,
               port: port
             };
-            hosts.forEach(function(host) {
+            hosts.forEach(function (host) {
               self.sslServers[hostname] = sslServer;
             });
             return callback(null, port);
@@ -509,7 +508,7 @@ Proxy.prototype._onHttpServerConnectData = function(req, socket, head) {
 };
 
 Proxy.prototype.onCertificateRequired = function (hostname, callback) {
-  var self = this;
+  const self = this;
   return callback(null, {
     keyFile: self.sslCaDir + '/keys/' + hostname + '.key',
     certFile: self.sslCaDir + '/certs/' + hostname + '.pem',
@@ -518,7 +517,7 @@ Proxy.prototype.onCertificateRequired = function (hostname, callback) {
 };
 
 Proxy.prototype.onCertificateMissing = function (ctx, files, callback) {
-  var hosts = files.hosts || [ctx.hostname];
+  const hosts = files.hosts || [ctx.hostname];
   this.ca.generateServerCertificateKeys(hosts, function (certPEM, privateKeyPEM) {
     callback(null, {
       certFileData: certPEM,
@@ -529,12 +528,12 @@ Proxy.prototype.onCertificateMissing = function (ctx, files, callback) {
   return this;
 };
 
-Proxy.prototype._onError = function(kind, ctx, err) {
-  this.onErrorHandlers.forEach(function(handler) {
+Proxy.prototype._onError = function (kind, ctx, err) {
+  this.onErrorHandlers.forEach(function (handler) {
     return handler(ctx, err, kind);
   });
   if (ctx) {
-    ctx.onErrorHandlers.forEach(function(handler) {
+    ctx.onErrorHandlers.forEach(function (handler) {
       return handler(ctx, err, kind);
     });
 
@@ -542,13 +541,13 @@ Proxy.prototype._onError = function(kind, ctx, err) {
       ctx.proxyToClientResponse.writeHead(504, 'Proxy Error');
     }
     if (ctx.proxyToClientResponse && !ctx.proxyToClientResponse.finished) {
-      ctx.proxyToClientResponse.end(''+kind+': '+err, 'utf8');
+      ctx.proxyToClientResponse.end('' + kind + ': ' + err, 'utf8');
     }
   }
 };
 
-Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
-  var self = this;
+Proxy.prototype._onWebSocketServerConnect = function (isSSL, ws, upgradeReq) {
+  const self = this;
   var ctx = {
     isSSL: isSSL,
     connectRequest: self.connectRequests[ws._socket.remotePort + ':' + ws._socket.localPort] || {},
@@ -557,48 +556,48 @@ Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
     onWebSocketFrameHandlers: [],
     onWebSocketCloseHandlers: [],
     onWebSocketErrorHandlers: [],
-    onWebSocketConnection: function(fn) {
+    onWebSocketConnection: function (fn) {
       ctx.onWebSocketConnectionHandlers.push(fn);
       return ctx;
     },
-    onWebSocketSend: function(fn) {
-      ctx.onWebSocketFrameHandlers.push(function(ctx, type, fromServer, data, flags, callback) {
+    onWebSocketSend: function (fn) {
+      ctx.onWebSocketFrameHandlers.push(function (ctx, type, fromServer, data, flags, callback) {
         if (!fromServer && type === 'message') return this(ctx, data, flags, callback);
         else callback(null, data, flags);
       }.bind(fn));
       return ctx;
     },
-    onWebSocketMessage: function(fn) {
-      ctx.onWebSocketFrameHandlers.push(function(ctx, type, fromServer, data, flags, callback) {
+    onWebSocketMessage: function (fn) {
+      ctx.onWebSocketFrameHandlers.push(function (ctx, type, fromServer, data, flags, callback) {
         if (fromServer && type === 'message') return this(ctx, data, flags, callback);
         else callback(null, data, flags);
       }.bind(fn));
       return ctx;
     },
-    onWebSocketFrame: function(fn) {
+    onWebSocketFrame: function (fn) {
       ctx.onWebSocketFrameHandlers.push(fn);
       return ctx;
     },
-    onWebSocketClose: function(fn) {
+    onWebSocketClose: function (fn) {
       ctx.onWebSocketCloseHandlers.push(fn);
       return ctx;
     },
-    onWebSocketError: function(fn) {
+    onWebSocketError: function (fn) {
       ctx.onWebSocketErrorHandlers.push(fn);
       return ctx;
     },
-    use: function(mod) {
+    use: function (mod) {
       if (mod.onWebSocketConnection) {
         ctx.onWebSocketConnection(mod.onWebSocketConnection);
       }
       if (mod.onWebSocketSend) {
-        ctx.onWebSocketFrame(function(ctx, type, fromServer, data, flags, callback) {
+        ctx.onWebSocketFrame(function (ctx, type, fromServer, data, flags, callback) {
           if (!fromServer && type === 'message') return this(ctx, data, flags, callback);
           else callback(null, data, flags);
         }.bind(mod.onWebSocketSend));
       }
       if (mod.onWebSocketMessage) {
-        ctx.onWebSocketFrame(function(ctx, type, fromServer, data, flags, callback) {
+        ctx.onWebSocketFrame(function (ctx, type, fromServer, data, flags, callback) {
           if (fromServer && type === 'message') return this(ctx, data, flags, callback);
           else callback(null, data, flags);
         }.bind(mod.onWebSocketMessage));
@@ -620,19 +619,19 @@ Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
   ctx.clientToProxyWebSocket.on('pong', self._onWebSocketFrame.bind(self, ctx, 'pong', false));
   ctx.clientToProxyWebSocket.on('error', self._onWebSocketError.bind(self, ctx));
   ctx.clientToProxyWebSocket.on('close', self._onWebSocketClose.bind(self, ctx, false));
-  if(ctx.clientToProxyWebSocket.pause) {
+  if (ctx.clientToProxyWebSocket.pause) {
     ctx.clientToProxyWebSocket.pause();
   }
-  var url;
+  let url;
   if (upgradeReq.url == '' || /^\//.test(upgradeReq.url)) {
-    var hostPort = Proxy.parseHostAndPort(upgradeReq);
+    const hostPort = Proxy.parseHostAndPort(upgradeReq);
     url = (ctx.isSSL ? 'wss' : 'ws') + '://' + hostPort.host + (hostPort.port ? ':' + hostPort.port : '') + upgradeReq.url;
   } else {
     url = upgradeReq.url;
   }
-  var ptosHeaders = {};
-  var ctopHeaders = upgradeReq.headers;
-  for (var key in ctopHeaders) {
+  const ptosHeaders = {};
+  const ctopHeaders = upgradeReq.headers;
+  for (const key in ctopHeaders) {
     if (key.indexOf('sec-websocket') !== 0) {
       ptosHeaders[key] = ctopHeaders[key];
     }
@@ -642,21 +641,21 @@ Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
     agent: ctx.isSSL ? self.httpsAgent : self.httpAgent,
     headers: ptosHeaders
   };
-  return self._onWebSocketConnection(ctx, function(err) {
+  return self._onWebSocketConnection(ctx, function (err) {
     if (err) {
       return self._onWebSocketError(ctx, err);
     }
     return makeProxyToServerWebSocket();
   });
 
-  function makeProxyToServerWebSocket() {
+  function makeProxyToServerWebSocket () {
     ctx.proxyToServerWebSocket = new WebSocket(ctx.proxyToServerWebSocketOptions.url, ctx.proxyToServerWebSocketOptions);
     ctx.proxyToServerWebSocket.on('message', self._onWebSocketFrame.bind(self, ctx, 'message', true));
     ctx.proxyToServerWebSocket.on('ping', self._onWebSocketFrame.bind(self, ctx, 'ping', true));
     ctx.proxyToServerWebSocket.on('pong', self._onWebSocketFrame.bind(self, ctx, 'pong', true));
     ctx.proxyToServerWebSocket.on('error', self._onWebSocketError.bind(self, ctx));
     ctx.proxyToServerWebSocket.on('close', self._onWebSocketClose.bind(self, ctx, true));
-    ctx.proxyToServerWebSocket.on('open', function() {
+    ctx.proxyToServerWebSocket.on('open', function () {
       if (ctx.clientToProxyWebSocket.readyState === WebSocket.OPEN) {
         if (ctx.clientToProxyWebSocket.resume) {
           ctx.clientToProxyWebSocket.resume();
@@ -666,8 +665,8 @@ Proxy.prototype._onWebSocketServerConnect = function(isSSL, ws, upgradeReq) {
   }
 };
 
-Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, proxyToClientResponse) {
-  var self = this;
+Proxy.prototype._onHttpServerRequest = function (isSSL, clientToProxyRequest, proxyToClientResponse) {
+  const self = this;
   var ctx = {
     isSSL: isSSL,
     connectRequest: self.connectRequests[clientToProxyRequest.socket.remotePort + ':' + clientToProxyRequest.socket.localPort] || {},
@@ -683,45 +682,45 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
     requestFilters: [],
     responseFilters: [],
     responseContentPotentiallyModified: false,
-    onRequest: function(fn) {
+    onRequest: function (fn) {
       ctx.onRequestHandlers.push(fn);
       return ctx;
     },
-    onError: function(fn) {
+    onError: function (fn) {
       ctx.onErrorHandlers.push(fn);
       return ctx;
     },
-    onRequestData: function(fn) {
+    onRequestData: function (fn) {
       ctx.onRequestDataHandlers.push(fn);
       return ctx;
     },
-    onRequestEnd: function(fn) {
+    onRequestEnd: function (fn) {
       ctx.onRequestEndHandlers.push(fn);
       return ctx;
     },
-    addRequestFilter: function(filter) {
+    addRequestFilter: function (filter) {
       ctx.requestFilters.push(filter);
       return ctx;
     },
-    onResponse: function(fn) {
+    onResponse: function (fn) {
       ctx.onResponseHandlers.push(fn);
       return ctx;
     },
-    onResponseData: function(fn) {
+    onResponseData: function (fn) {
       ctx.onResponseDataHandlers.push(fn);
       ctx.responseContentPotentiallyModified = true;
       return ctx;
     },
-    onResponseEnd: function(fn) {
+    onResponseEnd: function (fn) {
       ctx.onResponseEndHandlers.push(fn);
       return ctx;
     },
-    addResponseFilter: function(filter) {
+    addResponseFilter: function (filter) {
       ctx.responseFilters.push(filter);
       ctx.responseContentPotentiallyModified = true;
       return ctx;
     },
-    use: function(mod) {
+    use: function (mod) {
       if (mod.onError) {
         ctx.onError(mod.onError);
       }
@@ -747,7 +746,7 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
   ctx.clientToProxyRequest.on('error', self._onError.bind(self, 'CLIENT_TO_PROXY_REQUEST_ERROR', ctx));
   ctx.proxyToClientResponse.on('error', self._onError.bind(self, 'PROXY_TO_CLIENT_RESPONSE_ERROR', ctx));
   ctx.clientToProxyRequest.pause();
-  var hostPort = Proxy.parseHostAndPort(ctx.clientToProxyRequest, ctx.isSSL ? 443 : 80);
+  const hostPort = Proxy.parseHostAndPort(ctx.clientToProxyRequest, ctx.isSSL ? 443 : 80);
   if (hostPort === null) {
     ctx.clientToProxyRequest.resume();
     ctx.proxyToClientResponse.writeHeader(400, {
@@ -755,14 +754,14 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
     });
     ctx.proxyToClientResponse.end('Bad request: Host missing...', 'UTF-8');
   } else {
-    var headers = {};
-    for (var h in ctx.clientToProxyRequest.headers) {
+    const headers = {};
+    for (const h in ctx.clientToProxyRequest.headers) {
       // don't forward proxy- headers
       if (!/^proxy\-/i.test(h)) {
         headers[h] = ctx.clientToProxyRequest.headers[h];
       }
     }
-    if (this.options.forceChunkedRequest){
+    if (this.options.forceChunkedRequest) {
       delete headers['content-length'];
     }
 
@@ -774,11 +773,11 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
       headers: headers,
       agent: ctx.isSSL ? self.httpsAgent : self.httpAgent
     };
-    return self._onRequest(ctx, function(err) {
+    return self._onRequest(ctx, function (err) {
       if (err) {
         return self._onError('ON_REQUEST_ERROR', ctx, err);
       }
-      return self._onRequestHeaders(ctx, function(err) {
+      return self._onRequestHeaders(ctx, function (err) {
         if (err) {
           return self._onError('ON_REQUESTHEADERS_ERROR', ctx, err);
         }
@@ -787,24 +786,24 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
     });
   }
 
-  function makeProxyToServerRequest() {
-    var proto = ctx.isSSL ? https : http;
+  function makeProxyToServerRequest () {
+    const proto = ctx.isSSL ? https : http;
     ctx.proxyToServerRequest = proto.request(ctx.proxyToServerRequestOptions, proxyToServerRequestComplete);
     ctx.proxyToServerRequest.on('error', self._onError.bind(self, 'PROXY_TO_SERVER_REQUEST_ERROR', ctx));
     ctx.requestFilters.push(new ProxyFinalRequestFilter(self, ctx));
-    var prevRequestPipeElem = ctx.clientToProxyRequest;
-    ctx.requestFilters.forEach(function(filter) {
+    let prevRequestPipeElem = ctx.clientToProxyRequest;
+    ctx.requestFilters.forEach(function (filter) {
       filter.on('error', self._onError.bind(self, 'REQUEST_FILTER_ERROR', ctx));
       prevRequestPipeElem = prevRequestPipeElem.pipe(filter);
     });
     ctx.clientToProxyRequest.resume();
   }
 
-  function proxyToServerRequestComplete(serverToProxyResponse) {
+  function proxyToServerRequestComplete (serverToProxyResponse) {
     serverToProxyResponse.on('error', self._onError.bind(self, 'SERVER_TO_PROXY_RESPONSE_ERROR', ctx));
     serverToProxyResponse.pause();
     ctx.serverToProxyResponse = serverToProxyResponse;
-    return self._onResponse(ctx, function(err) {
+    return self._onResponse(ctx, function (err) {
       if (err) {
         return self._onError('ON_RESPONSE_ERROR', ctx, err);
       }
@@ -815,10 +814,10 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
       if (self.keepAlive) {
         if (ctx.clientToProxyRequest.headers['proxy-connection']) {
           ctx.serverToProxyResponse.headers['proxy-connection'] = 'keep-alive';
-          ctx.serverToProxyResponse.headers['connection'] = 'keep-alive';
+          ctx.serverToProxyResponse.headers.connection = 'keep-alive';
         }
       } else {
-        ctx.serverToProxyResponse.headers['connection'] = 'close';
+        ctx.serverToProxyResponse.headers.connection = 'close';
       }
       return self._onResponseHeaders(ctx, function (err) {
         if (err) {
@@ -826,8 +825,8 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
         }
         ctx.proxyToClientResponse.writeHead(ctx.serverToProxyResponse.statusCode, Proxy.filterAndCanonizeHeaders(ctx.serverToProxyResponse.headers));
         ctx.responseFilters.push(new ProxyFinalResponseFilter(self, ctx));
-        var prevResponsePipeElem = ctx.serverToProxyResponse;
-        ctx.responseFilters.forEach(function(filter) {
+        let prevResponsePipeElem = ctx.serverToProxyResponse;
+        ctx.responseFilters.forEach(function (filter) {
           filter.on('error', self._onError.bind(self, 'RESPONSE_FILTER_ERROR', ctx));
           prevResponsePipeElem = prevResponsePipeElem.pipe(filter);
         });
@@ -837,12 +836,12 @@ Proxy.prototype._onHttpServerRequest = function(isSSL, clientToProxyRequest, pro
   }
 };
 
-var ProxyFinalRequestFilter = function(proxy, ctx) {
+var ProxyFinalRequestFilter = function (proxy, ctx) {
   events.EventEmitter.call(this);
   this.writable = true;
 
-  this.write = function(chunk) {
-    proxy._onRequestData(ctx, chunk, function(err, chunk) {
+  this.write = function (chunk) {
+    proxy._onRequestData(ctx, chunk, function (err, chunk) {
       if (err) {
         return proxy._onError('ON_REQUEST_DATA_ERROR', ctx, err);
       }
@@ -853,9 +852,9 @@ var ProxyFinalRequestFilter = function(proxy, ctx) {
     return true;
   };
 
-  this.end = function(chunk) {
+  this.end = function (chunk) {
     if (chunk) {
-      return proxy._onRequestData(ctx, chunk, function(err, chunk) {
+      return proxy._onRequestData(ctx, chunk, function (err, chunk) {
         if (err) {
           return proxy._onError('ON_REQUEST_DATA_ERROR', ctx, err);
         }
@@ -879,12 +878,12 @@ var ProxyFinalRequestFilter = function(proxy, ctx) {
 };
 util.inherits(ProxyFinalRequestFilter, events.EventEmitter);
 
-var ProxyFinalResponseFilter = function(proxy, ctx) {
+var ProxyFinalResponseFilter = function (proxy, ctx) {
   events.EventEmitter.call(this);
   this.writable = true;
 
-  this.write = function(chunk) {
-    proxy._onResponseData(ctx, chunk, function(err, chunk) {
+  this.write = function (chunk) {
+    proxy._onResponseData(ctx, chunk, function (err, chunk) {
       if (err) {
         return proxy._onError('ON_RESPONSE_DATA_ERROR', ctx, err);
       }
@@ -895,9 +894,9 @@ var ProxyFinalResponseFilter = function(proxy, ctx) {
     return true;
   };
 
-  this.end = function(chunk) {
+  this.end = function (chunk) {
     if (chunk) {
-      return proxy._onResponseData(ctx, chunk, function(err, chunk) {
+      return proxy._onResponseData(ctx, chunk, function (err, chunk) {
         if (err) {
           return proxy._onError('ON_RESPONSE_DATA_ERROR', ctx, err);
         }
@@ -923,28 +922,28 @@ var ProxyFinalResponseFilter = function(proxy, ctx) {
 };
 util.inherits(ProxyFinalResponseFilter, events.EventEmitter);
 
-Proxy.prototype._onRequestHeaders = function(ctx, callback) {
-  async.forEach(this.onRequestHeadersHandlers, function(fn, callback) {
+Proxy.prototype._onRequestHeaders = function (ctx, callback) {
+  async.forEach(this.onRequestHeadersHandlers, function (fn, callback) {
     return fn(ctx, callback);
   }, callback);
 };
 
-Proxy.prototype._onRequest = function(ctx, callback) {
-  async.forEach(this.onRequestHandlers.concat(ctx.onRequestHandlers), function(fn, callback) {
+Proxy.prototype._onRequest = function (ctx, callback) {
+  async.forEach(this.onRequestHandlers.concat(ctx.onRequestHandlers), function (fn, callback) {
     return fn(ctx, callback);
   }, callback);
 };
 
-Proxy.prototype._onWebSocketConnection = function(ctx, callback) {
-  async.forEach(this.onWebSocketConnectionHandlers.concat(ctx.onWebSocketConnectionHandlers), function(fn, callback) {
+Proxy.prototype._onWebSocketConnection = function (ctx, callback) {
+  async.forEach(this.onWebSocketConnectionHandlers.concat(ctx.onWebSocketConnectionHandlers), function (fn, callback) {
     return fn(ctx, callback);
   }, callback);
 };
 
-Proxy.prototype._onWebSocketFrame = function(ctx, type, fromServer, data, flags) {
-  var self = this;
-  async.forEach(this.onWebSocketFrameHandlers.concat(ctx.onWebSocketFrameHandlers), function(fn, callback) {
-    return fn(ctx, type, fromServer, data, flags, function(err, newData, newFlags) {
+Proxy.prototype._onWebSocketFrame = function (ctx, type, fromServer, data, flags) {
+  const self = this;
+  async.forEach(this.onWebSocketFrameHandlers.concat(ctx.onWebSocketFrameHandlers), function (fn, callback) {
+    return fn(ctx, type, fromServer, data, flags, function (err, newData, newFlags) {
       if (err) {
         return callback(err);
       }
@@ -952,19 +951,19 @@ Proxy.prototype._onWebSocketFrame = function(ctx, type, fromServer, data, flags)
       flags = newFlags;
       return callback(null, data, flags);
     });
-  }, function(err) {
+  }, function (err) {
     if (err) {
       return self._onWebSocketError(ctx, err);
     }
-    var destWebSocket = fromServer ? ctx.clientToProxyWebSocket : ctx.proxyToServerWebSocket;
+    const destWebSocket = fromServer ? ctx.clientToProxyWebSocket : ctx.proxyToServerWebSocket;
     if (destWebSocket.readyState === WebSocket.OPEN) {
-      switch(type) {
+      switch (type) {
         case 'message': destWebSocket.send(data, flags);
-        break;
+          break;
         case 'ping': destWebSocket.ping(data, flags, false);
-        break;
+          break;
         case 'pong': destWebSocket.pong(data, flags, false);
-        break;
+          break;
       }
     } else {
       self._onWebSocketError(ctx, new Error('Cannot send ' + type + ' because ' + (fromServer ? 'clientToProxy' : 'proxyToServer') + ' WebSocket connection state is not OPEN'));
@@ -972,14 +971,14 @@ Proxy.prototype._onWebSocketFrame = function(ctx, type, fromServer, data, flags)
   });
 };
 
-Proxy.prototype._onWebSocketClose = function(ctx, closedByServer, code, message) {
+Proxy.prototype._onWebSocketClose = function (ctx, closedByServer, code, message) {
   try {
     if (!ctx.closedByServer && !ctx.closedByClient) {
       ctx.closedByServer = closedByServer;
       ctx.closedByClient = !closedByServer;
-      async.forEach(this.onWebSocketCloseHandlers.concat(ctx.onWebSocketCloseHandlers), function(fn, callback) {
+      async.forEach(this.onWebSocketCloseHandlers.concat(ctx.onWebSocketCloseHandlers), function (fn, callback) {
         return fn(ctx, code, message, callback);
-      }, function(err) {
+      }, function (err) {
         if (err) {
           return self._onWebSocketError(ctx, err);
         }
@@ -992,17 +991,17 @@ Proxy.prototype._onWebSocketClose = function(ctx, closedByServer, code, message)
         }
       });
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
 };
 
-Proxy.prototype._onWebSocketError = function(ctx, err) {
-  this.onWebSocketErrorHandlers.forEach(function(handler) {
+Proxy.prototype._onWebSocketError = function (ctx, err) {
+  this.onWebSocketErrorHandlers.forEach(function (handler) {
     return handler(ctx, err);
   });
   if (ctx) {
-    ctx.onWebSocketErrorHandlers.forEach(function(handler) {
+    ctx.onWebSocketErrorHandlers.forEach(function (handler) {
       return handler(ctx, err);
     });
   }
@@ -1015,17 +1014,17 @@ Proxy.prototype._onWebSocketError = function(ctx, err) {
   }
 };
 
-Proxy.prototype._onRequestData = function(ctx, chunk, callback) {
-  var self = this;
-  async.forEach(this.onRequestDataHandlers.concat(ctx.onRequestDataHandlers), function(fn, callback) {
-    return fn(ctx, chunk, function(err, newChunk) {
+Proxy.prototype._onRequestData = function (ctx, chunk, callback) {
+  const self = this;
+  async.forEach(this.onRequestDataHandlers.concat(ctx.onRequestDataHandlers), function (fn, callback) {
+    return fn(ctx, chunk, function (err, newChunk) {
       if (err) {
         return callback(err);
       }
       chunk = newChunk;
       return callback(null, newChunk);
     });
-  }, function(err) {
+  }, function (err) {
     if (err) {
       return self._onError('ON_REQUEST_DATA_ERROR', ctx, err);
     }
@@ -1033,11 +1032,11 @@ Proxy.prototype._onRequestData = function(ctx, chunk, callback) {
   });
 };
 
-Proxy.prototype._onRequestEnd = function(ctx, callback) {
-  var self = this;
-  async.forEach(this.onRequestEndHandlers.concat(ctx.onRequestEndHandlers), function(fn, callback) {
+Proxy.prototype._onRequestEnd = function (ctx, callback) {
+  const self = this;
+  async.forEach(this.onRequestEndHandlers.concat(ctx.onRequestEndHandlers), function (fn, callback) {
     return fn(ctx, callback);
-  }, function(err) {
+  }, function (err) {
     if (err) {
       return self._onError('ON_REQUEST_END_ERROR', ctx, err);
     }
@@ -1045,29 +1044,29 @@ Proxy.prototype._onRequestEnd = function(ctx, callback) {
   });
 };
 
-Proxy.prototype._onResponse = function(ctx, callback) {
-  async.forEach(this.onResponseHandlers.concat(ctx.onResponseHandlers), function(fn, callback) {
+Proxy.prototype._onResponse = function (ctx, callback) {
+  async.forEach(this.onResponseHandlers.concat(ctx.onResponseHandlers), function (fn, callback) {
     return fn(ctx, callback);
   }, callback);
 };
 
-Proxy.prototype._onResponseHeaders = function(ctx, callback) {
-  async.forEach(this.onResponseHeadersHandlers, function(fn, callback) {
+Proxy.prototype._onResponseHeaders = function (ctx, callback) {
+  async.forEach(this.onResponseHeadersHandlers, function (fn, callback) {
     return fn(ctx, callback);
   }, callback);
 };
 
-Proxy.prototype._onResponseData = function(ctx, chunk, callback) {
-  var self = this;
-  async.forEach(this.onResponseDataHandlers.concat(ctx.onResponseDataHandlers), function(fn, callback) {
-    return fn(ctx, chunk, function(err, newChunk) {
+Proxy.prototype._onResponseData = function (ctx, chunk, callback) {
+  const self = this;
+  async.forEach(this.onResponseDataHandlers.concat(ctx.onResponseDataHandlers), function (fn, callback) {
+    return fn(ctx, chunk, function (err, newChunk) {
       if (err) {
         return callback(err);
       }
       chunk = newChunk;
       return callback(null, newChunk);
     });
-  }, function(err) {
+  }, function (err) {
     if (err) {
       return self._onError('ON_RESPONSE_DATA_ERROR', ctx, err);
     }
@@ -1075,11 +1074,11 @@ Proxy.prototype._onResponseData = function(ctx, chunk, callback) {
   });
 };
 
-Proxy.prototype._onResponseEnd = function(ctx, callback) {
-  var self = this;
-  async.forEach(this.onResponseEndHandlers.concat(ctx.onResponseEndHandlers), function(fn, callback) {
+Proxy.prototype._onResponseEnd = function (ctx, callback) {
+  const self = this;
+  async.forEach(this.onResponseEndHandlers.concat(ctx.onResponseEndHandlers), function (fn, callback) {
     return fn(ctx, callback);
-  }, function(err) {
+  }, function (err) {
     if (err) {
       return self._onError('ON_RESPONSE_END_ERROR', ctx, err);
     }
@@ -1087,8 +1086,8 @@ Proxy.prototype._onResponseEnd = function(ctx, callback) {
   });
 };
 
-Proxy.parseHostAndPort = function(req, defaultPort) {
-  var m = req.url.match(/^http:\/\/([^\/]+)(.*)/);
+Proxy.parseHostAndPort = function (req, defaultPort) {
+  const m = req.url.match(/^http:\/\/([^\/]+)(.*)/);
   if (m) {
     req.url = m[2] || '/';
     return Proxy.parseHost(m[1], defaultPort);
@@ -1099,19 +1098,19 @@ Proxy.parseHostAndPort = function(req, defaultPort) {
   }
 };
 
-Proxy.parseHost = function(hostString, defaultPort) {
-  var m = hostString.match(/^http:\/\/(.*)/);
+Proxy.parseHost = function (hostString, defaultPort) {
+  const m = hostString.match(/^http:\/\/(.*)/);
   if (m) {
-    var parsedUrl = url.parse(hostString);
+    const parsedUrl = url.parse(hostString);
     return {
       host: parsedUrl.hostname,
       port: parsedUrl.port
     };
   }
 
-  var hostPort = hostString.split(':');
-  var host = hostPort[0];
-  var port = hostPort.length === 2 ? +hostPort[1] : defaultPort;
+  const hostPort = hostString.split(':');
+  const host = hostPort[0];
+  const port = hostPort.length === 2 ? +hostPort[1] : defaultPort;
 
   return {
     host: host,
@@ -1119,10 +1118,10 @@ Proxy.parseHost = function(hostString, defaultPort) {
   };
 };
 
-Proxy.filterAndCanonizeHeaders = function(originalHeaders) {
-  var headers = {};
-  for (var key in originalHeaders) {
-    var canonizedKey = key.trim();
+Proxy.filterAndCanonizeHeaders = function (originalHeaders) {
+  const headers = {};
+  for (const key in originalHeaders) {
+    const canonizedKey = key.trim();
     if (/^public\-key\-pins/i.test(canonizedKey)) {
       // HPKP header => filter
       continue;

@@ -10,39 +10,39 @@ export default class MongoOpCode {
   static OP_MSG = 'OP_MSG';
 
   static toString (opCode: number): string {
-    let str
+    let str;
     switch (opCode) {
       case 1:
-        str = MongoOpCode.OP_REPLAY
-        break
+        str = MongoOpCode.OP_REPLAY;
+        break;
       case 2001:
-        str = MongoOpCode.OP_UPDATE
-        break
+        str = MongoOpCode.OP_UPDATE;
+        break;
       case 2002:
-        str = MongoOpCode.OP_INSERT
-        break
+        str = MongoOpCode.OP_INSERT;
+        break;
       case 2003:
-        str = MongoOpCode.OP_GET_BY_OID
-        break
+        str = MongoOpCode.OP_GET_BY_OID;
+        break;
       case 2004:
-        str = MongoOpCode.OP_QUERY
-        break
+        str = MongoOpCode.OP_QUERY;
+        break;
       case 2005:
-        str = MongoOpCode.OP_GET_MORE
-        break
+        str = MongoOpCode.OP_GET_MORE;
+        break;
       case 2006:
-        str = MongoOpCode.OP_DELETE
-        break
+        str = MongoOpCode.OP_DELETE;
+        break;
       case 2007:
-        str = MongoOpCode.OP_KILL_CURSORS
-        break
+        str = MongoOpCode.OP_KILL_CURSORS;
+        break;
       case 2013:
-        str = MongoOpCode.OP_MSG
-        break
+        str = MongoOpCode.OP_MSG;
+        break;
       default:
-        str = 'Unknown Command'
-        break
+        str = 'Unknown Command';
+        break;
     }
-    return str
+    return str;
   }
 }

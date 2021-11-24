@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'fs';
+import path from 'path';
 
 export default class Paths {
   private static baseDir = process.env.NODE_ENV === 'production'
@@ -11,38 +11,38 @@ export default class Paths {
     : Paths.baseDir
 
   public static configJson (): string {
-    return Paths.platform(`${Paths.dataDir}config.json`)
+    return Paths.platform(`${Paths.dataDir}config.json`);
   }
 
   public static replaceResponsesDir (): string {
-    return Paths.platform(`${Paths.dataDir}replace-responses/`)
+    return Paths.platform(`${Paths.dataDir}replace-responses/`);
   }
 
   public static sslCaDir (): string {
-    return Paths.platform(`${Paths.dataDir}.http-mitm-proxy`)
+    return Paths.platform(`${Paths.dataDir}.http-mitm-proxy`);
   }
 
   public static makeCaPemSymLink () {
-    const target = Paths.platform(Paths.platform('.http-mitm-proxy/certs/ca.pem'))
-    const path = Paths.platform(Paths.dataDir + 'ca.pem')
+    const target = Paths.platform(Paths.platform('.http-mitm-proxy/certs/ca.pem'));
+    const path = Paths.platform(Paths.dataDir + 'ca.pem');
     try {
-      fs.symlinkSync(target, path)
+      fs.symlinkSync(target, path);
     } catch (e) {} // Already exists
   }
 
   public static serverKey (): string {
-    return Paths.platform(`${Paths.baseDir}private/keys/server.key`)
+    return Paths.platform(`${Paths.baseDir}private/keys/server.key`);
   }
 
   public static serverCrt (): string {
-    return Paths.platform(`${Paths.baseDir}private/keys/server.crt`)
+    return Paths.platform(`${Paths.baseDir}private/keys/server.crt`);
   }
 
   public static clientDir (): string {
-    return Paths.platform(`${Paths.baseDir}client`)
+    return Paths.platform(`${Paths.baseDir}client`);
   }
 
   private static platform (dir: string): string {
-    return dir.replace(/\//g, path.sep)
+    return dir.replace(/\//g, path.sep);
   }
 }

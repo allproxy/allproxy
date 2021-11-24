@@ -1,25 +1,25 @@
-import net from 'net'
-import tls from 'tls'
-import fs from 'fs'
-import Global from './Global'
-import SocketIoMessage from './SocketMessage'
-import HexFormatter from './formatters/HexFormatter'
-import SqlFormatter from './formatters/SqlFormatter'
-import MongoFormatter from './formatters/MongoFormatter'
-import RedisFormatter from './formatters/RedisFormatter'
-import ProxyConfig from '../../common/ProxyConfig'
-import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message'
-import Paths from './Paths'
+import net from 'net';
+import tls from 'tls';
+import fs from 'fs';
+import Global from './Global';
+import SocketIoMessage from './SocketMessage';
+import HexFormatter from './formatters/HexFormatter';
+import SqlFormatter from './formatters/SqlFormatter';
+import MongoFormatter from './formatters/MongoFormatter';
+import RedisFormatter from './formatters/RedisFormatter';
+import ProxyConfig from '../../common/ProxyConfig';
+import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message';
+import Paths from './Paths';
 
-const MAX_URL = 1024
+const MAX_URL = 1024;
 
 export default class TcpProxy {
   constructor (proxyConfig: ProxyConfig) {
-    this.startProxy(proxyConfig)
+    this.startProxy(proxyConfig);
   }
 
   static destructor (proxyConfig: ProxyConfig) {
-    if (proxyConfig._server) proxyConfig._server.close()
+    if (proxyConfig._server) proxyConfig._server.close();
   }
 
   /**
@@ -27,40 +27,40 @@ export default class TcpProxy {
      * @param proxyConfig
      */
   startProxy (proxyConfig: ProxyConfig) {
-    const sourcePort = proxyConfig.path
-    const targetHost = proxyConfig.hostname
-    const targetPort = proxyConfig.port
+    const sourcePort = proxyConfig.path;
+    const targetHost = proxyConfig.hostname;
+    const targetPort = proxyConfig.port;
 
-    let server: net.Server | tls.Server
+    let server: net.Server | tls.Server;
 
     if (proxyConfig.isSecure) {
       const tlsOptions = {
         key: fs.readFileSync(Paths.serverKey()),
         cert: fs.readFileSync(Paths.serverCrt())
-      }
+      };
 
-      server = tls.createServer(tlsOptions, onConnect)
+      server = tls.createServer(tlsOptions, onConnect);
     } else {
-      server = net.createServer(onConnect)
+      server = net.createServer(onConnect);
     }
 
-    let retries = 0
-    let wait = 1000
+    let retries = 0;
+    let wait = 1000;
     server.on('error', (err) => {
       if (++retries < 10) {
-        setTimeout(() => listen(server), wait *= 2)
+        setTimeout(() => listen(server), wait *= 2);
       } else {
-        console.error('TcpProxy server error', err)
+        console.error('TcpProxy server error', err);
       }
-    })
+    });
 
-    listen(server)
+    listen(server);
 
     function listen (server: net.Server) {
       server.listen(sourcePort, function () {
-        console.log('Listening on port ' + sourcePort + ' for target host ' + targetHost + ':' + targetPort)
-      })
-      proxyConfig._server = server
+        console.log('Listening on port ' + sourcePort + ' for target host ' + targetHost + ':' + targetPort);
+      });
+      proxyConfig._server = server;
     }
 
         type RequestInfo = {
@@ -71,27 +71,27 @@ export default class TcpProxy {
 
         // Create server (source) socket
         function onConnect (sourceSocket: any) {
-          const requests: RequestInfo[] = []
+          const requests: RequestInfo[] = [];
 
           // Connect to target host
-          let targetSocket: net.Socket | tls.TLSSocket
+          let targetSocket: net.Socket | tls.TLSSocket;
           if (!proxyConfig.isSecure) {
             targetSocket = net.connect(targetPort, targetHost, () => {
               // console.log('connected to target');
-            })
+            });
           } else {
             targetSocket = tls.connect(targetPort, targetHost, {}, () => {
               // console.log('connected to target');
-            })
+            });
           }
 
           sourceSocket.on('error', (err: any) => {
-            console.error(`TcpProxy client error ${sourcePort}: ${err}`)
-          })
+            console.error(`TcpProxy client error ${sourcePort}: ${err}`);
+          });
 
           targetSocket.on('error', (err) => {
-            console.error(`TcpProxy server error ${sourcePort}: ${err}`)
-          })
+            console.error(`TcpProxy server error ${sourcePort}: ${err}`);
+          });
 
           // Handle data from source (client)
           sourceSocket.on('data', async (data: Buffer) => {
@@ -99,85 +99,85 @@ export default class TcpProxy {
               data,
               startTime: Date.now(),
               sequenceNumber: ++Global.nextSequenceNumber
-            }
-            requests.push(request)
-            targetSocket.write(data)
-            await processData(request, null)
-          })
+            };
+            requests.push(request);
+            targetSocket.write(data);
+            await processData(request, null);
+          });
 
           // Handle data from target (e.g., database)
           targetSocket.on('data', async (data) => {
-            sourceSocket.write(data)
+            sourceSocket.write(data);
             if (requests.length > 0) {
-              const request = requests.pop()
-              await processData(request!, data)
+              const request = requests.pop();
+              await processData(request!, data);
             }
-          })
+          });
 
           // Handle source socket closed
           sourceSocket.on('close', () => {
-            targetSocket.end()
-          })
+            targetSocket.end();
+          });
 
           // Handle target socket closed
           targetSocket.on('close', () => {
-            sourceSocket.end()
-          })
+            sourceSocket.end();
+          });
 
           async function processData (request: RequestInfo, response: Buffer|null): Promise<number> {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
-              let requestString = ''
-              let responseString = ''
-              let url = ''
-              let status = 0
-              let noResponseRequired = false
+              let requestString = '';
+              let responseString = '';
+              let url = '';
+              let status = 0;
+              let noResponseRequired = false;
               switch (proxyConfig.protocol) {
                 case 'mysql:': {
-                  const sqlFormatter = new SqlFormatter(request.data, response!)
-                  requestString = sqlFormatter.getQuery()
-                  responseString = sqlFormatter.getResults()
-                  status = sqlFormatter.getErrorCode()
+                  const sqlFormatter = new SqlFormatter(request.data, response!);
+                  requestString = sqlFormatter.getQuery();
+                  responseString = sqlFormatter.getResults();
+                  status = sqlFormatter.getErrorCode();
                   for (const line of requestString.split('\n')) {
-                    if (line.indexOf('/*') !== -1) continue
-                    url += line + ' '
-                    if (url.length >= 64) break
+                    if (line.indexOf('/*') !== -1) continue;
+                    url += line + ' ';
+                    if (url.length >= 64) break;
                   }
-                  noResponseRequired = sqlFormatter.getCommand() === 'Close'
-                  break
+                  noResponseRequired = sqlFormatter.getCommand() === 'Close';
+                  break;
                 }
                 case 'mongo:': {
-                  const mongoFormatter = new MongoFormatter(request.data, response!)
-                  requestString = mongoFormatter.getRequest()
-                  responseString = mongoFormatter.getResponse()
-                  url = requestString.split('\n')[0]
-                  break
+                  const mongoFormatter = new MongoFormatter(request.data, response!);
+                  requestString = mongoFormatter.getRequest();
+                  responseString = mongoFormatter.getResponse();
+                  url = requestString.split('\n')[0];
+                  break;
                 }
                 case 'redis:': {
-                  const redisFormatter = new RedisFormatter(request.data, response!)
-                  requestString = redisFormatter.getRequest()
-                  responseString = redisFormatter.getResponse()
+                  const redisFormatter = new RedisFormatter(request.data, response!);
+                  requestString = redisFormatter.getRequest();
+                  responseString = redisFormatter.getResponse();
                   for (const line of requestString.split('\n')) {
-                    url += line + ' '
-                    if (url.length >= 64) break
+                    url += line + ' ';
+                    if (url.length >= 64) break;
                   }
-                  break
+                  break;
                 }
                 default:
-                  requestString = HexFormatter.format(request.data)
+                  requestString = HexFormatter.format(request.data);
                   responseString = response
                     ? '\n' + HexFormatter.format(response) + '\n'
-                    : NO_RESPONSE
+                    : NO_RESPONSE;
                   if (requestString.length > MAX_URL) {
-                    url = requestString.substring(0, MAX_URL)
+                    url = requestString.substring(0, MAX_URL);
                   } else {
-                    url = requestString
+                    url = requestString;
                   }
-                  break
+                  break;
               }
 
               if (requestString.length > 0) {
-                const endpoint = ''
+                const endpoint = '';
 
                 const message = await SocketIoMessage.buildRequest(
                   request.startTime,
@@ -190,9 +190,9 @@ export default class TcpProxy {
                   sourceSocket.remoteAddress, // clientIp
                   targetHost + ':' + targetPort, // serverHost
                   '', // path
-                  Date.now() - request.startTime)
-                SocketIoMessage.appendResponse(message, {}, responseString, status, Date.now() - request.startTime)
-                message.protocol = proxyConfig.protocol as MessageProtocol
+                  Date.now() - request.startTime);
+                SocketIoMessage.appendResponse(message, {}, responseString, status, Date.now() - request.startTime);
+                message.protocol = proxyConfig.protocol as MessageProtocol;
                 Global.socketIoManager.emitMessageToBrowser(
                   response === null
                     ? responseString === NO_RESPONSE && noResponseRequired === false
@@ -200,10 +200,10 @@ export default class TcpProxy {
                       : MessageType.REQUEST_AND_RESPONSE
                     : MessageType.RESPONSE,
                   message,
-                  proxyConfig)
+                  proxyConfig);
               }
-              resolve(0)
-            })
+              resolve(0);
+            });
           }
         }
   }
