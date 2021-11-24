@@ -1,143 +1,78 @@
-import url from 'url'
-import Global from './Global'
-import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
-import Proxy from '../../node-http-mitm-proxy'
-import HttpMessage from './HttpMessage'
-import replaceResponse from './ReplaceResponse'
+import http, { IncomingMessage } from 'http';
+import Https1Server from './Https1Server';
+import Https2Server from './Https2Server';
+import listen from './Listen';
+import net from 'net';
 
-/**
- * Important: This module must remain at the project root to properly set the document root for the index.html.
- */
+const enableMitm = true;
+
+const https1Servers: {[key:string]:Https1Server} = {};
+const https2Servers: {[key:string]:Https2Server} = {};
+
+export enum HttpVersion {
+  HTTP1 = 1,
+  HTTP2 = 2
+}
+
 export default class HttpsProxy {
-  onRequest (proxy: Proxy.IProxy) {
-    proxy.onRequest(async function (ctx, callback) {
-      ctx.use(Proxy.gunzip)
+  public static async start (httpVersion: HttpVersion, port: number, host?: string) {
+    const server = http.createServer();
 
-      const clientReq = ctx.clientToProxyRequest
-      const clientRes = ctx.proxyToClientResponse
+    listen('Http2Proxy', server, port, host);
 
-      const sequenceNumber = ++Global.nextSequenceNumber
-      const remoteAddress = clientReq.socket.remoteAddress
+    server.on('connect', onConnect);
 
-      const reqHeaders = ctx.proxyToServerRequestOptions.headers
-      const connectRequest = Object.keys((ctx as any).connectRequest).length > 0
-      if (connectRequest) {
-        const host = reqHeaders.host
-        clientReq.url = 'https://' + host + clientReq.url
-      }
+    async function onConnect (clientReq: IncomingMessage, clientSocket: any, head: Buffer) {
+      const hostPort = clientReq.url!.split(':', 2);
+      const hostname = hostPort[0];
+      const port = hostPort.length === 2 ? +(hostPort[1]) : 443;
 
-      // eslint-disable-next-line node/no-deprecated-api
-      const reqUrl = url.parse(clientReq.url ? clientReq.url : '')
-
-      // Find matching proxy configuration
-      let proxyConfig
-
-      const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress)
-      if (!connectRequest) {
-        proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl)
-        if (proxyConfig !== undefined) {
-          ctx.proxyToServerRequestOptions.headers.host = proxyConfig.hostname
-          clientReq.url = 'https://' + proxyConfig.hostname + clientReq.url
+      const proxyType = clientReq.method === 'CONNECT' ? 'forward' : 'reverse';
+      const key = hostname + '@@' + proxyType;
+      let httpsServer = httpVersion === HttpVersion.HTTP1 ? https1Servers[key] : https2Servers[key];
+      if (!httpsServer) {
+        if (httpVersion === HttpVersion.HTTP1) {
+          httpsServer = new Https1Server(hostname, proxyType);
+          https1Servers[key] = httpsServer;
+        } else {
+          httpsServer = new Https2Server(hostname, proxyType);
+          https2Servers[key] = httpsServer;
         }
+        await httpsServer.start();
       } else {
-        proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl)
-        // Always proxy forward proxy requests
-        if (proxyConfig === undefined) {
-          proxyConfig = new ProxyConfig()
-          proxyConfig.path = reqUrl.pathname!
-          proxyConfig.protocol = reqUrl.protocol! as ConfigProtocol
-          proxyConfig.hostname = reqUrl.hostname!
-          proxyConfig.port = reqUrl.port === null
-            ? reqUrl.protocol === 'http:' ? 80 : 443
-            : +reqUrl.port
-        }
+        await httpsServer.waitForServerToStart();
       }
 
-      const httpMessage = new HttpMessage(
-        proxyConfig,
-        sequenceNumber,
-        remoteAddress!,
-        clientReq.method!,
-        clientReq.url!,
-        reqHeaders
-      )
-
-      if (proxyConfig === undefined) {
-        const msg = 'No matching proxy configuration found for ' + reqUrl.pathname
-        ctx.proxyToClientResponse.end('404 ' + msg)
-        httpMessage.emitMessageToBrowser(msg)
+      // Create tunnel from client to Http2HttpsServer
+      if (enableMitm) {
+        createTunnel(clientSocket, head, httpsServer.getPort(), 'localhost');
       } else {
-        proxyRequest()
+        createTunnel(clientSocket, head, port, hostname);
       }
+    }
 
-      callback()
+    // Create tunnel from client to AllProxy https server.  The AllProxy https server decrypts and captures
+    // the HTTP messages, and forwards it to the origin server.
+    function createTunnel (clientSocket: any, head: Buffer, port: number, hostname: string) {
+      const serverSocket = net.connect(port, hostname, () => {
+        console.log('Server socket connected');
+        clientSocket.write('HTTP/2.0 200 Connection Established\r\n' +
+                      'Proxy-agent: Node.js-Proxy\r\n' +
+                      '\r\n');
 
-      function proxyRequest () {
-        clientReq.on('close', function () {
+        // Tunnel data between client and server
+        serverSocket.write(head);
+        serverSocket.pipe(clientSocket);
+        clientSocket.pipe(serverSocket);
+      });
 
-        })
+      clientSocket.on('error', (err: any) => {
+        console.log('Client socket error: ', err);
+      });
 
-        clientReq.on('error', function (error) {
-          console.log(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2))
-        })
-
-        clientRes.on('error', function (error) {
-          console.error(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2))
-          httpMessage.emitMessageToBrowser(JSON.stringify(error, null, 2))
-        })
-
-        let replaceRes: Buffer | null = null
-        if (reqUrl.pathname) {
-          replaceRes = replaceResponse(reqUrl.pathname)
-        }
-
-        let reqChunks: string = ''
-        ctx.onRequestData(function (_ctx, chunk, callback) {
-          reqChunks += chunk.toString()
-          return callback(undefined, chunk)
-        })
-
-        ctx.onRequestEnd(function (_ctx, callback) {
-          httpMessage.emitMessageToBrowser(reqChunks)
-          return callback()
-        })
-
-        ctx.onResponse(function (ctx, callback) {
-          let resChunks: string = ''
-          ctx.onResponseData(function (_ctx, chunk, callback) {
-            if (replaceRes) {
-              return callback()
-            } else {
-              resChunks += chunk.toString()
-              return callback(undefined, chunk)
-            }
-          })
-
-          ctx.onResponseEnd(function (ctx, callback) {
-            const resHeaders = ctx.serverToProxyResponse.headers
-            if (replaceRes) {
-              resHeaders['allproxy-replaced-response'] = 'yes'
-            }
-            httpMessage.emitMessageToBrowser(
-              reqChunks,
-              ctx.serverToProxyResponse.statusCode,
-              resHeaders,
-              replaceRes ? replaceRes.toString() : resChunks
-            )
-            if (replaceRes) {
-              ctx.proxyToClientResponse.writeHead(
-                ctx.serverToProxyResponse.statusCode!,
-                undefined,
-                resHeaders
-              )
-              ctx.proxyToClientResponse.write(replaceRes)
-            }
-            return callback()
-          })
-
-          return callback()
-        })
-      }
-    })
+      serverSocket.on('error', (err: any) => {
+        console.log('Server socket error: ', err);
+      });
+    }
   }
 }

@@ -1,9 +1,9 @@
-import urlParser from 'url'
-import Message from '../../common/Message'
-import HttpMessage from './HttpMessage'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig'
-import Global from './Global'
+import urlParser from 'url';
+import Message from '../../common/Message';
+import HttpMessage from './HttpMessage';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
+import Global from './Global';
 
 const resend = async (
   forwardProxy: boolean,
@@ -12,7 +12,7 @@ const resend = async (
   message: Message,
   body?: string | object
 ) => {
-  const headers: {[key: string]: string} = {}
+  const headers: {[key: string]: string} = {};
   const unsafeHeaders = ['host',
     'connection',
     'content-length',
@@ -22,33 +22,33 @@ const resend = async (
     'cookie',
     'sec-fetch-dest',
     'proxy-connection'
-  ]
+  ];
   for (const header in message.requestHeaders) {
     if (unsafeHeaders.indexOf(header) === -1) {
-      headers[header] = message.requestHeaders[header]
+      headers[header] = message.requestHeaders[header];
     }
   }
 
   // eslint-disable-next-line node/no-deprecated-api
-  const reqUrl = urlParser.parse(url)
+  const reqUrl = urlParser.parse(url);
 
-  headers.allproxy = 'resend'
+  headers.allproxy = 'resend';
 
   // console.log(`Resend ${method} ${url} \n${body} \n${headers}`)
 
-  body = typeof body === 'string' && body.length === 0 ? undefined : body
+  body = typeof body === 'string' && body.length === 0 ? undefined : body;
 
-  let httpMessage: HttpMessage
-  let clientHostName: string
+  let httpMessage: HttpMessage;
+  let clientHostName: string;
   if (forwardProxy) {
-    clientHostName = await Global.resolveIp(reqUrl.hostname!)
-    httpMessage = recordHttpRequest()
+    clientHostName = await Global.resolveIp(reqUrl.hostname!);
+    httpMessage = recordHttpRequest();
   }
 
-  const map: Map<string, AxiosRequestConfig['method']> = new Map()
-  map.set('GET', 'get')
-  map.set('HEAD', 'head')
-  map.set('POST', 'post')
+  const map: Map<string, AxiosRequestConfig['method']> = new Map();
+  map.set('GET', 'get');
+  map.set('HEAD', 'head');
+  map.set('POST', 'post');
 
   axios({
     method: map.get(method),
@@ -57,37 +57,38 @@ const resend = async (
     headers
   }).then((response) => {
     if (forwardProxy) {
-      recordHttpResponse(response)
+      recordHttpResponse(response);
     }
   })
     .catch(error => {
       if (forwardProxy) {
-        recordHttpResponse(error.response)
+        recordHttpResponse(error.response);
       }
-    })
+    });
 
   function recordHttpRequest (): HttpMessage {
-    let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl)
+    const proxyType = reqUrl.protocol ? 'forward' : 'reverse';
+    let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl, proxyType);
     // Always proxy forward proxy requests
     if (proxyConfig === undefined) {
-      proxyConfig = new ProxyConfig()
-      proxyConfig.path = reqUrl.pathname!
-      proxyConfig.protocol = reqUrl.protocol! as ConfigProtocol
-      proxyConfig.hostname = reqUrl.hostname!
+      proxyConfig = new ProxyConfig();
+      proxyConfig.path = reqUrl.pathname!;
+      proxyConfig.protocol = reqUrl.protocol! as ConfigProtocol;
+      proxyConfig.hostname = reqUrl.hostname!;
       proxyConfig.port = reqUrl.port === null
         ? reqUrl.protocol === 'http:' ? 80 : 443
-        : +reqUrl.port
+        : +reqUrl.port;
     }
-    const sequenceNumber = ++Global.nextSequenceNumber
-    const httpMessage = new HttpMessage(proxyConfig, sequenceNumber, clientHostName, method, url, headers)
-    httpMessage.emitMessageToBrowser(body)
+    const sequenceNumber = ++Global.nextSequenceNumber;
+    const httpMessage = new HttpMessage(proxyConfig, sequenceNumber, clientHostName, method, url, headers);
+    httpMessage.emitMessageToBrowser(body);
 
-    return httpMessage
+    return httpMessage;
   }
 
   function recordHttpResponse (response: AxiosResponse) {
-    httpMessage.emitMessageToBrowser(body, response.status, response.headers, response.data)
+    httpMessage.emitMessageToBrowser(body, response.status, response.headers, response.data);
   }
-}
+};
 
-export default resend
+export default resend;

@@ -14,6 +14,7 @@ AllProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also 
 * take snapshots of captured messages
 * export and import captured messages
 * supports multiple dashboard browser tabs
+* HTTP/2 support
 
 ### Table of Contents
 
@@ -26,7 +27,8 @@ AllProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also 
   * [Configure Browser Proxy](#configure-browser-proxy)
 * [Screenshots](#screenshots)
 * [Configuration](#configuration)
-  * [HTTP/HTTPS Proxy](http-https-proxy)
+  * [HTTP/HTTPS Proxy](#http-https-proxy)
+  * [HTTP/2 Support](#http2-support)
   * [MySQL Proxy](#mysql-proxy)
   * [gRPC Proxy](#grpc-Proxy)
   * [MongoDB Proxy](#mongodb-proxy)
@@ -173,6 +175,12 @@ ELASTIC_PORT=8888       # allproxy HTTP port is 8888.  Use 9999 for HTTPS.
 
 An HTTP path is added to proxy HTTP requests to the elasticsearch host.  All HTTP requests matching path /_search are proxied to the elasticsearch host on port 9200.
 ![ ](https://github.com/davechri/allproxy/blob/master/images/elasticsearch-settings.png)
+
+<h3 id="http2-support">HTTP/2 Support</h3>
+You can use HTTP/2 to connect to HTTP/2 enabled servers (e.g., duckduckgo.com).  To enable HTTP/2:
+```sh
+$ allproxy --http2
+```
 
 ### MySQL Proxy
 The SQL proxy can transparently capture SQL messages sent by backend microservices to a MySQL server.
