@@ -4,13 +4,10 @@ import https from 'https';
 import Global from './server/src/Global';
 import SocketIoManager from './server/src/SocketIoManager';
 import HttpProxy from './server/src/HttpProxy';
-import HttpMitmProxy from './node-http-mitm-proxy';
 import Paths from './server/src/Paths';
 import GrpcProxy from './server/src/GrpcProxy';
 import PortConfig from './common/PortConfig';
 import HttpsProxy, { HttpVersion } from './server/src/HttpsProxy';
-import Https1Proxy from './server/src/Https1Proxy';
-const httpMitmProxy = HttpMitmProxy();
 
 const listen: {
   protocol: string,
@@ -109,7 +106,6 @@ Paths.makeCaPemSymLink();
 Global.portConfig = new PortConfig();
 Global.socketIoManager = new SocketIoManager();
 const httpProxy = new HttpProxy();
-const https1Proxy = new Https1Proxy();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // trust all certificates
 
@@ -120,12 +116,11 @@ for (const entry of listen) {
 
   switch (protocol) {
     case 'https:':
-      httpMitmProxy.listen({ port: port, sslCaDir: Paths.sslCaDir() });
       console.log(`Listening on ${protocol} ${host || ''} ${port}`);
       if (useHttp2) {
         HttpsProxy.start(HttpVersion.HTTP2, port);
       } else {
-        https1Proxy.onRequest(httpMitmProxy);
+        HttpsProxy.start(HttpVersion.HTTP1, port);
       }
       Global.portConfig.httpsPort = port;
       break;

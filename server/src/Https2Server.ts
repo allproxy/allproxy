@@ -1,4 +1,4 @@
-import url from 'url';
+import url, { UrlWithStringQuery } from 'url';
 import http2, { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
@@ -8,6 +8,7 @@ import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
 import decompressResponse from './DecompressResponse';
+import replaceResponse from './ReplaceResponse';
 
 const debug = false;
 type ProxyType = 'forward' | 'reverse';
@@ -102,7 +103,13 @@ export default class Https2Server {
 
       httpMessage.emitMessageToBrowser(''); // No request body received yet
 
-      this.proxyRequest(clientReq, clientRes, httpMessage, proxyConfig!, requestBodyPromise);
+      this.proxyRequest(
+        reqUrl,
+        clientReq,
+        clientRes,
+        httpMessage,
+        proxyConfig!,
+        requestBodyPromise);
     }
 
     function getReqBody (clientReq: Http2ServerRequest): Promise<string | {}> {
@@ -132,6 +139,7 @@ export default class Https2Server {
   }
 
   private async proxyRequest (
+    reqUrl: UrlWithStringQuery,
     clientReq: Http2ServerRequest,
     clientRes: Http2ServerResponse,
     httpMessage: HttpMessage,
@@ -162,18 +170,30 @@ export default class Https2Server {
       throw e;
     }
 
+    let replaceRes: Buffer | null = null;
+    if (reqUrl.pathname) {
+      replaceRes = replaceResponse(reqUrl.pathname);
+    }
+
     proxyStream.on('response', (headers, flags) => {
       if (debug) console.log('on response', clientReq.url, headers, 'flags:', flags);
       if (clientRes.stream) {
         clientRes.stream.respond(headers, { waitForTrailers: true });
       }
       proxyStream.on('data', function (chunk: Buffer) {
-        clientRes.write(chunk);
-        chunks.push(chunk);
+        if (!replaceRes) {
+          clientRes.write(chunk);
+          chunks.push(chunk);
+        }
       });
 
       proxyStream.on('end', async () => {
         if (debug) console.log('end of response received');
+
+        if (replaceRes) {
+          clientRes.write(replaceRes);
+        }
+
         clientRes.end();
         if (clientHttp2Session) {
           clientHttp2Session.close();
@@ -182,7 +202,13 @@ export default class Https2Server {
         const requestBody = await requestBodyPromise;
 
         // chunks.push(headers)
-        const resBody = getResBody(headers, chunks);
+        let resBody;
+        if (replaceRes) {
+          headers['allproxy-replaced-response'] = 'yes';
+          resBody = replaceRes.toString();
+        } else {
+          resBody = getResBody(headers, chunks);
+        }
         httpMessage.emitMessageToBrowser(requestBody, headers[':status'], headers, resBody);
       });
     });
