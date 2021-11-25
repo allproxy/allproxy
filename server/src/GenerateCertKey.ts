@@ -1,3 +1,4 @@
+import fs from 'fs';
 import Proxy from '../../node-http-mitm-proxy';
 import Paths from './Paths';
 
@@ -6,14 +7,25 @@ Proxy.ca.create(Paths.sslCaDir(), function (_err: any, ca: any) {
   theCa = ca;
 });
 
-const generateCertKey = async (host: string): Promise<{cert: string, key: string}> => {
+const generateCertKey = async (hostname: string): Promise<{cert: string, key: string}> => {
+  const wildcardHost = hostname.replace(/[^\.]+\./, '*.');
   return new Promise((resolve) => {
-    theCa.generateServerCertificateKeys([host], function (certPEM: string, privateKeyPEM: string) {
+    const caHost = wildcardHost.replace(/\*/g, '_');
+    const certPemFile = Paths.sslCaDir() + '/certs/' + caHost + '.pem';
+    const keyPemFile = Paths.sslCaDir() + '/keys/' + caHost + '.key';
+    if (fs.existsSync(certPemFile)) {
       resolve({
-        cert: certPEM,
-        key: privateKeyPEM
+        cert: fs.readFileSync(certPemFile).toString(),
+        key: fs.readFileSync(keyPemFile).toString()
       });
-    });
+    } else {
+      theCa.generateServerCertificateKeys([wildcardHost], function (certPEM: string, privateKeyPEM: string) {
+        resolve({
+          cert: certPEM,
+          key: privateKeyPEM
+        });
+      });
+    }
   });
 };
 

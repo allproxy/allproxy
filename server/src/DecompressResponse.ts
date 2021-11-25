@@ -7,6 +7,9 @@ export default function decompressResponse (headers: {[key:string]: any}, data: 
   } else if (headers['content-encoding'] === 'br') {
     delete headers['content-encoding'];
     data = zlib.brotliDecompressSync(data);
+  } else if (headers['content-encoding'] === 'deflate') {
+    delete headers['content-encoding'];
+    data = zlib.deflateSync(data);
   }
   return data;
 }

@@ -55,8 +55,7 @@ export default class HttpsProxy {
     // the HTTP messages, and forwards it to the origin server.
     function createTunnel (clientSocket: any, head: Buffer, port: number, hostname: string) {
       const serverSocket = net.connect(port, hostname, () => {
-        console.log('Server socket connected');
-        clientSocket.write('HTTP/2.0 200 Connection Established\r\n' +
+        clientSocket.write('HTTP/1.1 200 Connection Established\r\n' +
                       'Proxy-agent: Node.js-Proxy\r\n' +
                       '\r\n');
 
