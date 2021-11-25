@@ -1,4 +1,4 @@
-import url from 'url';
+import url, { UrlWithStringQuery } from 'url';
 import http, { IncomingMessage } from 'http';
 import https from 'https';
 import Global from './Global';
@@ -8,7 +8,8 @@ import querystring from 'querystring';
 import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
-const decompressResponse = require('decompress-response');
+import decompressResponse from './DecompressResponse';
+import replaceResponse from './ReplaceResponse';
 
 const debug = false;
 type ProxyType = 'forward' | 'reverse';
@@ -100,7 +101,14 @@ export default class Https1Server {
 
       httpMessage.emitMessageToBrowser(''); // No request body received yet
 
-      this.proxyRequest(clientReq, clientRes, httpMessage, proxyConfig!, requestBodyPromise);
+      this.proxyRequest(
+        reqUrl,
+        clientReq,
+        clientRes,
+        httpMessage,
+        proxyConfig!,
+        requestBodyPromise
+      );
     }
 
     function getReqBody (clientReq: IncomingMessage): Promise<string | {}> {
@@ -130,6 +138,7 @@ export default class Https1Server {
   }
 
   private async proxyRequest (
+    reqUrl: UrlWithStringQuery,
     clientReq: IncomingMessage,
     clientRes: http.ServerResponse,
     httpMessage: HttpMessage,
@@ -146,6 +155,11 @@ export default class Https1Server {
       headers
     };
 
+    let replaceRes: Buffer | null = null;
+    if (reqUrl.pathname) {
+      replaceRes = replaceResponse(reqUrl.pathname);
+    }
+
     const proxyReq = https.request(options, handleResponse);
 
     async function handleResponse (proxyRes: http.IncomingMessage) {
@@ -157,16 +171,38 @@ export default class Https1Server {
         httpMessage.emitMessageToBrowser(requestBody);
       }
 
+      clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers);
+
+      const chunks: Buffer[] = [];
+
       /**
        * Forward the response back to the client
        */
-      clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers);
-      proxyRes.pipe(clientRes, {
-        end: true
+      proxyRes.on('data', function (chunk: Buffer) {
+        if (!replaceRes) {
+          clientRes.write(chunk);
+          chunks.push(chunk);
+        }
       });
 
-      const resBody = await getResBody(proxyRes);
-      httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
+      proxyRes.on('end', async () => {
+        if (replaceRes) {
+          clientRes.write(replaceRes);
+        }
+
+        clientRes.end();
+
+        const requestBody = await requestBodyPromise;
+
+        let resBody;
+        if (replaceRes) {
+          proxyRes.headers['allproxy-replaced-response'] = 'yes';
+          resBody = replaceRes.toString();
+        } else {
+          resBody = getResBody(proxyRes.headers, chunks);
+        }
+        httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
+      });
     }
 
     proxyReq.on('error', async function (error) {
@@ -181,31 +217,19 @@ export default class Https1Server {
   }
 }
 
-function getResBody (proxyRes: any): Promise<object | string> {
-  return new Promise<string | {}>(resolve => {
-    if (proxyRes.headers) {
-      if (proxyRes.headers['content-encoding']) {
-        proxyRes = decompressResponse(proxyRes);
-      }
+function getResBody (headers: {}, chunks: Buffer[]): object | string {
+  if (chunks.length === 0) return '';
+  let resBuffer = chunks.reduce(
+    (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)
+  );
+  resBuffer = decompressResponse(headers, resBuffer);
+  const resString = resBuffer.toString();
+  let resBody = '';
+  try {
+    resBody = JSON.parse(resString); // assume JSON
+  } catch (e) {
+    resBody = resString;
+  }
 
-      if (proxyRes.headers['content-type'] &&
-          proxyRes.headers['content-type'].indexOf('utf-8') !== -1) {
-        proxyRes.setEncoding('utf8');
-      }
-    }
-
-    let rawData = '';
-    proxyRes.on('data', function (chunk: string) {
-      rawData += chunk;
-    });
-    let parsedData = '';
-    proxyRes.on('end', () => {
-      try {
-        parsedData = JSON.parse(rawData); // assume JSON
-      } catch (e) {
-        parsedData = rawData;
-      }
-      resolve(parsedData);
-    });
-  });
+  return resBody;
 }
