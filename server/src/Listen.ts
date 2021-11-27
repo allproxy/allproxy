@@ -4,6 +4,7 @@ export default async function listen (
   port: number,
   host?: string
 ): Promise<number> {
+  const MAX_RETRIES = 5;
   let retries = 0;
   let backOff = 1000;
 
@@ -22,7 +23,7 @@ export default async function listen (
 
     // Retry the listen with exponential back off
     function onError (err: any) {
-      if (++retries < 10) {
+      if (++retries < MAX_RETRIES) {
         setTimeout(() => _listen(), backOff *= 2);
       } else {
         console.error(`${serverName} listen error on port ${port}`, err);
