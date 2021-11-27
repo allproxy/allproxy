@@ -213,6 +213,7 @@ export default class GrpcProxy {
   static destructor (proxyConfig: ProxyConfig) {
     if (proxyConfig._server) {
       console.log('GrpcProxy close port ', proxyConfig.path);
+      proxyConfig._server.close();
     }
   }
 }
