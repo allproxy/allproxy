@@ -1,7 +1,6 @@
 import http, { IncomingMessage } from 'http';
 import Https1Server from './Https1Server';
 import Https2Server from './Https2Server';
-import listen from './Listen';
 import net from 'net';
 import Global from './Global';
 
@@ -16,17 +15,18 @@ export enum HttpVersion {
 };
 
 let httpVersion: HttpVersion = HttpVersion.HTTP1;
-let listenPort = 0;
-const httpXSockets: net.Socket[] = [];
 
 export default class HttpConnectHandler {
+  public static async start (_httpVersion: HttpVersion) {
+    httpVersion = _httpVersion;
+    HttpConnectHandler.deprecated9999Listen();
+  }
+
   public static async doConnect (httpXSocket: net.Socket, data: Buffer) {
     Global.log('HttpConnectHandler doConnect', data.toString());
-    const httpConnectSocket = await net.connect(listenPort, 'localhost');
-
-    httpConnectSocket.write(data);
-    httpConnectSocket.end();
-    httpXSockets.push(httpXSocket);
+    const url = data.toString().split(' ', 2)[1];
+    const hostPort = url!.split(':', 2);
+    HttpConnectHandler.onConnect(hostPort[0], httpXSocket);
   }
 
   /**
@@ -36,39 +36,24 @@ export default class HttpConnectHandler {
     const server = http.createServer();
 
     server.listen(9999, () => {
-      server.on('connect', (clientReq: IncomingMessage, _socket: any, _head: Buffer) => {
-        httpXSockets.push(_socket);
-        HttpConnectHandler.onConnect(clientReq, _socket);
+      server.on('connect', (clientReq: IncomingMessage, socket: any, _head: Buffer) => {
+        const hostPort = clientReq.url!.split(':', 2);
+        HttpConnectHandler.onConnect(hostPort[0], socket);
       });
     });
   }
 
-  public static async start (_httpVersion: HttpVersion, port: number, hostname?: string) {
-    httpVersion = _httpVersion;
-    HttpConnectHandler.deprecated9999Listen();
+  private static async onConnect (hostname: string, socket: net.Socket) {
+    Global.log('HttpConnectHandler onConnect', hostname);
 
-    const server = http.createServer();
-
-    listenPort = await listen('HttpConnectHandler', server, port, hostname);
-
-    server.on('connect', HttpConnectHandler.onConnect);
-  }
-
-  private static async onConnect (clientReq: IncomingMessage, _socket: any) {
-    Global.log('HttpConnectHandler onConnect', clientReq.method, clientReq.url);
-
-    const hostPort = clientReq.url!.split(':', 2);
-    const hostname = hostPort[0];
-
-    const proxyType = clientReq.method === 'CONNECT' ? 'forward' : 'reverse';
-    const key = hostname + '@@' + proxyType;
+    const key = hostname;
     let httpsServer = httpVersion === HttpVersion.HTTP1 ? https1Servers[key] : https2Servers[key];
     if (!httpsServer) {
       if (httpVersion === HttpVersion.HTTP1) {
-        httpsServer = new Https1Server(hostname, proxyType);
+        httpsServer = new Https1Server(hostname, 'forward');
         https1Servers[key] = httpsServer;
       } else {
-        httpsServer = new Https2Server(hostname, proxyType);
+        httpsServer = new Https2Server(hostname, 'forward');
         https2Servers[key] = httpsServer;
       }
       Global.log('HttpConnectHandler start https server');
@@ -79,8 +64,7 @@ export default class HttpConnectHandler {
     }
 
     // Create tunnel from client to Http2HttpsServer
-    const httpXSocket = httpXSockets.shift();
-    HttpConnectHandler.createTunnel(httpXSocket, httpsServer.getPort(), 'localhost');
+    HttpConnectHandler.createTunnel(socket, httpsServer.getPort(), 'localhost');
   }
 
   private static respond (socket: net.Socket) {
