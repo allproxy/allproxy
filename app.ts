@@ -1,27 +1,17 @@
-import http from 'http';
 import { exit } from 'process';
-import https from 'https';
 import Global from './server/src/Global';
 import SocketIoManager from './server/src/SocketIoManager';
-import HttpProxy from './server/src/HttpProxy';
-import HttpMitmProxy from './node-http-mitm-proxy';
 import Paths from './server/src/Paths';
 import GrpcProxy from './server/src/GrpcProxy';
 import PortConfig from './common/PortConfig';
-import HttpsProxy, { HttpVersion } from './server/src/HttpsProxy';
-import Https1Proxy from './server/src/Https1Proxy';
-const httpMitmProxy = HttpMitmProxy();
-
-const useHttpMitmProxy = false;
+import HttpXProxy from './server/src/HttpXProxy';
+import { createCertificateAuthority } from './server/src/GenerateCertKey';
 
 const listen: {
   protocol: string,
   host?: string,
   port: number
 }[] = [];
-
-let httpServer: http.Server | https.Server;
-let useHttp2 = false;
 
 console.log(process.argv);
 
@@ -32,8 +22,6 @@ for (let i = 2; i < process.argv.length; ++i) {
       exit(1);
       break;
     case '--listen':
-    case '--listenHttp':
-    case '--listenHttps':
     case '--listenGrpc':
     case '--listenSecureGrpc': {
       if (i + 1 >= process.argv.length) {
@@ -41,14 +29,10 @@ for (let i = 2; i < process.argv.length; ++i) {
         console.error('\nMissing port number for ' + process.argv[i]);
       }
 
-      let protocol : 'http:' | 'https:' | 'grpc:' | 'securegrpc:' = 'http:';
+      let protocol : 'httpx:' | 'grpc:' | 'securegrpc:' = 'httpx:';
       switch (process.argv[i]) {
         case '--listen':
-        case '--listenHttp':
-          protocol = 'http:';
-          break;
-        case '--listenHttps':
-          protocol = 'https:';
+          protocol = 'httpx:';
           break;
         case '--listenGrpc':
           protocol = 'grpc:';
@@ -75,7 +59,10 @@ for (let i = 2; i < process.argv.length; ++i) {
       break;
     }
     case '--http2':
-      useHttp2 = true;
+      Global.useHttp2 = true;
+      break;
+    case '--debug':
+      Global.debug = true;
       break;
     default:
       usage();
@@ -85,24 +72,22 @@ for (let i = 2; i < process.argv.length; ++i) {
 }
 
 if (listen.length === 0) {
-  listen.push({ protocol: 'http:', port: 8888 });
-  listen.push({ protocol: 'https:', port: 9999 });
+  listen.push({ protocol: 'httpx:', port: 8888 });
 }
 
 function usage () {
   console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port] [--debug]');
   console.log('\nOptions:');
-  console.log('\t--listenHttp - listen for incoming http connections.  Default is 8888.');
-  console.log('\t--listenHttps - listen for incoming https connections. Defaults is 9999.');
+  console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
   console.log('\t--http2 - Enable HTTP/2 for https connections. (Experimental)');
-  console.log('\nExample: npm start -- --listen 8888 --listenHttps 9999');
+  console.log('\nExample: npm start -- --listen 8888');
 }
 
 /**
  * Exception handler.
  */
 process.on('uncaughtException', (err) => {
-  console.error(err.stack);
+  console.trace('uncaughtException:', err.stack);
   // process.exit()
 });
 
@@ -110,48 +95,34 @@ Paths.makeCaPemSymLink();
 
 Global.portConfig = new PortConfig();
 Global.socketIoManager = new SocketIoManager();
-const httpProxy = new HttpProxy();
-const https1Proxy = new Https1Proxy();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // trust all certificates
 
-for (const entry of listen) {
-  const protocol = entry.protocol;
-  const host = entry.host;
-  const port = entry.port;
+startServers();
 
-  switch (protocol) {
-    case 'https:':
-      httpMitmProxy.listen({ port: port, sslCaDir: Paths.sslCaDir() });
-      console.log(`Listening on ${protocol} ${host || ''} ${port}`);
-      if (useHttp2) {
-        HttpsProxy.start(HttpVersion.HTTP2, port);
-      } else if (!useHttpMitmProxy) {
-        HttpsProxy.start(HttpVersion.HTTP1, port);
-      } else {
-        https1Proxy.onRequest(httpMitmProxy);
-      }
-      Global.portConfig.httpsPort = port;
-      break;
-    case 'http:':
-      httpServer = http.createServer(
-        (clientReq, clientRes) => httpProxy.onRequest(clientReq, clientRes));
-      httpServer.listen(port, host);
-      console.log(`Listening on ${protocol} ${host || ''} ${port}`);
-      console.log(`Open browser to ${protocol}//localhost:${port}/allproxy\n`);
+async function startServers () {
+  await createCertificateAuthority();
+  for (const entry of listen) {
+    const protocol = entry.protocol;
+    const host = entry.host;
+    const port = entry.port;
 
-      Global.socketIoManager.addHttpServer(httpServer);
-      Global.portConfig.httpPort = port;
-      break;
-    case 'grpc:':
-      GrpcProxy.forwardProxy(port, false);
-      console.log(`Listening on gRPC ${host || ''} ${port}`);
-      Global.portConfig.grpcPort = port;
-      break;
-    case 'securegrpc:':
-      GrpcProxy.forwardProxy(port, true);
-      console.log(`Listening on secure gRPC ${host || ''} ${port}`);
-      Global.portConfig.grpcSecurePort = port;
-      break;
+    switch (protocol) {
+      case 'httpx:':
+        console.log(`Listening on ${protocol} ${host || ''} ${port}`);
+        HttpXProxy.start(port);
+        Global.portConfig.httpXPort = port;
+        break;
+      case 'grpc:':
+        GrpcProxy.forwardProxy(port, false);
+        console.log(`Listening on gRPC ${host || ''} ${port}`);
+        Global.portConfig.grpcPort = port;
+        break;
+      case 'securegrpc:':
+        GrpcProxy.forwardProxy(port, true);
+        console.log(`Listening on secure gRPC ${host || ''} ${port}`);
+        Global.portConfig.grpcSecurePort = port;
+        break;
+    }
   }
 }

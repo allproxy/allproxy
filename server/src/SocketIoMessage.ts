@@ -2,7 +2,7 @@ import Message from '../../common/Message';
 import { IncomingHttpHeaders } from 'http';
 import Global from './Global';
 
-export default class SocketMessage {
+export default class SocketIoMessage {
   public static buildRequest (timestamp: number, sequenceNumber: number, requestHeaders: IncomingHttpHeaders, method: string, url: string, endpoint: string, requestBody:string|{}, clientIp: string, serverHost: string, path:string, elapsedTime:number)
     : Promise<Message> {
     return buildRequest(timestamp, sequenceNumber, requestHeaders, method, url, endpoint, requestBody, clientIp, serverHost, path, elapsedTime);

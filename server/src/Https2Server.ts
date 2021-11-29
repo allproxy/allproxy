@@ -10,7 +10,6 @@ import generateCertKey from './GenerateCertKey';
 import decompressResponse from './DecompressResponse';
 import replaceResponse from './ReplaceResponse';
 
-const debug = false;
 type ProxyType = 'forward' | 'reverse';
 
 /**
@@ -68,7 +67,7 @@ export default class Https2Server {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-    if (debug) console.log('request URL', reqUrl);
+    Global.log('Https1Server onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
     const sequenceNumber = ++Global.nextSequenceNumber;
@@ -166,7 +165,7 @@ export default class Https2Server {
     try {
       proxyStream = clientHttp2Session.request(headers);
     } catch (e) {
-      console.log(headers);
+      console.log('Https2Server', headers);
       throw e;
     }
 
@@ -176,7 +175,7 @@ export default class Https2Server {
     }
 
     proxyStream.on('response', (headers, flags) => {
-      if (debug) console.log('on response', clientReq.url, headers, 'flags:', flags);
+      Global.log('Http2Server on response', clientReq.url, headers, 'flags:', flags);
       if (clientRes.stream) {
         clientRes.stream.respond(headers, { waitForTrailers: true });
       }
@@ -188,7 +187,7 @@ export default class Https2Server {
       });
 
       proxyStream.on('end', async () => {
-        if (debug) console.log('end of response received');
+        Global.log('Http2Server end of response received');
 
         if (replaceRes) {
           clientRes.write(replaceRes);

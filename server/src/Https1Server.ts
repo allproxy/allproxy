@@ -11,12 +11,8 @@ import generateCertKey from './GenerateCertKey';
 import decompressResponse from './DecompressResponse';
 import replaceResponse from './ReplaceResponse';
 
-const debug = false;
 type ProxyType = 'forward' | 'reverse';
 
-/**
- * Important: This module must remain at the project root to properly set the document root for the index.html.
- */
 export default class Https1Server {
   private proxyType: ProxyType = 'forward';
   private hostname: string;
@@ -46,7 +42,6 @@ export default class Https1Server {
 
     await listen('Https1Server', this.server, 0); // assign port number
     this.port = (this.server.address() as AddressInfo).port;
-
     this.resolvePromise(0);
   }
 
@@ -60,13 +55,13 @@ export default class Https1Server {
 
   private async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
     clientReq.on('error', function (error) {
-      console.error(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
+      console.error(sequenceNumber, 'Https1Server clientReq error', JSON.stringify(error, null, 2));
     });
 
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-    if (debug) console.log('request URL', reqUrl);
+    Global.log('Https1Server onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
     const sequenceNumber = ++Global.nextSequenceNumber;
@@ -148,7 +143,7 @@ export default class Https1Server {
     const headers = clientReq.headers;
     const options = {
       protocol: 'https:',
-      hostname: this.hostname,
+      hostname: this.proxyType === 'forward' ? this.hostname : proxyConfig.hostname,
       port: 443,
       path: clientReq.url,
       method: clientReq.method,
@@ -160,6 +155,7 @@ export default class Https1Server {
       replaceRes = replaceResponse(reqUrl.pathname);
     }
 
+    Global.log('Https1Server https.request', options);
     const proxyReq = https.request(options, handleResponse);
 
     async function handleResponse (proxyRes: http.IncomingMessage) {

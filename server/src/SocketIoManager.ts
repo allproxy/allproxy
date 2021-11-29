@@ -19,7 +19,7 @@ const CACHE_SOCKET_ID = 'cache';
 const WINDOW_SIZE = 500; // windows size - maximum outstanding messages
 const MAX_OUT = 2; // two message batches
 
-class SocketInfo {
+class SocketIoInfo {
     socket: io.Socket | undefined = undefined;
     configs: ProxyConfig[] = [];
     seqNum = 0;
@@ -34,7 +34,7 @@ class SocketInfo {
 };
 
 export default class SocketIoManager {
-    private socketIoMap = new Map<string, SocketInfo>();
+    private socketIoMap = new Map<string, SocketIoInfo>();
 
     constructor () {
       this.activateConfig(this.getConfig());
@@ -127,12 +127,14 @@ export default class SocketIoManager {
         JSON.stringify({ configs: proxyConfigs }, null, 2));
     }
 
-    addHttpServer (httpServer: any) {
+    public addHttpServer (httpServer: any) {
+      Global.log('SocketIoManager add Server');
       const server = new io.Server(httpServer);
       server.on('connection', (socket: io.Socket) => this._socketConnection(socket));
     }
 
     _socketConnection (socket: io.Socket) {
+      Global.log('SocketIoManager on connection');
       const config = this.getConfig();
 
       socket.emit('port config', Global.portConfig); // send port config to browser
@@ -192,7 +194,7 @@ export default class SocketIoManager {
       }
 
       this.socketIoMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
-        new SocketInfo((socket || undefined), proxyConfigs));
+        new SocketIoInfo((socket || undefined), proxyConfigs));
       if (socket !== undefined) {
         this.closeAnyServersWithSocket(CACHE_SOCKET_ID);
         this.socketIoMap.delete(CACHE_SOCKET_ID);
@@ -201,7 +203,7 @@ export default class SocketIoManager {
 
     // Close 'any:' protocol servers that are running for the browser owning the socket
     closeAnyServersWithSocket (socketId: string) {
-      this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
+      this.socketIoMap.forEach((socketInfo: SocketIoInfo, key: string) => {
         if (socketId && key !== socketId) return;
         for (const proxyConfig of socketInfo.configs) {
           if (proxyConfig.protocol === 'log:') {
@@ -217,7 +219,7 @@ export default class SocketIoManager {
 
     // Close 'any:' protocol servers the specified listening port
     closeAnyServerWithPort (port: number) {
-      this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
+      this.socketIoMap.forEach((socketInfo: SocketIoInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
           if (proxyConfig._server && proxyConfig.port === port) {
             if (proxyConfig.protocol === 'grpc:' && USE_HTTP2) {
@@ -258,7 +260,7 @@ export default class SocketIoManager {
 
       let matchingProxyConfig: ProxyConfig|undefined;
       // Find matching proxy configuration
-      this.socketIoMap.forEach((socketInfo: SocketInfo, _key: string) => {
+      this.socketIoMap.forEach((socketInfo: SocketIoInfo, _key: string) => {
         for (const proxyConfig of socketInfo.configs) {
           if (proxyConfig.protocol !== protocol && proxyConfig.protocol !== 'browser:') continue;
           if ((this.isMatch(proxyConfig.path, reqUrlPath) ||
@@ -283,7 +285,7 @@ export default class SocketIoManager {
       const path = inProxyConfig ? inProxyConfig.path : '';
       let socketId: string;
       let emitted = false;
-      this.socketIoMap.forEach((socketInfo: SocketInfo, key: string) => {
+      this.socketIoMap.forEach((socketInfo: SocketIoInfo, key: string) => {
         for (const proxyConfig of socketInfo.configs) {
           if (inProxyConfig === undefined ||
                 (proxyConfig.path === path && inProxyConfig.protocol === proxyConfig.protocol)) {
@@ -304,7 +306,7 @@ export default class SocketIoManager {
       }
     }
 
-    private emitMessageWithFlowControl (messages: Message[], socketInfo: SocketInfo, socketId: string) {
+    private emitMessageWithFlowControl (messages: Message[], socketInfo: SocketIoInfo, socketId: string) {
       if (socketInfo.remainingWindow === 0 || socketInfo.messagesOut >= MAX_OUT) {
         socketInfo.queuedMessages = socketInfo.queuedMessages.concat(messages);
       } else {

@@ -10,8 +10,6 @@ import fs from 'fs';
 import listen from './Listen';
 import decompressResponse from './DecompressResponse';
 
-const debug = false;
-
 const settings = { maxConcurrentStreams: undefined };
 
 const tlsOptions = {
@@ -57,7 +55,7 @@ export default class GrpcProxy {
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-      if (debug) console.log('request URL', reqUrl);
+      Global.log('GrpcProxy onRequest', reqUrl.path);
 
       const sequenceNumber = ++Global.nextSequenceNumber;
       const remoteAddress = clientReq.socket.remoteAddress;
@@ -113,13 +111,13 @@ export default class GrpcProxy {
         let needToSendTrailers = false;
 
         proxyStream.on('trailers', (headers, _flags) => {
-          if (debug) console.log('trailers', headers);
+          Global.log('GrpcProxy on trailers', headers);
           clientRes.addTrailers(headers);
           trailers = headers;
         });
 
         proxyStream.on('response', (headers, flags) => {
-          if (debug) console.log('on response', clientReq.url, headers, 'flags:', flags);
+          Global.log('GrpcProxy on response', clientReq.url, headers, 'flags:', flags);
           if (headers['grpc-status']) {
             trailers['grpc-status'] = headers['grpc-status'];
             trailers['grpc-message'] = headers['grpc-message'];
@@ -136,7 +134,7 @@ export default class GrpcProxy {
           });
 
           proxyStream.on('end', async () => {
-            if (debug) console.log('end of response received');
+            Global.log('GrpcProxy end of response received');
             if (needToSendTrailers) {
               clientRes.addTrailers(trailers);
             }
@@ -212,7 +210,7 @@ export default class GrpcProxy {
 
   static destructor (proxyConfig: ProxyConfig) {
     if (proxyConfig._server) {
-      console.log('GrpcProxy close port ', proxyConfig.path);
+      Global.log('GrpcProxy destructor ', proxyConfig.path);
       proxyConfig._server.close();
     }
   }

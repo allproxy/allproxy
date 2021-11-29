@@ -1,6 +1,6 @@
 import ProxyConfig from '../../common/ProxyConfig';
 import { MessageType, NO_RESPONSE } from '../../common/Message';
-import SocketMessage from './SocketMessage';
+import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 
 export default class HttpMessage {
@@ -40,7 +40,7 @@ export default class HttpMessage {
     const resBodyJson = resBody === NO_RESPONSE || typeof resBody === 'object' ? resBody : this.toJSON(resBody);
     const host = this.proxyConfig ? this.getHostPort(this.proxyConfig) : 'Unknown';
 
-    const message = await SocketMessage.buildRequest(
+    const message = await SocketIoMessage.buildRequest(
       Date.now(),
       this.sequenceNumber,
       this.reqHeaders,
@@ -54,7 +54,7 @@ export default class HttpMessage {
       Date.now() - this.startTime
     );
 
-    SocketMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime);
+    SocketIoMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime);
 
     Global.socketIoManager.emitMessageToBrowser(
       resBody === NO_RESPONSE

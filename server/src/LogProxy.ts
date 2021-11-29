@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import SocketIoMessage from './SocketMessage';
+import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
 import { MessageType } from '../../common/Message';
