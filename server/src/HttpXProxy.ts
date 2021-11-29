@@ -32,7 +32,7 @@ export default class HttpXProxy {
   }
 
   private async startServers () {
-    await HttpConnectHandler.start(Global.useHttp2 ? HttpVersion.HTTP2 : HttpVersion.HTTP1, 0);
+    await HttpConnectHandler.start(Global.useHttp2 ? HttpVersion.HTTP2 : HttpVersion.HTTP1);
   }
 
   private onConnect (httpXSocket: net.Socket) {
