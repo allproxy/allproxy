@@ -19,10 +19,6 @@ services:
         published: 8888
         protocol: tcp
         mode: host
-      - target: 9999
-        published: 9999
-        protocol: tcp
-        mode: host
       - target: 11111
         published: 11111
         protocol: tcp
@@ -35,27 +31,4 @@ services:
       - type: bind
         source: .
         target: /app
-    expose:
-      - 9999
-      - 27017
-      - 3306
-      - 33306
-      - 11211
-      - 24601
-      - 50040
-      - 50050
-      - 50051
-      - 50052
-      - 50053
-      - 50054
-      - 50055
-      - 50056
-      - 50057
-      - 50058
-      - 50059
-      - 50060
-      - 50062
-      - 50067
-      - 50068
-      - 63790
-    command: 'yarn start --listenHttp 8888 --listenHttps 9999'
+    command: 'yarn start --listen 8888'

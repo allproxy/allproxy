@@ -6,13 +6,22 @@ import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
 import HttpMessage from './HttpMessage';
 import querystring from 'querystring';
 import AllProxyApp from './AllProxyApp';
+import listen from './Listen';
 const decompressResponse = require('decompress-response');
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
-export default class HttpProxy {
-  async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
+export default class Http1Server {
+  public static async start (port: number, host?: string): Promise<number> {
+    const server: any = http.createServer((clientReq, clientRes) => Http1Server.onRequest(clientReq, clientRes));
+
+    const listenPort = await listen('Http1Server', server, port, host);
+    Global.socketIoManager.addHttpServer(server);
+    return listenPort;
+  }
+
+  static async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 

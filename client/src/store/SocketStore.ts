@@ -28,7 +28,7 @@ export default class SocketStore {
 		this.socket = io();
 
 		this.socket.on('connect', () => {
-			console.log('socket connected');
+			//console.log('socket connected');
 			this.setSocketConnected(true);
 		});
 
@@ -43,7 +43,7 @@ export default class SocketStore {
 		});
 
 		this.socket.on('disconnect', () => {
-			console.log('socket disconnected');
+			//console.log('socket disconnected');
 			this.setSocketConnected(false);
 		});
 

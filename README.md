@@ -73,8 +73,6 @@ The AllProxy server is started using either the NPM installed **allproxy** scrip
 
     Listening on http:  8888
     Open browser to http://localhost:8888/allproxy
-
-    Listening on https:  9999
   ```
 
 #### Start GitHub Project
@@ -83,8 +81,6 @@ The AllProxy server is started using either the NPM installed **allproxy** scrip
 
     Listening on http:  8888
     Open browser to http://localhost:8888/allproxy
-
-    Listening on https:  9999
    ```
 ### Install CA Certificate
 
@@ -131,14 +127,14 @@ $ allproxy-system-proxy enable
 ```
 
 #### Firefox Proxy Configuration
-To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the AllProxy.  The default is to proxy HTTP messages to port 8888, and HTTPS messages to port 9999.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
+To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the AllProxy.  The default is to proxy both HTTP and HTTPS messages to port 8888.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
 ![ ](https://github.com/davechri/allproxy/blob/master/images/firefox-proxy.png)
 
 #### Linux Proxy Configuration
 
 For chrome and chromium you can set the browser proxy using environment variables http_proxy and https_proxy.
 ```sh
-$ http_proxy=http://localhost:8888 https_proxy://9999 chromium-browser
+$ http_proxy=http://localhost:8888 https_proxy://8888 chromium-browser
 ```
 
 ## Screenshots
@@ -170,7 +166,7 @@ ELASTIC_PORT=9200
 Modified -search- micorservice configuration:
 ```sh
 ELASTIC_HOST=allproxy   # allproxy is the docker container host name
-ELASTIC_PORT=8888       # allproxy HTTP port is 8888.  Use 9999 for HTTPS.
+ELASTIC_PORT=8888       # allproxy HTTP port is 8888.
 ```
 
 An HTTP path is added to proxy HTTP requests to the elasticsearch host.  All HTTP requests matching path /_search are proxied to the elasticsearch host on port 9200.
@@ -350,7 +346,7 @@ Options:
 	--listen - listen for incoming http connections.  Default is 8888.
 	--listenHttps - listen for incoming https connections.
 
-Example: allproxy --listen 8888 --listenHttps 9999
+Example: allproxy --listen 8888
 ```
 
 ## Limitations

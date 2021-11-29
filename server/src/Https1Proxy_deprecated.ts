@@ -77,7 +77,7 @@ export default class Https1Proxy {
         });
 
         clientReq.on('error', function (error) {
-          console.log(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
+          console.log(sequenceNumber, 'Https1Proxy Client connection error', JSON.stringify(error, null, 2));
         });
 
         clientRes.on('error', function (error) {

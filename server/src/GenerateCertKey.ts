@@ -1,14 +1,25 @@
 import fs from 'fs';
 import Proxy from '../../node-http-mitm-proxy';
+import Global from './Global';
 import Paths from './Paths';
 
 let theCa: any;
-Proxy.ca.create(Paths.sslCaDir(), function (_err: any, ca: any) {
-  theCa = ca;
-});
+
+export function createCertificateAuthority (): Promise<void> {
+  return new Promise<void>((resolve) => {
+    Proxy.ca.create(Paths.sslCaDir(), function (_err: any, ca: any) {
+      theCa = ca;
+      resolve();
+    });
+  });
+}
+
+const noWildcardHosts = [
+  'duckduckgo.com'
+];
 
 const generateCertKey = async (hostname: string): Promise<{cert: string, key: string}> => {
-  const wildcardHost = hostname.replace(/[^\.]+\./, '*.');
+  const wildcardHost = noWildcardHosts.includes(hostname) ? hostname : hostname.replace(/[^\.]+\./, '*.');
   return new Promise((resolve) => {
     const caHost = wildcardHost.replace(/\*/g, '_');
     const certPemFile = Paths.sslCaDir() + '/certs/' + caHost + '.pem';
@@ -19,6 +30,7 @@ const generateCertKey = async (hostname: string): Promise<{cert: string, key: st
         key: fs.readFileSync(keyPemFile).toString()
       });
     } else {
+      Global.log('GenerateCertKey generating new cert/key', hostname, wildcardHost);
       theCa.generateServerCertificateKeys([wildcardHost], function (certPEM: string, privateKeyPEM: string) {
         resolve({
           cert: certPEM,

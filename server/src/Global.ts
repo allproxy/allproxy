@@ -6,7 +6,12 @@ export default class Global {
     static socketIoManager: SocketIoManager;
     static nextSequenceNumber: number = 0;
     static debug = false;
+    static useHttp2 = false;
     static portConfig: PortConfig;
+
+    static log (...args: any[]) {
+      if (Global.debug) console.log(...args);
+    }
 
     static resolveIp (ipAddr: string | undefined): Promise<string> {
       return new Promise<string>((resolve) => {

@@ -2,7 +2,7 @@ import net from 'net';
 import tls from 'tls';
 import fs from 'fs';
 import Global from './Global';
-import SocketIoMessage from './SocketMessage';
+import SocketIoMessage from './SocketIoMessage';
 import HexFormatter from './formatters/HexFormatter';
 import SqlFormatter from './formatters/SqlFormatter';
 import MongoFormatter from './formatters/MongoFormatter';
