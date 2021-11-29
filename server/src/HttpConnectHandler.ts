@@ -26,6 +26,9 @@ export default class HttpConnectHandler {
 
     httpConnectSocket.write(data);
     httpConnectSocket.end();
+    httpConnectSocket.on('drain', () => {
+      httpConnectSocket.destroy();
+    });
     httpXSockets.push(httpXSocket);
   }
 
@@ -54,7 +57,7 @@ export default class HttpConnectHandler {
     server.on('connect', HttpConnectHandler.onConnect);
   }
 
-  private static async onConnect (clientReq: IncomingMessage, _socket: any) {
+  private static async onConnect (clientReq: IncomingMessage, socket: net.Socket) {
     Global.log('HttpConnectHandler onConnect', clientReq.method, clientReq.url);
 
     const hostPort = clientReq.url!.split(':', 2);
@@ -81,6 +84,11 @@ export default class HttpConnectHandler {
     // Create tunnel from client to Http2HttpsServer
     const httpXSocket = httpXSockets.shift();
     HttpConnectHandler.createTunnel(httpXSocket, httpsServer.getPort(), 'localhost');
+
+    if (socket !== httpXSocket) {
+      socket.end();
+      socket.destroy();
+    }
   }
 
   private static respond (socket: net.Socket) {
