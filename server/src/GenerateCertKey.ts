@@ -14,12 +14,8 @@ export function createCertificateAuthority (): Promise<void> {
   });
 }
 
-const noWildcardHosts = [
-  'duckduckgo.com'
-];
-
 const generateCertKey = async (hostname: string): Promise<{cert: string, key: string}> => {
-  const wildcardHost = noWildcardHosts.includes(hostname) ? hostname : hostname.replace(/[^\.]+\./, '*.');
+  const wildcardHost = hostname.split('.', 3).length === 2 ? hostname : hostname.replace(/[^\.]+\./, '*.');
   return new Promise((resolve) => {
     const caHost = wildcardHost.replace(/\*/g, '_');
     const certPemFile = Paths.sslCaDir() + '/certs/' + caHost + '.pem';
