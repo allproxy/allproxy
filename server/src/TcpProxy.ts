@@ -86,11 +86,11 @@ export default class TcpProxy {
           }
 
           sourceSocket.on('error', (err: any) => {
-            console.error(`TcpProxy client error ${sourcePort}: ${err}`);
+            Global.log(`TcpProxy client error ${sourcePort}: ${err}`);
           });
 
           targetSocket.on('error', (err) => {
-            console.error(`TcpProxy server error ${sourcePort}: ${err}`);
+            Global.log(`TcpProxy server error ${sourcePort}: ${err}`);
           });
 
           // Handle data from source (client)
