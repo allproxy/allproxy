@@ -78,7 +78,7 @@ const SnapshotTabContent = observer(({
 								/>)
 						}
 					})}
-					{matchCount > 0 && messageQueueStore.getAutoScroll() && setScrollTo(lastSeqNum)}
+					{matchCount > 0 && messageQueueStore.getAutoScroll() && selectedReqSeqNum === Number.MAX_SAFE_INTEGER && setScrollTo(lastSeqNum)}
 					{matchCount === 0 && (
 						<div className="center">
 							No matching request or response found.  Adjust your filter criteria.
