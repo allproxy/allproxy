@@ -70,7 +70,7 @@ export default class HttpConnectHandler {
   private static respond (socket: net.Socket) {
     Global.log('HttpConnectHandler HTTP/1.1 200 Connection Established');
     socket.write('HTTP/1.1 200 Connection Established\r\n' +
-      'Connection: Keep-Alive\n\r' +
+      // 'Connection: Keep-Alive\n\r' +
       'Proxy-agent: Node.js-Proxy\r\n' +
       '\r\n');
   }
