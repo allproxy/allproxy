@@ -38,7 +38,7 @@ export default class HttpMessage {
   ) {
     const reqBodyJson = typeof reqBody === 'object' ? reqBody : this.toJSON(reqBody);
     const resBodyJson = resBody === NO_RESPONSE || typeof resBody === 'object' ? resBody : this.toJSON(resBody);
-    const host = this.proxyConfig ? this.getHostPort(this.proxyConfig) : 'Unknown';
+    const host = this.proxyConfig ? this.getHostPort(this.proxyConfig, this.reqHeaders) : 'Unknown';
 
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
@@ -76,10 +76,14 @@ export default class HttpMessage {
     }
   }
 
-  private getHostPort (proxyConfig: ProxyConfig) {
-    let host = proxyConfig.hostname;
-    if (proxyConfig.port) host += ':' + proxyConfig.port;
-    return host;
+  private getHostPort (proxyConfig: ProxyConfig, reqHeaders: {[key:string]:string}) {
+    if (proxyConfig.hostname && proxyConfig.hostname.length > 0) {
+      let host = proxyConfig.hostname;
+      if (proxyConfig.port) host += ':' + proxyConfig.port;
+      return host;
+    } else {
+      return reqHeaders.host;
+    }
   }
 
   private getHttpEndpoint = (method: string, url: string, requestBody: string | {}): string => {
