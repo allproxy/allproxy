@@ -290,6 +290,7 @@ td input {
 }
 
 .request__msg-header {
+	position: relative;
 	display: flex;
 	flex-wrap: nowrap;
 }
@@ -307,8 +308,11 @@ td input {
   background: #007bff;
   opacity: .5;
 }
+.request__msg-time-bar.no-response {
+	background: crimson;
+}
 .request__msg-time-ms {
-	margin-left: .5rem;
+	margin-left: 1rem;
 	z-index: 1;
 	position: absolute;
 	text-align: center;
