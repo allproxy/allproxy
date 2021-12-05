@@ -15,7 +15,10 @@ export function createCertificateAuthority (): Promise<void> {
 }
 
 const generateCertKey = async (hostname: string): Promise<{cert: string, key: string}> => {
-  const wildcardHost = hostname.split('.', 3).length === 2 ? hostname : hostname.replace(/[^\.]+\./, '*.');
+  // eslint-disable-next-line no-constant-condition
+  const wildcardHost = hostname.split('.', 3).length === 2 || true // wildcard host is causing issues?
+    ? hostname
+    : hostname.replace(/[^\.]+\./, '*.');
   return new Promise((resolve) => {
     const caHost = wildcardHost.replace(/\*/g, '_');
     const certPemFile = Paths.sslCaDir() + '/certs/' + caHost + '.pem';
