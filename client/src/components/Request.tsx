@@ -12,19 +12,21 @@ type Props = {
 const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }: Props) => {
 	const handleClick = () => { onClick(); store.setVisited(true); }
 	const message = store.getMessage();
+	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
+	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime + 'ms'
 
 	return (
 		<div>
 			<div className="request__msg-container">
 				<div className="request__msg-header">
 					<div className="request__msg-time-ms">
-						{message.elapsedTime} ms
+						{responseTime}
 					</div>
 					<div className="request__msg-time-bar-container"
 						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, seqNum=${message.sequenceNumber}`}>
-						<div style={{width: `calc(100% - ${timeBarPercent})` }}/>
-						<div className={'request__msg-time-bar'}
-							style={{ width: timeBarPercent }} />
+						<div style={{width: `calc(100% - ${percent})` }}/>
+						<div className={'request__msg-time-bar' + (store.isNoResponse() ? ' no-response' : '')}
+							style={{ width: percent }} />
 					</div>
 					<div className={`${store.getIconClass()} request__msg-icon`}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
