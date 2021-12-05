@@ -17,16 +17,14 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 		<div>
 			<div className="request__msg-container">
 				<div className="request__msg-header">
-					<div className="request__msg-time-container">
-						<div className="request__msg-time-bar-container"
-							title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, seqNum=${message.sequenceNumber}`}>
-							<div style={{width: `calc(100% - ${timeBarPercent})` }}/>
-							<div className={'request__msg-time-bar'}
-								style={{ width: timeBarPercent }} />
-						</div>
-						<div className="request__msg-time-ms">
-							{message.elapsedTime} ms
-						</div>
+					<div className="request__msg-time-ms">
+						{message.elapsedTime} ms
+					</div>
+					<div className="request__msg-time-bar-container"
+						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, seqNum=${message.sequenceNumber}`}>
+						<div style={{width: `calc(100% - ${timeBarPercent})` }}/>
+						<div className={'request__msg-time-bar'}
+							style={{ width: timeBarPercent }} />
 					</div>
 					<div className={`${store.getIconClass()} request__msg-icon`}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
