@@ -187,7 +187,7 @@ export default class FilterStore {
     }
 
     public isFiltered(messageStore: MessageStore) {
-        if (this.showErrors && !messageStore.isError()) return true;
+        if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
 
         this.invalidFilterSyntax = false;
         if (this.searchFilter.length === 0) return false;

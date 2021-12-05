@@ -294,8 +294,11 @@ td input {
 	flex-wrap: nowrap;
 }
 
-.request__msg-time-bar-container {
+.request__msg-time-container {
 	margin-left: .5rem;
+	position: relative;
+}
+.request__msg-time-bar-container {
 	min-width: 8ch;
 	display: flex;
 	align-items: center;
@@ -306,6 +309,12 @@ td input {
   height: 10px;
   background: #007bff;
   opacity: .5;
+}
+.request__msg-time-ms {
+	position: absolute;
+	text-align: center;
+	font-size: xx-small;
+	line-height: 24px;
 }
 
 .request__msg {
