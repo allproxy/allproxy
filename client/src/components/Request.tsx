@@ -13,7 +13,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 	const handleClick = () => { onClick(); store.setVisited(true); }
 	const message = store.getMessage();
 	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
-	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime + 'ms'
+	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime + ' ms'
 
 	return (
 		<div>
