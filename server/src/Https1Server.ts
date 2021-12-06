@@ -157,7 +157,29 @@ export default class Https1Server {
     }
 
     Global.log('Https1Server https.request', options);
-    const proxyReq = https.request(options, handleResponse);
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    proxyRequest();
+
+    function proxyRequest () {
+      const proxyReq = https.request(options, handleResponse);
+
+      proxyReq.on('error', async function (error: {[key:string]: string}) {
+        proxyReq.destroy();
+        if (error.code === 'EAI_AGAIN' && retryCount++ < MAX_RETRIES) {
+          console.log(`Retry ${retryCount} for ${options.hostname}`);
+          setTimeout(proxyRequest, retryCount * 1000);
+        } else {
+          console.error('Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig);
+          const requestBody = await requestBodyPromise;
+          httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, 'allproxy-config': proxyConfig });
+        }
+      });
+
+      clientReq.pipe(proxyReq, {
+        end: true
+      });
+    }
 
     async function handleResponse (proxyRes: http.IncomingMessage) {
       const requestBody = await requestBodyPromise;
@@ -201,16 +223,6 @@ export default class Https1Server {
         httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
       });
     }
-
-    proxyReq.on('error', async function (error) {
-      console.error('Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig);
-      const requestBody = await requestBodyPromise;
-      httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, 'allproxy-config': proxyConfig });
-    });
-
-    clientReq.pipe(proxyReq, {
-      end: true
-    });
   }
 }
 
