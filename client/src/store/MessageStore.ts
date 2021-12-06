@@ -72,7 +72,7 @@ export default class MessageStore {
         } else {
             const url = this.isHttpOrHttps()
                 ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`
-                : '';
+                : this.getUrl();
             str = `(${this.message.clientIp}->${this.message.serverHost}) ${url}`;
         }
         return str;
