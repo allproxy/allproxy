@@ -40,7 +40,6 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
 						${store.isError() ? ' error' : ''}
-						${store.isNoResponse() ? ' no-response' : ''}
 						${store.getVisited() && !store.isError() && !store.isNoResponse()
 							? ' visited-color' : ''}
 						`}

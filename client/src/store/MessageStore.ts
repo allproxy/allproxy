@@ -65,9 +65,15 @@ export default class MessageStore {
     public getRequestLine(): string {
         let str;
         if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'browser:') {
-            str = `${this.message.serverHost}${this.getUrl()}`;
+            str = this.getUrl().startsWith('http://') || this.getUrl().startsWith('https://')
+                ? ''
+                : `${this.message.protocol}//`;
+            str += `${this.message.serverHost}${this.getUrl()}`;
         } else {
-            str = `(${this.message.clientIp}->${this.message.serverHost}) ${this.getUrl()}`;
+            const url = this.isHttpOrHttps()
+                ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`
+                : '';
+            str = `(${this.message.clientIp}->${this.message.serverHost}) ${url}`;
         }
         return str;
     }

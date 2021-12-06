@@ -60,6 +60,7 @@ export default class GrpcProxy {
       const sequenceNumber = ++Global.nextSequenceNumber;
       const remoteAddress = clientReq.socket.remoteAddress;
       const httpMessage = new HttpMessage(
+        proxyConfig.isSecure ? 'https:' : 'http:',
         proxyConfig,
         sequenceNumber,
         remoteAddress!,

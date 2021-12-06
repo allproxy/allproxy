@@ -16,7 +16,7 @@ export default class SqlFormatter {
       ? (this.getCommand() === 'Query'
           ? this._formatResults(rspBuf)
           : HexFormatter.format(rspBuf))
-      : this.getCommand() === 'Quit'
+      : this.getCommand() === 'Quit' || this.getCommand() === 'Close'
         ? 'Closed'
         : NO_RESPONSE;
     this.command = 'Request unknown';

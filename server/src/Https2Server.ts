@@ -84,6 +84,7 @@ export default class Https2Server {
     };
 
     const httpMessage = new HttpMessage(
+      'https:',
       proxyConfig,
       sequenceNumber,
       remoteAddress!,
