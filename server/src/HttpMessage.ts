@@ -1,11 +1,12 @@
 import ProxyConfig from '../../common/ProxyConfig';
-import { MessageType, NO_RESPONSE } from '../../common/Message';
+import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message';
 import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 
 export default class HttpMessage {
   private emitCount = 0;
   private startTime: number;
+  private messageProtocol: MessageProtocol;
   private proxyConfig: ProxyConfig | undefined;
   private sequenceNumber = 0;
   private remoteAddress: string;
@@ -14,6 +15,7 @@ export default class HttpMessage {
   private reqHeaders: {};
 
   public constructor (
+    messageProtocol: MessageProtocol,
     proxyConfig: ProxyConfig | undefined,
     sequenceNumber: number,
     remoteAddress: string,
@@ -22,6 +24,7 @@ export default class HttpMessage {
     reqHeaders: {}
   ) {
     this.startTime = Date.now();
+    this.messageProtocol = messageProtocol;
     this.proxyConfig = proxyConfig;
     this.sequenceNumber = sequenceNumber;
     this.remoteAddress = remoteAddress;
@@ -53,6 +56,7 @@ export default class HttpMessage {
       this.proxyConfig ? this.proxyConfig.path : '',
       Date.now() - this.startTime
     );
+    message.protocol = this.messageProtocol;
 
     SocketIoMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime);
 
@@ -88,12 +92,14 @@ export default class HttpMessage {
 
   private getHttpEndpoint = (method: string, url: string, requestBody: string | {}): string => {
     let endpoint = url.split('?')[0];
-    const tokens = endpoint?.split('/');
+    const tokens = endpoint.split('/');
     endpoint = tokens ? tokens[tokens.length - 1] : '';
+    // This is an id?
     if (!isNaN(+endpoint) && tokens && tokens.length > 1) {
       endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
     }
 
+    // GraphQL?
     if (method !== 'OPTIONS' &&
           (url.endsWith('/graphql') || url.endsWith('/graphql-public'))) {
       endpoint = '';
@@ -117,7 +123,7 @@ export default class HttpMessage {
       const tag = url.endsWith('/graphql-public') ? 'GQLP' : 'GQL';
       endpoint = ' ' + tag + endpoint;
     }
-    if ('/' + endpoint === url) endpoint = '';
+    if (url === '/') endpoint = '';
     return endpoint;
   }
 }

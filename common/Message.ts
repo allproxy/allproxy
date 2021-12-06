@@ -1,10 +1,13 @@
-import ProxyConfig from './ProxyConfig'
+import ProxyConfig from './ProxyConfig';
 
-export const NO_RESPONSE = 'No Response'
+export const NO_RESPONSE = 'No Response';
 export enum MessageType {
-	REQUEST,
-	RESPONSE,
-	REQUEST_AND_RESPONSE,
+  // eslint-disable-next-line no-unused-vars
+  REQUEST,
+  // eslint-disable-next-line no-unused-vars
+  RESPONSE,
+  // eslint-disable-next-line no-unused-vars
+  REQUEST_AND_RESPONSE,
 }
 
 export type MessageProtocol =

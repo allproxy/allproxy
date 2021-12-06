@@ -1,5 +1,5 @@
 import urlParser from 'url';
-import Message from '../../common/Message';
+import Message, { MessageProtocol } from '../../common/Message';
 import HttpMessage from './HttpMessage';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
@@ -80,7 +80,15 @@ const resend = async (
         : +reqUrl.port;
     }
     const sequenceNumber = ++Global.nextSequenceNumber;
-    const httpMessage = new HttpMessage(proxyConfig, sequenceNumber, clientHostName, method, url, headers);
+    const httpMessage = new HttpMessage(
+      reqUrl.protocol as MessageProtocol,
+      proxyConfig,
+      sequenceNumber,
+      clientHostName,
+      method,
+      url,
+      headers
+    );
     httpMessage.emitMessageToBrowser(body);
 
     return httpMessage;

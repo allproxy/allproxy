@@ -49,6 +49,7 @@ export default class Http1Server {
     }
 
     const httpMessage = new HttpMessage(
+      'http:',
       proxyConfig,
       sequenceNumber,
         remoteAddress!,
