@@ -52,6 +52,13 @@ export default class MessageQueueStore {
 
 	@action public toggleAutoScroll() {
 		this.autoScroll = !this.autoScroll;
+		// When toggling to auto-scroll, de-select the active request, if it is selected.
+		// This will expand the request panel to full screen mode, and start the auto
+		// scrolling.  If a request is selected, the auto scrolling is stopped until
+		// the request is de-selected (clicked again).
+		if (this.autoScroll) {
+			snapshotStore.getSelectedReqSeqNumbers()[0] = Number.MAX_SAFE_INTEGER;
+		}
 	}
 
 	@action public clear() {
