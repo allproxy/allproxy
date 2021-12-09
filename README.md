@@ -1,6 +1,6 @@
-<h1 align="center" style="border-bottom: none;">AllProxy: HTTP, SQL, gRPC Debugging Tool</h1>
+<h1 align="center" style="border-bottom: none;">AllProxy: MITM HTTP, SQL, gRPC Debugging Tool</h1>
 
-AllProxy is similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
+AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 ![ ](https://github.com/davechri/allproxy/blob/master/images/dashboard.png)
 
