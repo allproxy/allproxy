@@ -1,4 +1,5 @@
 import Message from './common/Message';
+import pickIcon from './PickIcon';
 
 const firefoxColor = 'orangered';
 const colors = ['blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
@@ -9,7 +10,11 @@ export default function colorPicker(message: Message): string {
 	const protocol = message.proxyConfig!.protocol;
 
 	if (protocol === 'browser:') {
-		return firefoxColor;
+		if (pickIcon(protocol, message.requestHeaders['user-agent']).indexOf('keyboard') === -1) {
+			return firefoxColor;
+		} else {
+			return 'black';
+		}
 	}
 
 	let key = '';

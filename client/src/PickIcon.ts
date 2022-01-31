@@ -1,6 +1,6 @@
 import { ConfigProtocol } from "./common/ProxyConfig";
 
-export default function pickIcon(protocol: ConfigProtocol): string {
+export default function pickIcon(protocol: ConfigProtocol, userAgent?: string): string {
 	let iconClass = '';
 	switch (protocol) {
 		case 'http:':
@@ -8,7 +8,7 @@ export default function pickIcon(protocol: ConfigProtocol): string {
 			iconClass = 'fa fa-paper-plane';
 			break;
 		case 'browser:':
-			iconClass = browserIcon();
+			iconClass = browserIcon(userAgent);
 			break;
 		case 'mysql:':
 			iconClass = 'fa fa-database';
@@ -58,6 +58,8 @@ function browserIcon(userAgent?: string): string {
 		if (userAgent.includes('chrome') || userAgent.includes('chromium')) {
 			return 'fab fa-chrome';
 		}
+		return 'fas fa-keyboard';
+		// return 'fas fa-terminal';
 	}
 
 	// Opera 8.0+

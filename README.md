@@ -24,7 +24,7 @@ AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP
   * [Start the AllProxy](#start-the-allproxy-proxy)
   * [Install CA Certificate](#install-ca-certificate)
   * [Open Dashboard in Browser](#open-dashboard-in-browser)
-  * [Configure Browser Proxy](#configure-browser-proxy)
+  * [Configure Proxy](#configure-proxy)
 * [Screenshots](#screenshots)
 * [Configuration](#configuration)
   * [HTTP/HTTPS Proxy](#http-https-proxy)
@@ -111,7 +111,7 @@ bin$ ./allproxy-ca
 
 Enter http://localhost:8888/allproxy in browser.
 
-### Configure Browser Proxy
+### Configure Proxy
 
 Chrome will also honor the system proxy configuration for MacOS.  The **allproxy-system-proxy** command can be used to configure the system proxy.
 
@@ -124,6 +124,13 @@ allproxy$ allproxy-system-proxy enable
 #### GitHub Project
 ```sh
 $ allproxy-system-proxy enable
+```
+
+#### Terminal
+To capture http/https messages initiated by terminal commands, set the https_proxy and http_proxy environment variables.
+```sh
+$ export https_proxy=localhost:8888
+$ export http_proxy=localhost:8888
 ```
 
 #### Firefox Proxy Configuration

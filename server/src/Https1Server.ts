@@ -77,13 +77,19 @@ export default class Https1Server {
       proxyConfig.isSecure = true;
     };
 
+    // URLs for requests proxied from terminal (e.g., https_proxy=localhost:8888) do not include schema and hostname
+    let urlWithHostname = clientReq.url!;
+    if (this.proxyType === 'forward' && urlWithHostname.startsWith('/')) {
+      urlWithHostname = "https://" + this.hostname + urlWithHostname;
+    }
+
     const httpMessage = new HttpMessage(
       'https:',
       proxyConfig,
       sequenceNumber,
       remoteAddress!,
       clientReq.method!,
-      clientReq.url!,
+      urlWithHostname,
       clientReq.headers
     );
 

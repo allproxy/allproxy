@@ -24,7 +24,7 @@ export default class MessageStore {
             this.iconClass += ' resend-icon';
         }
         else {
-            this.iconClass = pickIcon(message.proxyConfig!.protocol);
+            this.iconClass = pickIcon(message.proxyConfig!.protocol, this.getUserAgent());
         }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
@@ -110,6 +110,10 @@ export default class MessageStore {
             // body = Util.fixNewlines(body);
         }
         return body;
+    }
+
+    private getUserAgent(): string|undefined {
+        return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : undefined;
     }
 
     public isHttpOrHttps() {
