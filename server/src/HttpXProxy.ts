@@ -53,7 +53,7 @@ export default class HttpXProxy {
         } else { // Assume this is just HTTP in the clear
           Global.log('HttpXProxy http:\n', HexFormatter.format(data));
           const httpServerSocket = net.connect(this.http1Port, undefined, () => {
-            Global.log('HttpXProxy connected to httpsServer');
+            Global.log('HttpXProxy connected to httpServer');
             httpServerSocket.write(data);
             httpServerSocket.pipe(httpXSocket);
             httpXSocket.pipe(httpServerSocket);

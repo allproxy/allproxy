@@ -94,8 +94,8 @@ export default class HttpMessage {
     let endpoint = url.split('?')[0];
     const tokens = endpoint.split('/');
     endpoint = tokens ? tokens[tokens.length - 1] : '';
-    // This is an id?
-    if (!isNaN(+endpoint) && tokens && tokens.length > 1) {
+    // Include the last 2 path segments, if this looks like and id (e.g., '/items/111222')
+    if (tokens && tokens.length > 1 && tokens[tokens.length - 2].endsWith('s')) {
       endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
     }
 

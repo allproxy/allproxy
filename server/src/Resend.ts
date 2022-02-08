@@ -49,6 +49,9 @@ const resend = async (
   map.set('GET', 'get');
   map.set('HEAD', 'head');
   map.set('POST', 'post');
+  map.set('DELETE', 'delete');
+  map.set('PUT', 'put');
+  map.set('PATCH', 'patch');
 
   axios({
     method: map.get(method),
