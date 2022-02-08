@@ -14,8 +14,9 @@ const decompressResponse = require('decompress-response');
  */
 export default class Http1Server {
   public static async start (port: number, host?: string): Promise<number> {
-    const server: any = http.createServer((clientReq, clientRes) => Http1Server.onRequest(clientReq, clientRes));
-
+    const server = http.createServer((clientReq, clientRes) => Http1Server.onRequest(clientReq, clientRes));
+    server.keepAliveTimeout = 0;
+        
     const listenPort = await listen('Http1Server', server, port, host);
     Global.socketIoManager.addHttpServer(server);
     return listenPort;
@@ -32,6 +33,8 @@ export default class Http1Server {
 
     const sequenceNumber = ++Global.nextSequenceNumber;
     const remoteAddress = clientReq.socket.remoteAddress;
+
+    Global.log(sequenceNumber, clientReq.url)
 
     // Find matching proxy configuration
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
@@ -85,14 +88,7 @@ export default class Http1Server {
 
       let method = clientReq.method;
 
-      // GET request received with body?
-      if (clientReq.method === 'GET' &&
-          clientReq.headers['content-length'] && +clientReq.headers['content-length'] > 0) {
-        method = 'POST'; // forward request as POST
-      }
-
-      const headers = clientReq.headers;
-      headers.host = proxyConfig.hostname;
+      const headers = clientReq.headers;      
       if (proxyConfig.port) headers.host += ':' + proxyConfig.port;
 
       let { protocol, hostname, port } = proxyConfig.protocol === 'browser:'
@@ -102,13 +98,16 @@ export default class Http1Server {
         port = proxyConfig.protocol === 'https:' ? 443 : 80;
       }
 
+      headers.host = hostname! + ':' + port;
+      
       const options = {
         protocol,
         hostname,
         port,
         path: clientReq.url,
         method,
-        headers
+        headers,
+        agent: new http.Agent({ keepAlive: false }),
       };
 
       let proxy;
@@ -120,23 +119,26 @@ export default class Http1Server {
 
       async function handleResponse (proxyRes: http.IncomingMessage) {
         const requestBody = await requestBodyPromise;
-        if (
-          typeof requestBody === 'object' ||
-          (typeof requestBody === 'string' && requestBody.length > 0)
-        ) {
-          httpMessage.emitMessageToBrowser(requestBody);
-        }
-
+        
         /**
          * Forward the response back to the client
          */
-        clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers);
+        for(let i = 0; i < proxyRes.rawHeaders.length; i += 2) {
+          const key = proxyRes.rawHeaders[i];
+          const value = proxyRes.rawHeaders[i+1];
+          clientRes.setHeader(key, value);                                        
+        }
+        if ((clientReq.method === 'DELETE' || clientReq.method === 'PUT') && proxyRes.statusCode && proxyRes.statusCode < 400) {
+          clientRes.removeHeader('Connection'); // Don't send keepalive
+        }
+        
+        clientRes.writeHead((proxyRes as any).statusCode, proxyRes.statusMessage);
         proxyRes.pipe(clientRes, {
           end: true
         });
 
         const resBody = await getResBody(proxyRes);
-        httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
+        httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, clientRes.getHeaders(), resBody);
       }
 
       proxy.on('error', async function (error) {
@@ -147,7 +149,7 @@ export default class Http1Server {
 
       clientReq.pipe(proxy, {
         end: true
-      });
+      });      
     }
 
     function getReqBody (clientReq: IncomingMessage): Promise<string | {}> {

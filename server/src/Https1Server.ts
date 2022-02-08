@@ -188,14 +188,7 @@ export default class Https1Server {
     }
 
     async function handleResponse (proxyRes: http.IncomingMessage) {
-      const requestBody = await requestBodyPromise;
-      if (
-        typeof requestBody === 'object' ||
-        (typeof requestBody === 'string' && requestBody.length > 0)
-      ) {
-        httpMessage.emitMessageToBrowser(requestBody);
-      }
-
+      
       clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers);
 
       const chunks: Buffer[] = [];

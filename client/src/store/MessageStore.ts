@@ -19,13 +19,13 @@ export default class MessageStore {
         this._isError = this.isErrorResponse(message);
         this.visited = false;
         this.color = colorPicker(message);
-        if (message.requestHeaders['allproxy'] === 'resend') {
-            this.iconClass = 'fa fa-clone';
-            this.iconClass += ' resend-icon';
-        }
-        else {
+        // if (message.requestHeaders['allproxy'] === 'resend') {
+        //     this.iconClass = 'fa fa-clone';
+        //     this.iconClass += ' resend-icon';
+        // }
+        // else {
             this.iconClass = pickIcon(message.proxyConfig!.protocol, this.getUserAgent());
-        }
+        // }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
     }
@@ -67,8 +67,8 @@ export default class MessageStore {
         if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'browser:') {
             str = this.getUrl().startsWith('http://') || this.getUrl().startsWith('https://')
                 ? ''
-                : `${this.message.protocol}//`;
-            str += `${this.message.serverHost}${this.getUrl()}`;
+                : `${this.message.protocol}//${this.message.serverHost}`;
+            str += `${this.getUrl()}`;
         } else {
             const url = this.isHttpOrHttps()
                 ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`

@@ -39,16 +39,19 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 					</button>
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
-						${store.isError() ? ' error' : ''}
+						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						${store.getVisited() && !store.isError() && !store.isNoResponse()
 							? ' visited-color' : ''}
 						`}
 						title={store.getRequestBody()}
 						onClick={ handleClick }
 					>
-						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
+					<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
 						{store.isHttpOrHttps() && !store.isNoResponse() &&
-							message.status + ' '}
+							<span className={store.isError() ? 'error' : ''}>
+								{message.status + ' '}
+							</span>
+						}
 						{message.method+' '}
 						<b>{message.endpoint+' '}</b>
 						{store.getRequestLine()}
@@ -71,7 +74,12 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 
 	function canResend() {
 		return ((message.protocol === 'http:' || message.protocol === 'https:') && message.proxyConfig?.protocol !== 'grpc:')
-			&& (message.method === 'GET' || message.method === 'POST' || message.method === 'HEAD');
+			&& (message.method === 'GET' || 
+				message.method === 'POST' || 
+				message.method === 'HEAD' || 
+				message.method === 'DELETE' || 
+				message.method === 'PUT' ||
+				message.method === 'PATCH');
 	}
 })
 
