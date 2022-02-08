@@ -35,7 +35,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 							<label>Body:&nbsp;</label>
 						</div>
 						<div className="resend-modal__body-container">
-							{typeof message.requestBody === 'object' && store.isBodyJson() ?
+							{typeof message.requestBody === 'object' ?
 								<ReactJson
 									src={message.requestBody}
 									name={false}

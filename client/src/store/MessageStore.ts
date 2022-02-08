@@ -19,13 +19,13 @@ export default class MessageStore {
         this._isError = this.isErrorResponse(message);
         this.visited = false;
         this.color = colorPicker(message);
-        // if (message.requestHeaders['allproxy'] === 'resend') {
-        //     this.iconClass = 'fa fa-clone';
-        //     this.iconClass += ' resend-icon';
-        // }
-        // else {
+        if (message.requestHeaders['allproxy'] === 'resend') {
+            this.iconClass = 'fa fa-clone';
+            this.iconClass += ' resend-icon';
+        }
+        else {
             this.iconClass = pickIcon(message.proxyConfig!.protocol, this.getUserAgent());
-        // }
+        }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
     }

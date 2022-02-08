@@ -45,6 +45,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 		clear();
 	}
 
+	function getDisplayedCount(): number {
+		let n = 0;
+		messageQueueStore.getMessages().map((messageStore) => {
+			if (!filterStore.isFiltered(messageStore)) ++n;
+		})
+		return n;
+	}
+
 	const statusClassName = 'fa ' + (socketStore.isConnected()
 		? 'success fa-circle' : 'error fa-exclamation-triangle');
 	return (
@@ -159,7 +167,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			</div>
 			<div>
 				<div className="header__count" title="Received messages">
-					<div>Requests/Responses: {socketStore.getRequestCount()+'/'+socketStore.getResponseCount()}</div>
+					<div>{getDisplayedCount()+' of '+messageQueueStore.getMessages().length}</div>
+				</div>				
+			</div>
+			<div>
+				<div className="header__count" title="Received messages">
+					{socketStore.getRequestCount() > socketStore.getResponseCount() ??
+						<div>No Response: {socketStore.getRequestCount() - socketStore.getResponseCount()}</div>
+					}
 				</div>
 				<div hidden className="header__count" title="Messages queued at server">
 					<div>Queued: {socketStore.getQueuedCount() }</div>
