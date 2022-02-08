@@ -13,10 +13,11 @@ const resend = async (
   body?: string | object
 ) => {
   const headers: {[key: string]: string} = {};
-  const unsafeHeaders = ['host',
+  const unsafeHeaders = [
+    'host',
     'connection',
     'content-length',
-    'origin', 'user-agent',
+    'origin',
     'referer',
     'accept-encoding',
     'cookie',
@@ -65,7 +66,7 @@ const resend = async (
   })
     .catch(error => {
       if (forwardProxy) {
-        recordHttpResponse(error.response);
+        httpMessage.emitMessageToBrowser(body, 500, {}, error);
       }
     });
 
