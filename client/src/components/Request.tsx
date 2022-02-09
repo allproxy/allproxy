@@ -39,9 +39,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 					</button>
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
-						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
-						${store.getVisited() && !store.isError() && !store.isNoResponse()
-							? ' visited-color' : ''}
+						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}						
 						`}
 						title={store.getRequestBody()}
 						onClick={ handleClick }
@@ -52,9 +50,13 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 								{message.status + ' '}
 							</span>
 						}
-						{message.method+' '}
-						<b>{message.endpoint+' '}</b>
-						{store.getRequestLine()}
+						<span className={`
+							${store.getVisited() ? ' visited-color' : ''}
+						`}>
+							{message.method+' '}
+							<b>{message.endpoint+' '}</b>
+							{store.getRequestLine()}
+						</span>
 					</div>
 				</div>
 			</div>
