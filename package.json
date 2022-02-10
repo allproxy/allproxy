@@ -58,6 +58,7 @@
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "net": "^1.0.2",
+    "node-fetch": "^2.6.7",
     "path": "^0.12.7",
     "socket.io": "^4.0.1",
     "sql-formatter": "^2.3.3",

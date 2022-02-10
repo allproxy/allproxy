@@ -1,9 +1,9 @@
 import urlParser from 'url';
 import Message, { MessageProtocol } from '../../common/Message';
 import HttpMessage from './HttpMessage';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
 import Global from './Global';
+const fetch = require('node-fetch');
 
 const resend = async (
   forwardProxy: boolean,
@@ -46,29 +46,28 @@ const resend = async (
     httpMessage = recordHttpRequest();
   }
 
-  const map: Map<string, AxiosRequestConfig['method']> = new Map();
-  map.set('GET', 'get');
-  map.set('HEAD', 'head');
-  map.set('POST', 'post');
-  map.set('DELETE', 'delete');
-  map.set('PUT', 'put');
-  map.set('PATCH', 'patch');
-
-  axios({
-    method: map.get(method),
-    url,
-    data: body,
-    headers
-  }).then((response) => {
-    if (forwardProxy) {
-      recordHttpResponse(response);
+  if (body && body != null && typeof body === 'object') {
+    body = JSON.stringify(body);
+  }
+  try {
+    const response = await fetch(url, 
+      {
+        method: method, 
+        headers,
+        body: body === null ? undefined : body
+      });    
+    try {
+      const data = await response.json();
+      recordHttpResponse(response, data);
+    } catch(e) {
+      recordHttpResponse(response, "");
     }
-  })
-    .catch(error => {
-      if (forwardProxy) {
-        httpMessage.emitMessageToBrowser(body, 500, {}, error);
-      }
-    });
+  } catch (e) {
+    console.log(e);
+    if (forwardProxy) {
+      httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));
+    }
+  }
 
   function recordHttpRequest (): HttpMessage {
     const proxyType = reqUrl.protocol ? 'forward' : 'reverse';
@@ -98,8 +97,8 @@ const resend = async (
     return httpMessage;
   }
 
-  function recordHttpResponse (response: AxiosResponse) {
-    httpMessage.emitMessageToBrowser(body, response.status, response.headers, response.data);
+  function recordHttpResponse (response: any, data: any) {
+    httpMessage.emitMessageToBrowser(body, response.status, response.headers, data);
   }
 };
 
