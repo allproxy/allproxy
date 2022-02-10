@@ -409,6 +409,7 @@ td input {
 }
 .resend-modal__body-container {
 	max-height: 60vh;
+	height: 60vh;
 	overflow-y: auto;
 }
 .resend-modal__body {

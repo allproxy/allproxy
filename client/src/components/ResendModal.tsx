@@ -55,7 +55,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 							onDelete={handleDelete}
 						/>
 					:
-						<textarea className="resend-modal__body form-control" rows={10} cols={300}
+						<textarea className="resend-modal__body form-control" rows={100} cols={300}
 							onChange={ (e) => store.setBody(e.target.value) }
 							value={ store.getBody() as string }
 							placeholder="Enter request body"/>
