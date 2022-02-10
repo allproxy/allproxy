@@ -4,13 +4,15 @@ import { socketStore } from "./SocketStore";
 
 export default class ResendStore {
     private message: Message;
-    private methodAndUrl: string;
+    private method: string;
+    private url: string;
     private body: string | object;
     private error = '';
 
     public constructor(message: Message) {
-        this.message = message;
-        this.methodAndUrl = message.method + ' ' + message.url;
+        this.message = JSON.parse(JSON.stringify(message));
+        this.method = message.method!;
+        this.url = message.url!;
         this.body = message.requestBody;
 		makeAutoObservable(this);
     }
@@ -19,12 +21,20 @@ export default class ResendStore {
         return this.message;
     }
 
-    public getMethodAndUrl() {
-        return this.methodAndUrl;
+    public getMethod() {
+        return this.method;
     }
 
-    @action setMethodAndUrl(value: string) {
-        this.methodAndUrl = value;
+    @action setMethod(value: string) {
+        this.method = value;
+    }
+
+    public getUrl() {
+        return this.url;
+    }
+
+    @action setUrl(value: string) {
+        this.url = value;
     }
 
     public getError() {
@@ -50,16 +60,8 @@ export default class ResendStore {
     }
 
     public doResend() {
-        const tokens = this.methodAndUrl.split(' ', 2);
-        let method;
-        let url;
-        if (tokens.length > 1) {
-            method = tokens[0];
-            url = tokens[1];
-        } else {
-            url = this.methodAndUrl;
-            method = 'GET';
-        }
+        const method = this.method;
+        let url = this.url;
 
         const forwardProxy = url.startsWith('http:') || url.startsWith('https:');
         if (!forwardProxy) {

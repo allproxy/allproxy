@@ -22,35 +22,44 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	      <div>
 	        <h3 className="modal-title">Edit Request and Send</h3>
 	        <div className="modal-body">
-						<div>
-							<label>URL:</label>
-						</div>
-						<div className="resend-modal__url-container">
-							<textarea className="resend-modal__url form-control" rows={2} cols={300}
-								onChange={ (e) => store.setMethodAndUrl(e.target.value) }
-								value={ store.getMethodAndUrl() }
-								placeholder="<method> <url>"/>
-						</div>
-						<div style={{marginTop: '10px'}}>
-							<label>Body:&nbsp;</label>
-						</div>
-						<div className="resend-modal__body-container">
-							{typeof message.requestBody === 'object' ?
-								<ReactJson
-									src={message.requestBody}
-									name={false}
-									displayDataTypes={false}
-									quotesOnKeys={false}
-									onEdit={handleEdit}
-									onAdd={handleAdd}
-									onDelete={handleDelete}
-								/>
-							:
-								<textarea className="resend-modal__body form-control" rows={10} cols={300}
-									onChange={ (e) => store.setBody(e.target.value) }
-									value={ store.getBody() as string }
-									placeholder="Enter request body"/>
-						}
+				<select className="resend-modal__method"
+					onChange={e => store.setMethod(e.target.value)} value={store.getMethod()}
+				>
+					<option>GET</option>
+					<option>DELETE</option>
+					<option>PATCH</option>
+					<option>POST</option>
+					<option>PUT</option>					
+				</select>			
+				<div className="resend-modal__url-container">
+					<textarea className="resend-modal__url form-control" rows={2} cols={300}
+						onChange={ (e) => store.setUrl(e.target.value) }
+						value={ store.getUrl() }
+						placeholder="<method> <url>"/>
+				</div>
+				<div style={{marginTop: '10px'}}>
+					<button type="button" className="resend-modal__send btn btn-sm btn-danger" 
+						onClick={ handleRemoveBody }>
+						Remove Body
+					</button>
+				</div>
+				<div className="resend-modal__body-container">
+					{message.requestBody && typeof message.requestBody === 'object' ?
+						<ReactJson
+							src={message.requestBody}
+							name={false}
+							displayDataTypes={false}
+							quotesOnKeys={false}
+							onEdit={handleEdit}
+							onAdd={handleAdd}
+							onDelete={handleDelete}
+						/>
+					:
+						<textarea className="resend-modal__body form-control" rows={10} cols={300}
+							onChange={ (e) => store.setBody(e.target.value) }
+							value={ store.getBody() as string }
+							placeholder="Enter request body"/>
+				}
 	        	</div>
 	        </div>
 	        <div className="modal-footer">
@@ -71,6 +80,11 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	    </div>
 	  </Modal>
 	);
+
+	function handleRemoveBody() {
+		message.requestBody = "";
+		store.setBody("");
+	}
 
 	function handleEdit(props: InteractionProps) {
 		store.setBody(props.updated_src);
