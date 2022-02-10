@@ -60,13 +60,14 @@ const resend = async (
       const data = await response.json();
       recordHttpResponse(response, data);
     } catch(e) {
-      recordHttpResponse(response, "");
+      try {
+        recordHttpResponse(response, "");
+      } catch(e) {
+        httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object)); 
+      }
     }
-  } catch (e) {
-    console.log(e);
-    if (forwardProxy) {
-      httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));
-    }
+  } catch (e) {    
+    httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));    
   }
 
   function recordHttpRequest (): HttpMessage {
