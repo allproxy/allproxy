@@ -400,8 +400,14 @@ td input {
 .http-message__url {
 	cursor: pointer;
 }
-.resend-modal__method {
-	margin-bottom: .5rem;
+.resend-modal__field {
+	margin-bottom: 1rem;
+	margin-right: .5rem;
+	height: 30px;
+	width: 100px;
+}
+.resend-modal__host {
+	width: 200px;
 }
 .resend-modal__url-container,
 .resend-modal__body-container {
