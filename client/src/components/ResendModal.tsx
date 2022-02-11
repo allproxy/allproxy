@@ -22,7 +22,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	      <div>
 	        <h3 className="modal-title">Edit Request and Send</h3>
 	        <div className="modal-body">
-				<select className="resend-modal__method"
+				<select className="resend-modal__field"
 					onChange={e => store.setMethod(e.target.value)} value={store.getMethod()}
 				>
 					<option>GET</option>
@@ -30,14 +30,33 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 					<option>PATCH</option>
 					<option>POST</option>
 					<option>PUT</option>					
-				</select>			
-				<div className="resend-modal__url-container">
-					<textarea className="resend-modal__url form-control" rows={2} cols={300}
-						onChange={ (e) => store.setUrl(e.target.value) }
-						value={ store.getUrl() }
-						placeholder="<method> <url>"/>
+				</select>
+				<div>
+					<select className="resend-modal__field"
+						onChange={e => store.setProtocol(e.target.value)} value={store.getProtocol()}				>
+						<option>http</option>
+						<option>https</option>									
+					</select>
+					<input className="resend-modal__field resend-modal__host"
+						type="text" 
+						placeholder="Host"
+						onChange={e => store.setHost(e.target.value)} value={store.getHost()}
+					/>	
+					<input className="resend-modal__field"
+						type="number" 
+						placeholder="Port"
+						onChange={e => store.setPort(e.target.value)} value={store.getPort()}
+					/>
 				</div>
-				<div style={{marginTop: '10px'}}>
+				<div className="resend-modal__url-container">
+					<textarea className="resend-modal__url form-control" 
+						rows={2} cols={300}
+						placeholder="Path and query parameters"
+						onChange={ (e) => store.setPath(e.target.value) }
+						value={ store.getPath() }
+						/>
+				</div>				
+				<div style={{marginTop: '1rem', marginBottom: '.5rem'}}>
 					<button type="button" className="resend-modal__send btn btn-sm btn-danger" 
 						onClick={ handleRemoveBody }>
 						Remove Body
