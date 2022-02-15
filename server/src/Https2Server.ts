@@ -67,7 +67,7 @@ export default class Https2Server {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-    Global.log('Https1Server onRequest', reqUrl.path);
+    console.log('Https2Server onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
     const sequenceNumber = ++Global.nextSequenceNumber;

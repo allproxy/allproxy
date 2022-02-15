@@ -7,6 +7,8 @@ import Global from './Global';
 import Https2Server from './Https2Server';
 import Http1Server from './Http1Server';
 
+// const GRPC_PORT = 11111;
+
 export default class HttpXProxy {
   private server: net.Server;
   private httpsServer = Global.useHttp2
@@ -14,7 +16,7 @@ export default class HttpXProxy {
     : new Https1Server('allproxy', 'reverse');
 
   private http1Port = 0;
-
+  
   public static start (port: number, hostname?: string): HttpXProxy {
     return new HttpXProxy(port, hostname);
   }
@@ -29,6 +31,7 @@ export default class HttpXProxy {
 
     this.server = net.createServer(this.onConnect.bind(this));
     listen('HttpXProxy', this.server, port, hostname);
+    // GrpcProxy.forwardProxy(GRPC_PORT, false);
   }
 
   private async startServers () {
@@ -40,7 +43,9 @@ export default class HttpXProxy {
     let done = false;
     const onData = async (data: Buffer) => {
       if (!done) {
-        if (data.toString().startsWith('CONNECT')) {
+        const line1 = data.toString().split('\r\n')[0];        
+        if (line1.startsWith('CONNECT')) {
+          console.log(line1);
           HttpConnectHandler.doConnect(httpXSocket, data);
         } else if (this.isClientHello(data)) {
           Global.log('HttpXProxy client hello:\n', HexFormatter.format(data));
@@ -49,8 +54,12 @@ export default class HttpXProxy {
             httpsServerSocket.write(data);
             httpsServerSocket.pipe(httpXSocket);
             httpXSocket.pipe(httpsServerSocket);
-          });
-        } else { // Assume this is just HTTP in the clear
+          });        
+        } else { // Assume this is just HTTP in the clear  
+          console.log(line1);        
+          // const port = line1.endsWith('HTTP/1.0') || line1.endsWith('HTTP/1.1')
+          //   ? this.http1Port
+          //   : GRPC_PORT;          
           Global.log('HttpXProxy http:\n', HexFormatter.format(data));
           const httpServerSocket = net.connect(this.http1Port, undefined, () => {
             Global.log('HttpXProxy connected to httpServer');
