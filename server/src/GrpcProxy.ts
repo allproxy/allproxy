@@ -55,6 +55,7 @@ export default class GrpcProxy {
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
+      console.log(clientReq.method + ' ' + clientReq.url)
       Global.log('GrpcProxy onRequest', reqUrl.path);
 
       const sequenceNumber = ++Global.nextSequenceNumber;
