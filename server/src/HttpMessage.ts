@@ -31,6 +31,7 @@ export default class HttpMessage {
     this.method = method;
     this.url = url;
     this.reqHeaders = reqHeaders;
+    this.reqHeaders = this.sortObjectKeys(this.reqHeaders)
   }
 
   public async emitMessageToBrowser (
@@ -58,6 +59,7 @@ export default class HttpMessage {
     );
     message.protocol = this.messageProtocol;
 
+    resHeaders = this.sortObjectKeys(resHeaders);
     SocketIoMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime);
 
     Global.socketIoManager.emitMessageToBrowser(
@@ -126,4 +128,14 @@ export default class HttpMessage {
     if (url === '/') endpoint = '';
     return endpoint;
   }
+
+  private sortObjectKeys(o: {[key:string]: any}): {[key:string]: any} {
+    const out: {[key:string]: any} = {};
+    const keys = Object.keys(o).sort();
+    for (const key of keys) {
+     out[key] = o[key];
+    }
+    return out;
+  }
+
 }
