@@ -40,6 +40,7 @@ const SnapshotTabContent = observer(({
 	let maxElapsedTime = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
+			if (messageStore.getMessage().protocol === 'log:') return;
 			const et = messageStore.getMessage().elapsedTime ? messageStore.getMessage().elapsedTime : 0;
 			maxElapsedTime = Math.max(maxElapsedTime, et);
 		});
@@ -64,7 +65,7 @@ const SnapshotTabContent = observer(({
 								activeRequestIndex = index;
 							}
 							matchCount++;
-							const timeBarPercent = maxElapsedTime > 0
+							const timeBarPercent = maxElapsedTime > 0 && message.protocol !== 'log:'
 								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
 								: 0;
 							return (
