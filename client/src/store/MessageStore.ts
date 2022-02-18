@@ -69,6 +69,8 @@ export default class MessageStore {
                 ? ''
                 : `${this.message.protocol}//${this.message.serverHost}`;
             str += `${this.getUrl()}`;
+        } if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
+            str = this.getUrl()
         } else {
             const url = this.isHttpOrHttps()
                 ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`

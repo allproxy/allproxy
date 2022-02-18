@@ -15,7 +15,7 @@ const ExportDialog = observer(({ open, onClose }: Props) => {
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-      		<DialogTitle id="simple-dialog-title">Enter export file name</DialogTitle>
+      		<DialogTitle id="simple-dialog-title">Enter Snapshot Name</DialogTitle>
 			<input className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)}/>
 			<button className={'btn btn-success'}
 				disabled={fileName.length === 0}

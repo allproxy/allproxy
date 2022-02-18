@@ -7,11 +7,15 @@ import { MessageType } from '../../common/Message';
 export default class LogProxy {
   proxyConfig: ProxyConfig;
   command: string;
+  jsonFieldFilter: string;
+  bufferingCount: number;
   retry = true;
 
   constructor (proxyConfig: ProxyConfig) {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
+    this.jsonFieldFilter = proxyConfig.hostname;
+    this.bufferingCount = proxyConfig.port;
     this.start();
   }
 
@@ -70,7 +74,7 @@ export default class LogProxy {
   }
 
   TIMEOUT = 5000;
-  RECORD_LIMIT = 50;
+  //RECORD_LIMIT = 50;
   streamName = '';
   recordCount = 0;
   buffer = '';
@@ -84,40 +88,55 @@ export default class LogProxy {
 
     if (this.streamName.length === 0) {
       this.streamName = streamName;
+    }        
+    
+    if (this.jsonFieldFilter && this.jsonFieldFilter.length > 0) {
+      let json: {[key:string]: any} | undefined
+      try {
+        json = JSON.parse(data)
+      } catch(e) {}
+      if (json && json[this.jsonFieldFilter]) {
+        this.emitToBrowser(json[this.jsonFieldFilter], streamName, json)
+      }
+    } else {
+      this.buffer += data;
+      if (++this.recordCount < this.bufferingCount && streamName === this.streamName) {
+        this.timerHandle = setInterval(
+          () => {
+            this.recordCount = this.bufferingCount;
+            this.sendToBrowser(this.streamName, '');
+          },
+          this.TIMEOUT
+        );
+        return;
+      }
+      //const commandTokens = this.command.split(' ');
+      //const title = commandTokens[commandTokens.length - 1];
+      const title = this.buffer.toString().split('\n')[0];
+      this.emitToBrowser(title, streamName, this.buffer.toString());
+      
+      this.buffer = '';
+      this.recordCount = 0;
     }
+  }
 
-    this.buffer += data;
-    if (++this.recordCount < this.RECORD_LIMIT && streamName === this.streamName) {
-      this.timerHandle = setInterval(
-        () => {
-          this.recordCount = this.RECORD_LIMIT;
-          this.sendToBrowser(this.streamName, '');
-        },
-        this.TIMEOUT
-      );
-      return;
-    }
-
-    const seqNo = ++Global.nextSequenceNumber;
-    const commandTokens = this.command.split(' ');
+  async emitToBrowser(title: string, streamName: string, data: string | {}) {
+    const seqNo = ++Global.nextSequenceNumber;    
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
       seqNo,
       {}, // headers
       '', // method
-      this.buffer.toString().split('\n')[0], // url
+      title, // url
       '', // endpoint
       { allproxy_inner_body: this.command }, // req body
-      'log:' + commandTokens[commandTokens.length - 1], // clientIp
+      '', // 'log:' + title, // clientIp
       streamName, // serverHost
       '', // path
       0
     );
-    SocketIoMessage.appendResponse(message, {}, this.buffer.toString(), 0, 0);
+    SocketIoMessage.appendResponse(message, {}, data, 0, 0);
     message.protocol = 'log:';
     Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig);
-
-    this.buffer = '';
-    this.recordCount = 0;
   }
 }
