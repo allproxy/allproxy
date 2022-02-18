@@ -26,6 +26,22 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				return 'Port';
 		}
 	};
+	const targetHostLabel = () => {
+		switch (protocol) {			
+			case 'log:':
+				return 'JSON Field Name Filter (optional)';
+			default:
+				return 'Target Host';
+		}
+	};
+	const targetPortLabel = () => {
+		switch (protocol) {			
+			case 'log:':
+				return 'Number Records to Buffer';
+			default:
+				return 'Target Host';
+		}
+	};
 
 	return (
 		<div style={{height: '100%'}}>
@@ -39,8 +55,8 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							<td className="text-primary">Secure?</td>
 						}
 						<td className="text-primary" style={{width: pathLabel().includes('Port') ? '12ch' : undefined}}><label>{pathLabel()}</label></td>
-						<td className="text-primary"><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Host'}</label></td>
-						<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && protocol !== 'log:' && 'Target Port'}</label></td>
+						<td className="text-primary"><label>{protocol !== 'browser:' && targetHostLabel()}</label></td>
+						<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && targetPortLabel()}</label></td>
 						<td className="text-primary"><label>Comment</label></td>
 						<td className="text-primary"><label>Status</label></td>
 					</tr>
@@ -76,13 +92,14 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							</td>
 							<td className="settings-modal__proxy-host-container">
 								<input className="form-control settings-modal__proxy-host"
-									hidden={ entry.protocol === 'browser:' || entry.protocol === 'log:' }
+									hidden={ protocol === 'browser:' }
 									onChange={ (e) => store.updateEntryHost(index, e.target.value) }
 									value={entry.hostname} />
 							</td>
 							<td className="settings-modal__proxy-host-container">
 								<input className="form-control settings-modal__proxy-port"
-									hidden={ entry.protocol === 'browser:' || entry.protocol === 'log:' }
+									disabled={ protocol === 'log:' && entry.hostname.length > 0 }
+									hidden={ protocol === 'browser:' }
 									onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 									value={entry.port} />
 							</td>

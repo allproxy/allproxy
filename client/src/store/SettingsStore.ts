@@ -8,7 +8,7 @@ export type ConfigCategory =
 	| 'DATA STORES'
 	| 'GRPC'
 	| 'HTTP'
-	| 'LOGGING'
+	| 'LOG'
 	| 'TCP';
 
 export const ConfigCategories: ConfigCategory[] = [
@@ -16,7 +16,7 @@ export const ConfigCategories: ConfigCategory[] = [
 	'DATA STORES',
 	'GRPC',
 	'HTTP',
-	'LOGGING',
+	'LOG',
 	'TCP',
 ];
 
@@ -90,11 +90,11 @@ ConfigCategoryGroups.set('HTTP',
 		},
 	]
 );
-ConfigCategoryGroups.set('LOGGING',
+ConfigCategoryGroups.set('LOG',
 	[
 		{
 			protocol: 'log:',
-			title: 'Log Snooper',
+			title: 'Log Monitor',
 			ports: [],
 		},
 	]
@@ -310,7 +310,10 @@ export default class SettingsStore {
 
 	@action public updateEntryHost(index: number, value: string) {
 		const entry = { ...this.entries[index] };
-		entry.hostname = value;
+		entry.hostname = value;		
+		if (entry.protocol === 'log:' && value.length > 0) {
+			entry.port = 0;
+		}
 		this.entries.splice(index, 1, entry);
 		this.changed = true;
 	}
