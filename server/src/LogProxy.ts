@@ -10,6 +10,7 @@ export default class LogProxy {
   jsonFieldFilter: string;
   bufferingCount: number;
   retry = true;
+  prevTimeMsec: number| undefined;
 
   constructor (proxyConfig: ProxyConfig) {
     this.proxyConfig = proxyConfig;
@@ -96,7 +97,13 @@ export default class LogProxy {
         json = JSON.parse(data)
       } catch(e) {}
       if (json && json[this.jsonFieldFilter]) {
-        this.emitToBrowser(json[this.jsonFieldFilter], streamName, json)
+        let timeMsec: number|undefined;
+        if (json['msg_timestamp']) {
+          timeMsec = Date.parse(json['msg_timestamp']);
+        } else {
+          timeMsec = Date.now();
+        }
+        this.emitToBrowser(json[this.jsonFieldFilter], streamName, json, timeMsec)
       }
     } else {
       this.buffer += data;
@@ -113,14 +120,14 @@ export default class LogProxy {
       //const commandTokens = this.command.split(' ');
       //const title = commandTokens[commandTokens.length - 1];
       const title = this.buffer.toString().split('\n')[0];
-      this.emitToBrowser(title, streamName, this.buffer.toString());
+      this.emitToBrowser(title, streamName, this.buffer.toString(), Date.now());
       
       this.buffer = '';
       this.recordCount = 0;
     }
   }
 
-  async emitToBrowser(title: string, streamName: string, data: string | {}) {
+  async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number) {
     const seqNo = ++Global.nextSequenceNumber;    
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
@@ -135,7 +142,19 @@ export default class LogProxy {
       '', // path
       0
     );
-    SocketIoMessage.appendResponse(message, {}, data, 0, 0);
+
+    let elapsedTime = 0;
+    if (timeMsec && this.prevTimeMsec) {
+      elapsedTime = timeMsec - this.prevTimeMsec;
+    }
+    SocketIoMessage.appendResponse(
+      message, 
+      {}, // res headers
+      data, 
+      0, // status
+      elapsedTime // elapsed time
+    );
+    this.prevTimeMsec = timeMsec;
     message.protocol = 'log:';
     Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig);
   }
