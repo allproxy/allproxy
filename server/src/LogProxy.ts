@@ -3,6 +3,7 @@ import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
 import { MessageType } from '../../common/Message';
+import fs from 'fs'
 
 export default class LogProxy {
   proxyConfig: ProxyConfig;
@@ -16,7 +17,7 @@ export default class LogProxy {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
     this.jsonFieldFilter = proxyConfig.hostname;
-    this.bufferingCount = proxyConfig.port;
+    this.bufferingCount = proxyConfig.port;    
     this.start();
   }
 
@@ -38,20 +39,33 @@ export default class LogProxy {
     LogProxy.destructor(this.proxyConfig);
     this.retry = true;
     const tokens = this.command.split(' ');
+    // cat of entire log file?
+    if (tokens[0].trim() === 'cat' && tokens.length === 2) {
+      // Read the entire file and process each record...
+      const buffer = fs.readFileSync(tokens[1]);
+      for(const record of buffer.toString().split('\n')) {
+        this.processLogRecord('stdout', record);
+      }      
+      return;
+    }
     const proc = spawn(tokens[0], tokens.slice(1));
     // ('start', proc.pid);
     this.proxyConfig.logProxyProcess = proc; // save so we can kill process
     const startTime = Date.now();
 
-    proc.stdout.on('data', data => {
-      if (warmUpCompleted()) {
-        this.sendToBrowser('stdout', data);
+    proc.stdout.on('data', (buffer: Buffer) => {
+      if (warmUpCompleted()) {        
+        for(const record of buffer.toString().split('\n')) {
+          this.processLogRecord('stdout', record);
+        }
       }
     });
 
-    proc.stderr.on('data', data => {
-      if (warmUpCompleted()) {
-        this.sendToBrowser('stderr', data);
+    proc.stderr.on('data', (buffer: Buffer) => {
+      if (warmUpCompleted()) {        
+        for(const record of buffer.toString().split('\n')) {
+          this.processLogRecord('stderr', record);
+        }
       }
     });
 
@@ -69,8 +83,8 @@ export default class LogProxy {
       }
     });
 
-    function warmUpCompleted () {
-      return Date.now() > startTime + 3000;
+    const warmUpCompleted = () => {
+      return this.command.indexOf('cat ') !== -1 ? true : Date.now() > startTime + 3000;
     }
   }
 
@@ -82,7 +96,7 @@ export default class LogProxy {
   // eslint-disable-next-line no-undef
   timerHandle: NodeJS.Timeout|undefined;
 
-  async sendToBrowser (streamName: string, data: any) {
+  async processLogRecord (streamName: string, record: string) {    
     if (this.timerHandle) {
       clearInterval(this.timerHandle);
     }
@@ -94,11 +108,13 @@ export default class LogProxy {
     if (this.jsonFieldFilter && this.jsonFieldFilter.length > 0) {
       let json: {[key:string]: any} | undefined
       try {
-        json = JSON.parse(data)
+        json = JSON.parse(record)
       } catch(e) {}
       if (json && json[this.jsonFieldFilter]) {
         let timeMsec: number|undefined;
-        if (json['msg_timestamp']) {
+        if (json['LogTime']) {
+          timeMsec = Date.parse(json['LogTime']);
+        } else if (json['msg_timestamp']) {
           timeMsec = Date.parse(json['msg_timestamp']);
         } else {
           timeMsec = Date.now();
@@ -106,12 +122,12 @@ export default class LogProxy {
         this.emitToBrowser(json[this.jsonFieldFilter], streamName, json, timeMsec)
       }
     } else {
-      this.buffer += data;
+      this.buffer += record;
       if (++this.recordCount < this.bufferingCount && streamName === this.streamName) {
         this.timerHandle = setInterval(
           () => {
             this.recordCount = this.bufferingCount;
-            this.sendToBrowser(this.streamName, '');
+            this.processLogRecord(this.streamName, '');
           },
           this.TIMEOUT
         );
