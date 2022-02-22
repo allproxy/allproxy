@@ -37,8 +37,8 @@ export default class LogProxy {
 
   start () {
     LogProxy.destructor(this.proxyConfig);
-    this.retry = true;
-    const tokens = this.command.split(' ');
+    this.retry = true;    
+    const tokens = this.command.replace('$HOME', process.env.HOME!).split(' ');
     // cat of entire log file?
     if (tokens[0].trim() === 'cat' && tokens.length === 2) {
       // Read the entire file and process each record...
