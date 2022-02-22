@@ -2,7 +2,7 @@ import Message from './common/Message';
 import pickIcon from './PickIcon';
 
 const firefoxColor = 'orangered';
-const colors = ['blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
+const colors = ['green', 'purple', 'blue',  'brown', 'darkpink', 'slateblue', 'darkorange'];
 let count = 0;
 let colorMap: Map<string, string> = new Map();
 

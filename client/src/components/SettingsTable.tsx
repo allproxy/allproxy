@@ -29,7 +29,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 	const targetHostLabel = () => {
 		switch (protocol) {			
 			case 'log:':
-				return 'JSON Field Name Filter (optional)';
+				return 'JSON Field Name Filter';
 			default:
 				return 'Target Host';
 		}
@@ -37,7 +37,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 	const targetPortLabel = () => {
 		switch (protocol) {			
 			case 'log:':
-				return 'Number Records to Buffer';
+				return 'Batching';
 			default:
 				return 'Target Host';
 		}
@@ -58,7 +58,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 						<td className="text-primary"><label>{protocol !== 'browser:' && targetHostLabel()}</label></td>
 						<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && targetPortLabel()}</label></td>
 						<td className="text-primary"><label>Comment</label></td>
-						<td className="text-primary"><label>Status</label></td>
+						<td className="text-primary"><label>{protocol !== 'log:' && 'Status'}</label></td>
 					</tr>
 				</thead>
 				: null }
@@ -109,7 +109,9 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 									value={entry.comment} />
 							</td>
 							<td>
-								<div className="settings-modal__status-container">
+								<div className="settings-modal__status-container"
+									hidden={ protocol === 'log:' }
+								>
 									<div className={`settings-modal__status fa
 										${store.isStatusUpdating()
 										? 'updating fa-circle'

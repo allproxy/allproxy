@@ -37,13 +37,21 @@ const SnapshotTabContent = observer(({
 		}
 	});
 
+	const shouldShowTimeBar = (message: Message) => {
+		if (message.protocol === 'log:') {
+			const catFile = message.proxyConfig!.path && message.proxyConfig!.path.startsWith('cat ');
+			return catFile;
+		}
+		return true;
+	}
+
 	let maxElapsedTime = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
-			if (messageStore.getMessage().protocol === 'log:') return;
+			if (!shouldShowTimeBar(messageStore.getMessage())) return;
 			const et = messageStore.getMessage().elapsedTime ? messageStore.getMessage().elapsedTime : 0;
 			maxElapsedTime = Math.max(maxElapsedTime, et);
-		});
+		});	
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	let matchCount = 0;
@@ -65,7 +73,7 @@ const SnapshotTabContent = observer(({
 								activeRequestIndex = index;
 							}
 							matchCount++;
-							const timeBarPercent = maxElapsedTime > 0 && message.protocol !== 'log:'
+							const timeBarPercent = maxElapsedTime > 0 && shouldShowTimeBar(message)
 								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
 								: 0;
 							return (
