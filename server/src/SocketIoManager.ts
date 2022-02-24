@@ -290,6 +290,7 @@ export default class SocketIoManager {
         for (const proxyConfig of socketInfo.configs) {
           if (inProxyConfig === undefined || isDynamic ||
                 (proxyConfig.path === path && inProxyConfig.protocol === proxyConfig.protocol)) {
+            if (proxyConfig.protocol === 'log:' && inProxyConfig !== proxyConfig) continue;
             if (emittedSocketId[socketId]) continue;
             if (!proxyConfig.recording) continue;
             message.proxyConfig = isDynamic ? inProxyConfig : proxyConfig;
