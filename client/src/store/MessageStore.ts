@@ -75,7 +75,11 @@ export default class MessageStore {
             const url = this.isHttpOrHttps()
                 ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`
                 : this.getUrl();
-            str = `(${this.message.clientIp}->${this.message.serverHost}) ${url}`;
+            if (!this.isHttpOrHttps() && this.message.clientIp != '127.0.0.1') {
+                str = `(${this.message.clientIp}->${this.message.serverHost}) ${url}`;
+            } else {
+                str =  url;
+            }
         }
         return str;
     }
