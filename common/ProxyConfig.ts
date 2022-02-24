@@ -1,6 +1,8 @@
 import net from 'net'
 import tls from 'tls'
 
+export const DYNAMICALLY_ADDED = 'Dynamically added via API request'
+
 export type ConfigProtocol =
   'browser:'
   | 'grpc:'

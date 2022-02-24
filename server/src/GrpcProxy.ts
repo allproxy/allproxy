@@ -21,19 +21,19 @@ const tlsOptions = {
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class GrpcProxy {
-  public static forwardProxy (port: number, isSecure: boolean = false) {
+  public static async forwardProxy (port: number, isSecure: boolean = false): Promise<number> {
     const proxyConfig = new ProxyConfig();
     proxyConfig.isSecure = isSecure;
     proxyConfig.protocol = 'grpc:';
     proxyConfig.path = port.toString();
-    GrpcProxy.start(proxyConfig, true);
+    return GrpcProxy.start(proxyConfig, true);
   }
 
-  public static reverseProxy (proxyConfig: ProxyConfig) {
-    GrpcProxy.start(proxyConfig);
+  public static async reverseProxy (proxyConfig: ProxyConfig): Promise<number> {
+    return GrpcProxy.start(proxyConfig);
   }
 
-  private static start (proxyConfig: ProxyConfig, isForwardProxy = false) {
+  private static async start (proxyConfig: ProxyConfig, isForwardProxy = false): Promise<number> {
     const server = proxyConfig.isSecure
       ? http2.createSecureServer({
         settings,
@@ -47,7 +47,8 @@ export default class GrpcProxy {
       proxyConfig._server = server;
     }
 
-    listen('GrpcProxy', server, +proxyConfig.path);
+    let port = await listen('GrpcProxy', server, +proxyConfig.path);
+    proxyConfig.path = port+'';  // update port
 
     server.on('request', onRequest);
 
@@ -55,7 +56,7 @@ export default class GrpcProxy {
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-      console.log(clientReq.method + ' ' + clientReq.url)
+      console.log('GRPC:' + clientReq.method + ' ' + clientReq.url)
       Global.log('GrpcProxy onRequest', reqUrl.path);
 
       const sequenceNumber = ++Global.nextSequenceNumber;
@@ -208,6 +209,8 @@ export default class GrpcProxy {
         return resBody;
       }
     }
+
+    return port;
   }
 
   static destructor (proxyConfig: ProxyConfig) {

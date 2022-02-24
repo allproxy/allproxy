@@ -39,7 +39,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 			case 'log:':
 				return 'Batching';
 			default:
-				return 'Target Host';
+				return 'Target Port';
 		}
 	};
 

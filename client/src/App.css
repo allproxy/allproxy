@@ -185,7 +185,7 @@ td input {
 .header__filter-case.active,
 .header__filter-regex.active,
 .header__filter-logical.active {	
-	border: red solid thin;
+	border: red solid;
 	border-radius: .5rem;	
 }
 

@@ -27,7 +27,7 @@ export default class Http1Server {
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
     // Request is from AllProxy app?
-    if (AllProxyApp(clientRes, reqUrl)) {
+    if (AllProxyApp(clientReq, clientRes, reqUrl)) {
       return;
     }
 

@@ -2,7 +2,7 @@ import io from 'socket.io';
 import TcpProxy from './TcpProxy';
 import LogProxy from './LogProxy';
 import fs from 'fs';
-import ProxyConfig from '../../common/ProxyConfig';
+import ProxyConfig, {DYNAMICALLY_ADDED} from '../../common/ProxyConfig';
 import Message, { MessageType } from '../../common/Message';
 import url from 'url';
 import net from 'net';
@@ -281,23 +281,23 @@ export default class SocketIoManager {
      * @param {*} proxyConfig
      */
     emitMessageToBrowser (messageType:MessageType, message: Message, inProxyConfig?: ProxyConfig) {
+      const isDynamic = inProxyConfig === undefined || inProxyConfig.comment === DYNAMICALLY_ADDED;
+      const emittedSocketId: {[key:string]:boolean} = {}
       message.type = messageType;
-      const path = inProxyConfig ? inProxyConfig.path : '';
-      let socketId: string;
+      const path = inProxyConfig ? inProxyConfig.path : '';      
       let emitted = false;
-      this.socketIoMap.forEach((socketInfo: SocketIoInfo, key: string) => {
+      this.socketIoMap.forEach((socketInfo: SocketIoInfo, socketId: string) => {
         for (const proxyConfig of socketInfo.configs) {
-          if (inProxyConfig === undefined ||
+          if (inProxyConfig === undefined || isDynamic ||
                 (proxyConfig.path === path && inProxyConfig.protocol === proxyConfig.protocol)) {
-            if (key === socketId) continue;
+            if (emittedSocketId[socketId]) continue;
             if (!proxyConfig.recording) continue;
-            socketId = key;
-            message.proxyConfig = proxyConfig;
+            message.proxyConfig = isDynamic ? inProxyConfig : proxyConfig;
             if (socketInfo.socket) {
               this.emitMessageWithFlowControl([message], socketInfo, socketId);
+              emittedSocketId[socketId] = true;
               emitted = true;
-            }
-            if (inProxyConfig === undefined) break;
+            }            
           }
         }
       });
