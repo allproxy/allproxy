@@ -76,7 +76,7 @@ if (listen.length === 0) {
 }
 
 function usage () {
-  console.log('\nUsage: npm start [--listen [host:]port] [--listenHttps [host:]port] [--debug]');
+  console.log('\nUsage: npm start [--listen [host:]port] [--debug]');
   console.log('\nOptions:');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
   console.log('\t--http2 - Enable HTTP/2 for https connections. (Experimental)');

@@ -23,4 +23,9 @@ if [ ! -d "$REPLACE_RESPONSES_DIR" ]; then
   mkdir $REPLACE_RESPONSES_DIR
 fi
 
+PROTO_DIR=$DATA_DIR/replace-responses
+if [ ! -d "$PROTO_DIR" ]; then
+  mkdir $PROTO_DIR
+fi
+
 node $BIN_DIR/../build/app $@

@@ -42,6 +42,10 @@ export default class Paths {
     return Paths.platform(`${Paths.baseDir}client`);
   }
 
+  public static protoDir (): string {
+    return Paths.platform(`${Paths.dataDir}proto`)
+  }
+
   private static platform (dir: string): string {
     return dir.replace(/\//g, path.sep);
   }

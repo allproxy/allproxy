@@ -3,12 +3,13 @@ import http2, { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
 import HttpMessage from './HttpMessage';
-import querystring from 'querystring';
 import HexFormatter from './formatters/HexFormatter';
 import Paths from './Paths';
 import fs from 'fs';
 import listen from './Listen';
 import decompressResponse from './DecompressResponse';
+import protobuf from 'protobufjs'
+import path from 'path';
 
 const settings = { maxConcurrentStreams: undefined };
 
@@ -71,7 +72,13 @@ export default class GrpcProxy {
         clientReq.headers
       );
 
-      const requestBodyPromise = getReqBody(clientReq);
+      let protoMessageNames: string[]|null = null;
+      const urlPath = reqUrl.path || "";
+      const parts = GrpcProxy.parsePath(urlPath);
+      if (parts.packageName.length > 0 && parts.service.length > 0 && parts.method.length > 0) {
+        protoMessageNames = GrpcProxy.getMessageNames(parts.packageName, parts.service, parts.method);
+      }
+      const requestBodyPromise = getReqBody(clientReq, protoMessageNames ? protoMessageNames[0] : null);
 
       httpMessage.emitMessageToBrowser(''); // No request body received yet
       proxyRequest(proxyConfig!, requestBodyPromise);
@@ -147,7 +154,7 @@ export default class GrpcProxy {
             const requestBody = await requestBodyPromise;
 
             // chunks.push(headers)
-            const resBody = getResBody(headers, chunks);
+            const resBody = await getResBody(headers, chunks, protoMessageNames ? protoMessageNames[1] : null);
             const allHeaders = {
               ...headers,
               ...trailers
@@ -162,55 +169,111 @@ export default class GrpcProxy {
         });
       }
 
-      function getReqBody (clientReq: Http2ServerRequest): Promise<string | {}> {
-        return new Promise<string | {}>(resolve => {
+      async function getReqBody (clientReq: Http2ServerRequest, protoMessageName: string|null): Promise<string | {}> {
+        return new Promise<string|{}>((resolve) => {
           // eslint-disable-next-line no-unreachable
-          let requestBody: string | {} = '';
-          let rawData = '';
-          clientReq.on('data', function (chunk) {
-            rawData += chunk;
+          let buffer: Buffer;
+          clientReq.on('data', function (chunk: Buffer) {
+            if(buffer) {
+              buffer = Buffer.concat([buffer, chunk], buffer.length + chunk.length);
+            } else {
+              buffer = chunk;
+            }
           });
           // eslint-disable-next-line no-unreachable
           clientReq.on('end', async function () {
-            try {
-              requestBody = JSON.parse(rawData);
-            } catch (e) {
-              const contentType = clientReq.headers['content-type'];
-              if (contentType && contentType.indexOf('application/x-www-form-urlencoded') !== -1) {
-                requestBody = querystring.parse(rawData);
-              } else {
-                requestBody = rawData;
-              }
-            }
-            if (proxyConfig.protocol === 'grpc:') {
-              requestBody = HexFormatter.format(Buffer.from(requestBody as string, 'utf-8'));
-            }
-            resolve(requestBody);
-          });
-        });
+            if (protoMessageName) {              
+              const json = await GrpcProxy.decodeProtobuf(parts.packageName, protoMessageName, buffer);
+              if (json) resolve(json);
+            }          
+            resolve(HexFormatter.format(buffer));
+          });            
+        })        
       }
 
-      function getResBody (headers: {}, chunks: Buffer[]): object | string {
+      async function getResBody (headers: {}, chunks: Buffer[], protoMessageName: string|null): Promise<object | string> {
         if (chunks.length === 0) return '';
-        const resBuffer = chunks.reduce(
+        let resBuffer = chunks.reduce(
           (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)
         );
-        const resString = decompressResponse(headers, resBuffer).toString();
-        let resBody = '';
-        try {
-          resBody = JSON.parse(resString); // assume JSON
-        } catch (e) {
-          resBody = resString;
-        }
-        // gRPC is binary data
-        if (proxyConfig.protocol === 'grpc:') {
-          resBody = HexFormatter.format(Buffer.from(resBody, 'utf-8'));
-        }
-        return resBody;
+        resBuffer = decompressResponse(headers, resBuffer);
+        if (protoMessageName) {          
+          const json = await GrpcProxy.decodeProtobuf(parts.packageName, protoMessageName, resBuffer);
+          if (json) return json;
+        }  
+        return HexFormatter.format(resBuffer);
       }
     }
 
     return port;
+  }  
+
+  static parsePath(path: string): {[key:string]:string} {
+    let parts: {[key:string]:string} = {};
+    const segments = path.split('/')
+    if (segments.length === 3) {
+      const tokens = segments[1].split('.');      
+      parts.packageName = tokens[0];
+      if (tokens.length > 1) {
+        parts.service = tokens[1];
+      }
+      parts.method = segments[2];
+    }
+    return parts;
+  }
+
+  // rpc Bauthz (AuthzRequest)  returns (AuthzResponse){}
+  static getMessageNames(packageName: string, service: string, method: string): string[]|null {
+    const messageNames: string[] = [];
+    const protoFile = path.join(Paths.protoDir(), packageName+'.proto');    
+    if (fs.existsSync(protoFile)) {      
+      const lines = fs.readFileSync(protoFile).toString().split('\n');      
+      let foundService = false;
+      for (let line of lines) {  
+        line = line.trim();        
+        if (!foundService) {
+          if (line.startsWith('service '+service+'{')) foundService = true;
+        } else {
+          if (line === '}') {
+            return null;
+          }
+          if (line.startsWith('rpc '+ method+ ' (')) {
+            let j = line.indexOf('(') + 1;
+            for(let i = j; i < line.length; ++i) {              
+              const c = line.substring(i,i+1);
+              if (c === ')') {
+                const messageName = line.substring(j,i);                
+                messageNames.push(messageName);
+                if (messageNames.length === 2) return messageNames;                
+                i += line.substring(i).indexOf('(');  
+                j = i + 1;              
+              }
+            }
+            return null; // only found 1 message name
+          }
+        }
+      }
+    }  
+    return null;   
+  }
+
+  static async decodeProtobuf(packageName: string, messageName: string, buffer: Buffer): Promise<{}|undefined> {
+    const message = buffer.subarray(5);
+    const root = await protobuf.load(path.join(Paths.protoDir(), packageName+'.proto'));
+    const protobufType = root.lookupType(`${packageName}.${messageName}`);
+    const err = protobufType.verify(message);    
+    if (err) {
+      console.log(err);
+      return undefined;
+    }
+    
+    try {
+      const decodedMessage = protobufType.decode(message);
+      return protobufType.toObject(decodedMessage);
+    } catch(e) {
+      console.log(e);
+      return undefined;
+    }
   }
 
   static destructor (proxyConfig: ProxyConfig) {
