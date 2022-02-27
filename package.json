@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "2.5.25",
+  "version": "2.5.26",
   "description": "AllProxy: HTTP, SQL, gRPC Debugging Tool.",
   "keywords": [
     "proxy",
@@ -60,6 +60,7 @@
     "net": "^1.0.2",
     "node-fetch": "^2.6.7",
     "path": "^0.12.7",
+    "protobufjs": "^6.11.2",
     "socket.io": "^4.0.1",
     "sql-formatter": "^2.3.3",
     "tls": "^0.0.1",
