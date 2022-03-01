@@ -6,6 +6,7 @@ import GrpcProxy from './server/src/GrpcProxy';
 import PortConfig from './common/PortConfig';
 import HttpXProxy from './server/src/HttpXProxy';
 import { createCertificateAuthority } from './server/src/GenerateCertKey';
+import { parseProtoFiles } from './server/src/Protobuf';
 
 const listen: {
   protocol: string,
@@ -97,6 +98,8 @@ Global.portConfig = new PortConfig();
 Global.socketIoManager = new SocketIoManager();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // trust all certificates
+
+parseProtoFiles();
 
 startServers();
 

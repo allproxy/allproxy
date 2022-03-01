@@ -219,8 +219,8 @@ GRPC_PORT=12345
 ```
 
 #### Proto Files
-Proto files can be added to the **proto/** directory so that the AllProxy tool can decode the binary data, and make it readable.  AllProxy requires the GRPC URL to be of the
-form **/<package>/<service>.<func>** (e.g., /mypackage/mMService/MyFunc).  The proto file name must be the package name (e.g., mypackage.proto).  
+Proto files can be added to the **proto/** directory so that the AllProxy tool can decode the binary data, and make it readable.  AllProxy currently only supports GRPC URLs of the
+form **/<package>/<service>.<func>** (e.g., /mypackage/mMService/MyFunc).   
 
 The AllProxy is configured to proxy gRPC requests to a microservice:
 ![ ](https://github.com/davechri/allproxy/blob/master/images/grpc-settings.png)
