@@ -3,9 +3,11 @@ import Paths from "./Paths";
 import fs from 'fs';
 import protobuf from 'protobufjs';
 
-let serviceFuncToFileNameMessageNames: Map<string,string[]> = new Map();
+const serviceFuncToFileNameMessageNames: Map<string,string[]> = new Map();
 
 export function parseProtoFiles() {
+    serviceFuncToFileNameMessageNames.clear();
+
     let protoNames: string[] = [];
     
     for(const protoFile of fs.readdirSync(Paths.protoDir())) {
@@ -58,7 +60,12 @@ export function parseProtoFiles() {
           }
         }   
       } 
-    }    
+    }
+
+    // Watch for new proto files
+    fs.watch(Paths.protoDir(), (_event) => {
+        parseProtoFiles();        
+    });
 }
 
 // map Grpc URL path to request message name and response message name
