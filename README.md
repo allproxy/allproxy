@@ -4,6 +4,9 @@ AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP
 
 ![ ](https://github.com/davechri/allproxy/blob/master/images/dashboard.png)
 
+**Using Dark Reader Plugin**
+![ ](https://github.com/davechri/allproxy/blob/master/images/dark-mode.png)
+
 **Features:**
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
 * captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
