@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { Modal } from '@material-ui/core'
+import { List, ListItem, Modal } from '@material-ui/core'
 import ResendStore from '../store/ResendStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 
@@ -55,7 +55,31 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 						onChange={ (e) => store.setPath(e.target.value) }
 						value={ store.getPath() }
 						/>
-				</div>				
+				</div>
+				<h5>Override Headers:</h5>
+				<div className="no-capture-modal__add-button fa fa-plus-circle"
+					onClick={handleAddHeader}>
+					&nbsp;Add Header
+				</div>
+				<List>
+					{store.getReplaceHeaders().map((keyValue, i) => (
+						<ListItem key={i}
+							style={{display: 'flex', alignItems: 'center'}}>
+							<div className="no-capture-modal__remove fa fa-minus-circle"
+								title="Remove client"
+								onClick={() => handleDeleteHeader(i)}/>
+							<select className="resend-modal__header-select"
+								onChange={e => store.setHeaderKey(i, e.target.value)} value={keyValue.key}>	
+								{store.getHeaderKeys().map(key => <option>{key}</option>)}															
+							</select>
+							<input className="resend-modal__header-input"
+								placeholder="Header value"
+								value={keyValue.value}
+								onChange={(e) => store.setHeaderValue(i, e.target.value)}
+							/>
+						</ListItem>
+					))}
+				</List>			
 				<div style={{marginTop: '1rem', marginBottom: '.5rem'}}>
 					<button type="button" className="resend-modal__send btn btn-sm btn-danger" 
 						onClick={ handleRemoveBody }>
@@ -99,6 +123,14 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	    </div>
 	  </Modal>
 	);
+
+	function handleAddHeader() {
+		store.newReplaceHeader();
+	}
+
+	function handleDeleteHeader(i: number) {
+		store.deleteReplaceHeader(i);
+	}
 
 	function handleRemoveBody() {
 		message.requestBody = "";

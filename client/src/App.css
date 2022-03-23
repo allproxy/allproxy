@@ -406,6 +406,14 @@ td input {
 	height: 30px;
 	width: 100px;
 }
+.resend-modal__header-select {
+	width: 150px;
+	height: 30px;	
+}
+.resend-modal__header-input {	
+	height: 30px;
+	width: calc(90vw - 150px);
+}
 .resend-modal__host {
 	width: 200px;
 }
@@ -413,9 +421,8 @@ td input {
 .resend-modal__body-container {
 	width: 100%;
 }
-.resend-modal__body-container {
-	max-height: 60vh;
-	height: 60vh;
+.resend-modal__body-container {	
+	height: 400px;
 	overflow-y: auto;
 }
 .resend-modal__body {
