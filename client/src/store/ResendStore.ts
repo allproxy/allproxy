@@ -2,6 +2,8 @@ import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
 import { socketStore } from "./SocketStore";
 
+const LOCAL_STORAGE_HEADERS = 'anyproxy-resend-headers'
+
 export default class ResendStore {
     private message: Message;
     private method: string;
@@ -11,6 +13,7 @@ export default class ResendStore {
     private path: string = '';
     private body: string | object;
     private error = '';
+    private replaceHeaders: {[key:string]: string}[] = [];
 
     public constructor(message: Message) {
         this.message = JSON.parse(JSON.stringify(message));
@@ -20,23 +23,19 @@ export default class ResendStore {
                 this.protocol = "https";
             } else {
                 this.protocol = 'http';
-            }        
-            
-            let tokens = message.url!.split("://");
-            this.path = tokens[1].substring(tokens[1].indexOf('/'));
-            tokens = tokens[1].split('/', 1);            
-            tokens = tokens[0].split(':');
-            this.host = tokens[0];
-            if (tokens.length > 1) {
-                this.port = tokens[1];
-            } else {
-                this.port = this.protocol === 'https' ? '443' : '80';
-            }           
+            }     
         } else {
             this.path = message.url!;
         }
         
         this.body = message.requestBody;
+        const strHeaders = localStorage.getItem(LOCAL_STORAGE_HEADERS);
+        if (strHeaders) {
+            this.replaceHeaders = JSON.parse(strHeaders);            
+        }
+
+        this.updateHostPort();
+
 		makeAutoObservable(this);
     }
 
@@ -106,9 +105,67 @@ export default class ResendStore {
         this.body = body;
     }
 
+    public newReplaceHeader() {
+        this.replaceHeaders.push({key: '', value: ''});        
+    }
+
+    public deleteReplaceHeader(i: number) {
+        this.replaceHeaders.splice(i,1);
+        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
+        this.updateHostPort();
+    }
+
+    public getReplaceHeaders(): {[key:string]: string}[] { 
+        return this.replaceHeaders;
+    }
+
+    public getHeaderKeys(): string[] {
+        return Object.keys(this.message.requestHeaders);
+    }
+
+    @action public setHeaderKey(i: number, key: string) {
+        const value = this.message.requestHeaders[key];
+        this.replaceHeaders.splice(i, 1, {key, value});
+        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
+        this.updateHostPort();
+    }
+
+    @action public setHeaderValue(i: number, value: string) {
+        const key = this.replaceHeaders[i].key;
+        this.replaceHeaders.splice(i, 1, {key, value});
+        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
+        this.updateHostPort();
+    }
+
+    private updateHostPort() {
+        let tokens = this.message.url!.split("://");
+        this.path = tokens[1].substring(tokens[1].indexOf('/'));
+        tokens = tokens[1].split('/', 1);            
+        tokens = tokens[0].split(':');
+        this.host = tokens[0];
+        if (tokens.length > 1) {
+            this.port = tokens[1];
+        } else {
+            this.port = this.protocol === 'https' ? '443' : '80';
+        }    
+
+        const keyValue = this.replaceHeaders.find(keyValue => keyValue.key === 'host');
+        if (keyValue) {
+            const tokens = keyValue.value.split(':');
+            this.host = tokens[0];
+            this.port = tokens.length == 1 ? this.port = this.protocol === 'https' ? '443' : '80' : tokens[1];
+        }    
+    }
+
     public doResend() {
         const method = this.method;
         let url = this.host.length > 0 ? this.protocol + '://' + this.host + ':' + this.port + this.path : this.path;
+
+        if (this.replaceHeaders.length > 0) {
+            for(const keyValue of this.replaceHeaders) {
+                this.message.requestHeaders[keyValue.key] = keyValue.value;
+            }
+        }
 
         const forwardProxy = url.startsWith('http:') || url.startsWith('https:');
         if (!forwardProxy) {
