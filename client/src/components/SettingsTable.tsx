@@ -42,6 +42,14 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 				return 'Target Port';
 		}
 	};
+	const commentLabel = () => {
+		switch (protocol) {			
+			case 'log:':
+				return 'Regex Filter';
+			default:
+				return 'Comment';
+		}
+	};
 
 	return (
 		<div style={{height: '100%'}}>
@@ -57,7 +65,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 						<td className="text-primary" style={{width: pathLabel().includes('Port') ? '12ch' : undefined}}><label>{pathLabel()}</label></td>
 						<td className="text-primary"><label>{protocol !== 'browser:' && targetHostLabel()}</label></td>
 						<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && targetPortLabel()}</label></td>
-						<td className="text-primary"><label>Comment</label></td>
+						<td className="text-primary"><label>{commentLabel()}</label></td>
 						<td className="text-primary"><label>{protocol !== 'log:' && 'Status'}</label></td>
 					</tr>
 				</thead>
