@@ -1,6 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
 import MessageStore from './MessageStore';
 import _ from 'lodash';
+import { messageQueueStore } from "./MessageQueueStore";
 
 export default class FilterStore {
     private enabled = true;
@@ -96,6 +97,7 @@ export default class FilterStore {
     }
 
     @action public setFilterNoDebounce(filter: string) {
+        messageQueueStore.setFreeze(true);
         if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
         }
@@ -103,9 +105,11 @@ export default class FilterStore {
         this.filter = filter;
         this.searchFilter = this.filter;
         this.updateBoolString();
+        messageQueueStore.setFreeze(false);
     }
 
     @action public setFilter(filter: string) {
+        messageQueueStore.setFreeze(true);
         if (this.filter.length > 0 && filter.length === 0) {
             this.resetScroll = true;
         }
@@ -115,9 +119,10 @@ export default class FilterStore {
         const debounce = _.debounce(() => {
             this.searchFilter = this.filter;
             this.updateBoolString();
+            messageQueueStore.setFreeze(false);
         }, 500);
 
-        debounce();
+        debounce();        
     }
 
     public isInvalidFilterSyntax(): boolean {
@@ -215,16 +220,18 @@ export default class FilterStore {
         const message = messageStore.getMessage();
         if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
         if (this.isMatch(needle, message.protocol)) return false;
-        if (this.isMatch(needle,
-                        message.status + ' ' + message.method
-                        + ' '
-                        + message.clientIp!+'->'+message.serverHost
-                        + ' '
-                        + messageStore.getUrl())) return false;
-        if (this.isMatch(needle, message.endpoint)) return false;
-        if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
-        if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
-        if(this.isMatch(needle, messageStore.getRequestBody())) return false;
+        if (message.protocol !== 'log:') {
+            if (this.isMatch(needle,
+                            message.status + ' ' + message.method
+                            + ' '
+                            + message.clientIp!+'->'+message.serverHost
+                            + ' '
+                            + messageStore.getUrl())) return false;
+            if (this.isMatch(needle, message.endpoint)) return false;
+            if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
+            if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
+            if(this.isMatch(needle, messageStore.getRequestBody())) return false;
+        }
         if (message.responseBody && this.isMatch(needle, JSON.stringify(message.responseBody))) return false;
     	return true;
     }

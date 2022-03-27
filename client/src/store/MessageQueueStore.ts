@@ -9,8 +9,10 @@ const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 
 export default class MessageQueueStore {
 	private limit: number = this._getLimit();
-	private stopped: boolean = false;
+	private stopped: boolean = false;	
 	private autoScroll: boolean = false;
+	private freeze: boolean = false;
+	private freezeQ: Message[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -40,6 +42,19 @@ export default class MessageQueueStore {
 
 	@action public setStopped(stopped: boolean) {
 		this.stopped = stopped;
+	}
+
+	public getFreeze(): boolean {
+		return this.freeze;
+	}
+
+	@action public setFreeze(freeze: boolean) {
+		if (!freeze) {
+			const messages = this.freezeQ.slice();
+			this.freezeQ.splice(0, this.freezeQ.length);
+			setTimeout(() => this.insertBatch(messages), 1000);
+		}
+		this.freeze = freeze;
 	}
 
 	@action public toggleStopped() {
@@ -74,6 +89,10 @@ export default class MessageQueueStore {
 
 	@action public insertBatch(messages: Message[]) {
 		if (this.stopped) return;
+		if (this.freeze) {
+			this.freezeQ = this.freezeQ.concat(messages);
+			return;
+		}
 
 		const activeSnapshot = snapshotStore.getActiveSnapshot();
 

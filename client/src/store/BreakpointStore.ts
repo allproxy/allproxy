@@ -33,7 +33,7 @@ export default class BreakpointStore {
 				_logical: boolean }) => {
 				const breakpoint = new FilterStore();
 				breakpoint.setEnabled(entry.enabled);
-				breakpoint.setFilter(entry.searchFilter);
+				breakpoint.setFilterNoDebounce(entry.searchFilter);
 				breakpoint.setRegex(entry._regex);
 				breakpoint.setMatchCase(!!entry._matchCase);
 				breakpoint.setLogical(!!entry._logical);
