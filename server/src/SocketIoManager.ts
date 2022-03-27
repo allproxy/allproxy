@@ -16,14 +16,13 @@ const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
 const CACHE_SOCKET_ID = 'cache';
 
-const WINDOW_SIZE = 500; // windows size - maximum outstanding messages
+export const BATCH_SIZE = 100; // windows size - maximum outstanding messages
 const MAX_OUT = 2; // two message batches
 
 class SocketIoInfo {
     socket: io.Socket | undefined = undefined;
     configs: ProxyConfig[] = [];
     seqNum = 0;
-    remainingWindow = WINDOW_SIZE;
     messagesOut = 0;
     queuedMessages: Message[] = [];
 
@@ -280,7 +279,8 @@ export default class SocketIoManager {
      * @param {*} message
      * @param {*} proxyConfig
      */
-    emitMessageToBrowser (messageType:MessageType, message: Message, inProxyConfig?: ProxyConfig) {
+    emitMessageToBrowser (messageType:MessageType, message: Message, inProxyConfig?: ProxyConfig): number {
+      let queueCount = 0;
       const isDynamic = inProxyConfig === undefined || inProxyConfig.comment === DYNAMICALLY_ADDED;
       const emittedSocketId: {[key:string]:boolean} = {}
       message.type = messageType;
@@ -295,7 +295,12 @@ export default class SocketIoManager {
             if (!proxyConfig.recording) continue;
             message.proxyConfig = isDynamic ? inProxyConfig : proxyConfig;
             if (socketInfo.socket) {
-              this.emitMessageWithFlowControl([message], socketInfo, socketId);
+              if (socketInfo.queuedMessages.length > 0) {
+                socketInfo.queuedMessages.push(message);
+                queueCount += socketInfo.queuedMessages.length;
+              } else {
+                queueCount += this.emitMessageWithFlowControl([message], socketInfo, socketId);
+              }
               emittedSocketId[socketId] = true;
               emitted = true;
             }            
@@ -305,15 +310,14 @@ export default class SocketIoManager {
       if (!emitted) {
         // console.error(message.sequenceNumber, 'no browser socket to emit to', message.url)
       }
+      return queueCount;
     }
 
-    private emitMessageWithFlowControl (messages: Message[], socketInfo: SocketIoInfo, socketId: string) {
-      if (socketInfo.remainingWindow === 0 || socketInfo.messagesOut >= MAX_OUT) {
+    private emitMessageWithFlowControl (messages: Message[], socketInfo: SocketIoInfo, socketId: string): number {
+      if (socketInfo.messagesOut >= MAX_OUT) {
         socketInfo.queuedMessages = socketInfo.queuedMessages.concat(messages);
       } else {
-        if (socketInfo.socket) {
-          const batchCount = messages.length;
-          socketInfo.remainingWindow -= batchCount;
+        if (socketInfo.socket) {                  
           ++socketInfo.seqNum;
           ++socketInfo.messagesOut;
           socketInfo.socket.emit(
@@ -323,15 +327,14 @@ export default class SocketIoManager {
             // callback:
             (_response: string) => {
               --socketInfo.messagesOut;
-              socketInfo.remainingWindow += batchCount;
-
+              
               // console.log(
               //             `out=${socketInfo.messagesOut}`,
-              //             `win=${socketInfo.remainingWindow}`,
+              //             `sent=${messages.length}`,                          
               //             `queued=${socketInfo.queuedMessages.length}`,
-              //             `(${response})`)
+              //             `(${_response})`)                        
 
-              const count = Math.min(socketInfo.remainingWindow, socketInfo.queuedMessages.length);
+              const count = Math.min(BATCH_SIZE, socketInfo.queuedMessages.length);
               if (count > 0) {
                 this.emitMessageWithFlowControl(
                   socketInfo.queuedMessages.splice(0, count),
@@ -343,5 +346,6 @@ export default class SocketIoManager {
           );
         }
       }
+      return socketInfo.queuedMessages.length;
     }
 }

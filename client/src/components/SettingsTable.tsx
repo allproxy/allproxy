@@ -29,7 +29,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 	const targetHostLabel = () => {
 		switch (protocol) {			
 			case 'log:':
-				return 'JSON Field Name Filter';
+				return 'Primary JSON Fields (comma separated)';
 			default:
 				return 'Target Host';
 		}
