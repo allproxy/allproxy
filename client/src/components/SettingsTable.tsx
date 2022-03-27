@@ -45,7 +45,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 	const commentLabel = () => {
 		switch (protocol) {			
 			case 'log:':
-				return 'Regex Filter';
+				return 'Case-sensitive Boolean Filter (eg, (a || b) && !c )';
 			default:
 				return 'Comment';
 		}
