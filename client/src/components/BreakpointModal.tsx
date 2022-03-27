@@ -33,7 +33,7 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 	}
 
 	function handleValueChange(e: any, breakpoint: FilterStore) {
-		breakpoint.setFilter(e.currentTarget.value);
+		breakpoint.setFilterNoDebounce(e.currentTarget.value);
 		store.changed();
 	}
 
