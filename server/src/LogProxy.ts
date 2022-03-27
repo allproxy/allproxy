@@ -5,13 +5,14 @@ import ProxyConfig from '../../common/ProxyConfig';
 import { MessageType } from '../../common/Message';
 import fs from 'fs'
 import { BATCH_SIZE } from './SocketIoManager';
+import BoolFilter from '../../common/BoolFilter'
 
 export default class LogProxy {
   proxyConfig: ProxyConfig;
   command: string;
   primaryJsonFields: string[];
   bufferingCount: number;
-  regex: string;
+  boolFilter: BoolFilter;
   retry = true;
   prevTimeMsec: number| undefined;
 
@@ -20,7 +21,7 @@ export default class LogProxy {
     this.command = proxyConfig.path;
     this.primaryJsonFields = proxyConfig.hostname ? proxyConfig.hostname.split(',') : [];
     this.bufferingCount = proxyConfig.port;    
-    this.regex = proxyConfig.comment;
+    this.boolFilter = new BoolFilter(proxyConfig.comment);
     this.start();
   }
 
@@ -61,7 +62,7 @@ export default class LogProxy {
       // Read the entire file and process each record...
       const buffer = fs.readFileSync(tokens[1]);
       for(const record of buffer.toString().split('\n')) {
-        if(this.regex.length > 0 && !record.match(this.regex)) continue;
+        if(this.boolFilter.isFiltered(record)) continue;
         const queueCount = await this.processLogRecord('stdout', record);
         if(queueCount >= BATCH_SIZE * 2) {
           await delay();
@@ -78,7 +79,7 @@ export default class LogProxy {
     proc.stdout.on('data', (buffer: Buffer) => {
       if (warmUpCompleted()) {        
         for(const record of buffer.toString().split('\n')) {
-          if(this.regex.length > 0 && !record.match(this.regex)) continue;
+          if(this.boolFilter.isFiltered(record)) continue;
           this.processLogRecord('stdout', record);
         }
       }
@@ -86,8 +87,8 @@ export default class LogProxy {
 
     proc.stderr.on('data', (buffer: Buffer) => {
       if (warmUpCompleted()) {        
-        for(const record of buffer.toString().split('\n')) {
-          if(this.regex.length > 0 && !record.match(this.regex)) continue;
+        for(const record of buffer.toString().split('\n')) {          
+          if(this.boolFilter.isFiltered(record)) continue;
           this.processLogRecord('stderr', record);
         }
       }

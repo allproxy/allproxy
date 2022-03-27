@@ -17,6 +17,8 @@ import { Menu, MenuItem } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
 import SnapshotStore from '../store/SnapshotStore';
 
+let filterWasStopped = false;
+
 /**
  * Header view
  */
@@ -197,7 +199,15 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					>
 					<MenuItem>
 						<div className="fa fa-network-wired"
-							onClick={() => {setShowSettingsModal(true);	settingsStore.reset(); setSettingsMenuIcon(null);}}
+							onClick={() => {
+								setShowSettingsModal(true);	
+								settingsStore.reset(); 
+								setSettingsMenuIcon(null);
+								if(!messageQueueStore.getStopped()) {
+									messageQueueStore.setStopped(true);
+									filterWasStopped = true;
+								}
+							}}
 						>
 							&nbsp;Proxy Configuration
 						</div>
@@ -233,7 +243,13 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<SettingsModal
 				open={showSettingsModal}
-				onClose={() => setShowSettingsModal(false)}
+				onClose={() => {
+					setShowSettingsModal(false); 
+					if(filterWasStopped) {
+						filterWasStopped = false;
+						messageQueueStore.setStopped(false);
+					}
+				}}
 				store={ settingsStore }
 			/>
 			<BreakpointModal
