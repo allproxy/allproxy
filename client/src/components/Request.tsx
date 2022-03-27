@@ -41,7 +41,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 						${isActive ? ' active' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}						
 						`}
-						title={store.getRequestBody()}
+						title={store.getRequestTooltip()}
 						onClick={ handleClick }
 					>
 					<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />

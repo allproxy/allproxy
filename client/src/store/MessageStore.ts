@@ -94,6 +94,15 @@ export default class MessageStore {
             && (this.message.protocol === 'http:' || this.message.protocol === 'https:');
     }
 
+    public getRequestTooltip(): string {
+        if (this.message.protocol === "log:") {
+            return JSON.stringify(this.message.responseBody, null, 2);
+        } 
+        else {
+            return this.getRequestBody();
+        }
+    }
+
     public getRequestBody(): string {
         let body = this.message.method && this.message.method.length > 0 ? this.url + '\n' : '';
 

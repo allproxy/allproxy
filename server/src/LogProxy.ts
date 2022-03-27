@@ -4,11 +4,12 @@ import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
 import { MessageType } from '../../common/Message';
 import fs from 'fs'
+import { BATCH_SIZE } from './SocketIoManager';
 
 export default class LogProxy {
   proxyConfig: ProxyConfig;
   command: string;
-  jsonFieldFilter: string;
+  primaryJsonFields: string[];
   bufferingCount: number;
   retry = true;
   prevTimeMsec: number| undefined;
@@ -16,7 +17,7 @@ export default class LogProxy {
   constructor (proxyConfig: ProxyConfig) {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
-    this.jsonFieldFilter = proxyConfig.hostname;
+    this.primaryJsonFields = proxyConfig.hostname ? proxyConfig.hostname.split(',') : [];
     this.bufferingCount = proxyConfig.port;    
     this.start();
   }
@@ -33,21 +34,39 @@ export default class LogProxy {
         console.error(e);
       }
     }
-  }
+  }  
 
-  start () {
+  async start () {
     LogProxy.destructor(this.proxyConfig);
     this.retry = true;    
-    const tokens = this.command.replace('$HOME', process.env.HOME!).split(' ');
+    
+    this.command = this.command.replace('$HOME', process.env.HOME!);
+    if (fs.existsSync(this.command)) {
+      this.command = 'cat ' + this.command;
+    }
+
+    const tokens = this.command.split(' ');
+
     // cat of entire log file?
     if (tokens[0].trim() === 'cat' && tokens.length === 2) {
+
+      async function delay(): Promise<boolean> {
+        return new Promise((resolve) => {
+          setTimeout(() => resolve(true), 50);
+        })      
+      }
+  
       // Read the entire file and process each record...
       const buffer = fs.readFileSync(tokens[1]);
       for(const record of buffer.toString().split('\n')) {
-        this.processLogRecord('stdout', record);
+        const queueCount = await this.processLogRecord('stdout', record);
+        if(queueCount >= BATCH_SIZE * 2) {
+          await delay();
+        }
       }      
       return;
     }
+
     const proc = spawn(tokens[0], tokens.slice(1));
     // ('start', proc.pid);
     this.proxyConfig.logProxyProcess = proc; // save so we can kill process
@@ -96,21 +115,41 @@ export default class LogProxy {
   // eslint-disable-next-line no-undef
   timerHandle: NodeJS.Timeout|undefined;
 
-  async processLogRecord (streamName: string, record: string) {    
+  async processLogRecord (streamName: string, record: string): Promise<number> {  
+    let queueCount = 0;  
     if (this.timerHandle) {
       clearInterval(this.timerHandle);
     }
 
     if (this.streamName.length === 0) {
       this.streamName = streamName;
-    }        
+    }   
     
-    if (this.jsonFieldFilter && this.jsonFieldFilter.length > 0) {
+    const hasPrimaryJsonField = (json: {[key:string]: any}): boolean => {
+      const keys = Object.keys(json);
+      for(const key of this.primaryJsonFields) {
+        if(keys.indexOf(key) !== -1) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    const title = (json: {[key: string]: string}): string => {
+      let title = '';
+      this.primaryJsonFields.forEach((field) => {
+        if(title.length > 0) title += ', ';
+        title += field+ ': ' + json[field];
+      })
+      return title;
+    }
+    
+    if (this.primaryJsonFields.length > 0) {
       let json: {[key:string]: any} | undefined
       try {
         json = JSON.parse(record)
       } catch(e) {}
-      if (json && json[this.jsonFieldFilter]) {
+      if (json && hasPrimaryJsonField(json)) {
         let timeMsec: number|undefined;
         if (json['LogTime']) {
           timeMsec = Date.parse(json['LogTime']);
@@ -119,7 +158,7 @@ export default class LogProxy {
         } else {
           timeMsec = Date.now();
         }
-        this.emitToBrowser(json[this.jsonFieldFilter], streamName, json, timeMsec)
+        queueCount = await this.emitToBrowser(title(json), streamName, json, timeMsec)
       }
     } else {
       this.buffer += record;
@@ -131,19 +170,20 @@ export default class LogProxy {
           },
           this.TIMEOUT
         );
-        return;
+        return queueCount;
       }
       //const commandTokens = this.command.split(' ');
       //const title = commandTokens[commandTokens.length - 1];
       const title = this.buffer.toString().split('\n')[0];
-      this.emitToBrowser(title, streamName, this.buffer.toString(), Date.now());
+      queueCount = await this.emitToBrowser(title, streamName, this.buffer.toString(), Date.now());
       
       this.buffer = '';
       this.recordCount = 0;
     }
+    return queueCount;
   }
 
-  async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number) {
+  async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number): Promise<number> {
     const seqNo = ++Global.nextSequenceNumber;    
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
@@ -172,6 +212,6 @@ export default class LogProxy {
     );
     this.prevTimeMsec = timeMsec;
     message.protocol = 'log:';
-    Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig);
+    return Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig);
   }
 }

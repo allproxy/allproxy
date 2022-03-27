@@ -8,7 +8,7 @@ export type ConfigCategory =
 	| 'DATA STORES'
 	| 'GRPC'
 	| 'HTTP'
-	| 'LOG'
+	| 'LOGS'
 	| 'TCP';
 
 export const ConfigCategories: ConfigCategory[] = [
@@ -16,7 +16,7 @@ export const ConfigCategories: ConfigCategory[] = [
 	'DATA STORES',
 	'GRPC',
 	'HTTP',
-	'LOG',
+	'LOGS',
 	'TCP',
 ];
 
@@ -90,7 +90,7 @@ ConfigCategoryGroups.set('HTTP',
 		},
 	]
 );
-ConfigCategoryGroups.set('LOG',
+ConfigCategoryGroups.set('LOGS',
 	[
 		{
 			protocol: 'log:',
