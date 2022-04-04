@@ -90,10 +90,21 @@ export default class MessageQueueStore {
 		return snapshotStore.getSelectedMessages();
 	}
 
+	public getTotalLength() {
+		let count = this.getMessages().length;
+		if (snapshotStore.isActiveSnapshotSelected()) {
+			count += this.freezeQ.length;
+		}
+		return count;
+	}
+
 	@action public insertBatch(messages: Message[]) {
-		if (this.stopped) return;
+		if (this.stopped) return;		
 		if (this.freeze) {
 			this.freezeQ = this.freezeQ.concat(messages);
+			if (this.freezeQ.length > this.limit) {
+				this.setFreeze(false);
+			}
 			return;
 		}
 
@@ -148,12 +159,12 @@ export default class MessageQueueStore {
 			}
 
 			// Shrink array
-			if (copyMessages.length >= this.limit + this.limit / 2) {
+			if (copyMessages.length > this.limit) {
 				copyMessages.splice(0, copyMessages.length - this.limit);
 			}
 		}
 
-		activeSnapshot.splice(0, activeSnapshot.length);
+		activeSnapshot.splice(0, activeSnapshot.length);		
 		Array.prototype.push.apply(activeSnapshot, copyMessages);
 	}
 }

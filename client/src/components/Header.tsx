@@ -169,7 +169,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			</div>
 			<div>
 				<div className="header__count" title="Received messages">
-					<div>{getDisplayedCount()+' of '+messageQueueStore.getMessages().length}</div>
+					<div>{getDisplayedCount()+' of '+messageQueueStore.getTotalLength()}</div>
 				</div>				
 			</div>
 			<div>
