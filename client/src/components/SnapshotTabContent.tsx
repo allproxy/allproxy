@@ -136,6 +136,26 @@ const SnapshotTabContent = observer(({
 		const parent = (ref.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			setScrollTop(parent.scrollTop);
+			// If the last message is visible, we need setFreeze(false) to cause 
+			// all queued messages to be merged into the message queue, and become
+			// visible.
+			setTimeout(() => {				
+				const parent = (ref.current as Element);
+				if (parent && parent.childNodes.length > 0) {
+					const children = parent.childNodes;
+					let i = messageQueueStore.getMessages().length - 1;
+					i = Math.max(0,i-1);
+					const element = (children[i] as Element);
+					if (element) {
+						const top = element.getBoundingClientRect().top;
+						console.log(top)
+						if (top <= 800) {
+							messageQueueStore.setFreeze(false);
+							setTimeout(handleScroll, 1000);
+						}
+					}
+				}
+			});
 		}
 	}
 

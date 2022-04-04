@@ -11,6 +11,7 @@ import { mapProtocolToIndex } from './MetricsStore';
 import { noCaptureStore } from "./NoCaptureStore";
 import { filterStore } from "./FilterStore";
 import MessageStore from "./MessageStore";
+import { snapshotStore } from "./SnapshotStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -72,6 +73,10 @@ export default class SocketStore {
 					return true;
 				}
 			);
+			
+			if (snapshotStore.getActiveSnapshot().length + filteredMessages.length > messageQueueStore.getLimit()) {
+				messageQueueStore.setFreeze(true)
+			}
 			messageQueueStore.insertBatch(filteredMessages);
 
 			if (callback) {
