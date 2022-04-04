@@ -148,7 +148,6 @@ const SnapshotTabContent = observer(({
 					const element = (children[i] as Element);
 					if (element) {
 						const top = element.getBoundingClientRect().top;
-						console.log(top)
 						if (top <= 800) {
 							messageQueueStore.setFreeze(false);
 							setTimeout(handleScroll, 1000);
