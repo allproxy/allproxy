@@ -178,7 +178,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						<div>No Response: {socketStore.getRequestCount() - socketStore.getResponseCount()}</div>
 					}
 				</div>
-				<div hidden className="header__count" title="Messages queued at server">
+				<div className="header__count" title="Messages queued at server">
 					<div>Queued: {socketStore.getQueuedCount() }</div>
 				</div>
 			</div>

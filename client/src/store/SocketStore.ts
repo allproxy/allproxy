@@ -80,8 +80,10 @@ export default class SocketStore {
 			messageQueueStore.insertBatch(filteredMessages);
 
 			if (callback) {
-				const first = messages[0];
-				callback(`${messageTypeTOString(first)} seq=${first.sequenceNumber}`);
+				setTimeout( () => {
+					const first = messages[0];
+					callback(`${messageTypeTOString(first)} seq=${first.sequenceNumber}`);
+				}, messageQueueStore.getStopped() ? 0 : 3000);
 			}
 
 			function messageTypeTOString(message: Message): string {
