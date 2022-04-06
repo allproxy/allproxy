@@ -96,8 +96,7 @@ export default class FilterStore {
         }
     }
 
-    @action public setFilterNoDebounce(filter: string) {
-        messageQueueStore.setFreeze(true);
+    @action public setFilterNoDebounce(filter: string) {        
         if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
         }
@@ -105,11 +104,10 @@ export default class FilterStore {
         this.filter = filter;
         this.searchFilter = this.filter;
         this.updateBoolString();
-        messageQueueStore.setFreeze(false);
+        messageQueueStore.setFreeze(false);      
     }
 
-    @action public setFilter(filter: string) {
-        messageQueueStore.setFreeze(true);
+    @action public setFilter(filter: string) {        
         if (this.filter.length > 0 && filter.length === 0) {
             this.resetScroll = true;
         }

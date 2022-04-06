@@ -19,7 +19,8 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 
 	function handleTakeSnapshot(_value: string) {
 		// console.log('handleTakeSnapshot', value);
-		snapshotStore.newSnapshot();
+		messageQueueStore.setFreeze(false);
+		snapshotStore.newSnapshot();		
 	}
 
 	function handleDeleteTab(event: any, value: string) {

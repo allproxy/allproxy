@@ -76,14 +76,12 @@ export default class MessageQueueStore {
 		}
 	}
 
-	@action public clear() {
-		this.setFreeze(true);
+	@action public clear() {		
 		while(snapshotStore.getActiveSnapshot().length > 0) {
 			snapshotStore.getActiveSnapshot().pop();
 		}
 		this.stopped = false;
-		this.freezeQ.splice(0, this.freezeQ.length);
-		this.setFreeze(false);
+		this.freezeQ.splice(0, this.freezeQ.length);		
 	}
 
 	public getMessages(): MessageStore[] {

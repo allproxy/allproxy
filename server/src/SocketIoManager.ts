@@ -336,11 +336,12 @@ export default class SocketIoManager {
 
               const count = Math.min(BATCH_SIZE, socketInfo.queuedMessages.length);
               if (count > 0) {
-                this.emitMessageWithFlowControl(
-                  socketInfo.queuedMessages.splice(0, count),
-                  socketInfo,
-                  socketId
-                );
+               
+                  this.emitMessageWithFlowControl(
+                    socketInfo.queuedMessages.splice(0, count),
+                    socketInfo,
+                    socketId
+                  )               
               }
             }
           );
