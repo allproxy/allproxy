@@ -266,7 +266,9 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				open={openExportDialog}
 				onClose={(fileName) => {
 					setOpenExportDialog(false);
-					snapshotStore.exportSelectedSnapshot(fileName);
+					if (fileName.length > 0) {
+						snapshotStore.exportSelectedSnapshot(fileName);
+					}
 				}}
 			/>
 		</div>
