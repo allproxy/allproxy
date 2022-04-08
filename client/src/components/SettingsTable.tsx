@@ -35,9 +35,10 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 		}
 	};
 	const targetPortLabel = () => {
-		switch (protocol) {			
+		switch (protocol) {
+			case 'browser:':		
 			case 'log:':
-				return 'Batching';
+				return '';
 			default:
 				return 'Target Port';
 		}
@@ -63,10 +64,13 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							<td className="text-primary">Secure?</td>
 						}
 						<td className="text-primary" style={{width: pathLabel().includes('Port') ? '12ch' : undefined}}><label>{pathLabel()}</label></td>
-						<td className="text-primary"><label>{protocol !== 'browser:' && targetHostLabel()}</label></td>
-						<td className="text-primary" style={{width: '12ch'}}><label>{protocol !== 'browser:' && targetPortLabel()}</label></td>
+						{protocol !== 'browser:' && 
+						<td className="text-primary"><label>{targetHostLabel()}</label></td>}
+						{targetPortLabel() &&
+						<td className="text-primary" style={{width: '12ch'}}><label>{targetPortLabel()}</label></td>}
 						<td className="text-primary"><label>{commentLabel()}</label></td>
-						<td className="text-primary"><label>{protocol !== 'log:' && 'Status'}</label></td>
+						{protocol !== 'log:' &&
+						<td className="text-primary"><label>Status</label></td>}
 					</tr>
 				</thead>
 				: null }
@@ -92,34 +96,34 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 									<Checkbox checked={store.isEntrySecure(index)} onChange={() => store.toggleEntryIsSecure(index)}/>
 								</td>
 							}
-							<td className="settings-modal__proxy-path-container">
+							<td className="settings-modal__proxy-path-container"
+								style={{width: protocol === 'log:' ? '40vw' : undefined}}
+							>
 								<input className="form-control settings-modal__proxy-path"
-									style={{width: pathLabel().includes('Port') ? '8ch' : undefined}}
+									style={{width: pathLabel().includes('Port') ? '8ch' : undefined}}						
 									onChange={ (e) => store.updateEntryPath(index, e.target.value) }
 									value={entry.path} />
 							</td>
-							<td className="settings-modal__proxy-host-container">
-								<input className="form-control settings-modal__proxy-host"
-									hidden={ protocol === 'browser:' }
+							{protocol === 'browser:' ||
+							<td className="settings-modal__proxy-host-container">								
+								<input className="form-control settings-modal__proxy-host"									
 									onChange={ (e) => store.updateEntryHost(index, e.target.value) }
-									value={entry.hostname} />
-							</td>
-							<td className="settings-modal__proxy-host-container">
+									value={entry.hostname} />								
+							</td>}
+							{targetPortLabel().length === 0 ||
+							<td className="settings-modal__proxy-host-container">								
 								<input className="form-control settings-modal__proxy-port"
-									disabled={ protocol === 'log:' && entry.hostname.length > 0 }
-									hidden={ protocol === 'browser:' }
 									onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 									value={entry.port} />
-							</td>
+							</td>}
 							<td className="settings-modal__proxy-host-container">
 								<input className="form-control settings-modal__proxy-comment"
 									onChange={ (e) => store.updateComment(index, e.target.value) }
 									value={entry.comment} />
 							</td>
-							<td>
-								<div className="settings-modal__status-container"
-									hidden={ protocol === 'log:' }
-								>
+							<td>								
+								<div className="settings-modal__status-container">
+									{protocol === 'log:' ||
 									<div className={`settings-modal__status fa
 										${store.isStatusUpdating()
 										? 'updating fa-circle'
@@ -127,7 +131,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 											entry.hostReachable
 											? 'success fa-circle'
 											: 'error fa-exclamation-triangle'}`}>
-									</div>
+									</div>}
 								</div>
 							</td>
 					</tr>
