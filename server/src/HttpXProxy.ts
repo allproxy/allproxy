@@ -12,8 +12,8 @@ import Http1Server from './Http1Server';
 export default class HttpXProxy {
   private server: net.Server;
   private httpsServer = Global.useHttp2
-    ? new Https2Server('allproxy', 'reverse')
-    : new Https1Server('allproxy', 'reverse');
+    ? new Https2Server('allproxy', 443,'reverse')
+    : new Https1Server('allproxy', 443, 'reverse');
 
   private http1Port = 0;
   
@@ -49,7 +49,7 @@ export default class HttpXProxy {
           HttpConnectHandler.doConnect(httpXSocket, data);
         } else if (this.isClientHello(data)) {
           Global.log('HttpXProxy client hello:\n', HexFormatter.format(data));
-          const httpsServerSocket = net.connect(this.httpsServer.getPort(), undefined, () => {
+          const httpsServerSocket = net.connect(this.httpsServer.getEphemeralPort(), undefined, () => {
             Global.log('HttpXProxy connected to httpsServer');
             httpsServerSocket.write(data);
             httpsServerSocket.pipe(httpXSocket);

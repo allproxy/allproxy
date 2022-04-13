@@ -18,7 +18,8 @@ type ProxyType = 'forward' | 'reverse';
 export default class Https2Server {
   private proxyType: ProxyType = 'forward';
   private hostname: string;
-  private port = 0;
+  private port = 443;
+  private ephemeralPort = 0;
   private server: http2.Http2SecureServer | null = null;
 
   private resolvePromise: (result: number) => void = () => 1;
@@ -26,9 +27,10 @@ export default class Https2Server {
     this.resolvePromise = resolve;
   });
 
-  constructor (hostname: string, proxyType: ProxyType) {
+  constructor (hostname: string, port: number, proxyType: ProxyType) {
     this.proxyType = proxyType;
     this.hostname = hostname;
+    this.port = port;
   }
 
   destructor () {
@@ -46,7 +48,7 @@ export default class Https2Server {
     );
 
     await listen('Https2Server', this.server, 0); // assign port number
-    this.port = (this.server.address() as AddressInfo).port;
+    this.ephemeralPort = (this.server.address() as AddressInfo).port;
 
     this.resolvePromise(0);
   }
@@ -55,8 +57,8 @@ export default class Https2Server {
     await this.promise;
   }
 
-  public getPort () {
-    return this.port;
+  public getEphemeralPort () {
+    return this.ephemeralPort;
   }
 
   private async onRequest (clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
@@ -79,7 +81,7 @@ export default class Https2Server {
       proxyConfig.path = reqUrl.pathname!;
       proxyConfig.protocol = 'https:';
       proxyConfig.hostname = this.hostname;
-      proxyConfig.port = 443;
+      proxyConfig.port = this.port;
       proxyConfig.isSecure = true;
     };
 
@@ -147,7 +149,7 @@ export default class Https2Server {
     requestBodyPromise: Promise<string | {}>
   ) {
     const headers = clientReq.headers;
-    const authority = this.hostname + ':443';
+    const authority = this.hostname + ':' + this.port;
     headers[http2.constants.HTTP2_HEADER_AUTHORITY] = authority;
     delete headers.host;
     delete headers.connection;

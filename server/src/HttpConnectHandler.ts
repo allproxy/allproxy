@@ -1,4 +1,3 @@
-import http, { IncomingMessage } from 'http';
 import Https1Server from './Https1Server';
 import Https2Server from './Https2Server';
 import net from 'net';
@@ -18,42 +17,28 @@ let httpVersion: HttpVersion = HttpVersion.HTTP1;
 
 export default class HttpConnectHandler {
   public static async start (_httpVersion: HttpVersion) {
-    httpVersion = _httpVersion;
-    HttpConnectHandler.deprecated9999Listen();
+    httpVersion = _httpVersion;    
   }
 
   public static async doConnect (httpXSocket: net.Socket, data: Buffer) {
     Global.log('HttpConnectHandler doConnect', data.toString());
     const url = data.toString().split(' ', 2)[1];
     const hostPort = url!.split(':', 2);
-    HttpConnectHandler.onConnect(hostPort[0], httpXSocket);
+    const port = hostPort.length === 2 ? parseInt(hostPort[1]) : 443;
+    HttpConnectHandler.onConnect(hostPort[0], port, httpXSocket);
   }
 
-  /**
-   * Continue to listen on deprecated port 9999 for HTTP Connect requests
-   */
-  private static async deprecated9999Listen () {
-    const server = http.createServer();
-
-    server.listen(9999, () => {
-      server.on('connect', (clientReq: IncomingMessage, socket: any, _head: Buffer) => {
-        const hostPort = clientReq.url!.split(':', 2);
-        HttpConnectHandler.onConnect(hostPort[0], socket);
-      });
-    });
-  }
-
-  private static async onConnect (hostname: string, socket: net.Socket) {
+  private static async onConnect (hostname: string, port: number, socket: net.Socket) {
     Global.log('HttpConnectHandler onConnect', hostname);
 
     const key = hostname;
     let httpsServer = httpVersion === HttpVersion.HTTP1 ? https1Servers[key] : https2Servers[key];
     if (!httpsServer) {
       if (httpVersion === HttpVersion.HTTP1) {
-        httpsServer = new Https1Server(hostname, 'forward');
+        httpsServer = new Https1Server(hostname, port, 'forward');
         https1Servers[key] = httpsServer;
       } else {
-        httpsServer = new Https2Server(hostname, 'forward');
+        httpsServer = new Https2Server(hostname, port, 'forward');
         https2Servers[key] = httpsServer;
       }
       Global.log('HttpConnectHandler start https server');
@@ -64,7 +49,7 @@ export default class HttpConnectHandler {
     }
 
     // Create tunnel from client to Http2HttpsServer
-    HttpConnectHandler.createTunnel(socket, httpsServer.getPort(), 'localhost');
+    HttpConnectHandler.createTunnel(socket, httpsServer.getEphemeralPort(), 'localhost');
   }
 
   private static respond (socket: net.Socket) {
