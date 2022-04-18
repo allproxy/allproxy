@@ -97,7 +97,7 @@ export default class HttpMessage {
     const tokens = endpoint.split('/');
     endpoint = tokens ? tokens[tokens.length - 1] : '';
     // Include the last 2 path segments, if this looks like and id (e.g., '/items/111222')
-    if (tokens && tokens.length > 1 && tokens[tokens.length - 2].endsWith('s')) {
+    if (tokens && tokens.length > 1 /*&& tokens[tokens.length - 2].endsWith('s')*/) {
       endpoint = tokens[tokens.length - 2] + '/' + tokens[tokens.length - 1];
     }
 
