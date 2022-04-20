@@ -63,22 +63,22 @@ export default class MessageStore {
     }
 
     public getRequestLine(): string {
-        let str;
+        let str = '';
         if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'browser:') {
             str = this.getUrl().startsWith('http://') || this.getUrl().startsWith('https://')
                 ? ''
                 : `${this.message.protocol}//${this.message.serverHost}`;
-            str += `${this.getUrl()}`;
+            str += this.message.clientIp + `->${this.getUrl()}`;
         } else if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
             str = this.getUrl()
         } else {
             const url = this.isHttpOrHttps()
                 ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`
                 : this.getUrl();
-            if (!this.isHttpOrHttps() && this.message.clientIp != '127.0.0.1') {
+            if (!this.isHttpOrHttps()) {
                 str = `(${this.message.clientIp}->${this.message.serverHost}) ${url}`;
             } else {
-                str =  url;
+                str = this.message.clientIp + "->" + url;
             }
         }
         return str;
@@ -97,7 +97,7 @@ export default class MessageStore {
     public getRequestTooltip(): string {
         if (this.message.protocol === "log:") {
             return JSON.stringify(this.message.responseBody, null, 2);
-        } 
+        }
         else {
             return this.getRequestBody();
         }
