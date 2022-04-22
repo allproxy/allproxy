@@ -104,6 +104,9 @@ td input {
 	margin: .3rem .1rem 0 .5rem;
 	font-size: 1rem;
 }
+.request__msg-highlight {
+	color:rgba(0, 55, 255, 0.884) !important;
+}
 
 .header__container {
 	z-index: 99;
@@ -184,9 +187,9 @@ td input {
 }
 .header__filter-case.active,
 .header__filter-regex.active,
-.header__filter-logical.active {	
+.header__filter-logical.active {
 	border: red solid;
-	border-radius: .5rem;	
+	border-radius: .5rem;
 }
 
 .breakpoint__icon {
@@ -325,7 +328,7 @@ td input {
 }
 .request__msg.active {
 	border: red solid thin;
-	border-radius: .2rem;	
+	border-radius: .2rem;
 }
 .request__endpoint {
 	color: green;
@@ -408,9 +411,9 @@ td input {
 }
 .resend-modal__header-select {
 	width: 150px;
-	height: 30px;	
+	height: 30px;
 }
-.resend-modal__header-input {	
+.resend-modal__header-input {
 	height: 30px;
 	width: calc(90vw - 150px);
 }
@@ -421,7 +424,7 @@ td input {
 .resend-modal__body-container {
 	width: 100%;
 }
-.resend-modal__body-container {	
+.resend-modal__body-container {
 	height: 400px;
 	overflow-y: auto;
 }

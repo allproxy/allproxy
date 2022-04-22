@@ -39,7 +39,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 					</button>
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
-						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}						
+						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
 						title={store.getRequestTooltip()}
 						onClick={ handleClick }
@@ -55,7 +55,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 						`}>
 							{message.method+' '}
 							<b>{message.endpoint+' '}</b>
-							{store.getRequestLine()}
+							<span dangerouslySetInnerHTML={{__html: store.getRequestLine()}}/>
 						</span>
 					</div>
 				</div>
@@ -76,10 +76,10 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 
 	function canResend() {
 		return ((message.protocol === 'http:' || message.protocol === 'https:') && message.proxyConfig?.protocol !== 'grpc:')
-			&& (message.method === 'GET' || 
-				message.method === 'POST' || 
-				message.method === 'HEAD' || 
-				message.method === 'DELETE' || 
+			&& (message.method === 'GET' ||
+				message.method === 'POST' ||
+				message.method === 'HEAD' ||
+				message.method === 'DELETE' ||
 				message.method === 'PUT' ||
 				message.method === 'PATCH');
 	}
