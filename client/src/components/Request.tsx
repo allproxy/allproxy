@@ -30,6 +30,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 					</div>
 					<div className={`${store.getIconClass()} request__msg-icon`}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
+						onClick={ handleClick }
 					>
 					</div>
 					<button className={`request__msg-resend-btn ${isActive && canResend() ? 'active' : ''} btn btn-xs btn-success`}
@@ -44,19 +45,20 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 						title={store.getRequestTooltip()}
 						onClick={ handleClick }
 					>
-					<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
-						{store.isHttpOrHttps() && !store.isNoResponse() &&
-							<span className={store.isError() ? 'error' : ''}>
+						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
+						{store.isHttpOrHttps() &&
+							<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}>
 								{message.status + ' '}
-							</span>
+							</div>
 						}
-						<span className={`
-							${store.getVisited() ? ' visited-color' : ''}
+						<div className={`
+							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
 						`}>
-							{message.method+' '}
-							<b>{message.endpoint+' '}</b>
-							<span dangerouslySetInnerHTML={{__html: store.getRequestLine()}}/>
-						</span>
+							{message.method && message.method.length > 0 && <div className="request__msg-method">{message.method+' '}</div>}
+							{message.endpoint.length > 0 && <div className="request__msg-endpoint"><b>{message.endpoint+' '}</b></div>}
+							{message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
+							<div dangerouslySetInnerHTML={{__html: store.getRequestUrl()}}/>
+						</div>
 					</div>
 				</div>
 			</div>

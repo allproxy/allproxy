@@ -93,6 +93,11 @@ td input {
   margin: .3rem 0 0 .5rem;
   font-size: 1rem;
 }
+.request__msg-status {
+	width: 4ch;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
 .request__msg-resend-btn {
 	display: none;
 	margin-left: .5rem;
@@ -103,6 +108,26 @@ td input {
 .request__msg-caret {
 	margin: .3rem .1rem 0 .5rem;
 	font-size: 1rem;
+}
+.request__msg-request-line {
+	display: flex;
+}
+.request__msg-method {
+	width: 6ch;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+.request__msg-endpoint {
+	width: 42ch;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.request__msg-client {
+	width: 14ch;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
 }
 .request__msg-highlight {
 	color:rgba(0, 55, 255, 0.884) !important;
@@ -265,7 +290,7 @@ td input {
 .request-response__container {
 	display: -webkit-flex; /* Safari */
   	display: flex;
-	  padding-top: 3rem;
+	padding-top: 3rem;
 }
 
 .request__container {
@@ -325,6 +350,7 @@ td input {
 .request__msg {
 	cursor: pointer;
 	white-space: nowrap;
+	display: flex;
 }
 .request__msg.active {
 	border: red solid thin;

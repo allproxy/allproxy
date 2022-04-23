@@ -62,17 +62,17 @@ export default class MessageStore {
         return this.visited;
     }
 
-    public getRequestLine(): string {
+    public getRequestUrl(): string {
         let str = '';
         if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'browser:') {
             str = this.getUrl().startsWith('http://') || this.getUrl().startsWith('https://')
                 ? this.getUrl()
                 : `${this.message.protocol}//${this.message.serverHost}`;
             const tokens = str.split('://');
-            const hostAndUrl = tokens[1].split('/',2);
-            const host = hostAndUrl[0];
-            const uri = '/' + (hostAndUrl[1] || '');
-            str = this.getClientWithHighlight() + `->${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;
+            const parts = tokens[1].split('/');
+            const host = parts[0];
+            const uri = parts.length === 1 ? '/' : '/' + parts.slice(1).join('/');
+            str = `${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;
         } else if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
             str = this.getUrl()
         } else {
@@ -80,15 +80,15 @@ export default class MessageStore {
                 ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`
                 : this.getUrl();
             if (!this.isHttpOrHttps()) {
-                str = `(${this.getClientWithHighlight()}->${this.message.serverHost}) ${url}`;
+                str = `${this.message.serverHost} ${url}`;
             } else {
-                str = this.getClientWithHighlight() + "->" + url;
+                str = url;
             }
         }
         return str;
     }
 
-    private getClientWithHighlight(): string|undefined {
+    public getRequestClient(): string|undefined {
         let ip = this.message.clientIp;
         if (ip === undefined || ip === '127.0.0.1' || ip?.indexOf('loopback') !== -1) {
             const ua = this.message.requestHeaders['user-agent'];
@@ -98,7 +98,7 @@ export default class MessageStore {
                 ip = ip.split('/')[0];
             }
         }
-        return `<span class="request__msg-highlight">${ip}</span>`;
+        return ip;
     }
 
     @action public setVisited(value: boolean) {
