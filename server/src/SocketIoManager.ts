@@ -284,7 +284,7 @@ export default class SocketIoManager {
       const isDynamic = inProxyConfig === undefined || inProxyConfig.comment === DYNAMICALLY_ADDED;
       const emittedSocketId: {[key:string]:boolean} = {}
       message.type = messageType;
-      const path = inProxyConfig ? inProxyConfig.path : '';      
+      const path = inProxyConfig ? inProxyConfig.path : '';
       let emitted = false;
       this.socketIoMap.forEach((socketInfo: SocketIoInfo, socketId: string) => {
         for (const proxyConfig of socketInfo.configs) {
@@ -303,7 +303,7 @@ export default class SocketIoManager {
               }
               emittedSocketId[socketId] = true;
               emitted = true;
-            }            
+            }
           }
         }
       });
@@ -317,7 +317,7 @@ export default class SocketIoManager {
       if (socketInfo.messagesOut >= MAX_OUT) {
         socketInfo.queuedMessages = socketInfo.queuedMessages.concat(messages);
       } else {
-        if (socketInfo.socket) {                  
+        if (socketInfo.socket) {
           ++socketInfo.seqNum;
           ++socketInfo.messagesOut;
           socketInfo.socket.emit(
@@ -327,21 +327,21 @@ export default class SocketIoManager {
             // callback:
             (_response: string) => {
               --socketInfo.messagesOut;
-              
+
               // console.log(
               //             `out=${socketInfo.messagesOut}`,
-              //             `sent=${messages.length}`,                          
+              //             `sent=${messages.length}`,
               //             `queued=${socketInfo.queuedMessages.length}`,
-              //             `(${_response})`)                        
+              //             `(${_response})`)
 
               const count = Math.min(BATCH_SIZE, socketInfo.queuedMessages.length);
               if (count > 0) {
-               
+
                   this.emitMessageWithFlowControl(
                     socketInfo.queuedMessages.splice(0, count),
                     socketInfo,
                     socketId
-                  )               
+                  )
               }
             }
           );
