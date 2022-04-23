@@ -6,7 +6,7 @@ const files: {[key:string]:string} = {};
 let filesRead = false;
 
 export default function replaceResponse (url: string): Buffer | null {
-  if (!filesRead) {
+  if (!filesRead && fs.existsSync(Paths.replaceResponsesDir())) {
     filesRead = true;
     const command = `find ${Paths.replaceResponsesDir()} -type f`;
     // console.log('replaceResponse', command)
