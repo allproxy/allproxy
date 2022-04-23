@@ -16,6 +16,6 @@ test("MessageStore", () => {
 
   expect(messageStore.getRequestBody()).toBe('requestBody');
   expect(messageStore.getUrl()).toBe('/url');
-  expect(messageStore.getRequestLine()).toBe('(clientIp->serverHost) /url');
+  expect(messageStore.getRequestUrl()).toBe('(clientIp->serverHost) /url');
 
 });
