@@ -1,6 +1,7 @@
-
 body {
 	/* overflow: hidden; */
+	font-family: Menlo, Monaco, 'Courier New', monospace;
+	/*font-weight: bold;*/
 }
 
 button:disabled {
@@ -94,6 +95,7 @@ td input {
   font-size: 1rem;
 }
 .request__msg-status {
+	margin-right: .5rem;
 	width: 4ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -113,17 +115,20 @@ td input {
 	display: flex;
 }
 .request__msg-method {
+	margin-right: .5rem;
 	width: 6ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 .request__msg-endpoint {
+	margin-right: .5rem;
 	width: 42ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
 }
 .request__msg-client {
+	margin-right: .5rem;
 	width: 14ch;
 	text-overflow: ellipsis;
 	overflow: hidden;

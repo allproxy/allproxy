@@ -13,7 +13,7 @@ export default class FilterStore {
     private resetScroll = false;
     private _matchCase = false;
     private _regex = false;
-    private _logical = false;
+    private _logical = true;
     private _deleteFiltered = false;
     private showErrors = false;
 
@@ -96,7 +96,7 @@ export default class FilterStore {
         }
     }
 
-    @action public setFilterNoDebounce(filter: string) {        
+    @action public setFilterNoDebounce(filter: string) {
         if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
         }
@@ -104,10 +104,10 @@ export default class FilterStore {
         this.filter = filter;
         this.searchFilter = this.filter;
         this.updateBoolString();
-        messageQueueStore.setFreeze(false);      
+        messageQueueStore.setFreeze(false);
     }
 
-    @action public setFilter(filter: string) {        
+    @action public setFilter(filter: string) {
         if (this.filter.length > 0 && filter.length === 0) {
             this.resetScroll = true;
         }
@@ -120,7 +120,7 @@ export default class FilterStore {
             messageQueueStore.setFreeze(false);
         }, 500);
 
-        debounce();        
+        debounce();
     }
 
     public isInvalidFilterSyntax(): boolean {
