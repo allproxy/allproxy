@@ -135,7 +135,8 @@ td input {
 	white-space: nowrap;
 }
 .request__msg-highlight {
-	color:rgba(0, 55, 255, 0.884) !important;
+	/* color:rgba(0, 55, 255, 0.884) !important; */
+	color: rgb(203, 75, 22) !important;
 }
 
 .header__container {
