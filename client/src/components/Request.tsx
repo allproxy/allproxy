@@ -56,7 +56,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 						`}>
 							{message.method && message.method.length > 0 && <div className="request__msg-method">{message.method}</div>}
 							{message.endpoint.length > 0 && <div className="request__msg-endpoint">{message.endpoint}</div>}
-							{message.protocol !== 'log:' && <div className="request__msg-client">{store.getRequestClient()}</div>}
+							{message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
 							<div dangerouslySetInnerHTML={{__html: store.getRequestUrl()}}/>
 						</div>
 					</div>
