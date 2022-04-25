@@ -110,7 +110,6 @@ td input {
 }
 .request__msg-status {
 	margin-right: 1rem;
-	width: 3ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }

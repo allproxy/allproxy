@@ -8,10 +8,11 @@ type Props = {
 	onResend: () => void,
 	store: MessageStore,
 	timeBarPercent: string,
+	maxStatusSize: number,
 	maxMethodSize: number,
 	maxEndpointSize: number,
 };
-const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, maxMethodSize, maxEndpointSize }: Props) => {
+const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize }: Props) => {
 	const handleClick = () => { onClick(); store.setVisited(true); }
 	const message = store.getMessage();
 	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
@@ -49,7 +50,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 					>
 						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
 						{store.isHttpOrHttps() &&
-							<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}>
+							<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}  style={{width: maxStatusSize+'ch'}}>
 								{message.status}
 							</div>
 						}
