@@ -45,11 +45,13 @@ const SnapshotTabContent = observer(({
 		return true;
 	}
 
+	let maxStatusSize = 0;
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
 	let maxElapsedTime = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
+			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status+'').length);
 			const method = messageStore.getMessage().method;
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
 			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
@@ -83,6 +85,7 @@ const SnapshotTabContent = observer(({
 								: 0;
 							return (
 								<Request
+									maxStatusSize={maxStatusSize}
 									maxMethodSize={maxMethodSize}
 									maxEndpointSize={maxEndpointSize}
 									store={messageStore}
