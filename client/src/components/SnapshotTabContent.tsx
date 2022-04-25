@@ -45,13 +45,18 @@ const SnapshotTabContent = observer(({
 		return true;
 	}
 
+	let maxMethodSize = 0;
+	let maxEndpointSize = 0;
 	let maxElapsedTime = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
+			const method = messageStore.getMessage().method;
+			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
+			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
 			if (!shouldShowTimeBar(messageStore.getMessage())) return;
 			const et = messageStore.getMessage().elapsedTime ? messageStore.getMessage().elapsedTime : 0;
 			maxElapsedTime = Math.max(maxElapsedTime, et);
-		});	
+		});
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	let matchCount = 0;
@@ -78,6 +83,8 @@ const SnapshotTabContent = observer(({
 								: 0;
 							return (
 								<Request
+									maxMethodSize={maxMethodSize}
+									maxEndpointSize={maxEndpointSize}
 									store={messageStore}
 									key={seqNum}
 									isActive={isActiveRequest}
@@ -136,10 +143,10 @@ const SnapshotTabContent = observer(({
 		const parent = (ref.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			setScrollTop(parent.scrollTop);
-			// If the last message is visible, we need setFreeze(false) to cause 
+			// If the last message is visible, we need setFreeze(false) to cause
 			// all queued messages to be merged into the message queue, and become
 			// visible.
-			setTimeout(() => {				
+			setTimeout(() => {
 				const parent = (ref.current as Element);
 				if (parent && parent.childNodes.length > 0) {
 					const children = parent.childNodes;
