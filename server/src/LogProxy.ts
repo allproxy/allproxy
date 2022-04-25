@@ -11,7 +11,6 @@ export default class LogProxy {
   proxyConfig: ProxyConfig;
   command: string;
   primaryJsonFields: string[];
-  bufferingCount: number;
   boolFilter: BoolFilter;
   retry = true;
   prevTimeMsec: number| undefined;
@@ -20,7 +19,6 @@ export default class LogProxy {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
     this.primaryJsonFields = proxyConfig.hostname ? proxyConfig.hostname.split(',') : [];
-    this.bufferingCount = proxyConfig.port;    
     this.boolFilter = new BoolFilter(proxyConfig.comment);
     this.start();
   }
@@ -37,28 +35,28 @@ export default class LogProxy {
         console.error(e);
       }
     }
-  }  
+  }
 
   async start () {
     LogProxy.destructor(this.proxyConfig);
-    this.retry = true;    
-    
+    this.retry = true;
+
     this.command = this.command.replace('$HOME', process.env.HOME!);
     if (fs.existsSync(this.command)) {
       this.command = 'cat ' + this.command;
     }
+    Global.log('LogProxy:start', this.command);
 
     const tokens = this.command.split(' ');
 
     // cat of entire log file?
     if (tokens[0].trim() === 'cat' && tokens.length === 2) {
-
       async function delay(): Promise<boolean> {
         return new Promise((resolve) => {
           setTimeout(() => resolve(true), 50);
-        })      
+        })
       }
-  
+
       // Read the entire file and process each record...
       const buffer = fs.readFileSync(tokens[1]);
       for(const record of buffer.toString().split('\n')) {
@@ -67,7 +65,7 @@ export default class LogProxy {
         if(queueCount >= BATCH_SIZE * 2) {
           await delay();
         }
-      }      
+      }
       return;
     }
 
@@ -77,7 +75,7 @@ export default class LogProxy {
     const startTime = Date.now();
 
     proc.stdout.on('data', (buffer: Buffer) => {
-      if (warmUpCompleted()) {        
+      if (warmUpCompleted()) {
         for(const record of buffer.toString().split('\n')) {
           if(this.boolFilter.isFiltered(record)) continue;
           this.processLogRecord('stdout', record);
@@ -86,8 +84,8 @@ export default class LogProxy {
     });
 
     proc.stderr.on('data', (buffer: Buffer) => {
-      if (warmUpCompleted()) {        
-        for(const record of buffer.toString().split('\n')) {          
+      if (warmUpCompleted()) {
+        for(const record of buffer.toString().split('\n')) {
           if(this.boolFilter.isFiltered(record)) continue;
           this.processLogRecord('stderr', record);
         }
@@ -121,16 +119,31 @@ export default class LogProxy {
   // eslint-disable-next-line no-undef
   timerHandle: NodeJS.Timeout|undefined;
 
-  async processLogRecord (streamName: string, record: string): Promise<number> {  
-    let queueCount = 0;  
+  async processLogRecord (streamName: string, record: string): Promise<number> {
+    let queueCount = 0;
     if (this.timerHandle) {
       clearInterval(this.timerHandle);
     }
 
     if (this.streamName.length === 0) {
       this.streamName = streamName;
-    }   
-    
+    }
+
+    record = record.trim();
+
+    // Look for embedded JSON object
+    let nonJson = '';
+    if(!record.startsWith('{') && !record.startsWith('[')) {
+      const i = record.indexOf('{');
+      if (i !== -1) {
+        try {
+          const json = JSON.parse(record.substring(i));
+          nonJson = record.substring(0,i) + ' ';
+          record = JSON.stringify(json);
+        } catch(e) {}
+      }
+    }
+
     const hasPrimaryJsonField = (json: {[key:string]: any}): boolean => {
       const keys = Object.keys(json);
       for(const key of this.primaryJsonFields) {
@@ -149,13 +162,14 @@ export default class LogProxy {
       })
       return title;
     }
-    
-    if (this.primaryJsonFields.length > 0) {
-      let json: {[key:string]: any} | undefined
-      try {
-        json = JSON.parse(record)
-      } catch(e) {}
-      if (json && hasPrimaryJsonField(json)) {
+
+    let json: {[key:string]: any} | undefined
+    try {
+      json = JSON.parse(record)
+    } catch(e) {}
+
+    if (json) {
+      if (hasPrimaryJsonField(json)) {
         let timeMsec: number|undefined;
         if (json['LogTime']) {
           timeMsec = Date.parse(json['LogTime']);
@@ -164,33 +178,20 @@ export default class LogProxy {
         } else {
           timeMsec = Date.now();
         }
-        queueCount = await this.emitToBrowser(title(json), streamName, json, timeMsec)
+        queueCount = await this.emitToBrowser(nonJson+title(json), streamName, json, timeMsec);
+      } else {
+        const title = record.split('\n')[0];
+        queueCount = await this.emitToBrowser(nonJson+ title, streamName, json, Date.now());
       }
     } else {
-      this.buffer += record;
-      if (++this.recordCount < this.bufferingCount && streamName === this.streamName) {
-        this.timerHandle = setInterval(
-          () => {
-            this.recordCount = this.bufferingCount;
-            this.processLogRecord(this.streamName, '');
-          },
-          this.TIMEOUT
-        );
-        return queueCount;
-      }
-      //const commandTokens = this.command.split(' ');
-      //const title = commandTokens[commandTokens.length - 1];
-      const title = this.buffer.toString().split('\n')[0];
-      queueCount = await this.emitToBrowser(title, streamName, this.buffer.toString(), Date.now());
-      
-      this.buffer = '';
-      this.recordCount = 0;
+      const title = record.split('\n')[0];
+      queueCount = await this.emitToBrowser(title, streamName, record, Date.now());
     }
     return queueCount;
   }
 
   async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number): Promise<number> {
-    const seqNo = ++Global.nextSequenceNumber;    
+    const seqNo = ++Global.nextSequenceNumber;
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
       seqNo,
@@ -210,9 +211,9 @@ export default class LogProxy {
       elapsedTime = timeMsec - this.prevTimeMsec;
     }
     SocketIoMessage.appendResponse(
-      message, 
+      message,
       {}, // res headers
-      data, 
+      data,
       0, // status
       elapsedTime // elapsed time
     );
