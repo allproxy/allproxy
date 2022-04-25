@@ -8,8 +8,10 @@ type Props = {
 	onResend: () => void,
 	store: MessageStore,
 	timeBarPercent: string,
+	maxMethodSize: number,
+	maxEndpointSize: number,
 };
-const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }: Props) => {
+const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, maxMethodSize, maxEndpointSize }: Props) => {
 	const handleClick = () => { onClick(); store.setVisited(true); }
 	const message = store.getMessage();
 	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
@@ -54,8 +56,13 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent }
 						<div className={`
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
 						`}>
-							{message.method && message.method.length > 0 && <div className="request__msg-method">{message.method}</div>}
-							{message.endpoint.length > 0 && <div className="request__msg-endpoint">{message.endpoint}</div>}
+							{message.method && message.method.length > 0 &&
+							<div className="request__msg-method" style={{width: maxMethodSize+'ch'}}>
+								{message.method}
+							</div>}
+							{message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{width: maxEndpointSize+'ch'}}>
+								{message.endpoint}
+							</div>}
 							{message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
 							<div dangerouslySetInnerHTML={{__html: store.getRequestUrl()}}/>
 						</div>

@@ -94,12 +94,6 @@ td input {
   margin: .3rem 0 0 .5rem;
   font-size: 1rem;
 }
-.request__msg-status {
-	margin-right: .5rem;
-	width: 4ch;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
 .request__msg-resend-btn {
 	display: none;
 	margin-left: .5rem;
@@ -114,21 +108,26 @@ td input {
 .request__msg-request-line {
 	display: flex;
 }
+.request__msg-status {
+	margin-right: 1rem;
+	width: 3ch;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
 .request__msg-method {
-	margin-right: .5rem;
-	width: 6ch;
+	margin-right: 1rem;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 .request__msg-endpoint {
-	margin-right: .5rem;
-	width: 42ch;
+	margin-right: 1rem;
+	max-width: 42ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
 }
 .request__msg-client {
-	margin-right: .5rem;
+	margin-right: 1rem;
 	width: 14ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
