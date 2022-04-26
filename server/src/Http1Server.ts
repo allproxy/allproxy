@@ -33,7 +33,7 @@ export default class Http1Server {
   public static async start (port: number, host?: string): Promise<number> {
     const server = http.createServer((clientReq, clientRes) => Http1Server.onRequest(clientReq, clientRes));
     server.keepAliveTimeout = 0;
-        
+
     const listenPort = await listen('Http1Server', server, port, host);
     Global.socketIoManager.addHttpServer(server);
     return listenPort;
@@ -48,7 +48,7 @@ export default class Http1Server {
       return;
     }
 
-    const sequenceNumber = ++Global.nextSequenceNumber;
+    const sequenceNumber = Date.now();
     const remoteAddress = clientReq.socket.remoteAddress;
 
     Global.log(sequenceNumber, clientReq.url)
@@ -105,7 +105,7 @@ export default class Http1Server {
 
       let method = clientReq.method;
 
-      const headers = clientReq.headers;      
+      const headers = clientReq.headers;
       if (proxyConfig.port) headers.host += ':' + proxyConfig.port;
 
       let { protocol, hostname, port } = proxyConfig.protocol === 'browser:'
@@ -116,7 +116,7 @@ export default class Http1Server {
       }
 
       headers.host = hostname! + ':' + port;
-      
+
       const options = {
         protocol,
         hostname,
@@ -136,7 +136,7 @@ export default class Http1Server {
 
       async function handleResponse (proxyRes: http.IncomingMessage) {
         const requestBody = await requestBodyPromise;
-        
+
         /**
          * Forward the response back to the client
          */
@@ -144,12 +144,12 @@ export default class Http1Server {
           const key = proxyRes.rawHeaders[i];
           if(hopHeaders.indexOf(key) !== -1) continue;
           const value = proxyRes.rawHeaders[i+1];
-          clientRes.setHeader(key, value);                                        
+          clientRes.setHeader(key, value);
         }
         if ((clientReq.method === 'DELETE' || clientReq.method === 'PUT') && proxyRes.statusCode && proxyRes.statusCode < 400) {
           clientRes.removeHeader('Connection'); // Don't send keepalive
         }
-        
+
         clientRes.writeHead((proxyRes as any).statusCode, proxyRes.statusMessage);
         proxyRes.pipe(clientRes, {
           end: true
@@ -167,7 +167,7 @@ export default class Http1Server {
 
       clientReq.pipe(proxy, {
         end: true
-      });      
+      });
     }
 
     function getReqBody (clientReq: IncomingMessage): Promise<string | {}> {

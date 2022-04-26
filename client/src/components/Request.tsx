@@ -25,8 +25,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 					<div className="request__msg-time-ms">
 						{responseTime}
 					</div>
-					<div className="request__msg-time-bar-container"
-						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, seqNum=${message.sequenceNumber}`}>
+					<div className="request__msg-time-bar-container">
 						<div style={{width: `calc(100% - ${percent})` }}/>
 						<div className={'request__msg-time-bar' + (store.isNoResponse() ? ' no-response' : '')}
 							style={{ width: percent }} />
@@ -34,6 +33,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 					<div className={`${store.getIconClass()} request__msg-icon`}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
 						onClick={ handleClick }
+						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
 					>
 					</div>
 					<button className={`request__msg-resend-btn ${isActive && canResend() ? 'active' : ''} btn btn-xs btn-success`}

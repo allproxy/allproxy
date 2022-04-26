@@ -72,7 +72,7 @@ export default class Https2Server {
     console.log('Https2Server onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
-    const sequenceNumber = ++Global.nextSequenceNumber;
+    const sequenceNumber = Date.now();
     const remoteAddress = clientReq.socket.remoteAddress;
     let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl, this.proxyType);
     // Always proxy forward proxy requests

@@ -50,12 +50,12 @@ const resend = async (
     body = JSON.stringify(body);
   }
   try {
-    const response = await fetch(url, 
+    const response = await fetch(url,
       {
-        method: method, 
+        method: method,
         headers,
         body: body === null ? undefined : body
-      });    
+      });
     try {
       const data = await response.json();
       recordHttpResponse(response, data);
@@ -63,11 +63,11 @@ const resend = async (
       try {
         recordHttpResponse(response, "");
       } catch(e) {
-        httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object)); 
+        httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));
       }
     }
-  } catch (e) {    
-    httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));    
+  } catch (e) {
+    httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));
   }
 
   function recordHttpRequest (): HttpMessage {
@@ -83,7 +83,7 @@ const resend = async (
         ? reqUrl.protocol === 'http:' ? 80 : 443
         : +reqUrl.port;
     }
-    const sequenceNumber = ++Global.nextSequenceNumber;
+    const sequenceNumber = Date.now();
     const httpMessage = new HttpMessage(
       reqUrl.protocol as MessageProtocol,
       proxyConfig,

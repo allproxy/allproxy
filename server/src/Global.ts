@@ -4,7 +4,6 @@ import PortConfig from '../../common/PortConfig';
 
 export default class Global {
     static socketIoManager: SocketIoManager;
-    static nextSequenceNumber: number = 0;
     static debug = false;
     static useHttp2 = false;
     static portConfig: PortConfig;
