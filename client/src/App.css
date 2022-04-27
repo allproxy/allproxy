@@ -171,6 +171,7 @@ td input {
 .header__trash,
 .header__show-errors,
 .header__auto-scroll,
+.header__sort-req-res,
 .header__stop,
 .header__more-menu {
 	float: left;
@@ -178,8 +179,12 @@ td input {
 	cursor: pointer;
 	color: whitesmoke;
 	font-size: large !important;
-	min-width: 2ch;
+	min-width: 1ch;
 	text-align: center;
+}
+.header__sort-req-res {
+	margin-right: 1.5rem;
+	width: 2ch;
 }
 
 .header__show-errors.active {

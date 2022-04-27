@@ -23,6 +23,7 @@ export default class Message {
   type: MessageType = MessageType.REQUEST_AND_RESPONSE;
   timestamp: number = 0;
   sequenceNumber: number = 0;
+  sequenceNumberRes: number = 0;
   requestHeaders: {[key: string]: string} = {};
   responseHeaders: {[key: string]: string} = {};
   method: string | undefined = '';

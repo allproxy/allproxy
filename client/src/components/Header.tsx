@@ -92,6 +92,13 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					/>
 				</div>
 
+				<div className={'header__sort-req-res fa-solid fa-arrow-down fas'}
+					onClick={() => messageQueueStore.toggleSortBy()}
+					title={ (messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request') }
+				>
+					{messageQueueStore.getSortByReq() ? 'Req' : 'Res'}
+				</div>
+
 				<div className={'header__show-errors fa-bug fa '
 						+ (filterStore.getShowErrors() ? 'active' : '')}
 						onClick={() => filterStore.toggleShowErrors()}
@@ -170,7 +177,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			<div>
 				<div className="header__count" title="Received messages">
 					<div>{getDisplayedCount()+' of '+messageQueueStore.getTotalLength()}</div>
-				</div>				
+				</div>
 			</div>
 			<div>
 				<div className="header__count" title="Received messages">
@@ -200,8 +207,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="fa fa-network-wired"
 							onClick={() => {
-								setShowSettingsModal(true);	
-								settingsStore.reset(); 
+								setShowSettingsModal(true);
+								settingsStore.reset();
 								setSettingsMenuIcon(null);
 								if(!messageQueueStore.getStopped()) {
 									messageQueueStore.setStopped(true);
@@ -244,7 +251,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			<SettingsModal
 				open={showSettingsModal}
 				onClose={() => {
-					setShowSettingsModal(false); 
+					setShowSettingsModal(false);
 					if(filterWasStopped) {
 						filterWasStopped = false;
 						messageQueueStore.setStopped(false);

@@ -191,7 +191,7 @@ export default class LogProxy {
   }
 
   async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number): Promise<number> {
-    const seqNo = ++Global.nextSequenceNumber;
+    const seqNo = Date.now();
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
       seqNo,

@@ -59,7 +59,7 @@ export default class GrpcProxy {
       console.log('GRPC:' + clientReq.method + ' ' + clientReq.url)
       Global.log('GrpcProxy onRequest', reqUrl.path);
 
-      const sequenceNumber = ++Global.nextSequenceNumber;
+      const sequenceNumber = Date.now();
       const remoteAddress = clientReq.socket.remoteAddress;
       const httpMessage = new HttpMessage(
         proxyConfig.isSecure ? 'https:' : 'http:',
@@ -70,11 +70,11 @@ export default class GrpcProxy {
         clientReq.url!,
         clientReq.headers
       );
-      
-      const urlPath = reqUrl.path || "";      
+
+      const urlPath = reqUrl.path || "";
       let protoNames = getProtoNames(urlPath);
       const protoFile = protoNames ? protoNames[0] : "";
-      
+
       const requestBodyPromise = getReqBody(clientReq, protoFile, protoNames ? protoNames[1] : null);
 
       httpMessage.emitMessageToBrowser(''); // No request body received yet
@@ -179,13 +179,13 @@ export default class GrpcProxy {
           });
           // eslint-disable-next-line no-unreachable
           clientReq.on('end', async function () {
-            if (protoMessageName) {              
+            if (protoMessageName) {
               const json = await decodeProtobuf(protoFile, GrpcProxy.getPackageName(reqUrl.path), protoMessageName, buffer);
               if (json) resolve(json);
-            }          
+            }
             resolve(HexFormatter.format(buffer));
-          });            
-        })        
+          });
+        })
       }
 
       async function getResBody (headers: {}, chunks: Buffer[], protoFile: string, protoMessageName: string|null): Promise<object | string> {
@@ -194,22 +194,22 @@ export default class GrpcProxy {
           (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)
         );
         resBuffer = decompressResponse(headers, resBuffer);
-        if (protoMessageName) {          
+        if (protoMessageName) {
           const json = await decodeProtobuf(protoFile, GrpcProxy.getPackageName(reqUrl.path), protoMessageName, resBuffer);
           if (json) return json;
-        }  
+        }
         return HexFormatter.format(resBuffer);
       }
     }
 
     return port;
-  }  
+  }
 
   static getPackageName(path: string|null): string {
     if (path === null) return "";
     const tokens = path.split('/');
     return tokens.length > 1 ? tokens[1].split('.')[0] : "";
-  }  
+  }
 
   static destructor (proxyConfig: ProxyConfig) {
     if (proxyConfig._server) {

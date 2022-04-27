@@ -15,7 +15,7 @@ export default class Https1Proxy {
       const clientReq = ctx.clientToProxyRequest;
       const clientRes = ctx.proxyToClientResponse;
 
-      const sequenceNumber = ++Global.nextSequenceNumber;
+      const sequenceNumber = Date.now();
       const remoteAddress = clientReq.socket.remoteAddress;
 
       const reqHeaders = ctx.proxyToServerRequestOptions.headers;

@@ -188,7 +188,8 @@ const SnapshotTabContent = observer(({
 				if (parent && parent.childNodes.length > 0) {
 					const children = parent.childNodes;
 					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
-						if (messageQueueStore.getMessages()[i].getMessage().sequenceNumber === seqNum) {
+						const msg = messageQueueStore.getMessages()[i].getMessage();
+						if (msg.sequenceNumber === seqNum) {
 							break;
 						}
 						const element = (children[i] as Element);

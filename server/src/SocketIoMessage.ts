@@ -48,7 +48,8 @@ async function buildRequest (timestamp:number, sequenceNumber:number, requestHea
   }
 }
 
-function appendResponse (message: Message, responseHeaders: {}, responseBody: {}, status:number, elapsedTime:number) {
+function appendResponse (message: Message, responseHeaders: {}, responseBody: string | {}, status:number, elapsedTime:number) {
+  message.sequenceNumberRes = Date.now();
   message.responseHeaders = responseHeaders;
   message.responseBody = responseBody;
   message.status = status;

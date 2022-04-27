@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
+import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
@@ -117,6 +118,7 @@ export default class SnapshotStore {
 
 	@action public setSelectedSnapshotName(name: string) {
 		this.selectedSnapshotName = name;
+		messageQueueStore.resort();
 	}
 
 	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
@@ -143,7 +145,7 @@ export default class SnapshotStore {
 	public deleteSnapshot(name: string) {
 		this.snapshots.delete(name);
 		if (this.selectedSnapshotName === name) {
-			this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
+			this.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
 	}
 
@@ -153,7 +155,7 @@ export default class SnapshotStore {
 				this.deleteSnapshot(name);
 			}
 		}
-		this.selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
+		this.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 	}
 
 	public exportSelectedSnapshot(fileName: string) {
