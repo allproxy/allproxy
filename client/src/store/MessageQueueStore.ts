@@ -86,6 +86,10 @@ export default class MessageQueueStore {
 		this.sort();
 	}
 
+	@action public resort() {
+		this.sort();
+	}
+
 	@action public clear() {
 		while(snapshotStore.getActiveSnapshot().length > 0) {
 			snapshotStore.getActiveSnapshot().pop();
@@ -107,47 +111,39 @@ export default class MessageQueueStore {
 	}
 
 	@action private sort() {
-		const frozen = this.getFreeze();
-		if (!frozen) {
-			this.setFreeze(true);
-		}
-
-		const activeSnapshot = snapshotStore.getActiveSnapshot();
-		const copyMessages = activeSnapshot.slice(); // shallow copy
+		const selectedMessages = snapshotStore.getSelectedMessages();
+		const copyMessages = selectedMessages.slice(); // shallow copy
 
 		copyMessages.sort((a,b) => {
 			const aSeq = this.sortByReq ? a.getMessage().sequenceNumber : a.getMessage().sequenceNumberRes;
-			const bSeq = this.sortByReq ? b.getMessage().sequenceNumberRes : b.getMessage().sequenceNumberRes;
+			const bSeq = this.sortByReq ? b.getMessage().sequenceNumber : b.getMessage().sequenceNumberRes;
 			return aSeq - bSeq;
 		})
 
-		activeSnapshot.splice(0, activeSnapshot.length);
-		Array.prototype.push.apply(activeSnapshot, copyMessages);
-
-		if (!frozen) {
-			this.setFreeze(false);
-		}
+		selectedMessages.splice(0, selectedMessages.length);
+		Array.prototype.push.apply(selectedMessages, copyMessages);
 	}
 
-	private binarySearch(copyMessages: MessageStore[], msgSequenceNumber: number, sortByReq: boolean) {
+	private binarySearch(sortedMessages: MessageStore[], matchSeqNum: number, sortByReq: boolean) {
 		let l = 0;
-		let r = copyMessages.length - 1;
+		let r = sortedMessages.length - 1;
 		let m: number = 0;
 
 		let sn = 0;
 		while (l <= r) {
 			m = l + Math.floor((r - l) / 2);
-			sn = sortByReq ? copyMessages[m].getMessage().sequenceNumber : copyMessages[m].getMessage().sequenceNumberRes;
-			if (sn === msgSequenceNumber) {
+			sn = sortByReq ? sortedMessages[m].getMessage().sequenceNumber : sortedMessages[m].getMessage().sequenceNumberRes;
+			if (sn === matchSeqNum) {
 				break;
 			}
 
-			if (sn < msgSequenceNumber) {
+			if (sn < matchSeqNum) {
 				l = m + 1;
 			} else {
 				r = m - 1;
 			}
 		}
+
 		return m;
 	}
 
@@ -173,24 +169,29 @@ export default class MessageQueueStore {
 				continue;
 			}
 
+			// Sorting by response, and
 			if (!this.sortByReq &&
-				message.sequenceNumber !== message.sequenceNumberRes) {
-				const sortedByReqArray = activeSnapshot.slice();
+				message.responseBody !== NO_RESPONSE) {
+				const sortedByReqArray = copyMessages.slice(); // shallow copy
 				sortedByReqArray.sort((a,b) => a.getMessage().sequenceNumber - b.getMessage().sequenceNumber);
 				const m = this.binarySearch(sortedByReqArray, message.sequenceNumber, true);
-				const match = sortedByReqArray[m].getMessage();
-				if (match.sequenceNumber === message.sequenceNumber) {
-					const m2 = this.binarySearch(copyMessages, match.sequenceNumberRes, this.sortByReq);
-					copyMessages.splice(m2, 1);
+				const messageMatch = sortedByReqArray[m].getMessage();
+				if (messageMatch.sequenceNumber === message.sequenceNumber) {
+					const m2 = this.binarySearch(copyMessages, messageMatch.sequenceNumberRes, false);
+					copyMessages.splice(m2, 1); // delete matching message
+					if (copyMessages.length === 0) {
+						copyMessages.push(messageStore);
+						continue;
+					}
 				}
 			}
 
 			const msgSequenceNumber = this.sortByReq ? message.sequenceNumber : message.sequenceNumberRes;
 			const m = this.binarySearch(copyMessages, msgSequenceNumber, this.sortByReq);
 
-			// console.log(l,r,m);
-			const sn = copyMessages[m].getMessage().sequenceNumber;
-			if (sn === message.sequenceNumber) {
+			const messageMatch = copyMessages[m].getMessage();
+			const sn = this.sortByReq ? messageMatch.sequenceNumber : messageMatch.sequenceNumberRes;
+			if (sn === msgSequenceNumber) {
 				if (messageStore.getMessage().responseBody !== NO_RESPONSE) {
 					copyMessages[m] = messageStore;
 				}

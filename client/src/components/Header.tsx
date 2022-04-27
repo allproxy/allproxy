@@ -90,12 +90,13 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						onClick={() => messageQueueStore.toggleAutoScroll()}
 						title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
 					/>
-					<div className={'header__sort-req-res fa-solid fa-arrow-down fas'}
-						onClick={() => messageQueueStore.toggleSortBy()}
-						title={ (messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request') }
-					>
-						{messageQueueStore.getSortByReq() ? 'Req' : 'Res'}
-					</div>
+				</div>
+
+				<div className={'header__sort-req-res fa-solid fa-arrow-down fas'}
+					onClick={() => messageQueueStore.toggleSortBy()}
+					title={ (messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request') }
+				>
+					{messageQueueStore.getSortByReq() ? 'Req' : 'Res'}
 				</div>
 
 				<div className={'header__show-errors fa-bug fa '

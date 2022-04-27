@@ -73,7 +73,7 @@ const SnapshotTabContent = observer(({
 							return null;
 						} else {
 							const message = messageStore.getMessage();
-							const seqNum = messageQueueStore.getSortByReq() ?  message.sequenceNumber : message.sequenceNumberRes;
+							const seqNum = message.sequenceNumber;
 							lastSeqNum = seqNum;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
 							if (isActiveRequest) {
@@ -189,7 +189,7 @@ const SnapshotTabContent = observer(({
 					const children = parent.childNodes;
 					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 						const msg = messageQueueStore.getMessages()[i].getMessage();
-						if ((messageQueueStore.getSortByReq() ? msg.sequenceNumber : msg.sequenceNumberRes) === seqNum) {
+						if (msg.sequenceNumber === seqNum) {
 							break;
 						}
 						const element = (children[i] as Element);

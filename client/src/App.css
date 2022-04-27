@@ -179,11 +179,12 @@ td input {
 	cursor: pointer;
 	color: whitesmoke;
 	font-size: large !important;
-	min-width: 2ch;
+	min-width: 1ch;
 	text-align: center;
 }
 .header__sort-req-res {
-	width: 5ch;
+	margin-right: 1.5rem;
+	width: 2ch;
 }
 
 .header__show-errors.active {
