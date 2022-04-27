@@ -7,6 +7,22 @@ export default class Global {
     static debug = false;
     static useHttp2 = false;
     static portConfig: PortConfig;
+    static prevNow: number = 0;
+    static dupCount: number = 0;
+
+    static nextSequenceNumber(): number {
+      const now = Date.now();
+      if (now === Global.prevNow) {
+        const dupCount = ++Global.dupCount;
+        let decimal = dupCount + '';
+        decimal = decimal.padStart(4, '0');
+        return parseFloat(now + '.' + decimal);
+      } else {
+        Global.dupCount = 0;
+        Global.prevNow = now;
+        return now;
+      }
+    }
 
     static log (...args: any[]) {
       if (Global.debug) console.log(...args);

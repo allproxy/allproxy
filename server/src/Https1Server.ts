@@ -66,7 +66,7 @@ export default class Https1Server {
     console.log('Https1Server onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
-    const sequenceNumber = Date.now();
+    const sequenceNumber = Global.nextSequenceNumber();
     const remoteAddress = clientReq.socket.remoteAddress;
     let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl, this.proxyType);
     // Always proxy forward proxy requests

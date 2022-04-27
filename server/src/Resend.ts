@@ -83,7 +83,7 @@ const resend = async (
         ? reqUrl.protocol === 'http:' ? 80 : 443
         : +reqUrl.port;
     }
-    const sequenceNumber = Date.now();
+    const sequenceNumber = Global.nextSequenceNumber();
     const httpMessage = new HttpMessage(
       reqUrl.protocol as MessageProtocol,
       proxyConfig,
