@@ -130,6 +130,9 @@ export default class LogProxy {
     }
 
     record = record.trim();
+    if (record.length === 0) {
+      return 0;
+    }
 
     // Look for embedded JSON object
     let nonJson = '';
@@ -191,7 +194,7 @@ export default class LogProxy {
   }
 
   async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number): Promise<number> {
-    const seqNo = Date.now();
+    const seqNo = Global.nextSequenceNumber();
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
       seqNo,

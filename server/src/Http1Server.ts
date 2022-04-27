@@ -48,7 +48,7 @@ export default class Http1Server {
       return;
     }
 
-    const sequenceNumber = Date.now();
+    const sequenceNumber = Global.nextSequenceNumber();
     const remoteAddress = clientReq.socket.remoteAddress;
 
     Global.log(sequenceNumber, clientReq.url)

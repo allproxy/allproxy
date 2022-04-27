@@ -59,7 +59,7 @@ export default class GrpcProxy {
       console.log('GRPC:' + clientReq.method + ' ' + clientReq.url)
       Global.log('GrpcProxy onRequest', reqUrl.path);
 
-      const sequenceNumber = Date.now();
+      const sequenceNumber = Global.nextSequenceNumber();
       const remoteAddress = clientReq.socket.remoteAddress;
       const httpMessage = new HttpMessage(
         proxyConfig.isSecure ? 'https:' : 'http:',

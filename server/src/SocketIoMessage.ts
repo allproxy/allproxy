@@ -30,6 +30,7 @@ async function buildRequest (timestamp:number, sequenceNumber:number, requestHea
     const message = {
       timestamp,
       sequenceNumber,
+      sequenceNumberRes: Global.nextSequenceNumber(),
       requestHeaders,
       method,
       protocol: 'http:',
@@ -49,7 +50,7 @@ async function buildRequest (timestamp:number, sequenceNumber:number, requestHea
 }
 
 function appendResponse (message: Message, responseHeaders: {}, responseBody: string | {}, status:number, elapsedTime:number) {
-  message.sequenceNumberRes = Date.now();
+  message.sequenceNumberRes = Global.nextSequenceNumber();
   message.responseHeaders = responseHeaders;
   message.responseBody = responseBody;
   message.status = status;

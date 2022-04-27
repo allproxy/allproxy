@@ -98,7 +98,7 @@ export default class TcpProxy {
             const request = {
               data,
               startTime: Date.now(),
-              sequenceNumber: Date.now()
+              sequenceNumber: Global.nextSequenceNumber(),
             };
             requests.push(request);
             targetSocket.write(data);
