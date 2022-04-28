@@ -41,6 +41,7 @@ export default class LogProxy {
     LogProxy.destructor(this.proxyConfig);
     this.retry = true;
 
+    this.command = this.command.replace('$HOME', process.env.HOME!);
     if (fs.existsSync(this.command)) {
       this.command = 'cat ' + this.command;
     }
