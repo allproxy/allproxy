@@ -1,4 +1,3 @@
-import { spawn } from 'child_process';
 import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
@@ -6,6 +5,7 @@ import { MessageType } from '../../common/Message';
 import fs from 'fs'
 import { BATCH_SIZE } from './SocketIoManager';
 import BoolFilter from '../../common/BoolFilter'
+const exec = require('child_process').exec;
 
 export default class LogProxy {
   proxyConfig: ProxyConfig;
@@ -41,7 +41,6 @@ export default class LogProxy {
     LogProxy.destructor(this.proxyConfig);
     this.retry = true;
 
-    this.command = this.command.replace('$HOME', process.env.HOME!);
     if (fs.existsSync(this.command)) {
       this.command = 'cat ' + this.command;
     }
@@ -69,8 +68,8 @@ export default class LogProxy {
       return;
     }
 
-    const proc = spawn(tokens[0], tokens.slice(1));
-    // ('start', proc.pid);
+    const proc = exec(this.command);
+
     this.proxyConfig.logProxyProcess = proc; // save so we can kill process
     const startTime = Date.now();
 
@@ -92,11 +91,11 @@ export default class LogProxy {
       }
     });
 
-    proc.on('error', error => {
+    proc.on('error', (error: any) => {
       console.error(`error: ${error} - ${this.command}`);
     });
 
-    proc.on('exit', _rc => {
+    proc.on('exit', (_rc: any) => {
       proc.stdout.removeAllListeners();
       proc.stderr.removeAllListeners();
       proc.removeAllListeners();
