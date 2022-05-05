@@ -1,6 +1,5 @@
 import net from 'net';
 import tls from 'tls';
-import fs from 'fs';
 import Global from './Global';
 import SocketIoMessage from './SocketIoMessage';
 import HexFormatter from './formatters/HexFormatter';
@@ -9,7 +8,7 @@ import MongoFormatter from './formatters/MongoFormatter';
 import RedisFormatter from './formatters/RedisFormatter';
 import ProxyConfig from '../../common/ProxyConfig';
 import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message';
-import Paths from './Paths';
+import generateCertKey from './GenerateCertKey';
 
 const MAX_URL = 1024;
 
@@ -26,7 +25,7 @@ export default class TcpProxy {
      * Star proxy
      * @param proxyConfig
      */
-  startProxy (proxyConfig: ProxyConfig) {
+  async startProxy (proxyConfig: ProxyConfig) {
     const sourcePort = proxyConfig.path;
     const targetHost = proxyConfig.hostname;
     const targetPort = proxyConfig.port;
@@ -34,10 +33,7 @@ export default class TcpProxy {
     let server: net.Server | tls.Server;
 
     if (proxyConfig.isSecure) {
-      const tlsOptions = {
-        key: fs.readFileSync(Paths.serverKey()),
-        cert: fs.readFileSync(Paths.serverCrt())
-      };
+      const tlsOptions = await generateCertKey(proxyConfig.hostname);
 
       server = tls.createServer(tlsOptions, onConnect);
     } else {

@@ -274,6 +274,23 @@ export default class SocketIoManager {
       return matchingProxyConfig;
     }
 
+    findGrpcProxyConfig (
+      hostname: string,
+      port: number
+    ): ProxyConfig|undefined {
+      let matchingProxyConfig;
+      // Find matching proxy configuration
+      this.socketIoMap.forEach((socketInfo: SocketIoInfo, _key: string) => {
+        for (const proxyConfig of socketInfo.configs) {
+          if (proxyConfig.protocol === 'grpc:' && proxyConfig.hostname === hostname && proxyConfig.port === port) {
+            Global.log(`findGrpcProxy(${hostname}, ${port}) return:`, proxyConfig)
+            matchingProxyConfig = proxyConfig;
+          }
+        }
+      });
+      return matchingProxyConfig;
+    }
+
     /**
      * Emit message to browser.
      * @param {*} message

@@ -4,18 +4,12 @@ import Global from './Global';
 import ProxyConfig from '../../common/ProxyConfig';
 import HttpMessage from './HttpMessage';
 import HexFormatter from './formatters/HexFormatter';
-import Paths from './Paths';
-import fs from 'fs';
 import listen from './Listen';
 import decompressResponse from './DecompressResponse';
 import {decodeProtobuf, getProtoNames} from './Protobuf';
+import generateCertKey from './GenerateCertKey';
 
 const settings = { maxConcurrentStreams: undefined };
-
-const tlsOptions = {
-  key: fs.readFileSync(Paths.serverKey()),
-  cert: fs.readFileSync(Paths.serverCrt())
-};
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
@@ -37,7 +31,7 @@ export default class GrpcProxy {
     const server = proxyConfig.isSecure
       ? http2.createSecureServer({
         settings,
-        ...tlsOptions
+        ...await generateCertKey(proxyConfig.hostname)
       })
       : http2.createServer({
         settings
@@ -49,6 +43,8 @@ export default class GrpcProxy {
 
     let port = await listen('GrpcProxy', server, +proxyConfig.path);
     proxyConfig.path = port+'';  // update port
+
+    server.on('error', (e) => console.log('GrpcProxy error:', e))
 
     server.on('request', onRequest);
 
