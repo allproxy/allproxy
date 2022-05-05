@@ -2,12 +2,15 @@ FROM node:alpine AS build
 COPY . /
 RUN npm install
 
-FROM node:alpine
-WORKDIR '/allproxy'
-RUN apk add --no-cache tcpdump
 RUN apk add --no-cache curl
 RUN curl -L https://dl.k8s.io/v1.23.4/bin/linux/amd64/kubectl -o /bin/kubectl
 RUN chmod +x /bin/kubectl
+
+FROM node:alpine
+WORKDIR '/allproxy'
+RUN apk add --no-cache tcpdump
+
+COPY --from=build /bin/kubectl /bin/kubectl
 
 RUN mkdir /allproxy/client
 RUN mkdir /allproxy/proto

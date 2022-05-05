@@ -17,39 +17,45 @@ let httpVersion: HttpVersion = HttpVersion.HTTP1;
 
 export default class HttpConnectHandler {
   public static async start (_httpVersion: HttpVersion) {
-    httpVersion = _httpVersion;    
+    httpVersion = _httpVersion;
   }
 
   public static async doConnect (httpXSocket: net.Socket, data: Buffer) {
     Global.log('HttpConnectHandler doConnect', data.toString());
-    const url = data.toString().split(' ', 2)[1];
-    const hostPort = url!.split(':', 2);
-    const port = hostPort.length === 2 ? parseInt(hostPort[1]) : 443;
-    HttpConnectHandler.onConnect(hostPort[0], port, httpXSocket);
+    const hostPort = data.toString().split(' ', 2)[1];
+    const tokens = hostPort!.split(':', 2);
+    const port = tokens.length === 2 ? parseInt(tokens[1]) : 443;
+    HttpConnectHandler.onConnect(tokens[0], port, httpXSocket);
   }
 
   private static async onConnect (hostname: string, port: number, socket: net.Socket) {
-    Global.log('HttpConnectHandler onConnect', hostname);
+    Global.log('HttpConnectHandler onConnect', hostname, port);
 
-    const key = hostname;
-    let httpsServer = httpVersion === HttpVersion.HTTP1 ? https1Servers[key] : https2Servers[key];
-    if (!httpsServer) {
-      if (httpVersion === HttpVersion.HTTP1) {
-        httpsServer = new Https1Server(hostname, port, 'forward');
-        https1Servers[key] = httpsServer;
-      } else {
-        httpsServer = new Https2Server(hostname, port, 'forward');
-        https2Servers[key] = httpsServer;
-      }
-      Global.log('HttpConnectHandler start https server');
-      await httpsServer.start();
+    const proxyConfig = Global.socketIoManager.findGrpcProxyConfig(hostname, port);
+    if (proxyConfig) {
+      console.log(`Proxy ${hostname}:${port} to gRPC`)
+      HttpConnectHandler.createTunnel(socket, parseInt(proxyConfig.path), 'localhost');
     } else {
-      Global.log('HttpConnectHandler wait for https server to start');
-      await httpsServer.waitForServerToStart();
-    }
+      const key = hostname;
+      let httpsServer = httpVersion === HttpVersion.HTTP1 ? https1Servers[key] : https2Servers[key];
+      if (!httpsServer) {
+        if (httpVersion === HttpVersion.HTTP1) {
+          httpsServer = new Https1Server(hostname, port, 'forward');
+          https1Servers[key] = httpsServer;
+        } else {
+          httpsServer = new Https2Server(hostname, port, 'forward');
+          https2Servers[key] = httpsServer;
+        }
+        Global.log('HttpConnectHandler start https server');
+        await httpsServer.start();
+      } else {
+        Global.log('HttpConnectHandler wait for https server to start');
+        await httpsServer.waitForServerToStart();
+      }
 
-    // Create tunnel from client to Http2HttpsServer
-    HttpConnectHandler.createTunnel(socket, httpsServer.getEphemeralPort(), 'localhost');
+      // Create tunnel from client to Http2HttpsServer
+      HttpConnectHandler.createTunnel(socket, httpsServer.getEphemeralPort(), 'localhost');
+    }
   }
 
   private static respond (socket: net.Socket) {
