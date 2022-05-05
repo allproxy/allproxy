@@ -90,7 +90,7 @@ export default class MessageStore {
 
     public getRequestClient(): string|undefined {
         let ip = this.message.clientIp;
-        if (ip === undefined || ip === '127.0.0.1' || ip?.indexOf('loopback') !== -1) {
+        if (ip === undefined || ip === '127.0.0.1' || ip === '::1' || ip?.indexOf('loopback') !== -1) {
             const ua = this.message.requestHeaders['user-agent'];
             if (ua) {
                 ip = ua;
