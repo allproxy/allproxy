@@ -120,7 +120,7 @@ td input {
 }
 .request__msg-endpoint {
 	margin-right: 1rem;
-	max-width: 42ch;
+	max-width: 64ch;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
