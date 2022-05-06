@@ -64,10 +64,10 @@ export default class MessageStore {
 
     public getRequestUrl(): string {
         let str = '';
-        if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'browser:') {
+        if (this.isHttpOrHttps()) {
             str = this.getUrl().startsWith('http://') || this.getUrl().startsWith('https://')
                 ? this.getUrl()
-                : `${this.message.protocol}//${this.message.serverHost}`;
+                : `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`;
             const tokens = str.split('://');
             const parts = tokens[1].split('/');
             const host = parts[0];
@@ -76,14 +76,7 @@ export default class MessageStore {
         } else if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
             str = this.getUrl()
         } else {
-            const url = this.isHttpOrHttps()
-                ? `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`
-                : this.getUrl();
-            if (!this.isHttpOrHttps()) {
-                str = `${this.message.serverHost} ${url}`;
-            } else {
-                str = url;
-            }
+            str = `${this.message.serverHost} ${this.getUrl()}`;
         }
         return str;
     }
