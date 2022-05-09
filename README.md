@@ -318,7 +318,7 @@ Create test.js file in **replace-responses** directory.  It's path must match th
 ```sh
 $ cd allproxy/replace-responses
 replace-responses$ mkdir -p lib/js
-replace-responses$ echo 'My test response' > test.js
+replace-responses$ echo 'My test response' > lib/js/test.js
 ```
 WHenever AllProxy receives URL /lib/js/test.js, it will replace the response with the content from file replace-responses/lib/js/test.js.
 
