@@ -29,27 +29,27 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 					<option>DELETE</option>
 					<option>PATCH</option>
 					<option>POST</option>
-					<option>PUT</option>					
+					<option>PUT</option>
 				</select>
 				<div>
 					<select className="resend-modal__field"
 						onChange={e => store.setProtocol(e.target.value)} value={store.getProtocol()}				>
 						<option>http</option>
-						<option>https</option>									
+						<option>https</option>
 					</select>
 					<input className="resend-modal__field resend-modal__host"
-						type="text" 
+						type="text"
 						placeholder="Host"
 						onChange={e => store.setHost(e.target.value)} value={store.getHost()}
-					/>	
+					/>
 					<input className="resend-modal__field"
-						type="number" 
+						type="number"
 						placeholder="Port"
 						onChange={e => store.setPort(e.target.value)} value={store.getPort()}
 					/>
 				</div>
 				<div className="resend-modal__url-container">
-					<textarea className="resend-modal__url form-control" 
+					<textarea className="resend-modal__url form-control"
 						rows={2} cols={300}
 						placeholder="Path and query parameters"
 						onChange={ (e) => store.setPath(e.target.value) }
@@ -69,8 +69,8 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 								title="Remove client"
 								onClick={() => handleDeleteHeader(i)}/>
 							<select className="resend-modal__header-select"
-								onChange={e => store.setHeaderKey(i, e.target.value)} value={keyValue.key}>	
-								{store.getHeaderKeys().map(key => <option>{key}</option>)}															
+								onChange={e => store.setHeaderKey(i, e.target.value)} value={keyValue.key}>
+								{store.getHeaderKeys().map(key => <option>{key}</option>)}
 							</select>
 							<input className="resend-modal__header-input"
 								placeholder="Header value"
@@ -79,9 +79,9 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 							/>
 						</ListItem>
 					))}
-				</List>			
+				</List>
 				<div style={{marginTop: '1rem', marginBottom: '.5rem'}}>
-					<button type="button" className="resend-modal__send btn btn-sm btn-danger" 
+					<button type="button" className="resend-modal__send btn btn-sm btn-danger"
 						onClick={ handleRemoveBody }>
 						Remove Body
 					</button>
