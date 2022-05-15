@@ -6,4 +6,4 @@ client/package.json
 !client/build/
 !package.json
 !node-http-mitm-proxy/package.json
-!private/
+!intercept/

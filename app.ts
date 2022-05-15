@@ -30,7 +30,7 @@ for (let i = 2; i < process.argv.length; ++i) {
         console.error('\nMissing port number for ' + process.argv[i]);
       }
 
-      let protocol : 'httpx:' | 'grpc:' | 'securegrpc:' = 'httpx:';
+      let protocol: 'httpx:' | 'grpc:' | 'securegrpc:' = 'httpx:';
       switch (process.argv[i]) {
         case '--listen':
           protocol = 'httpx:';
@@ -76,7 +76,7 @@ if (listen.length === 0) {
   listen.push({ protocol: 'httpx:', port: 8888 });
 }
 
-function usage () {
+function usage() {
   console.log('\nUsage: npm start [--listen [host:]port] [--debug]');
   console.log('\nOptions:');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
@@ -93,6 +93,7 @@ process.on('uncaughtException', (err) => {
 });
 
 Paths.makeCaPemSymLink();
+Paths.setupInterceptDir();
 
 Global.portConfig = new PortConfig();
 Global.socketIoManager = new SocketIoManager();
@@ -103,7 +104,7 @@ parseProtoFiles();
 
 startServers();
 
-async function startServers () {
+async function startServers() {
   await createCertificateAuthority();
   for (const entry of listen) {
     const protocol = entry.protocol;
