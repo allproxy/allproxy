@@ -7,8 +7,7 @@ import querystring from 'querystring';
 import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
-import decompressResponse from './DecompressResponse';
-import replaceResponse from './ReplaceResponse';
+import { decompressResponse } from './Zlib';
 
 type ProxyType = 'forward' | 'reverse';
 
@@ -27,17 +26,17 @@ export default class Https2Server {
     this.resolvePromise = resolve;
   });
 
-  constructor (hostname: string, port: number, proxyType: ProxyType) {
+  constructor(hostname: string, port: number, proxyType: ProxyType) {
     this.proxyType = proxyType;
     this.hostname = hostname;
     this.port = port;
   }
 
-  destructor () {
+  destructor() {
     this.server && this.server.close();
   }
 
-  public async start () {
+  public async start() {
     const certKey = await generateCertKey(this.hostname);
     this.server = http2.createSecureServer(
       {
@@ -53,15 +52,15 @@ export default class Https2Server {
     this.resolvePromise(0);
   }
 
-  public async waitForServerToStart () {
+  public async waitForServerToStart() {
     await this.promise;
   }
 
-  public getEphemeralPort () {
+  public getEphemeralPort() {
     return this.ephemeralPort;
   }
 
-  private async onRequest (clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
+  private async onRequest(clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
     clientReq.on('error', function (error) {
       console.error(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
     });
@@ -114,7 +113,7 @@ export default class Https2Server {
         requestBodyPromise);
     }
 
-    function getReqBody (clientReq: Http2ServerRequest): Promise<string | {}> {
+    function getReqBody(clientReq: Http2ServerRequest): Promise<string | {}> {
       return new Promise<string | {}>(resolve => {
         // eslint-disable-next-line no-unreachable
         let requestBody: string | {} = '';
@@ -140,8 +139,8 @@ export default class Https2Server {
     }
   }
 
-  private async proxyRequest (
-    reqUrl: UrlWithStringQuery,
+  private async proxyRequest(
+    _reqUrl: UrlWithStringQuery,
     clientReq: Http2ServerRequest,
     clientRes: Http2ServerResponse,
     httpMessage: HttpMessage,
@@ -172,29 +171,18 @@ export default class Https2Server {
       throw e;
     }
 
-    let replaceRes: Buffer | null = null;
-    if (reqUrl.pathname) {
-      replaceRes = replaceResponse(reqUrl.pathname);
-    }
-
     proxyStream.on('response', (headers, flags) => {
       Global.log('Http2Server on response', clientReq.url, headers, 'flags:', flags);
       if (clientRes.stream) {
         clientRes.stream.respond(headers, { waitForTrailers: true });
       }
       proxyStream.on('data', function (chunk: Buffer) {
-        if (!replaceRes) {
-          clientRes.write(chunk);
-          chunks.push(chunk);
-        }
+        clientRes.write(chunk);
+        chunks.push(chunk);
       });
 
       proxyStream.on('end', async () => {
         Global.log('Http2Server end of response received');
-
-        if (replaceRes) {
-          clientRes.write(replaceRes);
-        }
 
         clientRes.end();
         if (clientHttp2Session) {
@@ -204,13 +192,7 @@ export default class Https2Server {
         const requestBody = await requestBodyPromise;
 
         // chunks.push(headers)
-        let resBody;
-        if (replaceRes) {
-          headers['allproxy-replaced-response'] = 'yes';
-          resBody = replaceRes.toString();
-        } else {
-          resBody = getResBody(headers, chunks);
-        }
+        const resBody = getResBody(headers, chunks);
         httpMessage.emitMessageToBrowser(requestBody, headers[':status'], headers, resBody);
       });
     });
@@ -222,7 +204,7 @@ export default class Https2Server {
   }
 }
 
-function getResBody (headers: {}, chunks: Buffer[]): object | string {
+function getResBody(headers: {}, chunks: Buffer[]): object | string {
   if (chunks.length === 0) return '';
   let resBuffer = chunks.reduce(
     (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)

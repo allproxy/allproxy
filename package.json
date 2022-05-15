@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "2.8.7",
+  "version": "2.9.0",
   "description": "AllProxy: HTTP, SQL, gRPC Debugging Tool.",
   "keywords": [
     "proxy",
@@ -35,7 +35,7 @@
     "clean": "rm -rf ./build",
     "clean-client": "rm -rf ./client/build",
     "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
-    "symbolic-links": "[ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/",
+    "symbolic-links": "[ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/ && ln -sf ../intercept/ ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "cd ./client && npm run test",
@@ -65,7 +65,8 @@
     "sql-formatter": "^2.3.3",
     "tls": "^0.0.1",
     "url": "^0.11.0",
-    "utf-8-validate": "^5.0.4"
+    "utf-8-validate": "^5.0.4",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.5",

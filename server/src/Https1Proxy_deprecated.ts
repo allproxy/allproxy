@@ -3,14 +3,13 @@ import Global from './Global';
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
 import Proxy from '../../node-http-mitm-proxy';
 import HttpMessage from './HttpMessage';
-import replaceResponse from './ReplaceResponse';
-import decompressResponse from './DecompressResponse';
+import { decompressResponse } from './Zlib';
 
 /**
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class Https1Proxy {
-  onRequest (proxy: Proxy.IProxy) {
+  onRequest(proxy: Proxy.IProxy) {
     proxy.onRequest(async function (ctx, callback) {
       const clientReq = ctx.clientToProxyRequest;
       const clientRes = ctx.proxyToClientResponse;
@@ -72,7 +71,7 @@ export default class Https1Proxy {
 
       callback();
 
-      function proxyRequest () {
+      function proxyRequest() {
         clientReq.on('close', function () {
 
         });
@@ -85,11 +84,6 @@ export default class Https1Proxy {
           console.error(sequenceNumber, 'Server connection error', JSON.stringify(error, null, 2));
           httpMessage.emitMessageToBrowser(JSON.stringify(error, null, 2));
         });
-
-        let replaceRes: Buffer | null = null;
-        if (reqUrl.pathname) {
-          replaceRes = replaceResponse(reqUrl.pathname);
-        }
 
         let reqChunks: string = '';
         ctx.onRequestData(function (_ctx, chunk, callback) {
@@ -105,19 +99,12 @@ export default class Https1Proxy {
         ctx.onResponse(function (ctx, callback) {
           const resChunks: Buffer[] = [];
           ctx.onResponseData(function (_ctx, chunk, callback) {
-            if (replaceRes) {
-              return callback();
-            } else {
-              resChunks.push(chunk);
-              return callback(undefined, chunk);
-            }
+            resChunks.push(chunk);
+            return callback(undefined, chunk);
           });
 
           ctx.onResponseEnd(function (ctx, callback) {
             const resHeaders = ctx.serverToProxyResponse.headers;
-            if (replaceRes) {
-              resHeaders['allproxy-replaced-response'] = 'yes';
-            }
             const resBuffer = resChunks.reduce(
               (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length),
               Buffer.from('')
@@ -126,16 +113,8 @@ export default class Https1Proxy {
               reqChunks,
               ctx.serverToProxyResponse.statusCode,
               resHeaders,
-              replaceRes ? replaceRes.toString() : decompressResponse(resHeaders, resBuffer).toString()
+              decompressResponse(resHeaders, resBuffer).toString()
             );
-            if (replaceRes) {
-              ctx.proxyToClientResponse.writeHead(
-                ctx.serverToProxyResponse.statusCode!,
-                undefined,
-                resHeaders
-              );
-              ctx.proxyToClientResponse.write(replaceRes);
-            }
             return callback();
           });
 

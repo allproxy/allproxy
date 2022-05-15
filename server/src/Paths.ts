@@ -14,10 +14,6 @@ export default class Paths {
     return Paths.platform(`${Paths.dataDir}config.json`);
   }
 
-  public static replaceResponsesDir(): string {
-    return Paths.platform(`${Paths.dataDir}replace-responses/`);
-  }
-
   public static sslCaDir(): string {
     return Paths.platform(`${Paths.dataDir}.http-mitm-proxy`);
   }
