@@ -14,7 +14,7 @@ COPY --from=build /bin/kubectl /bin/kubectl
 
 RUN mkdir /allproxy/client
 RUN mkdir /allproxy/proto
-RUN mkdir /allproxy/inercept
+COPY intercept /allproxy/intercept
 COPY package.json /allproxy/package.json
 COPY --from=build node_modules /allproxy/node_modules
 COPY --from=build build /allproxy/build
