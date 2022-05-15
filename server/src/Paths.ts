@@ -33,7 +33,7 @@ export default class Paths {
       const path = Paths.platform(Paths.platform('intercept/InterceptResponse.js'));
       if (!fs.existsSync(target)) {
         fs.copyFileSync(path, target);
-        fs.rmSync(path);
+        fs.renameSync(path, Paths.platform(path + '.bak'));
       }
       try {
         fs.symlinkSync(target, path);
