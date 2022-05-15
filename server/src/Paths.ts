@@ -30,7 +30,7 @@ export default class Paths {
     // Installed from NPM?
     if (process.env.ALLPROXY_DATA_DIR) {
       const target = Paths.platform(`${Paths.interceptDir()}/InterceptResponse.js`);
-      const path = Paths.platform(Paths.platform('intercept/InterceptResponse.js'));
+      const path = Paths.platform(Paths.platform(`${Paths.baseDir}intercept/InterceptResponse.js`));
       if (!fs.existsSync(target)) {
         fs.copyFileSync(path, target);
         fs.renameSync(path, Paths.platform(path + '.bak'));

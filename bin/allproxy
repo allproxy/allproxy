@@ -19,7 +19,7 @@ if [ ! -d "$DATA_DIR" ]; then
 fi
 
 INTERCEPT_DIR=$DATA_DIR/intercept
-if [ ! -d "$INTEREPT_DIR" ]; then
+if [ ! -d "$INTERCEPT_DIR" ]; then
   mkdir $INTERCEPT_DIR
 fi
 
