@@ -42,7 +42,7 @@ AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
-  * [Modify HTTPS Responses](#modify-https-responses)
+  * [Modify HTTPS JSON Responses](#modify-https-json-responses)
   * [Snapshots](#snapshots)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
 * [Certificates](#certificates)
@@ -223,7 +223,7 @@ GRPC_PORT=12345
 
 #### Proto Files
 Proto files can be added to the **proto/** directory so that the AllProxy tool can decode the binary data, and make it readable.  AllProxy currently only supports GRPC URLs of the
-form **/<package>/<service>.<func>** (e.g., /mypackage/mMService/MyFunc).   
+form **/<package>/<service>.<func>** (e.g., /mypackage/mMService/MyFunc).
 
 The AllProxy is configured to proxy gRPC requests to a microservice:
 ![ ](https://github.com/davechri/allproxy/blob/master/images/grpc-settings.png)
@@ -308,21 +308,29 @@ Boolean filters can use &&, ||, !, and parenthesis.
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
 
-### Modify HTTPS Responses
-An HTTPS response can be replaced with your own hard coded response.  Simply create a file in the **replace-responses** directory matching the request URL path.
-
-For example:
-* To replace responses for URL https://myapp/lib/js/test.js
-
-Create test.js file in **replace-responses** directory.  It's path must match the URL: /lib/js/test.js.
+### Modify HTTPS JSON Responses
+Custom JavaScript code may be provided to modify any JSON response.  Add your custom code to the **InterceptJsonResponse()** function is called for every JSON response, and can be modified to customize the JSON response body.  Edit the **intercept/InterceptResponse.js file as needed.
 ```sh
-$ cd allproxy/replace-responses
-replace-responses$ mkdir -p lib/js
-replace-responses$ echo 'My test response' > lib/js/test.js
-```
-WHenever AllProxy receives URL /lib/js/test.js, it will replace the response with the content from file replace-responses/lib/js/test.js.
+$ vi intercept/InterceptResponse.js
+````
+Example:
+```js
+module.exports = function InterceptJsonResponse(clientReq, json) {
+    const reqUrl = url.parse(clientReq.url);
+    const path = reqUrl.pathname;
+    const query = reqUrl.query;
 
-Note, the AllProxy must be restarted after adding new files to the **replace-responses** directory.
+    /**
+     * Add your code here to modify the JSON response body
+     */
+    if (path === '/aaa/bbb') {
+      json.addMyField = 1;
+      return json; // return modified JSON response body
+    }
+
+    return null; // do not modify JSON response body
+}
+```
 
 ### Snapshots
 Clicking on the camera icon will take a snapshot of the currently captured messages, and create a new snapshot tab.  A snapshot tab may be exported to a file, and later imported again.

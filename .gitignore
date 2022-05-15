@@ -2,7 +2,6 @@
 config.json
 build/
 ca.pem
-replace-responses/**
 *.proto
 
 # Logs

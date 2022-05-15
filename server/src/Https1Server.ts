@@ -8,8 +8,9 @@ import querystring from 'querystring';
 import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
-import decompressResponse from './DecompressResponse';
-import replaceResponse from './ReplaceResponse';
+import { compressResponse, decompressResponse } from './Zlib';
+
+import InterceptJsonResponse from '../../intercept'
 
 type ProxyType = 'forward' | 'reverse';
 
@@ -25,17 +26,17 @@ export default class Https1Server {
     this.resolvePromise = resolve;
   });
 
-  constructor (hostname: string, port: number, proxyType: ProxyType) {
+  constructor(hostname: string, port: number, proxyType: ProxyType) {
     this.proxyType = proxyType;
     this.hostname = hostname;
     this.port = port;
   }
 
-  destructor () {
+  destructor() {
     this.server && this.server.close();
   }
 
-  public async start () {
+  public async start() {
     const certKey = await generateCertKey(this.hostname);
     this.server = https.createServer(
       certKey,
@@ -47,15 +48,15 @@ export default class Https1Server {
     this.resolvePromise(0);
   }
 
-  public async waitForServerToStart () {
+  public async waitForServerToStart() {
     await this.promise;
   }
 
-  public getEphemeralPort () {
+  public getEphemeralPort() {
     return this.ephemeralPort;
   }
 
-  private async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
+  private async onRequest(clientReq: IncomingMessage, clientRes: http.ServerResponse) {
     clientReq.on('error', function (error) {
       console.error(sequenceNumber, 'Https1Server clientReq error', JSON.stringify(error, null, 2));
     });
@@ -115,7 +116,7 @@ export default class Https1Server {
       );
     }
 
-    function getReqBody (clientReq: IncomingMessage): Promise<string | {}> {
+    function getReqBody(clientReq: IncomingMessage): Promise<string | {}> {
       return new Promise<string | {}>(resolve => {
         // eslint-disable-next-line no-unreachable
         let requestBody: string | {} = '';
@@ -141,8 +142,8 @@ export default class Https1Server {
     }
   }
 
-  private async proxyRequest (
-    reqUrl: UrlWithStringQuery,
+  private async proxyRequest(
+    _reqUrl: UrlWithStringQuery,
     clientReq: IncomingMessage,
     clientRes: http.ServerResponse,
     httpMessage: HttpMessage,
@@ -159,20 +160,15 @@ export default class Https1Server {
       headers
     };
 
-    let replaceRes: Buffer | null = null;
-    if (reqUrl.pathname) {
-      replaceRes = replaceResponse(reqUrl.pathname);
-    }
-
     Global.log('Https1Server https.request', options);
     let retryCount = 0;
     const MAX_RETRIES = 5;
     proxyRequest();
 
-    function proxyRequest () {
+    function proxyRequest() {
       const proxyReq = https.request(options, handleResponse);
 
-      proxyReq.on('error', async function (error: {[key:string]: string}) {
+      proxyReq.on('error', async function (error: { [key: string]: string }) {
         proxyReq.destroy();
         if (error.code === 'EAI_AGAIN' && retryCount++ < MAX_RETRIES) {
           console.log(`Retry ${retryCount} for ${options.hostname}`);
@@ -189,7 +185,7 @@ export default class Https1Server {
       });
     }
 
-    async function handleResponse (proxyRes: http.IncomingMessage) {
+    async function handleResponse(proxyRes: http.IncomingMessage) {
       clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers);
 
       const chunks: Buffer[] = [];
@@ -198,39 +194,42 @@ export default class Https1Server {
        * Forward the response back to the client
        */
       proxyRes.on('data', function (chunk: Buffer) {
-        if (!replaceRes) {
-          clientRes.write(chunk);
-          chunks.push(chunk);
-        }
+        chunks.push(chunk);
       });
 
       proxyRes.on('end', async () => {
-        if (replaceRes) {
-          clientRes.write(replaceRes);
+        let resBody;
+        resBody = getResBody(proxyRes.headers, chunks);
+        if (typeof resBody === 'object' &&
+          proxyRes.headers['content-type'] && proxyRes.headers['content-type'].indexOf('application/json') !== -1) {
+          const newJson = InterceptJsonResponse(clientReq, resBody)
+          if (newJson) {
+            resBody = newJson;
+            console.log('InterceptJsonResponse changed the JSON body');
+            let buffer = Buffer.from(JSON.stringify(resBody));
+            buffer = compressResponse(proxyRes.headers, buffer);
+            chunks.splice(0, chunks.length);
+            clientRes.write(buffer);
+          }
+        }
+
+        for (const chunk of chunks) {
+          clientRes.write(chunk);
         }
 
         clientRes.end();
 
         const requestBody = await requestBodyPromise;
 
-        let resBody;
-        if (replaceRes) {
-          proxyRes.headers['allproxy-replaced-response'] = 'yes';
-          resBody = replaceRes.toString();
-        } else {
-          resBody = getResBody(proxyRes.headers, chunks);
-        }
         httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
       });
     }
   }
 }
 
-function getResBody (headers: {}, chunks: Buffer[]): object | string {
+function getResBody(headers: {}, chunks: Buffer[]): object | string {
   if (chunks.length === 0) return '';
-  let resBuffer = chunks.reduce(
-    (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)
-  );
+  let resBuffer = Buffer.concat(chunks);
   resBuffer = decompressResponse(headers, resBuffer);
   const resString = resBuffer.toString();
   let resBody = '';

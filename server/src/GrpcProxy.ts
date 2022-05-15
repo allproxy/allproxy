@@ -5,8 +5,8 @@ import ProxyConfig from '../../common/ProxyConfig';
 import HttpMessage from './HttpMessage';
 import HexFormatter from './formatters/HexFormatter';
 import listen from './Listen';
-import decompressResponse from './DecompressResponse';
-import {decodeProtobuf, getProtoNames} from './Protobuf';
+import { decompressResponse } from './Zlib';
+import { decodeProtobuf, getProtoNames } from './Protobuf';
 import generateCertKey from './GenerateCertKey';
 
 const settings = { maxConcurrentStreams: undefined };
@@ -15,7 +15,7 @@ const settings = { maxConcurrentStreams: undefined };
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class GrpcProxy {
-  public static async forwardProxy (port: number, isSecure: boolean = false): Promise<number> {
+  public static async forwardProxy(port: number, isSecure: boolean = false): Promise<number> {
     const proxyConfig = new ProxyConfig();
     proxyConfig.isSecure = isSecure;
     proxyConfig.protocol = 'grpc:';
@@ -23,11 +23,11 @@ export default class GrpcProxy {
     return GrpcProxy.start(proxyConfig, true);
   }
 
-  public static async reverseProxy (proxyConfig: ProxyConfig): Promise<number> {
+  public static async reverseProxy(proxyConfig: ProxyConfig): Promise<number> {
     return GrpcProxy.start(proxyConfig);
   }
 
-  private static async start (proxyConfig: ProxyConfig, isForwardProxy = false): Promise<number> {
+  private static async start(proxyConfig: ProxyConfig, isForwardProxy = false): Promise<number> {
     const server = proxyConfig.isSecure
       ? http2.createSecureServer({
         settings,
@@ -42,13 +42,13 @@ export default class GrpcProxy {
     }
 
     let port = await listen('GrpcProxy', server, +proxyConfig.path);
-    proxyConfig.path = port+'';  // update port
+    proxyConfig.path = port + '';  // update port
 
     server.on('error', (e) => console.log('GrpcProxy error:', e))
 
     server.on('request', onRequest);
 
-    async function onRequest (clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
+    async function onRequest(clientReq: Http2ServerRequest, clientRes: Http2ServerResponse) {
       // eslint-disable-next-line node/no-deprecated-api
       const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
@@ -76,7 +76,7 @@ export default class GrpcProxy {
       httpMessage.emitMessageToBrowser(''); // No request body received yet
       proxyRequest(proxyConfig!, requestBodyPromise);
 
-      function proxyRequest (proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {
+      function proxyRequest(proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {
         clientReq.on('error', function (error) {
           console.error(sequenceNumber, 'Client connection error', JSON.stringify(error, null, 2));
         });
@@ -109,7 +109,7 @@ export default class GrpcProxy {
         });
 
         const chunks: Buffer[] = [];
-        let trailers: {[key:string]: any} = {};
+        let trailers: { [key: string]: any } = {};
         const proxyStream = proxyClient.request(headers);
         let needToSendTrailers = false;
 
@@ -162,12 +162,12 @@ export default class GrpcProxy {
         });
       }
 
-      async function getReqBody (clientReq: Http2ServerRequest, protoFile: string, protoMessageName: string|null): Promise<string | {}> {
-        return new Promise<string|{}>((resolve) => {
+      async function getReqBody(clientReq: Http2ServerRequest, protoFile: string, protoMessageName: string | null): Promise<string | {}> {
+        return new Promise<string | {}>((resolve) => {
           // eslint-disable-next-line no-unreachable
           let buffer: Buffer;
           clientReq.on('data', function (chunk: Buffer) {
-            if(buffer) {
+            if (buffer) {
               buffer = Buffer.concat([buffer, chunk], buffer.length + chunk.length);
             } else {
               buffer = chunk;
@@ -184,7 +184,7 @@ export default class GrpcProxy {
         })
       }
 
-      async function getResBody (headers: {}, chunks: Buffer[], protoFile: string, protoMessageName: string|null): Promise<object | string> {
+      async function getResBody(headers: {}, chunks: Buffer[], protoFile: string, protoMessageName: string | null): Promise<object | string> {
         if (chunks.length === 0) return '';
         let resBuffer = chunks.reduce(
           (prevChunk, chunk) => Buffer.concat([prevChunk, chunk], prevChunk.length + chunk.length)
@@ -201,13 +201,13 @@ export default class GrpcProxy {
     return port;
   }
 
-  static getPackageName(path: string|null): string {
+  static getPackageName(path: string | null): string {
     if (path === null) return "";
     const tokens = path.split('/');
     return tokens.length > 1 ? tokens[1].split('.')[0] : "";
   }
 
-  static destructor (proxyConfig: ProxyConfig) {
+  static destructor(proxyConfig: ProxyConfig) {
     if (proxyConfig._server) {
       Global.log('GrpcProxy destructor ', proxyConfig.path);
       proxyConfig._server.close();
