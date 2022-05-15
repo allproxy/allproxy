@@ -8,9 +8,9 @@ import querystring from 'querystring';
 import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
-import { compressResponse, decompressResponse } from './Zlib';
+import { decompressResponse } from './Zlib';
 
-import InterceptJsonResponse from '../../intercept'
+// import InterceptJsonResponse from '../../intercept'
 
 type ProxyType = 'forward' | 'reverse';
 
@@ -202,15 +202,15 @@ export default class Https1Server {
         resBody = getResBody(proxyRes.headers, chunks);
         if (typeof resBody === 'object' &&
           proxyRes.headers['content-type'] && proxyRes.headers['content-type'].indexOf('application/json') !== -1) {
-          const newJson = InterceptJsonResponse(clientReq, resBody)
-          if (newJson) {
-            resBody = newJson;
-            console.log('InterceptJsonResponse changed the JSON body');
-            let buffer = Buffer.from(JSON.stringify(resBody));
-            buffer = compressResponse(proxyRes.headers, buffer);
-            chunks.splice(0, chunks.length);
-            clientRes.write(buffer);
-          }
+          // const newJson = InterceptJsonResponse(clientReq, resBody)
+          // if (newJson) {
+          //   resBody = newJson;
+          //   console.log('InterceptJsonResponse changed the JSON body');
+          //   let buffer = Buffer.from(JSON.stringify(resBody));
+          //   buffer = compressResponse(proxyRes.headers, buffer);
+          //   chunks.splice(0, chunks.length);
+          //   clientRes.write(buffer);
+          // }
         }
 
         for (const chunk of chunks) {
