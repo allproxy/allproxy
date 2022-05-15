@@ -9,8 +9,9 @@ import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
 import { compressResponse, decompressResponse } from './Zlib';
+import InterceptJsonResponse from '../../intercept';
 
-import InterceptJsonResponse from '../../intercept'
+// import InterceptJsonResponse from '../../intercept'
 
 type ProxyType = 'forward' | 'reverse';
 

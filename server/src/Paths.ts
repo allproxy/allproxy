@@ -26,12 +26,31 @@ export default class Paths {
     } catch (e) { } // Already exists
   }
 
+  public static setupInterceptDir() {
+    // Installed from NPM?
+    if (process.env.ALLPROXY_DATA_DIR) {
+      const target = Paths.platform(`${Paths.interceptDir()}/InterceptResponse.js`);
+      const path = Paths.platform(Paths.platform(`${Paths.baseDir}intercept/InterceptResponse.js`));
+      if (!fs.existsSync(target)) {
+        fs.copyFileSync(path, target);
+        fs.renameSync(path, Paths.platform(path + '.bak'));
+      }
+      try {
+        fs.symlinkSync(target, path);
+      } catch (e) { } // Already exists
+    }
+  }
+
   public static clientDir(): string {
     return Paths.platform(`${Paths.baseDir}client`);
   }
 
   public static protoDir(): string {
     return Paths.platform(`${Paths.dataDir}proto`)
+  }
+
+  public static interceptDir(): string {
+    return Paths.platform(`${Paths.dataDir}intercept`)
   }
 
   private static platform(dir: string): string {
