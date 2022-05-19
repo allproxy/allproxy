@@ -169,7 +169,7 @@ export default class SocketIoManager {
     socket.on('breakpoint', (enable: boolean) => {
       const socketIoInfo = this.socketIoMap.get(socket.conn.id);
       if (socketIoInfo) {
-        console.log('breakpoint', enable);
+        //console.log('breakpoint', enable);
         socketIoInfo.breakpointEnabled = enable;
       }
     })
@@ -399,7 +399,6 @@ export default class SocketIoManager {
       })
       if (socket) {
         socket.emit('breakpoint', message, (message2: Message) => {
-          console.log(message2);
           resolve(message2);
         })
       } else {
