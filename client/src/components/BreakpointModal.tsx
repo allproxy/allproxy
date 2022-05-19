@@ -58,18 +58,30 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 			open={open}
 			onClose={close}
 			aria-labelledby="simple-modal-title"
-  			aria-describedby="simple-modal-description"
+			aria-describedby="simple-modal-description"
 		>
 			<div className="breakpoint-modal" role="dialog">
 				<div>
-					<h3>Breakpoint List</h3>
+					<h3>Breakpoints</h3>
 					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 						<div className="no-capture-modal__scroll-container">
-							<div>When a request/response matches a breakpoint, a snapshot is created
-								and the breakpoint is disabled.  The breakpoint only fires one time,
-								and can be reenabled as needed.
-							</div>
-							<div>(The list is stored in browser local storage.)</div>
+							<h5>
+								Set breakpoints to allow the JSON response body to be modified before it is forwarded back to the client.
+							</h5>
+							<ul>
+								<li>
+									A modal will pop up when the breakpoint matches any part of the request or response.
+								</li>
+								<li>
+									Matching on the request URL and optional query parameters can uniquely identify a specific request.
+								</li>
+								<li>
+									Logical expressions can be used to match, for example: my.host.com && /my/url
+								</li>
+								<li>
+									Only responses with Content-Type application/json are examined.
+								</li>
+							</ul>
 							<div className="no-capture-modal__add-button fa fa-plus-circle"
 								onClick={handleAddBreakpoint}>
 								&nbsp;Add breakpoint
@@ -82,12 +94,12 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 										}}>
 										<div className="no-capture-modal__remove fa fa-minus-circle"
 											title="Remove breakpoint"
-											onClick={() => handleDeleteBreakpoint(i)}/>
+											onClick={() => handleDeleteBreakpoint(i)} />
 										<button className={`btn ${breakpoint.isEnabled() ? 'btn-primary' : 'btn-secondary'}`}
 											onClick={() => handleToggleEnable(breakpoint)}
 											title={breakpoint.isEnabled() ? 'Disable breakpoint' : 'Enable breakpoint'}
 										>
-											{ breakpoint.isEnabled() ? 'Disable' : 'Enable' }
+											{breakpoint.isEnabled() ? 'Disable' : 'Enable'}
 										</button>
 										<div
 											style={{
@@ -102,7 +114,7 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 														: 'lightCoral'
 												}}
 												disabled={breakpoint.isEnabled() ? false : true}
-												placeholder="Take snapshot when breakpoint expression matches any request/response"
+												placeholder="Match on any part of the request (e.g., url) or response"
 												value={breakpoint.getFilter()}
 												onChange={(e) => handleValueChange(e, breakpoint)}
 											/>
@@ -120,7 +132,7 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 					</div>
 					<div className="modal-footer">
 						<button type="button" className="settings-modal__cancel btn btn-default btn-success"
-							onClick={ close }
+							onClick={close}
 						>
 							Done
 						</button>

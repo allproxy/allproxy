@@ -18,8 +18,8 @@ function App() {
         snapshotStore={snapshotStore}
       />
       <Snapshots
-        messageQueueStore={ messageQueueStore }
-        snapshotStore={ snapshotStore }
+        messageQueueStore={messageQueueStore}
+        snapshotStore={snapshotStore}
       />
     </div>
   );

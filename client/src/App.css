@@ -7,9 +7,10 @@ body {
 button:disabled {
 	background: #dddddd;
 }
+
 pre {
-	background-color: #f9f9f9!important;
-	border: solid thin #e7e2e2!important;
+	background-color: #f9f9f9 !important;
+	border: solid thin #e7e2e2 !important;
 	border-radius: .5rem !important;
 	padding-left: 1.5rem !important;
 }
@@ -17,7 +18,9 @@ pre {
 td input {
 	width: 100%;
 }
-.table-compact th, .table-compact td {
+
+.table-compact th,
+.table-compact td {
 	padding-top: 0 !important;
 	padding-bottom: 0 !important;
 }
@@ -26,11 +29,12 @@ td input {
 	min-width: 140px !important;
 }
 
-.btn-group-xs > .btn, .btn-xs {
-  padding: .25rem .25rem !important;
-  font-size: .875rem !important;
-  line-height: .5 !important;
-  border-radius: .2rem !important;
+.btn-group-xs>.btn,
+.btn-xs {
+	padding: .25rem .25rem !important;
+	font-size: .875rem !important;
+	line-height: .5 !important;
+	border-radius: .2rem !important;
 }
 
 .MuiAccordion-root {
@@ -42,16 +46,19 @@ td input {
 	color: #9fd6f8;
 }
 
-.modal-dialog{
-    position: relative;
-    display: table; /* This is important */
-    overflow-y: auto;
-    overflow-x: auto;
+.modal-dialog {
+	position: relative;
+	display: table;
+	/* This is important */
+	overflow-y: auto;
+	overflow-x: auto;
 }
+
 .modal-footer {
 	padding-top: 0 !important;
 	padding-bottom: 0 !important;
 }
+
 .center {
 	text-align: center;
 	vertical-align: middle;
@@ -61,11 +68,13 @@ td input {
 	top: 50%;
 	transform: translateY(-50%);
 }
+
 .align-center {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
+
 .disabled {
 	opacity: .50;
 }
@@ -91,33 +100,40 @@ td input {
 }
 
 .request__msg-icon {
-  margin: .3rem 0 0 .5rem;
-  font-size: 1rem;
+	margin: .3rem 0 0 .5rem;
+	font-size: 1rem;
 }
+
 .request__msg-resend-btn {
 	display: none;
 	margin-left: .5rem;
 }
+
 .request__msg-resend-btn.active {
 	display: inline-block;
 }
+
 .request__msg-caret {
 	margin: .3rem .1rem 0 .5rem;
 	font-size: 1rem;
 }
+
 .request__msg-request-line {
 	display: flex;
 }
+
 .request__msg-status {
 	margin-right: 1rem;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
+
 .request__msg-method {
 	margin-right: 1rem;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
+
 .request__msg-endpoint {
 	margin-right: 1rem;
 	max-width: 64ch;
@@ -125,6 +141,7 @@ td input {
 	overflow: hidden;
 	white-space: nowrap;
 }
+
 .request__msg-client {
 	margin-right: 1rem;
 	width: 14ch;
@@ -132,6 +149,7 @@ td input {
 	overflow: hidden;
 	white-space: nowrap;
 }
+
 .request__msg-highlight {
 	/* color:rgba(0, 55, 255, 0.884) !important; */
 	color: rgb(203, 75, 22) !important;
@@ -148,6 +166,7 @@ td input {
 	align-items: center;
 	justify-content: space-between;
 }
+
 .header__left-container {
 	display: flex;
 	align-items: center;
@@ -182,6 +201,7 @@ td input {
 	min-width: 1ch;
 	text-align: center;
 }
+
 .header__sort-req-res {
 	margin-right: 1.5rem;
 	width: 2ch;
@@ -201,11 +221,13 @@ td input {
 .header__filter {
 	float: left;
 }
+
 .header__filter-input {
 	margin: 0 0 0 1rem;
 	height: 20px;
 	width: 300px;
 }
+
 .header__filter-input.active {
 	background-color: lightyellow;
 }
@@ -219,6 +241,7 @@ td input {
 	width: 2.2ch;
 	text-align: center;
 }
+
 .header__filter-case.active,
 .header__filter-regex.active,
 .header__filter-logical.active {
@@ -232,6 +255,7 @@ td input {
 	width: 2ch;
 	text-align: center;
 }
+
 .breakpoint__icon.active {
 	color: whitesmoke;
 	background: black;
@@ -249,13 +273,16 @@ td input {
 	margin: 0 0 0 1rem;
 	font-size: large !important;
 }
+
 .header__status {
 	float: left;
 }
+
 .header__settings {
 	color: whitesmoke;
 	margin-right: .5rem;
 }
+
 .header__status {
 	color: red;
 }
@@ -268,6 +295,7 @@ td input {
 .snapshot__container {
 	margin-top: 3rem;
 }
+
 .snapshot__container .MuiTabs-root {
 	z-index: 99;
 	position: fixed;
@@ -297,8 +325,9 @@ td input {
 }
 
 .request-response__container {
-	display: -webkit-flex; /* Safari */
-  	display: flex;
+	display: -webkit-flex;
+	/* Safari */
+	display: flex;
 	padding-top: 3rem;
 }
 
@@ -339,14 +368,17 @@ td input {
 	justify-content: right;
 	height: 24px;
 }
+
 .request__msg-time-bar {
-  height: 10px;
-  background: #007bff;
-  opacity: .5;
+	height: 10px;
+	background: #007bff;
+	opacity: .5;
 }
+
 .request__msg-time-bar.no-response {
 	background: crimson;
 }
+
 .request__msg-time-ms {
 	margin-left: .75rem;
 	z-index: 1;
@@ -361,10 +393,12 @@ td input {
 	white-space: nowrap;
 	display: flex;
 }
+
 .request__msg.active {
 	border: red solid thin;
 	border-radius: .2rem;
 }
+
 .request__endpoint {
 	color: green;
 }
@@ -400,6 +434,7 @@ td input {
 .response__body {
 	display: none;
 }
+
 .request__headers.active,
 .response__headers.active,
 .request__query-params.active,
@@ -413,22 +448,23 @@ td input {
 .request__query-params-twisty,
 .response__body-twisty {
 	width: 0;
-  	height: 0;
-  	border-top: .5rem solid transparent;
-  	border-bottom: .5rem solid transparent;
-  	border-left: .5rem solid;
-  	margin: .5rem .1rem 0 0 !important;
-  	cursor: pointer;
+	height: 0;
+	border-top: .5rem solid transparent;
+	border-bottom: .5rem solid transparent;
+	border-left: .5rem solid;
+	margin: .5rem .1rem 0 0 !important;
+	cursor: pointer;
 }
+
 .request__headers-twisty.active,
 .response__headers-twisty.active,
 .request__query-params-twisty.active,
 .response__body-twisty.active {
 	width: 0;
-  	height: 0;
-  	border-left: .5rem solid transparent;
-  	border-right: .5rem solid transparent;
-  	border-top: .5rem solid;
+	height: 0;
+	border-left: .5rem solid transparent;
+	border-right: .5rem solid transparent;
+	border-top: .5rem solid;
 }
 
 .twisty-label {
@@ -438,34 +474,42 @@ td input {
 .http-message__url {
 	cursor: pointer;
 }
+
 .resend-modal__field {
 	margin-bottom: 1rem;
 	margin-right: .5rem;
 	height: 30px;
 	width: 100px;
 }
+
 .resend-modal__header-select {
 	width: 150px;
 	height: 30px;
 }
+
 .resend-modal__header-input {
 	height: 30px;
 	width: calc(90vw - 150px);
 }
+
 .resend-modal__host {
 	width: 200px;
 }
+
 .resend-modal__url-container,
 .resend-modal__body-container {
 	width: 100%;
 }
+
 .resend-modal__body-container {
 	height: 400px;
 	overflow-y: auto;
 }
+
 .resend-modal__body {
 	height: 90vh;
 }
+
 .resend-modal__url,
 .resend-modal__body {
 	display: table-row;
@@ -488,7 +532,7 @@ td input {
 }
 
 .breakpoint-modal {
-	max-width: 800px;
+	max-width: 90vw;
 }
 
 .no-capture-modal {
@@ -501,6 +545,7 @@ td input {
 	cursor: pointer;
 	color: #28a745;
 }
+
 .no-capture-modal__remove {
 	font-size: large;
 	color: red;
@@ -556,9 +601,11 @@ td input {
 	padding-left: .5rem;
 	width: 25% !important;
 }
+
 .settings-modal__add-input {
 	width: 100% !important;
 }
+
 .settings-modal__select-protocol {
 	width: 100px !important;
 	padding-left: 0 !important;
@@ -579,14 +626,14 @@ td input {
 .settings-modal__proxy-comment {
 	padding-top: .5rem;
 }
-.settings-modal__proxy-host
-.settings-modal__proxy-port
-.settings-modal__status-container,
+
+.settings-modal__proxy-host .settings-modal__proxy-port .settings-modal__status-container,
 .settings-modal__recording-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
+
 .settings-modal__proxy-port {
 	width: 8ch;
 }
@@ -596,6 +643,7 @@ td input {
 	margin-top: .70rem !important;
 	cursor: pointer;
 }
+
 .settings__recording {
 	color: rgba(6, 29, 230, 0.76);
 }
@@ -603,6 +651,7 @@ td input {
 .settings-modal__label-max-messages {
 	padding-right: 1rem;
 }
+
 .settings-modal__input-max-messages {
 	width: 12ch !important;
 }

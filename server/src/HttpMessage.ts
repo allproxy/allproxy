@@ -1,5 +1,5 @@
 import ProxyConfig from '../../common/ProxyConfig';
-import { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message';
+import Message, { MessageProtocol, MessageType, NO_RESPONSE } from '../../common/Message';
 import SocketIoMessage from './SocketIoMessage';
 import Global from './Global';
 
@@ -14,7 +14,7 @@ export default class HttpMessage {
   private url: string;
   private reqHeaders: {};
 
-  public constructor (
+  public constructor(
     messageProtocol: MessageProtocol,
     proxyConfig: ProxyConfig | undefined,
     sequenceNumber: number,
@@ -34,12 +34,37 @@ export default class HttpMessage {
     this.reqHeaders = this.sortObjectKeys(this.reqHeaders)
   }
 
-  public async emitMessageToBrowser (
+  public async emitMessageToBrowser(
     reqBody: string | object = '',
     resStatus = 0,
     resHeaders = {},
     resBody: string | object = NO_RESPONSE
   ) {
+    const message = await this.buildMessage(reqBody, resStatus, resHeaders, resBody);
+    this.emitMessageToBrowser2(message);
+  }
+
+  public async emitMessageToBrowser2(
+    message: Message
+  ) {
+    Global.socketIoManager.emitMessageToBrowser(
+      message.responseBody === NO_RESPONSE
+        ? MessageType.REQUEST
+        : this.emitCount === 0
+          ? MessageType.REQUEST_AND_RESPONSE
+          : MessageType.RESPONSE,
+      message,
+      this.proxyConfig
+    );
+    ++this.emitCount;
+  }
+
+  public async buildMessage(
+    reqBody: string | object = '',
+    resStatus = 0,
+    resHeaders = {},
+    resBody: string | object = NO_RESPONSE
+  ): Promise<Message> {
     const reqBodyJson = typeof reqBody === 'object' ? reqBody : this.toJSON(reqBody);
     const resBodyJson = resBody === NO_RESPONSE || typeof resBody === 'object' ? resBody : this.toJSON(resBody);
     const host = this.proxyConfig ? this.getHostPort(this.proxyConfig, this.reqHeaders) : 'Unknown';
@@ -61,20 +86,10 @@ export default class HttpMessage {
 
     resHeaders = this.sortObjectKeys(resHeaders);
     SocketIoMessage.appendResponse(message, resHeaders, resBodyJson, resStatus, Date.now() - this.startTime);
-
-    Global.socketIoManager.emitMessageToBrowser(
-      resBody === NO_RESPONSE
-        ? MessageType.REQUEST
-        : this.emitCount === 0
-          ? MessageType.REQUEST_AND_RESPONSE
-          : MessageType.RESPONSE,
-      message,
-      this.proxyConfig
-    );
-    ++this.emitCount;
+    return message;
   }
 
-  private toJSON (s: string): object | string {
+  private toJSON(s: string): object | string {
     try {
       return JSON.parse(s);
     } catch (e) {
@@ -82,7 +97,7 @@ export default class HttpMessage {
     }
   }
 
-  private getHostPort (proxyConfig: ProxyConfig, reqHeaders: {[key:string]:string}) {
+  private getHostPort(proxyConfig: ProxyConfig, reqHeaders: { [key: string]: string }) {
     if (proxyConfig.hostname && proxyConfig.hostname.length > 0) {
       let host = proxyConfig.hostname;
       if (proxyConfig.port) host += ':' + proxyConfig.port;
@@ -103,7 +118,7 @@ export default class HttpMessage {
 
     // GraphQL?
     if (method !== 'OPTIONS' &&
-          (url.endsWith('/graphql') || url.endsWith('/graphql-public'))) {
+      (url.endsWith('/graphql') || url.endsWith('/graphql-public'))) {
       endpoint = '';
       if (typeof requestBody === 'object') {
         if (Array.isArray(requestBody)) {
@@ -117,7 +132,7 @@ export default class HttpMessage {
           for (const key in requestBody) {
             if (key === 'operationName') {
               if (endpoint!.length > 0) endpoint += ',';
-              endpoint += ' ' + (requestBody as {[key:string]: string})[key];
+              endpoint += ' ' + (requestBody as { [key: string]: string })[key];
             }
           }
         }
@@ -129,11 +144,11 @@ export default class HttpMessage {
     return endpoint;
   }
 
-  private sortObjectKeys(o: {[key:string]: any}): {[key:string]: any} {
-    const out: {[key:string]: any} = {};
+  private sortObjectKeys(o: { [key: string]: any }): { [key: string]: any } {
+    const out: { [key: string]: any } = {};
     const keys = Object.keys(o).sort();
     for (const key of keys) {
-     out[key] = o[key];
+      out[key] = o[key];
     }
     return out;
   }

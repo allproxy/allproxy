@@ -1,8 +1,8 @@
 import React from 'react';
 import FilterStore from '../store/FilterStore';
 import SocketStore from '../store/SocketStore';
-import {breakpointStore} from '../store/BreakpointStore';
-import {noCaptureStore} from '../store/NoCaptureStore';
+import { breakpointStore } from '../store/BreakpointStore';
+import { noCaptureStore } from '../store/NoCaptureStore';
 import { observer } from 'mobx-react-lite';
 import ReachableHostsModal from './ReachableHostsModal';
 import SettingsModal from './SettingsModal';
@@ -28,19 +28,19 @@ type Props = {
 	snapshotStore: SnapshotStore,
 	filterStore: FilterStore
 };
-const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props) : JSX.Element => {
+const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props): JSX.Element => {
 	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
-	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement|null>(null);
-	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement|null>(null);
+	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement | null>(null);
+	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
-	const [openFileSelector, {filesContent, clear}] = useFilePicker({
+	const [openFileSelector, { filesContent, clear }] = useFilePicker({
 		multiple: false,
 		accept: ".allproxy"
-	  });
+	});
 
 	if (!!filesContent.length && filesContent[0].content) {
 		snapshotStore.importSnapshot(filesContent[0].name, filesContent[0].content);
@@ -60,7 +60,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	return (
 		<div className="header__container">
 			<div className="header__left-container">
-				<div className="header__icon" onClick={ () => window.location.reload() }>
+				<div className="header__icon" onClick={() => window.location.reload()}>
 					<img src="favicon.ico" alt="AllProxy Debugging Tool"
 						width="24" height="24" />
 				</div>
@@ -72,7 +72,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				<div style={{
 					opacity: snapshotStore.isActiveSnapshotSelected() ? undefined : 0.3,
 					pointerEvents: snapshotStore.isActiveSnapshotSelected() ? undefined : 'none'
-					}}>
+				}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
 							messageQueueStore.clear();
@@ -83,27 +83,27 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<div className={'header__stop fas '
 						+ (messageQueueStore.getStopped() ? 'fa-play' : 'fa-pause')}
 						onClick={() => messageQueueStore.toggleStopped()}
-						title={ (messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording') }
+						title={(messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording')}
 					/>
 					<div className={'header__auto-scroll fa-arrow-alt-circle-down '
 						+ (messageQueueStore.getAutoScroll() ? 'fas' : 'far')}
 						onClick={() => messageQueueStore.toggleAutoScroll()}
-						title={ (messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll') }
+						title={(messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll')}
 					/>
 				</div>
 
 				<div className={'header__sort-req-res fa-solid fa-arrow-down fas'}
 					onClick={() => messageQueueStore.toggleSortBy()}
-					title={ (messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request') }
+					title={(messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request')}
 				>
 					{messageQueueStore.getSortByReq() ? 'Req' : 'Res'}
 				</div>
 
 				<div className={'header__show-errors fa-bug fa '
-						+ (filterStore.getShowErrors() ? 'active' : '')}
-						onClick={() => filterStore.toggleShowErrors()}
-						title={ 'Toggle show only errors' }
-					/>
+					+ (filterStore.getShowErrors() ? 'active' : '')}
+					onClick={() => filterStore.toggleShowErrors()}
+					title={'Toggle show only errors'}
+				/>
 
 				<div className={'header__more-menu fa fa-ellipsis-v'}
 					onClick={(e) => setMoreMenuIcon(e.currentTarget)}
@@ -112,7 +112,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					anchorEl={moreMenuIcon}
 					open={Boolean(moreMenuIcon)}
 					onClose={() => setMoreMenuIcon(null)}
-					>
+				>
 					<MenuItem
 						style={{
 							opacity: snapshotStore.getSnapshotCount() > 1 ? undefined : 0.3,
@@ -128,11 +128,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						</div>
 					</MenuItem>
 					<MenuItem style={{
-							opacity: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
-								? undefined : 0.3,
-							pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
-								? undefined : 'none'
-							}}>
+						opacity: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+							? undefined : 0.3,
+						pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+							? undefined : 'none'
+					}}>
 						<div className="header__export fa fa-download" title="Export snapshot file"
 							onClick={() => {
 								setOpenExportDialog(true);
@@ -161,7 +161,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 								? (filterStore.getFilter().length > 0 ? 'lightGreen' : undefined)
 								: 'lightCoral'
 						}}
-						value={ filterStore.getFilter() }
+						value={filterStore.getFilter()}
 						onChange={e => filterStore.setFilter(e.currentTarget.value)}
 						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
 				</div>
@@ -176,7 +176,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			</div>
 			<div>
 				<div className="header__count" title="Received messages">
-					<div>{getDisplayedCount()+' of '+messageQueueStore.getTotalLength()}</div>
+					<div>{getDisplayedCount() + ' of ' + messageQueueStore.getTotalLength()}</div>
 				</div>
 			</div>
 			<div>
@@ -186,15 +186,15 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					}
 				</div>
 				<div className="header__count" title="Messages queued at server">
-					<div>Queued: {socketStore.getQueuedCount() }</div>
+					<div>Queued: {socketStore.getQueuedCount()}</div>
 				</div>
 			</div>
 			<div>
 				<div className="header__settings fa fa-chart-bar" title="Metrics"
-					onClick={() => { setShowMetricsModal(true); } }>
+					onClick={() => { setShowMetricsModal(true); }}>
 				</div>
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
-					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); } }>
+					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); }}>
 				</div>
 				<div className={'header__settings fa fa-cog'} title="Settings"
 					onClick={(e) => setSettingsMenuIcon(e.currentTarget)}
@@ -203,14 +203,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					anchorEl={settingsMenuIcon}
 					open={Boolean(settingsMenuIcon)}
 					onClose={() => setSettingsMenuIcon(null)}
-					>
+				>
 					<MenuItem>
 						<div className="fa fa-network-wired"
 							onClick={() => {
 								setShowSettingsModal(true);
 								settingsStore.reset();
 								setSettingsMenuIcon(null);
-								if(!messageQueueStore.getStopped()) {
+								if (!messageQueueStore.getStopped()) {
 									messageQueueStore.setStopped(true);
 									filterWasStopped = true;
 								}
@@ -221,14 +221,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					</MenuItem>
 					<MenuItem>
 						<div className="fa fa-bug" title="Breakpoints"
-							onClick={() => { setShowBreakpointModal(true); breakpointStore.init(); setSettingsMenuIcon(null); } }>
-								&nbsp;Breakpoints
+							onClick={() => { setShowBreakpointModal(true); breakpointStore.init(); setSettingsMenuIcon(null); }}>
+							&nbsp;Breakpoints
 						</div>
 					</MenuItem>
 					<MenuItem>
 						<div className="fa fa-ban" title="No Capture List"
-							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); } }>
-								&nbsp;No Capture List
+							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); }}>
+							&nbsp;No Capture List
 						</div>
 					</MenuItem>
 				</Menu>
@@ -246,28 +246,28 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				open={showReachableHostsModal}
 				onClose={() => setShowReachableHostsModal(false)}
 				store={settingsStore}
-				initTabValue={ HostStatus.Reachable }
+				initTabValue={HostStatus.Reachable}
 			/>
 			<SettingsModal
 				open={showSettingsModal}
 				onClose={() => {
 					setShowSettingsModal(false);
-					if(filterWasStopped) {
+					if (filterWasStopped) {
 						filterWasStopped = false;
 						messageQueueStore.setStopped(false);
 					}
 				}}
-				store={ settingsStore }
+				store={settingsStore}
 			/>
 			<BreakpointModal
 				open={showBreakpointModal}
 				onClose={() => setShowBreakpointModal(false)}
-				store={ breakpointStore }
+				store={breakpointStore}
 			/>
 			<NoCaptureModal
 				open={showNoCaptureModal}
 				onClose={() => setShowNoCaptureModal(false)}
-				store={ noCaptureStore }
+				store={noCaptureStore}
 			/>
 			<ExportDialog
 				open={openExportDialog}
