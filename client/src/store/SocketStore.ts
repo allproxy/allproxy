@@ -12,6 +12,7 @@ import { noCaptureStore } from "./NoCaptureStore";
 import { filterStore } from "./FilterStore";
 import MessageStore from "./MessageStore";
 import { snapshotStore } from "./SnapshotStore";
+import { breakpointStore } from "./BreakpointStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -37,6 +38,7 @@ export default class SocketStore {
 			//console.log('proxy configs', proxyConfigs);
 			proxyConfigStore.setProxyConfigs(proxyConfigs);
 			proxyConfigStore.load(); // send to server
+			breakpointStore.init();
 		});
 
 		this.socket.on('port config', (portConfig: PortConfig) => {
@@ -50,6 +52,15 @@ export default class SocketStore {
 
 		this.socket.on('error', (e: any) => {
 			console.log('socket error', e);
+		});
+
+		this.socket.on('breakpoint', (message: Message, callback: any) => {
+			const breakpoint = breakpointStore.findMatchingBreakpoint(message);
+			if (breakpoint) {
+				breakpointStore.openBreakpointResponseModal(new MessageStore(message), callback);
+			} else {
+				callback(message);
+			}
 		});
 
 		this.socket.on('reqResJson', (messages: Message[], queuedCount: number, callback: any) => {
@@ -68,19 +79,19 @@ export default class SocketStore {
 						filterStore.getFilter().length > 0
 						&& filterStore.deleteFiltered()
 						&& filterStore.isFiltered(new MessageStore(message))) {
-							return false;
+						return false;
 					}
 					return true;
 				}
 			);
-			
+
 			if (snapshotStore.getActiveSnapshot().length + filteredMessages.length > messageQueueStore.getLimit()) {
 				messageQueueStore.setFreeze(true)
 			}
 			messageQueueStore.insertBatch(filteredMessages);
 
 			if (callback) {
-				setTimeout( () => {
+				setTimeout(() => {
 					const first = messages[0];
 					callback(`${messageTypeTOString(first)} seq=${first.sequenceNumber}`);
 				}, messageQueueStore.getStopped() ? 0 : 3000);
@@ -163,6 +174,10 @@ export default class SocketStore {
 
 	public emitResend(forwardProxy: boolean, method: string, url: string, message: Message, body?: string | object) {
 		this.socket?.emit('resend', forwardProxy, method, url, message, body);
+	}
+
+	public emitBreakpoint(enable: boolean) {
+		this.socket?.emit('breakpoint', enable);
 	}
 }
 

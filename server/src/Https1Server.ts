@@ -201,8 +201,14 @@ export default class Https1Server {
       proxyRes.on('end', async () => {
         let resBody;
         resBody = getResBody(proxyRes.headers, chunks);
+        const requestBody = await requestBodyPromise;
+        let message = await httpMessage.buildMessage(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
+
         if (typeof resBody === 'object' &&
           proxyRes.headers['content-type'] && proxyRes.headers['content-type'].indexOf('application/json') !== -1) {
+          if (Global.socketIoManager.isBreakpointEnabled()) {
+            message = await Global.socketIoManager.handleBreakpoint(message);
+          }
           const newJson = InterceptJsonResponse(clientReq, resBody)
           if (newJson) {
             resBody = newJson;
@@ -220,24 +226,33 @@ export default class Https1Server {
 
         clientRes.end();
 
-        const requestBody = await requestBodyPromise;
-
-        httpMessage.emitMessageToBrowser(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
+        httpMessage.emitMessageToBrowser2(message);
       });
     }
   }
 }
 
-function getResBody(headers: {}, chunks: Buffer[]): object | string {
+function getResBody(headers: http.IncomingHttpHeaders, chunks: Buffer[]): object | string {
   if (chunks.length === 0) return '';
   let resBuffer = Buffer.concat(chunks);
   resBuffer = decompressResponse(headers, resBuffer);
   const resString = resBuffer.toString();
-  let resBody = '';
+  let resBody: string | object = resString;
   try {
     resBody = JSON.parse(resString); // assume JSON
   } catch (e) {
-    resBody = resString;
+    // Handle kubernetes watch JSON format having multiple JSON string objects separated by newline
+    const ct = headers['content-type'];
+    if (ct && ct.indexOf('application/json') !== -1) {
+      try {
+        const arr: object[] = [];
+        for (const line of resString.split('\n')) {
+          console.log('getResBody:', line);
+          arr.push(JSON.parse(line));
+        }
+        resBody = arr;
+      } catch (e) { }
+    }
   }
 
   return resBody;

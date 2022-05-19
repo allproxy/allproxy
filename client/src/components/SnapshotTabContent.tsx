@@ -8,6 +8,8 @@ import Response from './Response';
 import ResendModal from './ResendModal';
 import ResendStore from '../store/ResendStore';
 import Message from '../common/Message';
+import BreakpointResponseModal from './BreakpointResponseModal';
+import { breakpointStore } from '../store/BreakpointStore';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -21,6 +23,7 @@ const SnapshotTabContent = observer(({
 }: Props) => {
 	const [openModal, setOpenModal] = React.useState(false);
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
+	const messageStore = breakpointStore.getMessageStore();
 
 	let lastSeqNum = 0;
 
@@ -51,7 +54,7 @@ const SnapshotTabContent = observer(({
 	let maxElapsedTime = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
-			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status+'').length);
+			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
 			const method = messageStore.getMessage().method;
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
 			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
@@ -131,8 +134,19 @@ const SnapshotTabContent = observer(({
 					store={resendStore}
 				/>
 			) : null}
+			{messageStore !== null &&
+				<BreakpointResponseModal
+					open={true}
+					onClose={handleCloseBreakpointResponseModal}
+					store={messageStore}
+				/>
+			}
 		</div>
 	);
+
+	function handleCloseBreakpointResponseModal() {
+		breakpointStore.closeBreakpointResponseModal();
+	}
 
 	function handleClick(seqNum: number) {
 		const curSeqNum = selectedReqSeqNum;
@@ -154,7 +168,7 @@ const SnapshotTabContent = observer(({
 				if (parent && parent.childNodes.length > 0) {
 					const children = parent.childNodes;
 					let i = messageQueueStore.getMessages().length - 1;
-					i = Math.max(0,i-1);
+					i = Math.max(0, i - 1);
 					const element = (children[i] as Element);
 					if (element) {
 						const top = element.getBoundingClientRect().top;

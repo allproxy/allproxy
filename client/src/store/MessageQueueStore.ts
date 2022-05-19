@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
 import Message, { NO_RESPONSE } from '../common/Message';
-import { breakpointStore } from "./BreakpointStore";
 import MessageStore from './MessageStore';
 import { snapshotStore } from './SnapshotStore';
 
@@ -77,7 +76,7 @@ export default class MessageQueueStore {
 		}
 	}
 
-	public getSortByReq():boolean {
+	public getSortByReq(): boolean {
 		return this.sortByReq;
 	}
 
@@ -91,7 +90,7 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		while(snapshotStore.getActiveSnapshot().length > 0) {
+		while (snapshotStore.getActiveSnapshot().length > 0) {
 			snapshotStore.getActiveSnapshot().pop();
 		}
 		this.stopped = false;
@@ -114,7 +113,7 @@ export default class MessageQueueStore {
 		const selectedMessages = snapshotStore.getSelectedMessages();
 		const copyMessages = selectedMessages.slice(); // shallow copy
 
-		copyMessages.sort((a,b) => {
+		copyMessages.sort((a, b) => {
 			const aSeq = this.sortByReq ? a.getMessage().sequenceNumber : a.getMessage().sequenceNumberRes;
 			const bSeq = this.sortByReq ? b.getMessage().sequenceNumber : b.getMessage().sequenceNumberRes;
 			return aSeq - bSeq;
@@ -164,7 +163,7 @@ export default class MessageQueueStore {
 			if (!message.proxyConfig?.recording) return;
 
 			const messageStore = new MessageStore(message);
-			if(copyMessages.length === 0) {
+			if (copyMessages.length === 0) {
 				copyMessages.push(messageStore);
 				continue;
 			}
@@ -173,7 +172,7 @@ export default class MessageQueueStore {
 			if (!this.sortByReq &&
 				message.responseBody !== NO_RESPONSE) {
 				const sortedByReqArray = copyMessages.slice(); // shallow copy
-				sortedByReqArray.sort((a,b) => a.getMessage().sequenceNumber - b.getMessage().sequenceNumber);
+				sortedByReqArray.sort((a, b) => a.getMessage().sequenceNumber - b.getMessage().sequenceNumber);
 				const m = this.binarySearch(sortedByReqArray, message.sequenceNumber, true);
 				const messageMatch = sortedByReqArray[m].getMessage();
 				if (messageMatch.sequenceNumber === message.sequenceNumber) {
@@ -200,16 +199,6 @@ export default class MessageQueueStore {
 				copyMessages.splice(m + 1, 0, messageStore);
 			} else if (sn > msgSequenceNumber) {
 				copyMessages.splice(m, 0, messageStore);
-			}
-
-			const breakpoint = breakpointStore.findMatchingBreakpoint(message);
-			if (breakpoint) {
-				activeSnapshot.splice(0, activeSnapshot.length);
-				Array.prototype.push.apply(activeSnapshot, copyMessages);
-				copyMessages.splice(0, copyMessages.length);
-				snapshotStore.newSnapshot(breakpoint.getFilter());
-				breakpoint.setEnabled(false); // disable breakpoint
-				breakpointStore.changed();
 			}
 
 			// Shrink array
