@@ -347,8 +347,8 @@ td input {
 	padding-right: .5rem;
 	overflow: auto;
 	width: 50%;
-	height: calc(100vh - 6rem);
-	max-height: calc(100vh - 6rem);
+	height: calc(100vh - 8rem);
+	max-height: calc(100vh - 8rem);
 	resize: horizontal;
 	border-right: solid grey;
 	margin: 0 1rem 0 0;
@@ -424,8 +424,8 @@ td input {
 
 .response__loading,
 .response__container {
-	height: calc(100vh - 6rem);
-	max-height: calc(100vh - 6rem);
+	height: calc(100vh - 8rem);
+	max-height: calc(100vh - 8rem);
 	overflow-y: auto;
 	overflow-x: auto;
 	-webkit-flex: 1;
