@@ -167,6 +167,17 @@ td input {
 	justify-content: space-between;
 }
 
+.footer__container {
+	z-index: 99;
+	position: fixed;
+	bottom: 0;
+	background-color: #333333;
+	width: 100%;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+}
+
 .header__left-container {
 	display: flex;
 	align-items: center;
@@ -225,7 +236,7 @@ td input {
 .header__filter-input {
 	margin: 0 0 0 1rem;
 	height: 20px;
-	width: 300px;
+	width: 50vw;
 }
 
 .header__filter-input.active {
@@ -262,7 +273,7 @@ td input {
 	border-radius: .5rem;
 }
 
-.header__count {
+.footer__count {
 	margin: 0 0 0 1rem;
 	color: whitesmoke;
 	line-height: 2ch;
@@ -294,6 +305,7 @@ td input {
 
 .snapshot__container {
 	margin-top: 3rem;
+	margin-bottom: 2rem;
 }
 
 .snapshot__container .MuiTabs-root {
@@ -335,8 +347,8 @@ td input {
 	padding-right: .5rem;
 	overflow: auto;
 	width: 50%;
-	height: calc(100vh - 6rem - 1rem);
-	max-height: calc(100vh - 6rem - 1rem);
+	height: calc(100vh - 6rem);
+	max-height: calc(100vh - 6rem);
 	resize: horizontal;
 	border-right: solid grey;
 	margin: 0 1rem 0 0;
