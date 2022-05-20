@@ -76,7 +76,7 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 									Matching on the request URL and optional query parameters can uniquely identify a specific request.
 								</li>
 								<li>
-									Logical expressions can be used to match, for example: my.host.com && /my/url
+									Logical expressions can be used to match, for example: https://example.com/v1/abc && param1=true
 								</li>
 								<li>
 									Only responses with Content-Type application/json are examined.

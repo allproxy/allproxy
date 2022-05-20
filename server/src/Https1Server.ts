@@ -238,16 +238,17 @@ function getResBody(headers: http.IncomingHttpHeaders, chunks: Buffer[]): object
   resBuffer = decompressResponse(headers, resBuffer);
   const resString = resBuffer.toString();
   let resBody: string | object = resString;
-  try {
-    resBody = JSON.parse(resString); // assume JSON
-  } catch (e) {
-    // Handle kubernetes watch JSON format having multiple JSON string objects separated by newline
-    const ct = headers['content-type'];
-    if (ct && ct.indexOf('application/json') !== -1) {
+  const ct = headers['content-type'];
+  if (ct && ct.indexOf('application/json') !== -1) {
+    try {
+      resBody = JSON.parse(resString); // assume JSON
+    } catch (e) {
+      // console.log('getResBody', e);
+      // Handle kubernetes watch JSON format having multiple JSON string objects separated by newline
       try {
         const arr: object[] = [];
         for (const line of resString.split('\n')) {
-          console.log('getResBody:', line);
+          //console.log('getResBody:', line);
           arr.push(JSON.parse(line));
         }
         resBody = arr;
