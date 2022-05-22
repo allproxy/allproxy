@@ -2,16 +2,18 @@
 
 AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
-![ ](https://github.com/davechri/allproxy/blob/master/images/dashboard.png)
+![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
 **Using Dark Reader Plugin**
-![ ](https://github.com/davechri/allproxy/blob/master/images/dark-mode.png)
+![image](https://user-images.githubusercontent.com/10223382/169716583-5033f0c0-9098-47b4-ad7f-2dd5281aa0c5.png)
+
 
 **Features:**
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
 * captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
 * captures log messages from dockers logs
 * modify and resend HTTP requests
+* add breakpoints to modify HTTP responses
 * search entire request/response message for matching text
 * stop/start recording
 * take snapshots of captured messages
@@ -42,6 +44,7 @@ AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
+  * [Breakpoint to Modify HTTPS Respones(#breakepoint-to-modify-https-responses)]
   * [Modify HTTPS JSON Responses](#modify-https-json-responses)
   * [Snapshots](#snapshots)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
@@ -138,7 +141,8 @@ $ export http_proxy=localhost:8888
 
 #### Firefox Proxy Configuration
 To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS messages to the AllProxy.  The default is to proxy both HTTP and HTTPS messages to port 8888.  This is how Firefox can be configured to proxy HTTP and HTTPS messages.
-![ ](https://github.com/davechri/allproxy/blob/master/images/firefox-proxy.png)
+![image](https://user-images.githubusercontent.com/10223382/169716631-b946b6fc-2146-4768-a60d-710b188856a8.png)
+
 
 #### Linux Proxy Configuration
 
@@ -149,13 +153,14 @@ $ http_proxy=http://localhost:8888 https_proxy://8888 chromium-browser
 
 ## Screenshots
 ### Dashboard
-![ ](https://github.com/davechri/allproxy/blob/master/images/dashboard.png)
+![image](https://user-images.githubusercontent.com/10223382/169716662-5b42e911-d157-47e7-8087-322a7945592b.png)
+
 
 ### Settings
-![ ](https://github.com/davechri/allproxy/blob/master/images/settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716681-8ff7a55b-5ae1-422d-a840-7c18eaa1955d.png)
 
 ### Reachable Hosts
-![ ](https://github.com/davechri/allproxy/blob/master/images/reachable.png)
+![image](https://user-images.githubusercontent.com/10223382/169716698-65cd561d-ff6d-4b1a-8299-dac307883505.png)
 
 ## Configuration
 
@@ -180,7 +185,8 @@ ELASTIC_PORT=8888       # allproxy HTTP port is 8888.
 ```
 
 An HTTP path is added to proxy HTTP requests to the elasticsearch host.  All HTTP requests matching path /_search are proxied to the elasticsearch host on port 9200.
-![ ](https://github.com/davechri/allproxy/blob/master/images/elasticsearch-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716730-32d9107f-337a-4d74-b7e6-3cbc1b04e60d.png)
+
 
 <h3 id="http2-support">HTTP/2 Support</h3>
 You can use HTTP/2 to connect to HTTP/2 enabled servers (e.g., duckduckgo.com).  To enable HTTP/2:
@@ -204,7 +210,8 @@ MYSQL_PORT=3306
 ```
 
 The AllProxy is configured to proxy MySQL requests to the MySQL server:
-![ ](https://github.com/davechri/allproxy/blob/master/images/mysql-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716750-520f9874-2c41-4cd9-87ea-e5d477fe99ef.png)
+
 
 ### gRPC Proxy
 The gRPC proxy can transparently capture gRPC HTTP/2 messages sent to backend microservices.  Only unsecure connections are supported.  Secure TLS support may be added in the future.
@@ -226,7 +233,8 @@ Proto files can be added to the **proto/** directory so that the AllProxy tool c
 form **/<package>/<service>.<func>** (e.g., /mypackage/mMService/MyFunc).
 
 The AllProxy is configured to proxy gRPC requests to a microservice:
-![ ](https://github.com/davechri/allproxy/blob/master/images/grpc-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716774-50a36b6a-5503-46af-b119-b718278db0a6.png)
+
 
 ### MongoDB Proxy
 The MongoDB proxy can transparently capture MongoDB messages sent by backend microservices.
@@ -244,7 +252,7 @@ MONGO_PORT=27017
 ```
 
 The AllProxy is configured to proxy MongoDB requests to a microservice:
-![ ](https://github.com/davechri/allproxy/blob/master/images/mongodb-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716792-91700185-342c-4fad-a0b4-5820fea35bf4.png)
 
 ### Redis Proxy
 The Redis proxy can transparently capture Redis messages sent by backend microservices.
@@ -262,7 +270,7 @@ REDIS_PORT=6379
 ```
 
 The AllProxy is configured to proxy Redis requests to a microservice:
-![ ](https://github.com/davechri/allproxy/blob/master/images/redis-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716813-a0474162-b90b-4310-8dad-fcaec1b58d1b.png)
 
 ### TCP Proxy
 The TCP proxy can transparently capture TCP request/response messages sent by backend microservices.  For example, the TCP proxy can be used to capture memcached messages.
@@ -280,13 +288,13 @@ MEMCACHED_PORT=11211
 ```
 
 The AllProxy is configured to proxy Memcached requests to a microservice:
-![ ](https://github.com/davechri/allproxy/blob/master/images/memcached-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716834-4b186b8a-e2c9-462a-a0a6-e7b4706dd895.png)
 
 ### Dockers Logs
 The Docker log proxy can capture log messages.
 
 The AllProxy is configured to capture Dockers log messages:
-![ ](https://github.com/davechri/allproxy/blob/master/images/log-settings.png)
+![image](https://user-images.githubusercontent.com/10223382/169716855-37c271ce-1b03-4b68-87e1-cf117630420c.png)
 
 ## Dashboard
 The AllProxy dashboard is stated from the browser with URL http://localhost:8888/allproxy.
@@ -307,7 +315,18 @@ Boolean filters can use &&, ||, !, and parenthesis.
 
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
+	
+### Breakpoint to Modify HTTPS Respones
+Breakpoints can be set to match any part of the HTTP request or response, and then modify the JSON response then the breakpoint matches.
 
+Click Settings->Breakpoints: <img width="100" alt="breakpoint" src="https://user-images.githubusercontent.com/10223382/169717271-c713fd42-91bf-4606-964a-88cdd6d0666b.png">
+	
+In this example a breakpoint is set to match on URL https://us-south-stage01.iaasdev.cloud.ibm.com/v1/vpcs.
+![image](https://user-images.githubusercontent.com/10223382/169717656-530504b8-8a95-4e5d-92f2-9f2c9ddef1c3.png)
+
+When a request URL matches https://us-south-stage01.iaasdev.cloud.ibm.com/v1/vpcs, a model pops up to allow the JSON response body to be edited.  The response JSON body can be edited, and Ok clicked to forward the response back to the client.
+![image](https://user-images.githubusercontent.com/10223382/169717596-87c5e60f-26de-44fd-a8f3-f8fc1477c27f.png)
+	
 ### Modify HTTPS JSON Responses
 Custom JavaScript code may be provided to modify any JSON response.  Add your custom code to the **InterceptJsonResponse()** function is called for every JSON response, and can be modified to customize the JSON response body.  Edit the **intercept/InterceptResponse.js file as needed.
 ```sh
