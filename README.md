@@ -44,7 +44,7 @@ AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
-  * [Breakpoint to Modify HTTPS Respones(#breakepoint-to-modify-https-responses)]
+  * [Breakpoint to Modify HTTPS Responses(#breakepoint-to-modify-https-responses)]
   * [Modify HTTPS JSON Responses](#modify-https-json-responses)
   * [Snapshots](#snapshots)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
@@ -316,7 +316,7 @@ Boolean filters can use &&, ||, !, and parenthesis.
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
 	
-### Breakpoint to Modify HTTPS Respones
+### Breakpoint to Modify HTTPS Responses
 Breakpoints can be set to match any part of the HTTP request or response, and then modify the JSON response then the breakpoint matches.
 
 Click Settings->Breakpoints: <img width="100" alt="breakpoint" src="https://user-images.githubusercontent.com/10223382/169717271-c713fd42-91bf-4606-964a-88cdd6d0666b.png">
