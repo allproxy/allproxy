@@ -134,7 +134,7 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 						<button type="button" className="settings-modal__cancel btn btn-default btn-success"
 							onClick={close}
 						>
-							Done
+							Ok
 						</button>
 					</div>
 				</div>
