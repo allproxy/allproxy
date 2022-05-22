@@ -199,27 +199,36 @@ export default class Https1Server {
       });
 
       proxyRes.on('end', async () => {
-        let resBody;
-        resBody = getResBody(proxyRes.headers, chunks);
+        const resBody = getResBody(proxyRes.headers, chunks);
         const requestBody = await requestBodyPromise;
         let message = await httpMessage.buildMessage(requestBody, proxyRes.statusCode, proxyRes.headers, resBody);
 
-        if (typeof resBody === 'object' &&
-          proxyRes.headers['content-type'] && proxyRes.headers['content-type'].indexOf('application/json') !== -1) {
+        if (isApplicationJson(proxyRes.headers)) {
+
+          let modified = false;
           if (Global.socketIoManager.isBreakpointEnabled()) {
             message = await Global.socketIoManager.handleBreakpoint(message);
+            modified = message.modified;
           }
-          const newJson = InterceptJsonResponse(clientReq, resBody)
-          if (newJson) {
-            resBody = newJson;
+
+          if (typeof message.responseBody === 'object') {
+            const newJson = InterceptJsonResponse(clientReq, message.responseBody);
+            if (newJson) {
+              message.responseBody = newJson;
+              modified = true;
+            }
+          }
+
+          if (modified) {
             console.log('InterceptJsonResponse changed the JSON body');
-            let buffer = Buffer.from(JSON.stringify(resBody));
+            let buffer = Buffer.from(JSON.stringify(message.responseBody));
             buffer = compressResponse(proxyRes.headers, buffer);
             chunks.splice(0, chunks.length);
             clientRes.write(buffer);
           }
         }
 
+        // If the response was not modified above, write chunks hear
         for (const chunk of chunks) {
           clientRes.write(chunk);
         }
@@ -232,28 +241,24 @@ export default class Https1Server {
   }
 }
 
+function isApplicationJson(headers: http.IncomingHttpHeaders): boolean {
+  const ct = headers['content-type'];
+  if (ct && ct.indexOf('application/json') !== -1) {
+    return true;
+  }
+  return false;
+}
+
 function getResBody(headers: http.IncomingHttpHeaders, chunks: Buffer[]): object | string {
   if (chunks.length === 0) return '';
   let resBuffer = Buffer.concat(chunks);
   resBuffer = decompressResponse(headers, resBuffer);
   const resString = resBuffer.toString();
   let resBody: string | object = resString;
-  const ct = headers['content-type'];
-  if (ct && ct.indexOf('application/json') !== -1) {
+  if (isApplicationJson(headers)) {
     try {
       resBody = JSON.parse(resString); // assume JSON
-    } catch (e) {
-      // console.log('getResBody', e);
-      // Handle kubernetes watch JSON format having multiple JSON string objects separated by newline
-      try {
-        const arr: object[] = [];
-        for (const line of resString.split('\n')) {
-          //console.log('getResBody:', line);
-          arr.push(JSON.parse(line));
-        }
-        resBody = arr;
-      } catch (e) { }
-    }
+    } catch (e) { }
   }
 
   return resBody;

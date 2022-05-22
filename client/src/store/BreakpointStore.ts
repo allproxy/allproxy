@@ -90,8 +90,9 @@ export default class BreakpointStore {
 	}
 
 	@action public closeBreakpointResponseModal() {
-		console.log('close modal')
-		this.breakpointCallback(this.messageStore?.getMessage());
+		const message = this.messageStore!.getMessage();
+		message!.modified = true;
+		this.breakpointCallback(message);
 		this.messageStore = null;
 	}
 
