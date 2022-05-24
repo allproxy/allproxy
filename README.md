@@ -2,13 +2,10 @@
 
 AllProxy is a free MITM proxy similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
-```
-npm install -g allproxy && allproxy-ca && allproxy
-```
-
-```
-Open browser to localhost:8888
-```
+1. Install and start: **npm install -g allproxy && allproxy-ca && allproxy**
+2. Open browser to: **localhost:8888**
+3. Configure browser to proxy HTTP and HTTPS to **localhost:8888**.
+4. In terminal, export **HTTPS_PROXY=localhost:8888** and **HTTP_PROXY=localhost:8888**.
 
 ![npm](https://img.shields.io/npm/v/allproxy) ![npm](https://img.shields.io/npm/dm/allproxy)
 
