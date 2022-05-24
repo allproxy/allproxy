@@ -2,6 +2,8 @@
 
 AllProxy is a MITM proxy similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
+![npm](https://img.shields.io/npm/v/allproxy)
+
 ![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
 **Using Dark Reader Plugin**
