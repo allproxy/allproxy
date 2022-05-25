@@ -1,11 +1,14 @@
-<h1 align="center" style="border-bottom: none;">AllProxy: MITM HTTP, SQL, gRPC Debugging Tool</h1>
+<h1 align="center" style="border-bottom: none;">AllProxy: MITM HTTP Debugging Tool</h1>
 
-AllProxy is a free MITM proxy similar to Fiddler and Charles, but in addition to HTTP(S), it also can captures SQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
+AllProxy is a free HTTP debugging proxy that enables a developer to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
+**Setup:**
 1. Install and start: **npm install -g allproxy && allproxy-ca && allproxy**
 2. Open browser to: **localhost:8888**
 3. Configure browser to proxy HTTP and HTTPS to **localhost:8888**.
 4. In terminal, export **HTTPS_PROXY=localhost:8888** and **HTTP_PROXY=localhost:8888**.
+
+**Additional Features:** Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 ![npm](https://img.shields.io/npm/v/allproxy) ![npm](https://img.shields.io/npm/dm/allproxy)
 
