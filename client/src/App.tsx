@@ -8,6 +8,7 @@ import { socketStore } from './store/SocketStore';
 import { messageQueueStore } from './store/MessageQueueStore';
 import { snapshotStore } from './store/SnapshotStore';
 import Footer from './components/Footer';
+import { breakpointStore } from './store/BreakpointStore';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         socketStore={socketStore}
         filterStore={filterStore}
         messageQueueStore={messageQueueStore}
+        breakpointStore={breakpointStore}
       />
     </div>
   );

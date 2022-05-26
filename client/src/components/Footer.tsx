@@ -2,6 +2,7 @@ import FilterStore from '../store/FilterStore';
 import SocketStore from '../store/SocketStore';
 import { observer } from 'mobx-react-lite';
 import MessageQueueStore from '../store/MessageQueueStore';
+import BreakpointStore from '../store/BreakpointStore';
 
 /**
  * Footer view
@@ -9,9 +10,10 @@ import MessageQueueStore from '../store/MessageQueueStore';
 type Props = {
 	socketStore: SocketStore,
 	messageQueueStore: MessageQueueStore,
-	filterStore: FilterStore
+	filterStore: FilterStore,
+	breakpointStore: BreakpointStore
 };
-const Footer = observer(({ socketStore, messageQueueStore, filterStore }: Props): JSX.Element => {
+const Footer = observer(({ socketStore, messageQueueStore, filterStore, breakpointStore }: Props): JSX.Element => {
 
 	function getDisplayedCount(): number {
 		let n = 0;
@@ -36,6 +38,11 @@ const Footer = observer(({ socketStore, messageQueueStore, filterStore }: Props)
 				</div>
 				<div className="footer__count" title="Messages queued at server">
 					<div>Queued: {socketStore.getQueuedCount()}</div>
+				</div>
+			</div>
+			<div>
+				<div className="footer__count" title="Number of active breakpoints">
+					<div>Breakpoints: {breakpointStore.getBreakpointCount()}</div>
 				</div>
 			</div>
 		</div>

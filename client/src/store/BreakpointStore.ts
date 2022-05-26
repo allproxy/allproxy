@@ -75,6 +75,10 @@ export default class BreakpointStore {
 		return this.breakpointList;
 	}
 
+	public getBreakpointCount(): number {
+		return this.breakpointList.filter(b => b.isEnabled()).length
+	}
+
 	@action public extend() {
 		this.breakpointList.push(new FilterStore());
 	}
