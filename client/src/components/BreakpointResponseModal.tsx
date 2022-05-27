@@ -51,7 +51,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 							Cancel
 						</button>
 						<button type="button" className="resend-modal__send btn btn-default btn-success"
-							onClick={() => { onClose() }}
+							onClick={onClose}
 						>
 							Ok
 						</button>

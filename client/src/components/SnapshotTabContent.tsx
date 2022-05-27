@@ -21,8 +21,8 @@ type Props = {
 const SnapshotTabContent = observer(({
 	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop
 }: Props) => {
-	const [openModal, setOpenModal] = React.useState(false);
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
+
 	const messageStore = breakpointStore.getMessageStore();
 
 	let lastSeqNum = 0;
@@ -129,20 +129,30 @@ const SnapshotTabContent = observer(({
 			</div>
 			{resendStore ? (
 				<ResendModal
-					open={openModal}
-					onClose={() => setOpenModal(false)}
+					open={resendStore !== undefined}
+					onClose={handleResendClose}
 					store={resendStore}
 				/>
 			) : null}
 			{messageStore !== null &&
 				<BreakpointResponseModal
-					open={true}
+					open={breakpointStore.getMessageStore() !== null}
 					onClose={handleCloseBreakpointResponseModal}
 					store={messageStore}
 				/>
 			}
 		</div>
 	);
+
+	function handleResend(message: Message) {
+		messageQueueStore.setFreeze(true);
+		setResendStore(new ResendStore(message));
+	}
+
+	function handleResendClose() {
+		messageQueueStore.setFreeze(false);
+		setResendStore(undefined);
+	}
 
 	function handleCloseBreakpointResponseModal() {
 		breakpointStore.closeBreakpointResponseModal();
@@ -180,11 +190,6 @@ const SnapshotTabContent = observer(({
 				}
 			});
 		}
-	}
-
-	function handleResend(message: Message) {
-		setResendStore(new ResendStore(message));
-		setOpenModal(true);
 	}
 
 	function restoreScrollTop() {
