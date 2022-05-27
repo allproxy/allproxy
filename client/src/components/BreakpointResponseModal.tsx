@@ -10,6 +10,7 @@ type Props = {
 };
 const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 	const message = store.getMessage();
+	const saveResponseBody = JSON.parse(JSON.stringify(message.responseBody));
 	return (
 		<Modal
 			className="modal-window"
@@ -25,6 +26,17 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 						<div dangerouslySetInnerHTML={{ __html: message.method + " " + store.getRequestUrl() }} />
 						<hr />
 						<h4>JSON Response Body:</h4>
+						<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
+							<button type="button" className="resend-modal__send btn btn-sm btn-primary"
+								onClick={handleToggleStrJson}>
+								{typeof message.responseBody === 'object' ? 'To String' : 'To JSON'}
+							</button>
+							<button type="button" className="resend-modal__send btn btn-sm btn-danger"
+								style={{ marginLeft: '1rem' }}
+								onClick={handleClear}>
+								Clear
+							</button>
+						</div>
 						<div className="resend-modal__body-container">
 							{message.responseBody && typeof message.responseBody === 'object' ?
 								<ReactJson
@@ -46,7 +58,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 					</div>
 					<div className="modal-footer">
 						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
-							onClick={onClose}
+							onClick={handleCancel}
 						>
 							Cancel
 						</button>
@@ -60,6 +72,23 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 			</div>
 		</Modal>
 	);
+
+	function handleCancel() {
+		message.responseBody = saveResponseBody;
+		onClose();
+	}
+
+	function handleToggleStrJson() {
+		if (typeof message.responseBody === 'object') {
+			message.responseBody = JSON.stringify(message.responseBody, null, 2);
+		} else {
+			message.responseBody = JSON.parse(message.responseBody as string);
+		}
+	}
+
+	function handleClear() {
+		message.responseBody = '';
+	}
 
 	function handleEdit(props: InteractionProps) {
 		message.responseBody = props.updated_src;
