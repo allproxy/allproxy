@@ -82,8 +82,13 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 						</List>
 						<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
 							<button type="button" className="resend-modal__send btn btn-sm btn-primary"
-								onClick={handleRemoveBody}>
+								onClick={handleToggleStrJson}>
 								{typeof message.requestBody === 'object' ? 'To String' : 'To JSON'}
+							</button>
+							<button type="button" className="resend-modal__send btn btn-sm btn-danger"
+								style={{ marginLeft: '1rem' }}
+								onClick={handleClear}>
+								Clear
 							</button>
 						</div>
 						<div className="resend-modal__body-container">
@@ -141,13 +146,17 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 		store.deleteReplaceHeader(i);
 	}
 
-	function handleRemoveBody() {
+	function handleToggleStrJson() {
 		if (typeof message.requestBody === 'object') {
 			message.requestBody = JSON.stringify(message.requestBody, null, 2);
 		} else {
 			message.requestBody = JSON.parse(message.requestBody);
 		}
 		store.setBody(message.requestBody);
+	}
+
+	function handleClear() {
+		message.responseBody = '';
 	}
 
 	function handleEdit(props: InteractionProps) {

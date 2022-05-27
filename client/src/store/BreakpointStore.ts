@@ -97,6 +97,11 @@ export default class BreakpointStore {
 
 	@action public closeBreakpointResponseModal() {
 		const message = this.messageStore!.getMessage();
+		if (typeof message.responseBody === 'string') {
+			try {
+				message.responseBody = JSON.parse(message.responseBody);
+			} catch (e) { }
+		}
 		message!.modified = true;
 		this.breakpointCallback(message);
 		this.messageStore = null;
