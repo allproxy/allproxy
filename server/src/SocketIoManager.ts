@@ -1,4 +1,4 @@
-import io from 'socket.io';
+import io, { Socket } from 'socket.io';
 import TcpProxy from './TcpProxy';
 import LogProxy from './LogProxy';
 import fs from 'fs';
@@ -18,6 +18,13 @@ const CACHE_SOCKET_ID = 'cache';
 
 export const BATCH_SIZE = 100; // windows size - maximum outstanding messages
 const MAX_OUT = 2; // two message batches
+
+type BreakpointQueueMessage = {
+  message: Message,
+  socket: Socket,
+  resolve: (value: Message | Promise<Message>) => void
+}
+let breakpointQueue: BreakpointQueueMessage[] = [];
 
 class SocketIoInfo {
   socket: io.Socket | undefined = undefined;
@@ -390,17 +397,30 @@ export default class SocketIoManager {
     message: Message
   ): Promise<Message> {
     return new Promise<Message>(resolve => {
-      let socket: io.Socket | undefined;
+      let socket: Socket | undefined;
       this.socketIoMap.forEach((socketInfo: SocketIoInfo, _socketId: string) => {
         if (socketInfo.breakpointEnabled) {
           socket = socketInfo.socket
           message.proxyConfig = socketInfo.configs[0];
         }
       })
+      // Breakpoint found?
       if (socket) {
-        socket.emit('breakpoint', message, (message2: Message) => {
-          resolve(message2);
-        })
+        breakpointQueue.push({ message, socket, resolve });
+        // Only one breakpoint inprogress?
+        if (breakpointQueue.length === 1) {
+          handleBreakpoints();
+          function handleBreakpoints() {
+            const bpMessage = breakpointQueue[0];
+            bpMessage.socket!.emit('breakpoint', bpMessage.message, (message2: Message) => {
+              bpMessage.resolve(message2);
+              breakpointQueue.shift();
+              if (breakpointQueue.length > 0) {
+                handleBreakpoints();
+              }
+            })
+          }
+        }
       } else {
         resolve(message);
       }
