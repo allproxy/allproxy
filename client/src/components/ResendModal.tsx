@@ -81,12 +81,19 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 							))}
 						</List>
 						<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
+							<button type="button" className="resend-modal__send btn btn-sm btn-default"
+								title="Copy request body to clipboard"
+								onClick={handleCopy}
+							>
+								<div className="fa fa-copy" />
+							</button>
 							<button type="button" className="resend-modal__send btn btn-sm btn-primary"
+								style={{ marginLeft: '.5rem' }}
 								onClick={handleToggleStrJson}>
 								{typeof message.requestBody === 'object' ? 'To String' : 'To JSON'}
 							</button>
 							<button type="button" className="resend-modal__send btn btn-sm btn-danger"
-								style={{ marginLeft: '1rem' }}
+								style={{ marginLeft: '.5rem' }}
 								onClick={handleClear}>
 								Clear
 							</button>
@@ -112,7 +119,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 					</div>
 					<div className="modal-footer">
 						<label className="resend-modal__error-message">{store.getError()}</label>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-default btn-secondary"
 							onClick={handleClose}
 						>
 							Cancel
@@ -128,6 +135,11 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 			</div>
 		</Modal>
 	);
+
+	function handleCopy() {
+		const s = typeof message.requestBody === 'object' ? JSON.stringify(message.requestBody, null, 2) : message.requestBody;
+		navigator.clipboard.writeText(s);
+	}
 
 	function handleClose() {
 		onClose();
@@ -156,7 +168,8 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	}
 
 	function handleClear() {
-		message.responseBody = '';
+		message.requestBody = '';
+		store.setBody('');
 	}
 
 	function handleEdit(props: InteractionProps) {

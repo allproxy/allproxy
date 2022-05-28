@@ -27,12 +27,19 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 						<hr />
 						<h4>JSON Response Body:</h4>
 						<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
+							<button type="button" className="resend-modal__send btn btn-sm btn-default"
+								title="Copy response body to clipboard"
+								onClick={handleCopy}
+							>
+								<div className="fa fa-copy" />
+							</button>
 							<button type="button" className="resend-modal__send btn btn-sm btn-primary"
+								style={{ marginLeft: '.5rem' }}
 								onClick={handleToggleStrJson}>
 								{typeof message.responseBody === 'object' ? 'To String' : 'To JSON'}
 							</button>
 							<button type="button" className="resend-modal__send btn btn-sm btn-danger"
-								style={{ marginLeft: '1rem' }}
+								style={{ marginLeft: '.5rem' }}
 								onClick={handleClear}>
 								Clear
 							</button>
@@ -57,7 +64,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 						</div>
 					</div>
 					<div className="modal-footer">
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-default btn-secondary"
 							onClick={handleCancel}
 						>
 							Cancel
@@ -72,6 +79,11 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 			</div>
 		</Modal>
 	);
+
+	function handleCopy() {
+		const s = typeof message.responseBody === 'object' ? JSON.stringify(message.responseBody, null, 2) : message.responseBody;
+		navigator.clipboard.writeText(s);
+	}
 
 	function handleCancel() {
 		message.responseBody = saveResponseBody;
