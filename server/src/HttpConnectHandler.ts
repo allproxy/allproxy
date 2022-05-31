@@ -1,10 +1,10 @@
-import Https1Server from './Https1Server';
+import HttpOrHttpsServer from './HttpOrHttpsServer';
 import Https2Server from './Https2Server';
 import net from 'net';
 import Global from './Global';
 
-const https1Servers: {[key:string]:Https1Server} = {};
-const https2Servers: {[key:string]:Https2Server} = {};
+const HttpOrHttpsServers: { [key: string]: HttpOrHttpsServer } = {};
+const https2Servers: { [key: string]: Https2Server } = {};
 
 export enum HttpVersion {
   // eslint-disable-next-line no-unused-vars
@@ -16,11 +16,11 @@ export enum HttpVersion {
 let httpVersion: HttpVersion = HttpVersion.HTTP1;
 
 export default class HttpConnectHandler {
-  public static async start (_httpVersion: HttpVersion) {
+  public static async start(_httpVersion: HttpVersion) {
     httpVersion = _httpVersion;
   }
 
-  public static async doConnect (httpXSocket: net.Socket, data: Buffer) {
+  public static async doConnect(httpXSocket: net.Socket, data: Buffer) {
     Global.log('HttpConnectHandler doConnect', data.toString());
     const hostPort = data.toString().split(' ', 2)[1];
     const tokens = hostPort!.split(':', 2);
@@ -28,7 +28,7 @@ export default class HttpConnectHandler {
     HttpConnectHandler.onConnect(tokens[0], port, httpXSocket);
   }
 
-  private static async onConnect (hostname: string, port: number, socket: net.Socket) {
+  private static async onConnect(hostname: string, port: number, socket: net.Socket) {
     Global.log('HttpConnectHandler onConnect', hostname, port);
 
     const proxyConfig = Global.socketIoManager.findGrpcProxyConfig(hostname, port);
@@ -37,17 +37,17 @@ export default class HttpConnectHandler {
       HttpConnectHandler.createTunnel(socket, parseInt(proxyConfig.path), 'localhost');
     } else {
       const key = hostname;
-      let httpsServer = httpVersion === HttpVersion.HTTP1 ? https1Servers[key] : https2Servers[key];
+      let httpsServer = httpVersion === HttpVersion.HTTP1 ? HttpOrHttpsServers[key] : https2Servers[key];
       if (!httpsServer) {
         if (httpVersion === HttpVersion.HTTP1) {
-          httpsServer = new Https1Server(hostname, port, 'forward');
-          https1Servers[key] = httpsServer;
+          httpsServer = new HttpOrHttpsServer('forward', 'https:', hostname, port);
+          HttpOrHttpsServers[key] = httpsServer;
         } else {
           httpsServer = new Https2Server(hostname, port, 'forward');
           https2Servers[key] = httpsServer;
         }
         Global.log('HttpConnectHandler start https server');
-        await httpsServer.start();
+        await httpsServer.start(0);
       } else {
         Global.log('HttpConnectHandler wait for https server to start');
         await httpsServer.waitForServerToStart();
@@ -58,7 +58,7 @@ export default class HttpConnectHandler {
     }
   }
 
-  private static respond (socket: net.Socket) {
+  private static respond(socket: net.Socket) {
     Global.log('HttpConnectHandler HTTP/1.1 200 Connection Established');
     socket.write('HTTP/1.1 200 Connection Established\r\n' +
       // 'Connection: Keep-Alive\n\r' +
@@ -68,7 +68,7 @@ export default class HttpConnectHandler {
 
   // Create tunnel from client to AllProxy https server.  The AllProxy https server decrypts and captures
   // the HTTP messages, and forwards it to the origin server.
-  private static createTunnel (httpXSocket: any, httpsServerPort: number, hostname: string) {
+  private static createTunnel(httpXSocket: any, httpsServerPort: number, hostname: string) {
     Global.log('HttpConnectionHandler createTunnel', httpsServerPort, hostname);
     const httpsServerSocket = net.connect(httpsServerPort, hostname, () => {
       HttpConnectHandler.respond(httpXSocket);

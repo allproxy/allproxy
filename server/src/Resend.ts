@@ -12,7 +12,7 @@ const resend = async (
   message: Message,
   body?: string | object
 ) => {
-  const headers: {[key: string]: string} = {};
+  const headers: { [key: string]: string } = {};
   const unsafeHeaders = [
     'host',
     'connection',
@@ -50,27 +50,29 @@ const resend = async (
     body = JSON.stringify(body);
   }
   try {
-    const response = await fetch(url,
+    Global.log('resend', method, url, headers, body);
+    const response = await fetch(
+      url,
       {
-        method: method,
+        method: method.toLowerCase(),
         headers,
         body: body === null ? undefined : body
       });
     try {
       const data = await response.json();
       recordHttpResponse(response, data);
-    } catch(e) {
+    } catch (e) {
       try {
         recordHttpResponse(response, "");
-      } catch(e) {
-        httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));
+      } catch (e) {
+        httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? { error: e } : (e as object));
       }
     }
   } catch (e) {
-    httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? {error: e} : (e as object));
+    httpMessage!.emitMessageToBrowser(body, 520, {}, typeof e === 'string' ? { error: e } : (e as object));
   }
 
-  function recordHttpRequest (): HttpMessage {
+  function recordHttpRequest(): HttpMessage {
     const proxyType = reqUrl.protocol ? 'forward' : 'reverse';
     let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl, proxyType);
     // Always proxy forward proxy requests
@@ -98,7 +100,7 @@ const resend = async (
     return httpMessage;
   }
 
-  function recordHttpResponse (response: any, data: any) {
+  function recordHttpResponse(response: any, data: any) {
     httpMessage.emitMessageToBrowser(body, response.status, response.headers, data);
   }
 };

@@ -30,7 +30,7 @@ var hopHeaders = [
  * Important: This module must remain at the project root to properly set the document root for the index.html.
  */
 export default class Http1Server {
-  public static async start (port: number, host?: string): Promise<number> {
+  public static async start(port: number, host?: string): Promise<number> {
     const server = http.createServer((clientReq, clientRes) => Http1Server.onRequest(clientReq, clientRes));
     server.keepAliveTimeout = 0;
 
@@ -39,7 +39,7 @@ export default class Http1Server {
     return listenPort;
   }
 
-  static async onRequest (clientReq: IncomingMessage, clientRes: http.ServerResponse) {
+  static async onRequest(clientReq: IncomingMessage, clientRes: http.ServerResponse) {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
@@ -72,10 +72,10 @@ export default class Http1Server {
       'http:',
       proxyConfig,
       sequenceNumber,
-        remoteAddress!,
-        clientReq.method!,
-        clientReq.url!,
-        clientReq.headers
+      remoteAddress!,
+      clientReq.method!,
+      clientReq.url!,
+      clientReq.headers
     );
 
     const requestBodyPromise = getReqBody(clientReq);
@@ -94,7 +94,7 @@ export default class Http1Server {
       proxyRequest(proxyConfig, requestBodyPromise);
     }
 
-    function proxyRequest (proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {
+    function proxyRequest(proxyConfig: ProxyConfig, requestBodyPromise: Promise<string | {}>) {
       clientReq.on('close', function () {
         // sendErrorResponse(499, "Client closed connection", undefined, proxyConfig.path);
       });
@@ -134,16 +134,16 @@ export default class Http1Server {
         proxy = http.request(options, handleResponse);
       }
 
-      async function handleResponse (proxyRes: http.IncomingMessage) {
+      async function handleResponse(proxyRes: http.IncomingMessage) {
         const requestBody = await requestBodyPromise;
 
         /**
          * Forward the response back to the client
          */
-        for(let i = 0; i < proxyRes.rawHeaders.length; i += 2) {
+        for (let i = 0; i < proxyRes.rawHeaders.length; i += 2) {
           const key = proxyRes.rawHeaders[i];
-          if(hopHeaders.indexOf(key) !== -1) continue;
-          const value = proxyRes.rawHeaders[i+1];
+          if (hopHeaders.indexOf(key) !== -1) continue;
+          const value = proxyRes.rawHeaders[i + 1];
           clientRes.setHeader(key, value);
         }
         if ((clientReq.method === 'DELETE' || clientReq.method === 'PUT') && proxyRes.statusCode && proxyRes.statusCode < 400) {
@@ -170,7 +170,7 @@ export default class Http1Server {
       });
     }
 
-    function getReqBody (clientReq: IncomingMessage): Promise<string | {}> {
+    function getReqBody(clientReq: IncomingMessage): Promise<string | {}> {
       return new Promise<string | {}>(resolve => {
         let requestBody: string | {} = '';
         clientReq.setEncoding('utf8');
@@ -194,7 +194,7 @@ export default class Http1Server {
       });
     }
 
-    function getResBody (proxyRes: any): Promise<object | string> {
+    function getResBody(proxyRes: any): Promise<object | string> {
       return new Promise<string | {}>(resolve => {
         if (proxyRes.headers) {
           if (proxyRes.headers['content-encoding']) {
@@ -202,7 +202,7 @@ export default class Http1Server {
           }
 
           if (proxyRes.headers['content-type'] &&
-              proxyRes.headers['content-type'].indexOf('utf-8') !== -1) {
+            proxyRes.headers['content-type'].indexOf('utf-8') !== -1) {
             proxyRes.setEncoding('utf8');
           }
         }
