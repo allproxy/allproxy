@@ -13,30 +13,26 @@ export default class ResendStore {
     private path: string = '';
     private body: string | object;
     private error = '';
-    private replaceHeaders: {[key:string]: string}[] = [];
+    private replaceHeaders: { [key: string]: string }[] = [];
 
     public constructor(message: Message) {
         this.message = JSON.parse(JSON.stringify(message));
         this.method = message.method!;
-        if (message.url!.indexOf('://') !== -1) {
-            if (message.url!.startsWith('https://')) {
-                this.protocol = "https";
-            } else {
-                this.protocol = 'http';
-            }     
+        if (message.protocol === 'https:') {
+            this.protocol = "https";
         } else {
-            this.path = message.url!;
+            this.protocol = 'http';
         }
-        
+
         this.body = message.requestBody;
         const strHeaders = localStorage.getItem(LOCAL_STORAGE_HEADERS);
         if (strHeaders) {
-            this.replaceHeaders = JSON.parse(strHeaders);            
+            this.replaceHeaders = JSON.parse(strHeaders);
         }
 
         this.updateHostPort();
 
-		makeAutoObservable(this);
+        makeAutoObservable(this);
     }
 
     public getMessage() {
@@ -106,16 +102,16 @@ export default class ResendStore {
     }
 
     public newReplaceHeader() {
-        this.replaceHeaders.push({key: '', value: ''});        
+        this.replaceHeaders.push({ key: '', value: '' });
     }
 
     public deleteReplaceHeader(i: number) {
-        this.replaceHeaders.splice(i,1);
+        this.replaceHeaders.splice(i, 1);
         localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
         this.updateHostPort();
     }
 
-    public getReplaceHeaders(): {[key:string]: string}[] { 
+    public getReplaceHeaders(): { [key: string]: string }[] {
         return this.replaceHeaders;
     }
 
@@ -125,14 +121,14 @@ export default class ResendStore {
 
     @action public setHeaderKey(i: number, key: string) {
         const value = this.message.requestHeaders[key];
-        this.replaceHeaders.splice(i, 1, {key, value});
+        this.replaceHeaders.splice(i, 1, { key, value });
         localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
         this.updateHostPort();
     }
 
     @action public setHeaderValue(i: number, value: string) {
         const key = this.replaceHeaders[i].key;
-        this.replaceHeaders.splice(i, 1, {key, value});
+        this.replaceHeaders.splice(i, 1, { key, value });
         localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
         this.updateHostPort();
     }
@@ -140,21 +136,21 @@ export default class ResendStore {
     private updateHostPort() {
         let tokens = this.message.url!.split("://");
         this.path = tokens[1].substring(tokens[1].indexOf('/'));
-        tokens = tokens[1].split('/', 1);            
+        tokens = tokens[1].split('/', 1);
         tokens = tokens[0].split(':');
         this.host = tokens[0];
         if (tokens.length > 1) {
             this.port = tokens[1];
         } else {
             this.port = this.protocol === 'https' ? '443' : '80';
-        }    
+        }
 
         const keyValue = this.replaceHeaders.find(keyValue => keyValue.key === 'host');
         if (keyValue) {
             const tokens = keyValue.value.split(':');
             this.host = tokens[0];
             this.port = tokens.length == 1 ? this.port = this.protocol === 'https' ? '443' : '80' : tokens[1];
-        }    
+        }
     }
 
     public doResend() {
@@ -162,7 +158,7 @@ export default class ResendStore {
         let url = this.host.length > 0 ? this.protocol + '://' + this.host + ':' + this.port + this.path : this.path;
 
         if (this.replaceHeaders.length > 0) {
-            for(const keyValue of this.replaceHeaders) {
+            for (const keyValue of this.replaceHeaders) {
                 this.message.requestHeaders[keyValue.key] = keyValue.value;
             }
         }

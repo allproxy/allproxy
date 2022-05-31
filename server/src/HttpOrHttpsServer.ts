@@ -2,7 +2,7 @@ import url, { UrlWithStringQuery } from 'url';
 import http, { IncomingMessage } from 'http';
 import https from 'https';
 import Global from './Global';
-import ProxyConfig from '../../common/ProxyConfig';
+import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
 import HttpMessage from './HttpMessage';
 import querystring from 'querystring';
 import listen from './Listen';
@@ -10,41 +10,71 @@ import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
 import { compressResponse, decompressResponse } from './Zlib';
 import InterceptJsonResponse from '../../intercept';
+import AllProxyApp from './AllProxyApp';
 
-// import InterceptJsonResponse from '../../intercept'
+// Hop-by-hop headers. These are removed when sent to the backend.
+// As of RFC 7230, hop-by-hop headers are required to appear in the
+// Connection header field. These are the headers defined by the
+// obsoleted RFC 2616 (section 13.5.1) and are used for backward
+// compatibility.
+var hopHeaders = [
+  "connection",
+  "proxy-connection", // non-standard but still sent by libcurl and rejected by e.g. google
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",      // canonicalized version of "TE"
+  "trailer", // not Trailers per URL above; https://www.rfc-editor.org/errata_search.php?eid=4522
+  "transfer-encoding",
+  "upgrade",
+];
+
 
 type ProxyType = 'forward' | 'reverse';
 
-export default class Https1Server {
+export default class HttpOrHttpsServer {
   private proxyType: ProxyType = 'forward';
-  private hostname: string;
-  private port = 443;
+  private reverseProxyHostname: string | null = null;
+  private reverseProxyPort: number | null = null;
   private ephemeralPort = 0;
-  private server: https.Server | null = null;
+  private server: https.Server | http.Server | null = null;
+  private protocol: 'http:' | 'https:';
 
   private resolvePromise: (result: number) => void = () => 1;
   private promise: Promise<number> = new Promise((resolve) => {
     this.resolvePromise = resolve;
   });
 
-  constructor(hostname: string, port: number, proxyType: ProxyType) {
+  constructor(proxyType: ProxyType, protocol: 'http:' | 'https:', reverseProxyHostname: string | null = null, reverseProxyPort: number | null = null) {
     this.proxyType = proxyType;
-    this.hostname = hostname;
-    this.port = port;
+    this.protocol = protocol;
+    if (reverseProxyHostname) {
+      this.reverseProxyHostname = reverseProxyHostname;
+    }
+    if (reverseProxyPort) {
+      this.reverseProxyPort = reverseProxyPort;
+    }
   }
 
   destructor() {
     this.server && this.server.close();
   }
 
-  public async start() {
-    const certKey = await generateCertKey(this.hostname);
-    this.server = https.createServer(
-      certKey,
-      this.onRequest.bind(this)
-    );
+  public async start(listenPort: number) {
+    if (this.protocol === 'https:') {
+      const certKey = await generateCertKey(this.reverseProxyHostname!);
+      this.server = https.createServer(
+        certKey,
+        this.onRequest.bind(this)
+      );
+    } else {
+      this.server = http.createServer(this.onRequest.bind(this));
+      this.server.keepAliveTimeout = 0;
 
-    await listen('Https1Server', this.server, 0); // assign port number
+      Global.socketIoManager.addHttpServer(this.server);
+    }
+
+    await listen('HttpOrHttpsServer', this.server, listenPort); // assign port number
     this.ephemeralPort = (this.server.address() as AddressInfo).port;
     this.resolvePromise(0);
   }
@@ -59,36 +89,55 @@ export default class Https1Server {
 
   private async onRequest(clientReq: IncomingMessage, clientRes: http.ServerResponse) {
     clientReq.on('error', function (error) {
-      console.error(sequenceNumber, 'Https1Server clientReq error', JSON.stringify(error, null, 2));
+      console.error(sequenceNumber, 'HttpOrHttpsServer clientReq error', JSON.stringify(error, null, 2));
     });
 
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-    console.log('Https1Server onRequest', reqUrl.path);
+    // Request is from AllProxy app?
+    if (this.protocol === 'http:' && AllProxyApp(clientReq, clientRes, reqUrl)) {
+      return;
+    }
+
+    console.log('HttpOrHttpsServer onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
     const sequenceNumber = Global.nextSequenceNumber();
     const remoteAddress = clientReq.socket.remoteAddress;
-    let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL('https:', clientHostName, reqUrl, this.proxyType);
+    let proxyConfig = Global.socketIoManager.findProxyConfigMatchingURL(this.protocol, clientHostName, reqUrl, this.proxyType);
+
     // Always proxy forward proxy requests
-    if (proxyConfig === undefined && this.proxyType === 'forward') {
-      proxyConfig = new ProxyConfig();
-      proxyConfig.path = reqUrl.pathname!;
-      proxyConfig.protocol = 'https:';
-      proxyConfig.hostname = this.hostname;
-      proxyConfig.port = this.port;
-      proxyConfig.isSecure = true;
-    };
+    if (proxyConfig === undefined) {
+      // Forward proxy?
+      if (reqUrl.protocol !== null) {
+        proxyConfig = new ProxyConfig();
+        proxyConfig.path = reqUrl.pathname!;
+        proxyConfig.protocol = reqUrl.protocol as ConfigProtocol;
+        proxyConfig.hostname = reqUrl.hostname!;
+        proxyConfig.port = reqUrl.port === null
+          ? reqUrl.protocol === 'http:' ? 80 : 443
+          : +reqUrl.port;
+      } else if (this.protocol === 'https:' && this.reverseProxyHostname != null) {
+        proxyConfig = new ProxyConfig();
+        proxyConfig.path = reqUrl.pathname!;
+        proxyConfig.protocol = this.protocol;
+        proxyConfig.hostname = this.reverseProxyHostname;
+        proxyConfig.port = this.reverseProxyPort!;
+        proxyConfig.isSecure = true;
+      }
+    }
+
+    Global.log('HttpOrHttpsServer - ProxyConfig:', proxyConfig);
 
     // URLs for requests proxied from terminal (e.g., https_proxy=localhost:8888) do not include schema and hostname
     let urlWithHostname = clientReq.url!;
     if (this.proxyType === 'forward' && urlWithHostname.startsWith('/')) {
-      urlWithHostname = "https://" + this.hostname + urlWithHostname;
+      urlWithHostname = this.protocol + "://" + this.reverseProxyHostname + urlWithHostname;
     }
 
     const httpMessage = new HttpMessage(
-      'https:',
+      this.protocol,
       proxyConfig,
       sequenceNumber,
       remoteAddress!,
@@ -144,7 +193,7 @@ export default class Https1Server {
   }
 
   private async proxyRequest(
-    _reqUrl: UrlWithStringQuery,
+    reqUrl: UrlWithStringQuery,
     clientReq: IncomingMessage,
     clientRes: http.ServerResponse,
     httpMessage: HttpMessage,
@@ -152,28 +201,44 @@ export default class Https1Server {
     requestBodyPromise: Promise<string | {}>
   ) {
     const headers = clientReq.headers;
+    let { hostname, port } = reqUrl.protocol !== null
+      ? reqUrl
+      : proxyConfig;
+
+    // Override hostname and port?
+    if (this.reverseProxyHostname !== null) {
+      hostname = this.reverseProxyHostname;
+      port = this.reverseProxyPort;
+    }
+
+    if (!port) {
+      port = this.protocol === 'https:' ? 443 : 80;
+    }
+
+    headers.host = hostname! + ':' + port;
+
     const options = {
-      protocol: 'https:',
-      hostname: this.proxyType === 'forward' ? this.hostname : proxyConfig.hostname,
-      port: this.port,
+      protocol: this.protocol,
+      hostname,
+      port,
       path: clientReq.url,
       method: clientReq.method,
       headers
     };
 
-    Global.log('Https1Server https.request', options);
+    Global.log('HttpOrHttpsServer proxy request options', options);
     let retryCount = 0;
     const MAX_RETRIES = 5;
-    proxyRequest();
+    doProxy(this.protocol);
 
-    function proxyRequest() {
-      const proxyReq = https.request(options, handleResponse);
+    function doProxy(protocol: 'http:' | 'https:') {
+      const proxyReq = protocol === 'https:' ? https.request(options, handleResponse) : http.request(options, handleResponse);
 
       proxyReq.on('error', async function (error: { [key: string]: string }) {
         proxyReq.destroy();
         if (error.code === 'EAI_AGAIN' && retryCount++ < MAX_RETRIES) {
           console.log(`Retry ${retryCount} for ${options.hostname}`);
-          setTimeout(proxyRequest, retryCount * 1000);
+          setTimeout(doProxy, retryCount * 1000, protocol);
         } else {
           console.error('Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig);
           const requestBody = await requestBodyPromise;
@@ -187,7 +252,19 @@ export default class Https1Server {
     }
 
     async function handleResponse(proxyRes: http.IncomingMessage) {
-      clientRes.writeHead((proxyRes as any).statusCode, proxyRes.headers);
+      /**
+         * Forward the response back to the client
+         */
+      for (let i = 0; i < proxyRes.rawHeaders.length; i += 2) {
+        const key = proxyRes.rawHeaders[i];
+        if (hopHeaders.indexOf(key) !== -1) continue;
+        const value = proxyRes.rawHeaders[i + 1];
+        clientRes.setHeader(key, value);
+      }
+      if ((clientReq.method === 'DELETE' || clientReq.method === 'PUT') && proxyRes.statusCode && proxyRes.statusCode < 400) {
+        clientRes.removeHeader('Connection'); // Don't send keepalive
+      }
+      clientRes.writeHead((proxyRes as any).statusCode, proxyRes.statusMessage);
 
       const chunks: Buffer[] = [];
 

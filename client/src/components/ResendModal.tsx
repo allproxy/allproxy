@@ -25,17 +25,17 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 						<select className="resend-modal__field"
 							onChange={e => store.setMethod(e.target.value)} value={store.getMethod()}
 						>
-							<option>GET</option>
-							<option>DELETE</option>
-							<option>PATCH</option>
-							<option>POST</option>
-							<option>PUT</option>
+							<option selected={store.getMethod() == 'GET'}>GET</option>
+							<option selected={store.getMethod() == 'DELETE'}>DELETE</option>
+							<option selected={store.getMethod() == 'PATCH'}>PATCH</option>
+							<option selected={store.getMethod() == 'POST'}>POST</option>
+							<option selected={store.getMethod() == 'PUT'}>PUT</option>
 						</select>
 						<div>
 							<select className="resend-modal__field"
 								onChange={e => store.setProtocol(e.target.value)} value={store.getProtocol()}				>
-								<option>http</option>
-								<option>https</option>
+								<option selected={store.getProtocol() === 'https'}>https</option>
+								<option selected={store.getProtocol() === 'http'}>http</option>
 							</select>
 							<input className="resend-modal__field resend-modal__host"
 								type="text"
