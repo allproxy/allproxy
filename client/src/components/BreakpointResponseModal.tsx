@@ -20,7 +20,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 			aria-describedby="simple-modal-description"
 		>
 			<div className="settings-modal">
-				<div>
+				<div className="modal-full-screen-scroll">
 					<h3 className="modal-title">Breakpoint: Edit Response</h3>
 					<div className="modal-body">
 						<div dangerouslySetInnerHTML={{ __html: message.method + " " + store.getRequestUrl() }} />

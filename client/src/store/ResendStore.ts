@@ -13,7 +13,7 @@ export default class ResendStore {
     private path: string = '';
     private body: string | object;
     private error = '';
-    private replaceHeaders: { [key: string]: string }[] = [];
+    private headers: { key: string, value: string }[] = [];
 
     public constructor(message: Message) {
         this.message = JSON.parse(JSON.stringify(message));
@@ -25,9 +25,9 @@ export default class ResendStore {
         }
 
         this.body = message.requestBody;
-        const strHeaders = localStorage.getItem(LOCAL_STORAGE_HEADERS);
-        if (strHeaders) {
-            this.replaceHeaders = JSON.parse(strHeaders);
+
+        for (const key in this.message.requestHeaders) {
+            this.headers.push({ key, value: this.message.requestHeaders[key] });
         }
 
         this.updateHostPort();
@@ -101,35 +101,18 @@ export default class ResendStore {
         this.body = body;
     }
 
-    public newReplaceHeader() {
-        this.replaceHeaders.push({ key: '', value: '' });
-    }
-
-    public deleteReplaceHeader(i: number) {
-        this.replaceHeaders.splice(i, 1);
-        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
-        this.updateHostPort();
-    }
-
-    public getReplaceHeaders(): { [key: string]: string }[] {
-        return this.replaceHeaders;
+    public getHeaders(): { [key: string]: string }[] {
+        return this.headers;
     }
 
     public getHeaderKeys(): string[] {
         return Object.keys(this.message.requestHeaders);
     }
 
-    @action public setHeaderKey(i: number, key: string) {
-        const value = this.message.requestHeaders[key];
-        this.replaceHeaders.splice(i, 1, { key, value });
-        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
-        this.updateHostPort();
-    }
-
     @action public setHeaderValue(i: number, value: string) {
-        const key = this.replaceHeaders[i].key;
-        this.replaceHeaders.splice(i, 1, { key, value });
-        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.replaceHeaders));
+        const key = this.headers[i].key;
+        this.headers.splice(i, 1, { key, value });
+        localStorage.setItem(LOCAL_STORAGE_HEADERS, JSON.stringify(this.headers));
         this.updateHostPort();
     }
 
@@ -145,9 +128,9 @@ export default class ResendStore {
             this.port = this.protocol === 'https' ? '443' : '80';
         }
 
-        const keyValue = this.replaceHeaders.find(keyValue => keyValue.key === 'host');
-        if (keyValue) {
-            const tokens = keyValue.value.split(':');
+        const header = this.headers.find(header => header.key === 'host');
+        if (header) {
+            const tokens = header.value.split(':');
             this.host = tokens[0];
             this.port = tokens.length == 1 ? this.port = this.protocol === 'https' ? '443' : '80' : tokens[1];
         }
@@ -157,9 +140,9 @@ export default class ResendStore {
         const method = this.method;
         let url = this.host.length > 0 ? this.protocol + '://' + this.host + ':' + this.port + this.path : this.path;
 
-        if (this.replaceHeaders.length > 0) {
-            for (const keyValue of this.replaceHeaders) {
-                this.message.requestHeaders[keyValue.key] = keyValue.value;
+        if (this.headers.length > 0) {
+            for (const header of this.headers) {
+                this.message.requestHeaders[header.key] = header.value;
             }
         }
 
