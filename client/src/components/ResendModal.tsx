@@ -22,99 +22,94 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 				<div>
 					<h3 className="modal-title">Edit Request and Send</h3>
 					<div className="modal-body">
-						<select className="resend-modal__field"
-							onChange={e => store.setMethod(e.target.value)} value={store.getMethod()}
-						>
-							<option selected={store.getMethod() == 'GET'}>GET</option>
-							<option selected={store.getMethod() == 'DELETE'}>DELETE</option>
-							<option selected={store.getMethod() == 'PATCH'}>PATCH</option>
-							<option selected={store.getMethod() == 'POST'}>POST</option>
-							<option selected={store.getMethod() == 'PUT'}>PUT</option>
-						</select>
-						<div>
+						<div className="modal-full-screen-scroll">
 							<select className="resend-modal__field"
-								onChange={e => store.setProtocol(e.target.value)} value={store.getProtocol()}				>
-								<option selected={store.getProtocol() === 'https'}>https</option>
-								<option selected={store.getProtocol() === 'http'}>http</option>
-							</select>
-							<input className="resend-modal__field resend-modal__host"
-								type="text"
-								placeholder="Host"
-								onChange={e => store.setHost(e.target.value)} value={store.getHost()}
-							/>
-							<input className="resend-modal__field"
-								type="number"
-								placeholder="Port"
-								onChange={e => store.setPort(e.target.value)} value={store.getPort()}
-							/>
-						</div>
-						<div className="resend-modal__url-container">
-							<textarea className="resend-modal__url form-control"
-								rows={2} cols={300}
-								placeholder="Path and query parameters"
-								onChange={(e) => store.setPath(e.target.value)}
-								value={store.getPath()}
-							/>
-						</div>
-						<h5>Override Headers:</h5>
-						<div className="no-capture-modal__add-button fa fa-plus-circle"
-							onClick={handleAddHeader}>
-							&nbsp;Add Header
-						</div>
-						<List>
-							{store.getReplaceHeaders().map((keyValue, i) => (
-								<ListItem key={i}
-									style={{ display: 'flex', alignItems: 'center' }}>
-									<div className="no-capture-modal__remove fa fa-minus-circle"
-										title="Remove client"
-										onClick={() => handleDeleteHeader(i)} />
-									<select className="resend-modal__header-select"
-										onChange={e => store.setHeaderKey(i, e.target.value)} value={keyValue.key}>
-										{store.getHeaderKeys().map(key => <option>{key}</option>)}
-									</select>
-									<input className="resend-modal__header-input"
-										placeholder="Header value"
-										value={keyValue.value}
-										onChange={(e) => store.setHeaderValue(i, e.target.value)}
-									/>
-								</ListItem>
-							))}
-						</List>
-						<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
-							<button type="button" className="resend-modal__send btn btn-sm btn-default"
-								title="Copy request body to clipboard"
-								onClick={handleCopy}
+								onChange={e => store.setMethod(e.target.value)} value={store.getMethod()}
 							>
-								<div className="fa fa-copy" />
-							</button>
-							<button type="button" className="resend-modal__send btn btn-sm btn-primary"
-								style={{ marginLeft: '.5rem' }}
-								onClick={handleToggleStrJson}>
-								{typeof message.requestBody === 'object' ? 'To String' : 'To JSON'}
-							</button>
-							<button type="button" className="resend-modal__send btn btn-sm btn-danger"
-								style={{ marginLeft: '.5rem' }}
-								onClick={handleClear}>
-								Clear
-							</button>
-						</div>
-						<div className="resend-modal__body-container">
-							{message.requestBody && typeof message.requestBody === 'object' ?
-								<ReactJson
-									src={message.requestBody}
-									name={false}
-									displayDataTypes={false}
-									quotesOnKeys={false}
-									onEdit={handleEdit}
-									onAdd={handleAdd}
-									onDelete={handleDelete}
+								<option selected={store.getMethod() == 'GET'}>GET</option>
+								<option selected={store.getMethod() == 'DELETE'}>DELETE</option>
+								<option selected={store.getMethod() == 'PATCH'}>PATCH</option>
+								<option selected={store.getMethod() == 'POST'}>POST</option>
+								<option selected={store.getMethod() == 'PUT'}>PUT</option>
+							</select>
+							<div>
+								<select className="resend-modal__field"
+									onChange={e => store.setProtocol(e.target.value)} value={store.getProtocol()}				>
+									<option selected={store.getProtocol() === 'https'}>https</option>
+									<option selected={store.getProtocol() === 'http'}>http</option>
+								</select>
+								<input className="resend-modal__field resend-modal__host"
+									type="text"
+									placeholder="Host"
+									onChange={e => store.setHost(e.target.value)} value={store.getHost()}
 								/>
-								:
-								<textarea className="resend-modal__body form-control" rows={100} cols={300}
-									onChange={(e) => store.setBody(e.target.value)}
-									value={store.getBody() as string}
-									placeholder="Enter request body" />
-							}
+								<input className="resend-modal__field"
+									type="number"
+									placeholder="Port"
+									onChange={e => store.setPort(e.target.value)} value={store.getPort()}
+								/>
+							</div>
+							<div className="resend-modal__url-container">
+								<textarea className="resend-modal__url form-control"
+									rows={2} cols={300}
+									placeholder="Path and query parameters"
+									onChange={(e) => store.setPath(e.target.value)}
+									value={store.getPath()}
+								/>
+							</div>
+							<h5>Headers:</h5>
+							<List>
+								{store.getHeaders().map((header, i) => (
+									<ListItem key={i}
+										style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+										<div style={{ width: maxHeaderKeySize() + 2 + 'ch' }}>
+											{header.key}
+										</div>
+										<input className="resend-modal__header-input"
+											placeholder="Header value"
+											value={header.value}
+											onChange={(e) => store.setHeaderValue(i, e.target.value)}
+										/>
+									</ListItem>
+								))}
+							</List>
+							<h5>Body:</h5>
+							<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
+								<button type="button" className="resend-modal__send btn btn-sm btn-default"
+									title="Copy request body to clipboard"
+									onClick={handleCopy}
+								>
+									<div className="fa fa-copy" />
+								</button>
+								<button type="button" className="resend-modal__send btn btn-sm btn-primary"
+									style={{ marginLeft: '.5rem' }}
+									onClick={handleToggleStrJson}>
+									{typeof message.requestBody === 'object' ? 'To String' : 'To JSON'}
+								</button>
+								<button type="button" className="resend-modal__send btn btn-sm btn-danger"
+									style={{ marginLeft: '.5rem' }}
+									onClick={handleClear}>
+									Clear
+								</button>
+							</div>
+							<div className="resend-modal__body-container">
+								{message.requestBody && typeof message.requestBody === 'object' ?
+									<ReactJson
+										src={message.requestBody}
+										name={false}
+										displayDataTypes={false}
+										quotesOnKeys={false}
+										onEdit={handleEdit}
+										onAdd={handleAdd}
+										onDelete={handleDelete}
+									/>
+									:
+									<textarea className="resend-modal__body form-control" rows={100} cols={300}
+										onChange={(e) => store.setBody(e.target.value)}
+										value={store.getBody() as string}
+										placeholder="Enter request body" />
+								}
+							</div>
 						</div>
 					</div>
 					<div className="modal-footer">
@@ -136,6 +131,14 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 		</Modal>
 	);
 
+	function maxHeaderKeySize(): number {
+		let size = 0;
+		store.getHeaders().forEach((header) => {
+			size = Math.max(size, header.key.length)
+		})
+		return size;
+	}
+
 	function handleCopy() {
 		const s = typeof message.requestBody === 'object' ? JSON.stringify(message.requestBody, null, 2) : message.requestBody;
 		navigator.clipboard.writeText(s);
@@ -148,14 +151,6 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	function handleSend() {
 		store.doResend();
 		onClose();
-	}
-
-	function handleAddHeader() {
-		store.newReplaceHeader();
-	}
-
-	function handleDeleteHeader(i: number) {
-		store.deleteReplaceHeader(i);
 	}
 
 	function handleToggleStrJson() {

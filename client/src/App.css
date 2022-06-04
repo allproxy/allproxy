@@ -487,6 +487,11 @@ td input {
 	cursor: pointer;
 }
 
+.modal-full-screen-scroll {
+	height: calc(100vh - 200px);
+	overflow-y: auto;
+}
+
 .resend-modal__field {
 	margin-bottom: 1rem;
 	margin-right: .5rem;
@@ -501,7 +506,7 @@ td input {
 
 .resend-modal__header-input {
 	height: 30px;
-	width: calc(90vw - 150px);
+	width: 100%;
 }
 
 .resend-modal__host {
@@ -515,7 +520,6 @@ td input {
 
 .resend-modal__body-container {
 	height: 400px;
-	overflow-y: auto;
 }
 
 .resend-modal__body {
