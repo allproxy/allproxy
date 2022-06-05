@@ -7,3 +7,4 @@ client/package.json
 !package.json
 !node-http-mitm-proxy/package.json
 !intercept/
+!proto/README.md
