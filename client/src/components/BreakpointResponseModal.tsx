@@ -20,47 +20,49 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 			aria-describedby="simple-modal-description"
 		>
 			<div className="settings-modal">
-				<div className="modal-full-screen-scroll">
+				<div>
 					<h3 className="modal-title">Breakpoint: Edit Response</h3>
 					<div className="modal-body">
-						<div dangerouslySetInnerHTML={{ __html: message.method + " " + store.getRequestUrl() }} />
-						<hr />
-						<h4>JSON Response Body:</h4>
-						<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
-							<button type="button" className="resend-modal__send btn btn-sm btn-default"
-								title="Copy response body to clipboard"
-								onClick={handleCopy}
-							>
-								<div className="fa fa-copy" />
-							</button>
-							<button type="button" className="resend-modal__send btn btn-sm btn-primary"
-								style={{ marginLeft: '.5rem' }}
-								onClick={handleToggleStrJson}>
-								{typeof message.responseBody === 'object' ? 'To String' : 'To JSON'}
-							</button>
-							<button type="button" className="resend-modal__send btn btn-sm btn-danger"
-								style={{ marginLeft: '.5rem' }}
-								onClick={handleClear}>
-								Clear
-							</button>
-						</div>
-						<div className="resend-modal__body-container">
-							{message.responseBody && typeof message.responseBody === 'object' ?
-								<ReactJson
-									src={message.responseBody}
-									name={false}
-									displayDataTypes={false}
-									quotesOnKeys={false}
-									onEdit={handleEdit}
-									onAdd={handleAdd}
-									onDelete={handleDelete}
-								/>
-								:
-								<textarea className="resend-modal__body form-control" rows={100} cols={300}
-									onChange={(e) => message.responseBody = e.target.value}
-									value={message.responseBody as string}
-									placeholder="Enter response body" />
-							}
+						<div className="modal-full-screen-scroll">
+							<div dangerouslySetInnerHTML={{ __html: message.method + " " + store.getRequestUrl() }} />
+							<hr />
+							<h4>JSON Response Body:</h4>
+							<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
+								<button type="button" className="resend-modal__send btn btn-sm btn-default"
+									title="Copy response body to clipboard"
+									onClick={handleCopy}
+								>
+									<div className="fa fa-copy" />
+								</button>
+								<button type="button" className="resend-modal__send btn btn-sm btn-primary"
+									style={{ marginLeft: '.5rem' }}
+									onClick={handleToggleStrJson}>
+									{typeof message.responseBody === 'object' ? 'To String' : 'To JSON'}
+								</button>
+								<button type="button" className="resend-modal__send btn btn-sm btn-danger"
+									style={{ marginLeft: '.5rem' }}
+									onClick={handleClear}>
+									Clear
+								</button>
+							</div>
+							<div className="resend-modal__body-container">
+								{message.responseBody && typeof message.responseBody === 'object' ?
+									<ReactJson
+										src={message.responseBody}
+										name={false}
+										displayDataTypes={false}
+										quotesOnKeys={false}
+										onEdit={handleEdit}
+										onAdd={handleAdd}
+										onDelete={handleDelete}
+									/>
+									:
+									<textarea className="resend-modal__body form-control" rows={100} cols={300}
+										onChange={(e) => message.responseBody = e.target.value}
+										value={message.responseBody as string}
+										placeholder="Enter response body" />
+								}
+							</div>
 						</div>
 					</div>
 					<div className="modal-footer">
