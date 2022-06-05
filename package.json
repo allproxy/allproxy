@@ -26,8 +26,8 @@
     "allproxy-system-proxy": "bin/allproxy-system-proxy"
   },
   "scripts": {
-    "install": "cd ./node-http-mitm-proxy && $npm_execpath install && cd .. && npm run install-client",
-    "install-client": "[ -d ./client/src ] && cd ./client && $npm_execpath install; exit 0",
+    "install": "cd ./node-http-mitm-proxy && yarpm install && cd .. && npm run install-client",
+    "install-client": "[ -d ./client/src ] && cd ./client && yarpm install; exit 0",
     "postinstall": "[ ! -d ./build ] && npm run build || npm run symbolic-links",
     "startdev": "NODE_ENV=development nodemon --config nodemon.json app.ts && tsc --force --project ./tsconfig.json",
     "build": "npm run build-server && npm run build-client",
@@ -67,6 +67,7 @@
     "tls": "^0.0.1",
     "url": "^0.11.0",
     "utf-8-validate": "^5.0.4",
+    "yarpm": "^1.1.1",
     "zlib": "^1.0.5"
   },
   "devDependencies": {
