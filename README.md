@@ -4,7 +4,7 @@ AllProxy is a free HTTP debugging proxy that enables a developer to view and mod
 
 **Setup:**
 1. Install and start: **npm install -g allproxy && allproxy-ca && allproxy**
-2. Open browser to: **localhost:8888**
+2. Open browser to: **localhost:8888/allproxy**
 3. Configure browser to proxy HTTP and HTTPS to **localhost:8888**.
 4. In terminal, export **HTTPS_PROXY=localhost:8888** and **HTTP_PROXY=localhost:8888**.
 
