@@ -53,7 +53,11 @@ export default class Paths {
     return Paths.platform(`${Paths.dataDir}intercept`)
   }
 
+  public static sep(): string {
+    return process.env.SHELL?.indexOf('bash') !== -1 ? '/' : path.sep;
+  }
+
   private static platform(dir: string): string {
-    return dir.replace(/\//g, path.sep);
+    return dir.replace(/\//g, Paths.sep());
   }
 }

@@ -26,11 +26,11 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 							<select className="resend-modal__field"
 								onChange={e => store.setMethod(e.target.value)} value={store.getMethod()}
 							>
-								<option selected={store.getMethod() == 'GET'}>GET</option>
-								<option selected={store.getMethod() == 'DELETE'}>DELETE</option>
-								<option selected={store.getMethod() == 'PATCH'}>PATCH</option>
-								<option selected={store.getMethod() == 'POST'}>POST</option>
-								<option selected={store.getMethod() == 'PUT'}>PUT</option>
+								<option selected={store.getMethod() === 'GET'}>GET</option>
+								<option selected={store.getMethod() === 'DELETE'}>DELETE</option>
+								<option selected={store.getMethod() === 'PATCH'}>PATCH</option>
+								<option selected={store.getMethod() === 'POST'}>POST</option>
+								<option selected={store.getMethod() === 'PUT'}>PUT</option>
 							</select>
 							<div>
 								<select className="resend-modal__field"
