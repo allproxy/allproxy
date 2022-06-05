@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { env } from 'process';
 
 export default class Paths {
   private static baseDir = process.env.NODE_ENV === 'production'
@@ -53,7 +54,11 @@ export default class Paths {
     return Paths.platform(`${Paths.dataDir}intercept`)
   }
 
+  public static sep(): string {
+    return process.env.SHELL?.indexOf('bash') !== -1 ? '/' : path.sep;
+  }
+
   private static platform(dir: string): string {
-    return dir.replace(/\//g, path.sep);
+    return dir.replace(/\//g, Paths.sep);
   }
 }
