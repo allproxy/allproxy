@@ -58,6 +58,6 @@ export default class Paths {
   }
 
   private static platform(dir: string): string {
-    return dir.replace(/\//g, Paths.sep);
+    return dir.replace(/\//g, Paths.sep());
   }
 }

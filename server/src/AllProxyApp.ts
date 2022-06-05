@@ -15,7 +15,7 @@ const AllProxyApp = (
   reqUrl: UrlWithStringQuery
 ): boolean => {
   let responseSent = true;
-  const clientBuildDir = Paths.clientDir() + Paths.sep + 'build';
+  const clientBuildDir = Paths.clientDir() + Paths.sep() + 'build';
 
   switch (clientReq.method) {
     case 'GET':
@@ -23,9 +23,9 @@ const AllProxyApp = (
         clientRes.writeHead(200, {
           'content-type': 'text/html'
         });
-        clientRes.end(fs.readFileSync(clientBuildDir + Paths.sep + 'index.html'));
+        clientRes.end(fs.readFileSync(clientBuildDir + Paths.sep() + 'index.html'));
       } else {
-        const dir = clientBuildDir + reqUrl.pathname?.replace(/\//g, Paths.sep);
+        const dir = clientBuildDir + reqUrl.pathname?.replace(/\//g, Paths.sep());
         // File exists locally?
         if (reqUrl.protocol === null &&
           fs.existsSync(dir) && fs.lstatSync(dir).isFile()) {
