@@ -33,8 +33,8 @@
     "build": "npm run build-server && npm run build-client",
     "build-server": "npm run clean && tsc --project ./tsconfig.json && npm run symbolic-links",
     "build-client": "npm run clean-client && cd ./client && npm run build",
-    "clean": "rm -rf ./build",
-    "clean-client": "rm -rf ./client/build",
+    "clean": "rimraf ./build",
+    "clean-client": "rimraf ./client/build",
     "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
     "symbolic-links": "[ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/ && ln -sf ../intercept/ ./build/",
     "startforever": "./scripts/startForever.sh",
@@ -85,6 +85,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.26.0",
     "nodemon": "^2.0.7",
+    "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   }
