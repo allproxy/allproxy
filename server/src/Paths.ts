@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { env } from 'process';
 
 export default class Paths {
   private static baseDir = process.env.NODE_ENV === 'production'
