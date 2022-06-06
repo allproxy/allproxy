@@ -2,13 +2,44 @@
 
 AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
-**Setup:**
-1. Install and start: **npm install -g allproxy && allproxy-ca && allproxy**
-2. Open browser to: **localhost:8888/allproxy**
-3. Configure browser to proxy HTTP and HTTPS to **localhost:8888**.
-4. In terminal, export **HTTPS_PROXY=localhost:8888** and **HTTP_PROXY=localhost:8888**.
+### Install and Start Server
 
-**Additional Features:** Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
+> **Option 1:** Clone repo
+> 1. Clone repo: **git clone https://github.com/allproxy/allproxy.git**
+> 2. cd allproxy
+> 3. Install and build: **npm install**
+> 4. Install CA Certificate: **./bin/allproxy-ca**
+> 5. Setup system proxy: **./bin/allproxy-system-proxy enable** (MacOS Chrome only)
+> 6. Start server: **npm start**
+> 
+> **Option 2:** Install NPM package
+> 1. Install NPM allproxy package: **npm install -g allproxy**
+> 2. Install CA Certificate: **allproxy-ca**
+> 3. Setup system proxy: **allproxy-system-proxy enable** (MacOS Chrome only)
+> 4. Start server: **allproxy**
+> 
+> ### Launch Dashboard
+> Open browser to: **localhost:8888/allproxy**
+> 
+> ### Configure Proxy
+> <ins>*Configure browser proxy:*</ins>
+> 
+> The **allproxy-system-proxy** command can be used to enable the system wide proxy for Chrome on MacOS. 
+> 
+> For Firefox and other browsers use the proxy configuration to set HTTP and HTTPS to host **localhost** and port **8888**.> 
+> 
+> <ins>*Proxy Terminal Commands:*</ins>
+> 
+> Set environmant variables:
+> - export HTTPS_PROXY=localhost:8888
+> - export HTTP_PROXY=localhost:8888
+> 
+> Set NO_PROXY variable to exclude hosts:
+> - export NO_PROXY=my.host1.com,my.host2.com
+
+### Additional Features
+
+Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 ![npm](https://img.shields.io/npm/v/allproxy) ![npm](https://img.shields.io/npm/dm/allproxy)
 
