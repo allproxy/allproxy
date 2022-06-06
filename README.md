@@ -2,8 +2,8 @@
 
 AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
-### Install and Start Server
-
+> ### Install and Start Server
+>
 > **Option 1:** Clone repo
 > 1. Clone repo: **git clone https://github.com/allproxy/allproxy.git**
 > 2. cd allproxy
