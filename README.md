@@ -1,6 +1,6 @@
 <h1 align="center" style="border-bottom: none;">AllProxy: MITM HTTP Debugging Tool</h1>
 
-AllProxy is a free HTTP debugging proxy that enables a developer to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
+AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
 **Setup:**
 1. Install and start: **npm install -g allproxy && allproxy-ca && allproxy**
@@ -14,7 +14,6 @@ AllProxy is a free HTTP debugging proxy that enables a developer to view and mod
 
 ![image](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 <img width="1187" alt="image" src="https://user-images.githubusercontent.com/10223382/170111493-a6593aa1-8d92-46d7-8b6b-624d0e73d87c.png">
 
