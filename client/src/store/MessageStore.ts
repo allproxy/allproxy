@@ -65,11 +65,11 @@ export default class MessageStore {
     public getRequestUrl(): string {
         let str = '';
         if (this.isHttpOrHttps()) {
-            str = this.getUrl().startsWith('http://') || this.getUrl().startsWith('https://')
+            str = this.getUrl().startsWith('http:') || this.getUrl().startsWith('https:')
                 ? this.getUrl()
                 : `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`;
-            const tokens = str.split('://');
-            const parts = tokens[1].split('/');
+            const tokens = str.split(':\/\/', 2);
+            const parts = tokens[1].split('\/');
             const host = parts[0];
             const uri = parts.length === 1 ? '/' : '/' + parts.slice(1).join('/');
             str = `${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;
@@ -81,7 +81,7 @@ export default class MessageStore {
         return str;
     }
 
-    public getRequestClient(): string|undefined {
+    public getRequestClient(): string | undefined {
         let ip = this.message.clientIp;
         if (ip === undefined || ip === '127.0.0.1' || ip === '::1' || ip?.indexOf('loopback') !== -1) {
             const ua = this.message.requestHeaders['user-agent'];
@@ -116,12 +116,12 @@ export default class MessageStore {
     public getRequestBody(): string {
         let body = this.message.method && this.message.method.length > 0 ? this.url + '\n' : '';
 
-        if(this.message.requestBody) {
+        if (this.message.requestBody) {
             let jsonBody = (this.message.requestBody as any);
-            if(jsonBody['allproxy_inner_body']) {
+            if (jsonBody['allproxy_inner_body']) {
                 body += jsonBody['allproxy_inner_body'];
             }
-            else if(
+            else if (
                 typeof this.message.requestBody === 'string' &&
                 this.message.requestHeaders['content-type'] &&
                 this.message.requestHeaders['content-type'].includes('application/x-www-form-urlencoded')) {
@@ -137,7 +137,7 @@ export default class MessageStore {
         return body;
     }
 
-    private getUserAgent(): string|undefined {
+    private getUserAgent(): string | undefined {
         return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : undefined;
     }
 
