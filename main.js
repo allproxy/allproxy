@@ -1,20 +1,17 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow } = require('electron');
 
 process.env.NODE_ENV = 'production';
 require('./build/app.js')
 
 
 const createWindow = () => {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600
-  })
-
-  win.loadFile('./client/build/index.html')
+  const win = new BrowserWindow()
+  win.maximize();
+  setTimeout(() => win.loadURL('http://localhost:8888/allproxy'), 1000);
 }
 
 app.whenReady().then(() => {
-  createWindow()
+  createWindow();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
