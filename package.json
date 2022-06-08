@@ -19,7 +19,7 @@
     "url": "https://github.com/davechri/allproxy/issues",
     "email": "davechri58@gmail.com"
   },
-  "main": "app.js",
+  "main": "main.js",
   "bin": {
     "allproxy": "bin/allproxy",
     "allproxy-ca": "bin/allproxy-ca",
@@ -40,7 +40,8 @@
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "cd ./client && npm run test",
-    "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0"
+    "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0",
+    "start-electron": "electron ."
   },
   "repository": {
     "type": "git",
@@ -78,6 +79,7 @@
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
+    "electron": "^19.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",
