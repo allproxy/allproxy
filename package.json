@@ -35,13 +35,12 @@
     "build-client": "npm run clean-client && cd ./client && npm run build",
     "clean": "rimraf ./build",
     "clean-client": "rimraf ./client/build",
-    "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
+    "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; electron .",
     "symbolic-links": "[ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/ && ln -sf ../intercept/ ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "cd ./client && npm run test",
-    "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0",
-    "start-electron": "electron ."
+    "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0"   
   },
   "repository": {
     "type": "git",

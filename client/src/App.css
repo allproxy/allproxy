@@ -236,7 +236,7 @@ td input {
 .header__filter-input {
 	margin: 0 0 0 1rem;
 	height: 20px;
-	width: 50vw;
+	width: calc(100vw - 800px);
 }
 
 .header__filter-input.active {

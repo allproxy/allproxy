@@ -16,11 +16,11 @@ export enum HttpVersion {
 let httpVersion: HttpVersion = HttpVersion.HTTP1;
 
 export default class HttpConnectHandler {
-  public static async start(_httpVersion: HttpVersion) {
+  public static async start (_httpVersion: HttpVersion) {
     httpVersion = _httpVersion;
   }
 
-  public static async doConnect(httpXSocket: net.Socket, data: Buffer) {
+  public static async doConnect (httpXSocket: net.Socket, data: Buffer) {
     Global.log('HttpConnectHandler doConnect', data.toString());
     const hostPort = data.toString().split(' ', 2)[1];
     const tokens = hostPort!.split(':', 2);
@@ -28,12 +28,12 @@ export default class HttpConnectHandler {
     HttpConnectHandler.onConnect(tokens[0], port, httpXSocket);
   }
 
-  private static async onConnect(hostname: string, port: number, socket: net.Socket) {
+  private static async onConnect (hostname: string, port: number, socket: net.Socket) {
     Global.log('HttpConnectHandler onConnect', hostname, port);
 
     const proxyConfig = Global.socketIoManager.findGrpcProxyConfig(hostname, port);
     if (proxyConfig) {
-      console.log(`Proxy ${hostname}:${port} to gRPC`)
+      console.log(`Proxy ${hostname}:${port} to gRPC`);
       HttpConnectHandler.createTunnel(socket, parseInt(proxyConfig.path), 'localhost');
     } else {
       const key = hostname;
@@ -58,7 +58,7 @@ export default class HttpConnectHandler {
     }
   }
 
-  private static respond(socket: net.Socket) {
+  private static respond (socket: net.Socket) {
     Global.log('HttpConnectHandler HTTP/1.1 200 Connection Established');
     socket.write('HTTP/1.1 200 Connection Established\r\n' +
       // 'Connection: Keep-Alive\n\r' +
@@ -68,7 +68,7 @@ export default class HttpConnectHandler {
 
   // Create tunnel from client to AllProxy https server.  The AllProxy https server decrypts and captures
   // the HTTP messages, and forwards it to the origin server.
-  private static createTunnel(httpXSocket: any, httpsServerPort: number, hostname: string) {
+  private static createTunnel (httpXSocket: any, httpsServerPort: number, hostname: string) {
     Global.log('HttpConnectionHandler createTunnel', httpsServerPort, hostname);
     const httpsServerSocket = net.connect(httpsServerPort, hostname, () => {
       HttpConnectHandler.respond(httpXSocket);

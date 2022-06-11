@@ -19,7 +19,7 @@ const AllProxyApp = (
 
   switch (clientReq.method) {
     case 'GET':
-      if (reqUrl.pathname === '/' + 'anyproxy') {
+    if (reqUrl.pathname === '/' + 'allproxy') {
         clientRes.writeHead(200, {
           'content-type': 'text/html'
         });
