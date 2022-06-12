@@ -5,7 +5,7 @@ import Paths from './server/src/Paths';
 import GrpcProxy from './server/src/GrpcProxy';
 import PortConfig from './common/PortConfig';
 import HttpXProxy from './server/src/HttpXProxy';
-import { createCertificateAuthority } from './server/src/GenerateCertKey';
+import { createCertificateAuthority, installCertificateAuthority } from './server/src/GenerateCertKey';
 import { parseProtoFiles } from './server/src/Protobuf';
 
 const listen: {
@@ -76,7 +76,7 @@ if (listen.length === 0) {
   listen.push({ protocol: 'httpx:', port: 8888 });
 }
 
-function usage() {
+function usage () {
   console.log('\nUsage: npm start [--listen [host:]port] [--debug]');
   console.log('\nOptions:');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
@@ -106,6 +106,7 @@ startServers();
 
 async function startServers() {
   await createCertificateAuthority();
+  installCertificateAuthority();
   for (const entry of listen) {
     const protocol = entry.protocol;
     const host = entry.host;

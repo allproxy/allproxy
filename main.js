@@ -2,7 +2,9 @@ const { app, BrowserWindow } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+console.log('Starting main.js');
 process.env.NODE_ENV = 'production';
+const dirName = __dirname;
 const dataDir = `${process.env.HOME + path.sep}allproxy`;
 process.env.ALLPROXY_DATA_DIR = dataDir;
 
@@ -15,6 +17,7 @@ const mkDir = (dir) => {
 const startServer = () => {
   mkDir(dataDir);
   mkDir(`${dataDir + path.sep}intercept`);
+  fs.copyFileSync(`${dirName + path.sep}intercept${path.sep}InterceptResponse.js`, `${dataDir + path.sep}intercept${path.sep}InterceptResponse.js`);
   mkDir(`${dataDir + path.sep}proto`);
   mkDir(`${dataDir + path.sep}bin`);
   require('./build/app.js');
@@ -27,13 +30,13 @@ const createWindow = () => {
     win.loadURL('http://localhost:8888/allproxy');
     switch (process.platform) {
       case 'darwin':
-        fs.copyFileSync('./bin/macos/installCa.sh', `${dataDir}/bin/installCa.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/macos/installCa.sh`, `${dataDir}/bin/installCa.sh`);
         break;
       case 'win32':
-        fs.copyFileSync('./bin/win32/installCa.bat', `${dataDir}\bin\installCa.bat`);
+        fs.copyFileSync(`${dirName + path.sep}bin\\win32\\installCa.bat`, `${dataDir}\\bin\\installCa.bat`);
         break;
-      default:
-        fs.copyFileSync('./bin/linux/installCa.sh', `${dataDir}/bin/installCa.sh`);
+      case 'linux':
+        fs.copyFileSync(`${dirName + path.sep}/bin/linux/installCa.sh`, `${dataDir}/bin/installCa.sh`);
         break;
     }
   }, 1000);
