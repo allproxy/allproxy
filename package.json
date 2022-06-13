@@ -87,6 +87,7 @@
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "electron": "^19.0.3",
+    "electron-builder": "^23.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",
@@ -100,7 +101,9 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "icons/icon"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",

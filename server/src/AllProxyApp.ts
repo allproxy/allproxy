@@ -19,7 +19,7 @@ const AllProxyApp = (
 
   switch (clientReq.method) {
     case 'GET':
-    if (reqUrl.pathname === '/' + 'allproxy') {
+      if (reqUrl.pathname === '/' + 'allproxy') {
         clientRes.writeHead(200, {
           'content-type': 'text/html'
         });
@@ -45,6 +45,7 @@ const AllProxyApp = (
               contentType = 'image/png';
               break;
             case '.jpg':
+            case '.ico':
               contentType = 'image/jpg';
               break;
             case '.wav':

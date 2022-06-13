@@ -17,17 +17,30 @@ const mkDir = (dir) => {
 const startServer = () => {
   mkDir(dataDir);
   mkDir(`${dataDir + path.sep}intercept`);
-  fs.copyFileSync(`${dirName + path.sep}intercept${path.sep}InterceptResponse.js`, `${dataDir + path.sep}intercept${path.sep}InterceptResponse.js`);
+  if (!fs.existsSync(`${dataDir + path.sep}intercept${path.sep}InterceptResponse.js`)) {
+    fs.copyFileSync(`${dirName + path.sep}intercept${path.sep}InterceptResponse.js`, `${dataDir + path.sep}intercept${path.sep}InterceptResponse.js`);
+  }
   mkDir(`${dataDir + path.sep}proto`);
   mkDir(`${dataDir + path.sep}bin`);
   require('./build/app.js');
 };
 
 const createWindow = () => {
-  const win = new BrowserWindow();
-  win.maximize();
+  const win = new BrowserWindow(
+    {
+      icon: path.join(__dirname, "icons/icon.png"),
+      width: 1024,
+      height: 768,
+      autoHideMenuBar: true
+    }
+  );
+  //win.maximize();
   setTimeout(() => {
-    win.loadURL('http://localhost:8888/allproxy');
+    win.loadURL('http://localhost:8888/allproxy')
+      .then(() => {
+        console.log('main.js: AllProxy page loaded');
+      })
+
     switch (process.platform) {
       case 'darwin':
         fs.copyFileSync(`${dirName + path.sep}/bin/macos/installCa.sh`, `${dataDir}/bin/installCa.sh`);
@@ -53,5 +66,5 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  /*if (process.platform !== 'darwin')*/ app.quit();
 });
