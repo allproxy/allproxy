@@ -52,7 +52,7 @@ const createWindow = () => {
         fs.copyFileSync(`${dirName + path.sep}/bin/linux/installCa.sh`, `${dataDir}/bin/installCa.sh`);
         break;
     }
-  }, 1000);
+  }, 2000);
 };
 
 startServer();

@@ -18,6 +18,14 @@ export default class Paths {
     return Paths.platform(`${Paths.dataDir}.http-mitm-proxy`);
   }
 
+  public static certsDirAndSlash(): string {
+    return Paths.platform(`${Paths.sslCaDir()}/certs/`);
+  }
+
+  public static keysDirAndSlash(): string {
+    return Paths.platform(`${Paths.sslCaDir()}/keys/`);
+  }
+
   public static makeCaPemSymLink () {
     const target = Paths.platform(Paths.platform('.http-mitm-proxy/certs/ca.pem'));
     const path = Paths.platform(Paths.dataDir + 'ca.pem');

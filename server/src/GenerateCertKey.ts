@@ -17,16 +17,26 @@ export function createCertificateAuthority (): Promise<void> {
 }
 
 export function installCertificateAuthority () {
-  const caPem = Paths.sslCaDir() + '/ca.pem';
-  // Ubuntu/Debian?
-  if (fs.existsSync('/usr/local/share/ca-certificates/')) {
+  const caPem = Paths.certsDirAndSlash() + 'ca.pem';
+  
+  // MacOS?
+  if (fs.existsSync('/Library/Keychains/System.keychain')) {
+    console.log('Installing ca.pem in /Library/Keychains/System.keychain/');
+    const cmd = `/usr/bin/security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ${caPem}`;
+    console.log(cmd);
+    exec(`/usr/bin/osascript -e 'do shell script "sudo ${cmd}" with prompt "Install AllProxy CA Certificate " with administrator privileges'`, 
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(error);
+      }
+      console.log(stdout);
+      console.log(stderr);
+    });   
+    // Ubuntu/Debian?
+  } else if (fs.existsSync('/usr/local/share/ca-certificates/')) {
     console.log('Installing ca.pem in /usr/local/share/ca-certificates/');
     exec(`sudo cp ${caPem} /usr/local/share/ca-certificates/allproxyca.pem`);
-    // MacOS?
-  } else if (fs.existsSync('/Library/Keychains/System.keychain')) {
-    console.log('Installing ca.pem in /Library/Keychains/System.keychain/');
-    exec(`sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ${caPem}`);
-    // CentOS 5
+    // CentOS 5?
   } else if (fs.existsSync('/etc/pki/tls/certs/ca-bundle.crt')) {
     console.log('Installing ca.pem in /etc/pki/tls/certs/ca-bundle.crt');
     exec(`cat ${caPem} >> /etc/pki/tls/certs/ca-bundle.crt`);
@@ -46,8 +56,8 @@ const generateCertKey = async (hostname: string): Promise<{cert: string, key: st
     : hostname.replace(/[^.]+\./, '*.');
   return new Promise((resolve) => {
     const caHost = wildcardHost.replace(/\*/g, '_');
-    const certPemFile = Paths.sslCaDir() + '/certs/' + caHost + '.pem';
-    const keyPemFile = Paths.sslCaDir() + '/keys/' + caHost + '.key';
+    const certPemFile = Paths.certsDirAndSlash() + caHost + '.pem';
+    const keyPemFile = Paths.keysDirAndSlash() + caHost + '.key';
     if (fs.existsSync(certPemFile)) {
       resolve({
         cert: fs.readFileSync(certPemFile).toString(),
