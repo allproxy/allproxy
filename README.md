@@ -2,8 +2,8 @@
 
 AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
-### Install Images
-> Install images are available for MacOS and Linux [here](https://github.com/allproxy/allproxy/releases)
+### Install Packages
+> Install packages are available for MacOS and Linux: [DOWNLOAD](https://github.com/allproxy/allproxy/releases)
 
 ### Additional Features
 
