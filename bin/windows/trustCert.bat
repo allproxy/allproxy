@@ -1,1 +1,1 @@
-certutil -addstore -f "ROOT" %HOME%\allproxy\ca.pem
+certutil -addstore -f "ROOT" %HOME%\.allproxy\ca.pem
