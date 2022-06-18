@@ -28,4 +28,9 @@ if [ ! -d "$PROTO_DIR" ]; then
   mkdir $PROTO_DIR
 fi
 
+BIN_DIR=$DATA_DIR/bin
+if [ ! -d "$BIN_DIR" ]; then
+  mkdir $BIN_DIR
+fi
+
 node $BIN_DIR/../build/app $@

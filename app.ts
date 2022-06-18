@@ -7,6 +7,8 @@ import PortConfig from './common/PortConfig';
 import HttpXProxy from './server/src/HttpXProxy';
 import { createCertificateAuthority, trustCertificateAuthority } from './server/src/GenerateCertKey';
 import { parseProtoFiles } from './server/src/Protobuf';
+import path from 'path';
+import fs from 'fs';
 
 const listen: {
   protocol: string,
@@ -76,7 +78,7 @@ if (listen.length === 0) {
   listen.push({ protocol: 'httpx:', port: 8888 });
 }
 
-function usage () {
+function usage() {
   console.log('\nUsage: npm start [--listen [host:]port] [--debug]');
   console.log('\nOptions:');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
@@ -94,6 +96,25 @@ process.on('uncaughtException', (err) => {
 
 Paths.makeCaPemSymLink();
 Paths.setupInterceptDir();
+
+const dirName = __dirname + path.sep + '..';
+const dataDir = process.env.ALLPROXY_DATA_DIR;
+if (dataDir) {
+  switch (process.platform) {
+    case 'darwin':
+      fs.copyFileSync(`${dirName + path.sep}/bin/macos/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
+      fs.copyFileSync(`${dirName + path.sep}/bin/macos/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
+      break;
+    case 'win32':
+      fs.copyFileSync(`${dirName + path.sep}bin\\win32\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
+      fs.copyFileSync(`${dirName + path.sep}bin\\win32\\systemProxy.bat`, `${dataDir}\\bin\\systemProxy.bat`);
+      break;
+    case 'linux':
+      fs.copyFileSync(`${dirName + path.sep}/bin/linux/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
+      fs.copyFileSync(`${dirName + path.sep}/bin/linux/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
+      break;
+  }
+}
 
 Global.portConfig = new PortConfig();
 Global.socketIoManager = new SocketIoManager();
