@@ -129,20 +129,7 @@
           "name": "@electron-forge/maker-rpm",
           "config": {}
         }
-      ],
-      "publishers": {
-        "name": "@electron-forge/publisher-github",
-        "platforms": [
-          "darwin",
-          "linux"
-        ],
-        "config": {
-          "repository": {
-            "owner": "davechri",
-            "name": "allproxy"
-          }
-        }
-      }
+      ]
     }
   }
 }
