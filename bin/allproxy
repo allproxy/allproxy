@@ -9,7 +9,7 @@ fi
 if [ -f "$BIN_DIR/../app.ts" ]; then
   DATA_DIR=$BIN_DIR/../
 else
-  DATA_DIR=$HOME/allproxy
+  DATA_DIR=$HOME/.allproxy
 fi
 
 export NODE_ENV=production
