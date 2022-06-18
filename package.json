@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "2.14.23",
+  "version": "3.0.1",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -88,7 +88,7 @@
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
-    "electron": "^19.0.3",   
+    "electron": "^19.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",
@@ -104,7 +104,9 @@
     "forge": {
       "packagerConfig": {
         "icon": "icons/icon",
-        "ignore": ["^.*.(pem,key,settings,vscode,*ignore,project,yml,ts,tsx,json)$"]       
+        "ignore": [
+          "^.*.(pem,key,settings,vscode,*ignore,project,yml,ts,tsx,json)$"
+        ]
       },
       "makers": [
         {
