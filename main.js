@@ -5,7 +5,7 @@ const path = require('path');
 console.log('Starting main.js');
 process.env.NODE_ENV = 'production';
 const dirName = __dirname;
-const dataDir = `${process.env.HOME + path.sep}allproxy`;
+const dataDir = `${process.env.HOME + path.sep}.allproxy`;
 process.env.ALLPROXY_DATA_DIR = dataDir;
 
 const mkDir = (dir) => {

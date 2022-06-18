@@ -5,7 +5,7 @@ BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 if [ -f "$BIN_DIR/../ca.pem" ]; then
     CA_PEM=$BIN_DIR/../ca.pem
 else
-    CA_PEM=$HOME/allproxy/ca.pem
+    CA_PEM=$HOME/.allproxy/ca.pem
 fi
 
 if [ ! -f $CA_PEM ]; then

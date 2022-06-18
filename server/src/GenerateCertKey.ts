@@ -7,7 +7,7 @@ import Paths from './Paths';
 
 let theCa: any;
 
-export function createCertificateAuthority (): Promise<void> {
+export function createCertificateAuthority(): Promise<void> {
   return new Promise<void>((resolve) => {
     Proxy.ca.create(Paths.sslCaDir(), function (_err: any, ca: any) {
       theCa = ca;
@@ -16,23 +16,23 @@ export function createCertificateAuthority (): Promise<void> {
   });
 }
 
-export function trustCertificateAuthority () {
+export function trustCertificateAuthority() {
   const caPem = Paths.certsDirAndSlash() + 'ca.pem';
   const home = process.env.HOME;
-    
+
   // MacOS?
-  if (fs.existsSync('/Library/Keychains/System.keychain')) {    
+  if (fs.existsSync('/Library/Keychains/System.keychain')) {
     // console.log('Installing ca.pem in /Library/Keychains/System.keychain/');
     // const cmd = `/usr/bin/security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ${caPem}`;
     // console.log(cmd);
-    // exec(`/usr/bin/osascript -e 'do shell script "sudo ${cmd}" with prompt "Install AllProxy CA Certificate " with administrator privileges'`, 
+    // exec(`/usr/bin/osascript -e 'do shell script "sudo ${cmd}" with prompt "Install AllProxy CA Certificate " with administrator privileges'`,
     // (error, stdout, stderr) => {
     //   if (error) {
     //     console.log(error);
     //   }
     //   console.log(stdout);
     //   console.log(stderr);
-    // });   
+    // });
     // Ubuntu/Debian?
   } else if (fs.existsSync('/usr/local/share/ca-certificates/')) {
     console.log('Adding ca.pem in /usr/local/share/ca-certificates/');
@@ -47,10 +47,10 @@ export function trustCertificateAuthority () {
     exec(`certutil -addstore -f "ROOT" ${caPem}`);
   }
 
-  console.log(`Please run ${home}/allproxy/bin/trustCa.sh to add AllProxy certificate to certificate store`);
+  console.log(`Please run ${home}/.allproxy/bin/trustCa.sh to add AllProxy certificate to certificate store`);
 }
 
-const generateCertKey = async (hostname: string): Promise<{cert: string, key: string}> => {
+const generateCertKey = async (hostname: string): Promise<{ cert: string, key: string }> => {
   // eslint-disable-next-line no-constant-condition
   const wildcardHost = hostname.split('.', 3).length === 2 || true // wildcard host is causing issues?
     ? hostname

@@ -20,7 +20,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 ![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
 **Using Dark Reader Plugin**
-![image](https://user-images.githubusercontent.com/10223382/169716583-5033f0c0-9098-47b4-ad7f-2dd5281aa0c5.png) 
+![image](https://user-images.githubusercontent.com/10223382/169716583-5033f0c0-9098-47b4-ad7f-2dd5281aa0c5.png)
 
 **Features:**
 * captures HTTP and/or HTTPS messages as either a forward or reverse proxy
@@ -35,10 +35,10 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 * supports multiple dashboard browser tabs
 * HTTP/2 support
 
-![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white) 
+![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
 ![image](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
-![image](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) 
+![image](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
 ![image](https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white)
 
 ### Table of Contents
@@ -335,18 +335,18 @@ Boolean filters can use &&, ||, !, and parenthesis.
 
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
-	
+
 ### Breakpoint to Modify HTTPS Responses
 Breakpoints can be set to match any part of the HTTP request or response, and then modify the JSON response then the breakpoint matches.
 
 Click Settings->Breakpoints: <img width="100" alt="breakpoint" src="https://user-images.githubusercontent.com/10223382/169717271-c713fd42-91bf-4606-964a-88cdd6d0666b.png">
-	
+
 In this example a breakpoint is set to match on URL https://us-south-stage01.iaasdev.cloud.ibm.com/v1/vpcs.
 ![image](https://user-images.githubusercontent.com/10223382/169717656-530504b8-8a95-4e5d-92f2-9f2c9ddef1c3.png)
 
 When a request URL matches https://us-south-stage01.iaasdev.cloud.ibm.com/v1/vpcs, a model pops up to allow the JSON response body to be edited.  The response JSON body can be edited, and Ok clicked to forward the response back to the client.
 ![image](https://user-images.githubusercontent.com/10223382/169717596-87c5e60f-26de-44fd-a8f3-f8fc1477c27f.png)
-	
+
 ### Modify HTTPS JSON Responses
 Custom JavaScript code may be provided to modify any JSON response.  Add your custom code to the **InterceptJsonResponse()** function is called for every JSON response, and can be modified to customize the JSON response body.  Edit the **intercept/InterceptResponse.js file as needed.
 ```sh
@@ -382,7 +382,7 @@ Each Dashboard instance keeps its own copy of the messages, so clearing or stopp
 ## Certificates
 Certificates are managed by the [node-http-mitm-proxy](https://github.com/joeferner/node-http-mitm-proxy/tree/master/examples) package.
 
-Generated certificates are stored in **allproxy/.http-mitm-proxy/certs/**.  Import **allproxy/ca.pem** to your browser to trust all AllProxy generated certificates.
+Generated certificates are stored in **.allproxy/.http-mitm-proxy/certs/**.  Import **allproxy/ca.pem** to your browser to trust all AllProxy generated certificates.
 
 The **allproxy-ca** script can be used to install the CA certificate on MacOS and Linux.
 
@@ -397,7 +397,7 @@ For Windows, execute the allproxy-ca script to get the path of the CA certificat
 
 ### Configuration File
 * When running from a GitHub package, **config.json** file is stored in the root directory of your GitHub project.
-* When running from an NPM package (allproxy script), the **config.json** file is stored your home directory at $HOME/allconfig/config.json.
+* When running from an NPM package (allproxy script), the **config.json** file is stored your home directory at $HOME/.allproxy/config.json.
 
 ### Command Line Parameters
 ```sh
