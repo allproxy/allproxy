@@ -43,13 +43,16 @@ const createWindow = () => {
 
     switch (process.platform) {
       case 'darwin':
-        fs.copyFileSync(`${dirName + path.sep}/bin/macos/installCa.sh`, `${dataDir}/bin/installCa.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/macos/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/macos/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
         break;
       case 'win32':
-        fs.copyFileSync(`${dirName + path.sep}bin\\win32\\installCa.bat`, `${dataDir}\\bin\\installCa.bat`);
+        fs.copyFileSync(`${dirName + path.sep}bin\\win32\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
+        fs.copyFileSync(`${dirName + path.sep}bin\\win32\\systemProxy.bat`, `${dataDir}\\bin\\systemProxy.bat`);
         break;
       case 'linux':
-        fs.copyFileSync(`${dirName + path.sep}/bin/linux/installCa.sh`, `${dataDir}/bin/installCa.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/linux/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/linux/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
         break;
     }
   }, 2000);

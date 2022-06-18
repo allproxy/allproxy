@@ -16,6 +16,7 @@ import { useFilePicker } from "use-file-picker";
 import { Menu, MenuItem } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
 import SnapshotStore from '../store/SnapshotStore';
+import HelpDialog from './HelpDialog';
 
 let filterWasStopped = false;
 
@@ -37,6 +38,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
+	const [showHelp, setShowHelp] = React.useState(true);
+
 	const [openFileSelector, { filesContent, clear }] = useFilePicker({
 		multiple: false,
 		accept: ".allproxy"
@@ -163,10 +166,13 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title="Use regular expression" onClick={() => filterStore.toggleRegex()}>.*</div>
 				<div className={`header__filter-logical ${filterStore.logical() ? 'active' : ''}`}
 					title="Use (), &&, ||, !" onClick={() => filterStore.toggleLogical()}>&&</div>
-				<div className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
+				<div hidden className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div>
 			<div>
+				<div className="header__settings fa fa-question" title="Help"
+					onClick={() => { setShowHelp(true); }}>
+				</div>
 				<div className="header__settings fa fa-chart-bar" title="Metrics"
 					onClick={() => { setShowMetricsModal(true); }}>
 				</div>
@@ -207,7 +213,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); }}>
 							&nbsp;No Capture List
 						</div>
-					</MenuItem>
+					</MenuItem>					
 				</Menu>
 			</div>
 
@@ -256,6 +262,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					}
 				}}
 			/>
+			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)}/>
 		</div>
 	)
 });

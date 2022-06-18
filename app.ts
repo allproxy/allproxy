@@ -5,7 +5,7 @@ import Paths from './server/src/Paths';
 import GrpcProxy from './server/src/GrpcProxy';
 import PortConfig from './common/PortConfig';
 import HttpXProxy from './server/src/HttpXProxy';
-import { createCertificateAuthority, installCertificateAuthority } from './server/src/GenerateCertKey';
+import { createCertificateAuthority, trustCertificateAuthority } from './server/src/GenerateCertKey';
 import { parseProtoFiles } from './server/src/Protobuf';
 
 const listen: {
@@ -106,7 +106,7 @@ startServers();
 
 async function startServers() {
   await createCertificateAuthority();
-  installCertificateAuthority();
+  trustCertificateAuthority();
   for (const entry of listen) {
     const protocol = entry.protocol;
     const host = entry.host;
