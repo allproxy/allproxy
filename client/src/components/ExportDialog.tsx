@@ -4,10 +4,11 @@ import { Dialog, DialogTitle } from '@material-ui/core';
 
 type Props = {
 	open: boolean,
+	name: string,
 	onClose: (fileName: string) => void,
 };
-const ExportDialog = observer(({ open, onClose }: Props) => {
-	const [fileName, setFileName] = React.useState('');
+const ExportDialog = observer(({ open, name, onClose }: Props) => {
+	const [fileName, setFileName] = React.useState(name);
 
 	const handleClose = () => {
 		onClose(fileName);
@@ -15,8 +16,8 @@ const ExportDialog = observer(({ open, onClose }: Props) => {
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-      		<DialogTitle id="simple-dialog-title">Enter Snapshot Name</DialogTitle>
-			<input className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)}/>
+			<DialogTitle id="simple-dialog-title">Enter Snapshot Name</DialogTitle>
+			<input className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)} />
 			<button className={'btn btn-success'}
 				disabled={fileName.length === 0}
 				onClick={() => onClose(fileName)}

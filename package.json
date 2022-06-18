@@ -19,7 +19,7 @@
     "url": "https://github.com/davechri/allproxy/issues",
     "email": "davechri58@gmail.com"
   },
-  "main": "app.js",
+  "main": "main.js",
   "bin": {
     "allproxy": "bin/allproxy",
     "allproxy-ca": "bin/allproxy-ca",
@@ -35,16 +35,20 @@
     "build-client": "npm run clean-client && cd ./client && npm run build",
     "clean": "rimraf ./build",
     "clean-client": "rimraf ./client/build",
-    "start": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
+    "start": "electron-forge start",
+    "start-headless": "if ./scripts/noDir.sh ./build; then npm run build; fi; if ./scripts/noDir.sh ./client/build; then npm run build-client; fi; NODE_ENV=production node ./build/app.js",
     "symbolic-links": "[ -d ./build ] && ln -sf ../node-http-mitm-proxy/ ./build/ && ln -sf ../intercept/ ./build/",
     "startforever": "./scripts/startForever.sh",
     "stopforever": "./scripts/stopForever.sh",
     "test": "cd ./client && npm run test",
-    "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0"
+    "help": "if ./scripts/noDir.sh ./build; then npm run build; fi; node ./build/app.js --help; exit 0",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/davechri/allproxy.git"
+    "url": "https://github.com/allproxy/allproxy.git"
   },
   "author": "Dave Christenson",
   "license": "MIT",
@@ -56,6 +60,7 @@
     "axios": "^0.21.4",
     "bufferutil": "^4.0.3",
     "decompress-response": "^3.3.0",
+    "electron-squirrel-startup": "^1.0.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "net": "^1.0.2",
@@ -71,6 +76,11 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
     "@types/jquery": "^3.5.5",
     "@types/node": "^14.14.35",
     "@types/socket.io": "^2.1.13",
@@ -78,6 +88,7 @@
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
+    "electron": "^19.0.3",   
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",
@@ -88,5 +99,48 @@
     "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "icons/icon",
+        "ignore": ["^.*.(pem,key,settings,vscode,*ignore,project,yml,ts,tsx,json)$"]       
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "allproxy"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "publishers": {
+        "name": "@electron-forge/publisher-github",
+        "platforms": [
+          "darwin",
+          "linux"
+        ],
+        "config": {
+          "repository": {
+            "owner": "davechri",
+            "name": "allproxy"
+          }
+        }
+      }
+    }
   }
 }

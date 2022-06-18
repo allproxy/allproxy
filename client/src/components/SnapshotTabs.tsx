@@ -5,12 +5,14 @@ import React from 'react';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import SnapshotTabContent from './SnapshotTabContent';
 import SnapshotStore, { ACTIVE_SNAPSHOT_NAME } from '../store/SnapshotStore';
+import CreateSnapshotNameDialog from './CreateSnapshotDialog';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
 	snapshotStore: SnapshotStore,
 };
 const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
+	const [openCreateSnapshotDialog, setOpenCreateSnapshotDialog] = React.useState(false);
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
@@ -20,7 +22,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 	function handleTakeSnapshot(_value: string) {
 		// console.log('handleTakeSnapshot', value);
 		messageQueueStore.setFreeze(false);
-		snapshotStore.newSnapshot();
+		setOpenCreateSnapshotDialog(true);
 	}
 
 	function handleDeleteTab(event: any, value: string) {
@@ -86,6 +88,15 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 					</TabPanel>
 				))}
 			</TabContext>
+			<CreateSnapshotNameDialog
+				open={openCreateSnapshotDialog}
+				onClose={(snapshotName) => {
+					setOpenCreateSnapshotDialog(false);
+					if (snapshotName.length > 0) {
+						snapshotStore.newSnapshot(snapshotName);
+					}
+				}}
+			/>
 		</div>
 	);
 });
