@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, globalShortcut } = require('electron');
+const Renderer = require('electron/renderer');
 const fs = require('fs');
 const path = require('path');
 
@@ -25,20 +26,32 @@ const startServer = () => {
   require('./build/app.js');
 };
 
-const createWindow = () => {
+const createWindow = () => {  
   const win = new BrowserWindow(
     {
       icon: path.join(__dirname, "icons/icon.png"),
       width: 1024,
       height: 768,
-      autoHideMenuBar: true
+      autoHideMenuBar: true,
+      webPreferences: {
+        preload: path.join(__dirname, "preload.js")
+      }
     }
   );
+
+  require('@electron/remote/main').initialize()
+  require("@electron/remote/main").enable(win.webContents)
+  
   //win.maximize();
   setTimeout(() => {
     win.loadURL('http://localhost:8888/allproxy')
       .then(() => {
         console.log('main.js: AllProxy page loaded');
+        // ctl-f - send on-find event to preload.js to open find dialog
+        globalShortcut.register('CommandOrControl+F', () => {
+          // send event to preload.js to 
+          win.webContents.send('on-find');
+        });      
       })
   }, 2000);
 };
