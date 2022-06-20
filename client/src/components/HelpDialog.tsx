@@ -13,6 +13,9 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 		onClose();
 	}
 
+	const isMac = navigator.appVersion.indexOf('Mac') !== -1;
+	const key = isMac ? 'cmd' : 'ctl';
+
 	return (
 		<Dialog onBackdropClick={handleClose} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
 			<DialogTitle id="simple-dialog-title">
@@ -28,13 +31,24 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				paddingLeft: "1.5rem",
 				paddingRight: "1rem"
 			}}>
-				<b>AllProxy started on localhost:8888</b>
+				<b>AllProxy</b> started on <b>localhost:8888</b>
 				<p></p>
+				<b>Shortcuts:</b>
+				<br></br>
+				- <b>{key}-f</b> Find text in page
+				<p></p>
+				<b>Setup:</b>
 				<ol style={{ paddingLeft: "1rem" }}>
 					<li>
 						<b>Trust AllProxy certificate:</b>
 						<br></br>
-						Run the <strong>~/.allproxy/bin/trustCert.sh enable</strong> script in your terminal.
+						Run in terminal: <strong>~/.allproxy/bin/trustCert.sh enable</strong>
+						<button type="button" className="btn btn-sm btn-default"
+							title="Copy"
+							onClick={() => navigator.clipboard.writeText("~/.allproxy/bin/trustCert.sh enable")}
+						>
+							<div className="fa fa-copy" />
+						</button>					
 						<p></p>
 						This will import the AllProxy CA certificate into your certificate store
 						and mark it as trusted.
@@ -52,7 +66,13 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							<li>
 								Configure System Proxy
 								<br></br>
-								- Run the <b>~/.allproxy/bin/systemProxy.sh enable</b> script in your terminal.
+								- Run in terminal: <b>~/.allproxy/bin/systemProxy.sh enable</b>
+								<button type="button" className="btn btn-sm btn-default"
+									title="Copy"
+									onClick={() => navigator.clipboard.writeText("~/.allproxy/bin/systemProxy.sh enable")}
+								>
+									<div className="fa fa-copy" />
+								</button>	
 								<p></p>
 								Some browsers (eg, Firefox) do not use the system proxy settings.
 								<p></p>
