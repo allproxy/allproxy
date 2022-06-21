@@ -48,10 +48,15 @@ const createWindow = () => {
       .then(() => {
         console.log('main.js: AllProxy page loaded');
         // ctl-f - send on-find event to preload.js to open find dialog
-        globalShortcut.register('CommandOrControl+F', () => {
-          // send event to preload.js to 
-          win.webContents.send('on-find');
-        });      
+        win.on('focus', () => {
+          globalShortcut.register('CommandOrControl+F', () => {
+            // send event to preload.js to 
+            win.webContents.send('on-find');
+          }); 
+        });
+        win.on('blur', () => {
+          globalShortcut.unregister('CommandOrControl+F'); 
+        });         
       })
   }, 2000);
 };
