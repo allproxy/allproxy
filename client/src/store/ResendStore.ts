@@ -132,7 +132,7 @@ export default class ResendStore {
         if (header) {
             const tokens = header.value.split(':');
             this.host = tokens[0];
-            this.port = tokens.length == 1 ? this.port = this.protocol === 'https' ? '443' : '80' : tokens[1];
+            this.port = tokens.length === 1 ? this.port = this.protocol === 'https' ? '443' : '80' : tokens[1];
         }
     }
 

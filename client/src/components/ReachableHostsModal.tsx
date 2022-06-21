@@ -106,12 +106,12 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 					</div>
 					<div className="modal-footer">
 						<label className="settings-modal__error-message">{store.getError()}</label>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-success"
+						<button type="button" className="settings-modal__cancel btn btn-success"
 							onClick={ onRefresh }
 						>
 							Refresh
 						</button>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-secondary"
 							onClick={ onClose }
 						>
 							Close

@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import ReactJson from "react-json-view";
+import { colorScheme } from "../App";
 import MessageStore from '../store/MessageStore';
 
 type Props = {
@@ -74,6 +75,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 				{!store.isRequestBodyJson()
 					? store.getRequestBody()
 					: <ReactJson
+						theme={colorScheme ==='dark' ? 'google' : undefined}
 						src={message.requestBody as object}
 						name={false}
 						displayDataTypes={false}

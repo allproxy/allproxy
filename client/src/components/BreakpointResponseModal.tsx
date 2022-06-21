@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { Modal } from '@material-ui/core'
 import MessageStore from '../store/MessageStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
+import { colorScheme } from '../App';
 
 type Props = {
 	open: boolean,
@@ -28,7 +29,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 							<hr />
 							<h4>JSON Response Body:</h4>
 							<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
-								<button type="button" className="resend-modal__send btn btn-sm btn-default"
+								<button type="button" className="resend-modal__send btn btn-sm btn-default btn-secondary"
 									title="Copy response body to clipboard"
 									onClick={handleCopy}
 								>
@@ -48,6 +49,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 							<div className="resend-modal__body-container">
 								{message.responseBody && typeof message.responseBody === 'object' ?
 									<ReactJson
+										theme={colorScheme ==='dark' ? 'google' : undefined}
 										src={message.responseBody}
 										name={false}
 										displayDataTypes={false}
@@ -71,7 +73,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 						>
 							Cancel
 						</button>
-						<button type="button" className="resend-modal__send btn btn-default btn-success"
+						<button type="button" className="resend-modal__send btn btn-success"
 							onClick={onClose}
 						>
 							Ok

@@ -1,11 +1,30 @@
-body {
-	/* overflow: hidden; */
-	font-family: Menlo, Monaco, 'Courier New', monospace;
-	/*font-weight: bold;*/
+@media screen and (prefers-color-scheme: dark) {
+	body {
+		font-family: Menlo, Monaco, 'Courier New', monospace;
+		color: rgba(232, 230, 227, 0.87) !important;
+		background-color: rgb(24, 26, 27) !important;
+	}
+	.btn-default,
+	input,
+	.MuiPaper-root {
+		color: #e8e6e3de !important;
+		background-color: rgb(26, 24, 24) !important;
+	}
+}
+
+@media screen and (prefers-color-scheme: light) {
+	body {
+		background-color: whitesmoke !important;
+		color: black !important;
+	}
+	.MuiPaper-root {
+		background-color: whitesmoke !important;
+		color: black !important;
+	}
 }
 
 button:disabled {
-	background: #dddddd;
+	background-color: #dddddd;
 }
 
 pre {
@@ -96,7 +115,12 @@ td input {
 }
 
 .visited-color {
-	color: #1a0dab;
+	color: #5587c0;
+}
+@media screen and (prefers-color-scheme: light) {
+	.visited-color {
+		color: #1a0dab;
+	}
 }
 
 .request__msg-icon {
@@ -272,6 +296,13 @@ td input {
 	background: black;
 	border-radius: .5rem;
 }
+@media screen and (prefers-color-scheme: dark) {
+	.breakpoint__icon.active {
+		color: black;
+		background: whitesmoke;
+		border-radius: .5rem;
+	}
+}
 
 .footer__count {
 	margin: 0 0 0 1rem;
@@ -313,11 +344,17 @@ td input {
 	position: fixed;
 	top: 3rem;
 	height: 3rem;
-	background: rgb(228, 227, 227);
+	background-color: rgb(26, 24, 24) !important;
+}
+
+@media screen and (prefers-color-scheme: light) {
+	.snapshot__container .MuiTabs-root {
+		background-color: rgb(228, 227, 227) !important;
+	}
 }
 
 .snapshot__container .Mui-selected {
-	background: whitesmoke
+	/* background: whitesmoke */
 }
 
 .snapshot__container .MuiTabPanel-root {
@@ -542,9 +579,19 @@ td input {
 .metrics-modal,
 .reachable-modal,
 .settings-modal {
-	background: white;
+	background: rgb(24, 26, 27);
 	width: 99vw;
 	padding: 1rem 1rem;
+}
+
+@media screen and (prefers-color-scheme: light) {
+	.breakpoint-modal,
+	.no-capture-modal,
+	.metrics-modal,
+	.reachable-modal,
+	.settings-modal {
+		background: white;
+	}
 }
 
 .breakpoint-modal {

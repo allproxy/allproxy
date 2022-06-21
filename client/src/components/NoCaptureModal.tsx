@@ -73,12 +73,12 @@ const NoCaptureModal = observer(({ open, onClose, store }: Props) => {
 						</div>
 					</div>
 					<div className="modal-footer">
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-secondary"
 							onClick={ close }
 						>
 							Cancel
 						</button>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-success"
+						<button type="button" className="settings-modal__cancel btn btn-success"
 							disabled={saveDisabled}
 							onClick={ onSave }
 						>

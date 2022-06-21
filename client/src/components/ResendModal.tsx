@@ -114,12 +114,12 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 					</div>
 					<div className="modal-footer">
 						<label className="resend-modal__error-message">{store.getError()}</label>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-secondary"
+						<button type="button" className="settings-modal__cancel btn  btn-secondary"
 							onClick={handleClose}
 						>
 							Cancel
 						</button>
-						<button type="button" className="resend-modal__send btn btn-default btn-success"
+						<button type="button" className="resend-modal__send btn btn-success"
 							onClick={handleSend}
 							disabled={store.getError().length > 0}
 						>

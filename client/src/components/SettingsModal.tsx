@@ -193,12 +193,12 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 					</div>
 					<div className="modal-footer">
 						<label className="settings-modal__error-message">{ store.getError() }</label>
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-secondary"
 							onClick={ onClose }
 						>
 							Cancel
 						</button>
-						<button type="button" className="settings-modal__save btn btn-default btn-success"
+						<button type="button" className="settings-modal__save btn btn-success"
 							disabled={ !store.isChanged() }
 							onClick={() => { store.save(); onClose(); } }
 						>
