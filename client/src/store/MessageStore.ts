@@ -68,8 +68,8 @@ export default class MessageStore {
             str = this.getUrl().startsWith('http:') || this.getUrl().startsWith('https:')
                 ? this.getUrl()
                 : `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`;
-            const tokens = str.split(':\/\/', 2);
-            const parts = tokens[1].split('\/');
+            const tokens = str.split('://', 2);
+            const parts = tokens[1].split('/');
             const host = parts[0];
             const uri = parts.length === 1 ? '/' : '/' + parts.slice(1).join('/');
             str = `${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;

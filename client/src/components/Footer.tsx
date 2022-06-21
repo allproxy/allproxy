@@ -17,7 +17,7 @@ const Footer = observer(({ socketStore, messageQueueStore, filterStore, breakpoi
 
 	function getDisplayedCount(): number {
 		let n = 0;
-		messageQueueStore.getMessages().map((messageStore) => {
+		messageQueueStore.getMessages().forEach((messageStore) => {
 			if (!filterStore.isFiltered(messageStore)) ++n;
 		})
 		return n;

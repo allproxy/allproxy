@@ -66,7 +66,7 @@ const MetricsModal = observer(({ open, onClose, store }: Props) => {
 						</div>
 					</div>
 					<div className="modal-footer">
-						<button type="button" className="settings-modal__cancel btn btn-default btn-default"
+						<button type="button" className="settings-modal__cancel btn btn-secondary"
 							onClick={ onClose }
 						>
 							Close

@@ -4,6 +4,7 @@ import { Accordion, AccordionSummary, AccordionDetails, CircularProgress } from 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
 import MessageStore from '../store/MessageStore';
+import { colorScheme } from '../App';
 
 type Props = {
 	message: Message,
@@ -104,6 +105,7 @@ const Response = ({ message, store }: Props) => {
 			let response: string | ReactElement<any,any>;
 			if(typeof message.responseBody === 'object') {
 				response = <ReactJson
+								theme={colorScheme ==='dark' ? 'google' : undefined}
 								src={message.responseBody}
 								name={false}
 								displayDataTypes={false}
