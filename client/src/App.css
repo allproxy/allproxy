@@ -4,6 +4,9 @@
 		color: rgba(232, 230, 227, 0.87) !important;
 		background-color: rgb(24, 26, 27) !important;
 	}
+	.settings-modal__proxy-row {
+		color: rgba(232, 230, 227, 0.87) !important;
+	}
 	.btn-default,
 	input,
 	.MuiPaper-root {
