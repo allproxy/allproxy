@@ -27,7 +27,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 		}
 	};
 	const targetHostLabel = () => {
-		switch (protocol) {			
+		switch (protocol) {
 			case 'log:':
 				return 'Primary JSON Fields (comma separated)';
 			default:
@@ -36,7 +36,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 	};
 	const targetPortLabel = () => {
 		switch (protocol) {
-			case 'browser:':		
+			case 'browser:':
 			case 'log:':
 				return '';
 			default:
@@ -44,7 +44,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 		}
 	};
 	const commentLabel = () => {
-		switch (protocol) {			
+		switch (protocol) {
 			case 'log:':
 				return 'Case-sensitive Boolean Filter (eg, (a || b) && !c )';
 			default:
@@ -64,7 +64,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							<td className="text-primary">Secure?</td>
 						}
 						<td className="text-primary" style={{width: pathLabel().includes('Port') ? '12ch' : undefined}}><label>{pathLabel()}</label></td>
-						{protocol !== 'browser:' && 
+						{protocol !== 'browser:' &&
 						<td className="text-primary"><label>{targetHostLabel()}</label></td>}
 						{targetPortLabel() &&
 						<td className="text-primary" style={{width: '12ch'}}><label>{targetPortLabel()}</label></td>}
@@ -100,18 +100,18 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 								style={{width: protocol === 'log:' ? '40vw' : undefined}}
 							>
 								<input className="form-control settings-modal__proxy-path"
-									style={{width: pathLabel().includes('Port') ? '8ch' : undefined}}						
+									style={{width: pathLabel().includes('Port') ? '8ch' : undefined}}
 									onChange={ (e) => store.updateEntryPath(index, e.target.value) }
 									value={entry.path} />
 							</td>
 							{protocol === 'browser:' ||
-							<td className="settings-modal__proxy-host-container">								
-								<input className="form-control settings-modal__proxy-host"									
+							<td className="settings-modal__proxy-host-container">
+								<input className="form-control settings-modal__proxy-host"
 									onChange={ (e) => store.updateEntryHost(index, e.target.value) }
-									value={entry.hostname} />								
+									value={entry.hostname} />
 							</td>}
 							{targetPortLabel().length === 0 ||
-							<td className="settings-modal__proxy-host-container">								
+							<td className="settings-modal__proxy-host-container">
 								<input className="form-control settings-modal__proxy-port"
 									onChange={ (e) => store.updateEntryPort(index, e.target.value) }
 									value={entry.port} />
@@ -121,7 +121,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 									onChange={ (e) => store.updateComment(index, e.target.value) }
 									value={entry.comment} />
 							</td>
-							<td>								
+							<td>
 								<div className="settings-modal__status-container">
 									{protocol === 'log:' ||
 									<div className={`settings-modal__status fa
