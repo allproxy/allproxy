@@ -26,13 +26,15 @@ const startServer = () => {
   require('./build/app.js');
 };
 
-const createWindow = () => {  
+const createWindow = () => {
   const win = new BrowserWindow(
     {
       icon: path.join(__dirname, "icons/icon.png"),
       width: 1024,
       height: 768,
       autoHideMenuBar: true,
+      show: false,
+      backgroundColor: 'black',
       webPreferences: {
         preload: path.join(__dirname, "preload.js")
       }
@@ -41,22 +43,24 @@ const createWindow = () => {
 
   require('@electron/remote/main').initialize()
   require("@electron/remote/main").enable(win.webContents)
-  
+
   //win.maximize();
   setTimeout(() => {
     win.loadURL('http://localhost:8888/allproxy')
       .then(() => {
         console.log('main.js: AllProxy page loaded');
+        win.show()
+
         // ctl-f - send on-find event to preload.js to open find dialog
         win.on('focus', () => {
           globalShortcut.register('CommandOrControl+F', () => {
-            // send event to preload.js to 
+            // send event to preload.js to
             win.webContents.send('on-find');
-          }); 
+          });
         });
         win.on('blur', () => {
-          globalShortcut.unregister('CommandOrControl+F'); 
-        });         
+          globalShortcut.unregister('CommandOrControl+F');
+        });
       })
   }, 2000);
 };
