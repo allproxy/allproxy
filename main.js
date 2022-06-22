@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');
 const Renderer = require('electron/renderer');
 const fs = require('fs');
 const path = require('path');
@@ -61,6 +61,19 @@ const createWindow = () => {
         win.on('blur', () => {
           globalShortcut.unregister('CommandOrControl+F');
         });
+
+        ipcMain.handle('dark-mode:toggle', () => {
+          if (nativeTheme.shouldUseDarkColors) {
+            nativeTheme.themeSource = 'light'
+          } else {
+            nativeTheme.themeSource = 'dark'
+          }
+          return nativeTheme.shouldUseDarkColors
+        })
+
+        ipcMain.handle('dark-mode:system', () => {
+          nativeTheme.themeSource = 'system'
+        })
       })
   }, 2000);
 };

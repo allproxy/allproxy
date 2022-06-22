@@ -17,6 +17,7 @@ import { Menu, MenuItem } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
 import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
+import DarkModeDialog from './DarkModeDialog';
 
 let filterWasStopped = false;
 
@@ -39,6 +40,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(true);
+	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 
 	const [openFileSelector, { filesContent, clear }] = useFilePicker({
 		multiple: false,
@@ -213,7 +215,18 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); }}>
 							&nbsp;No Capture List
 						</div>
-					</MenuItem>					
+					</MenuItem>
+					{window.darkMode &&
+						<MenuItem>
+							<div className="header__import fa fa-image" title="Theme"
+								onClick={() => {
+									setShowDarkModeDialog(true);
+								}}
+							>
+								&nbsp;Appearance
+							</div>
+						</MenuItem>
+					}
 				</Menu>
 			</div>
 
@@ -263,6 +276,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				}}
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)}/>
+			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)}/>
 		</div>
 	)
 });
