@@ -2,8 +2,11 @@
 
 AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
-### Install Packages
-> Install packages are available for MacOS and Linux: [DOWNLOAD](https://github.com/allproxy/allproxy/releases)
+### Install
+> Install options:
+> 1. Install application package: **[Releases](https://github.com/allproxy/allproxy/releases)**
+> 2. Install NPM package: **npm install -g allproxy**
+> 3. Clone repo and run: **npm install && npm start**
 
 ### Additional Features
 
@@ -19,21 +22,18 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 **AllProxy Dashboard**
 ![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
-**Using Dark Reader Plugin**
-![image](https://user-images.githubusercontent.com/10223382/169716583-5033f0c0-9098-47b4-ad7f-2dd5281aa0c5.png)
-
 **Features:**
-* captures HTTP and/or HTTPS messages as either a forward or reverse proxy
-* captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
-* captures log messages from dockers logs
-* modify and resend HTTP requests
-* add breakpoints to modify HTTP responses
-* search entire request/response message for matching text
-* stop/start recording
-* take snapshots of captured messages
-* export and import captured messages
-* supports multiple dashboard browser tabs
-* HTTP/2 support
+* Captures HTTP and/or HTTPS messages as either a forward or reverse proxy
+* Captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
+* Captures log messages from dockers logs
+* Modify and resend HTTP requests
+* Add breakpoints to modify HTTP responses
+* Search entire request/response message for matching text
+* Stop/Start Recording
+* Take snapshots of captured messages
+* Export and Import captured messages
+* Supports multiple dashboard browser tabs
+* Dark/Light Mode 
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
@@ -47,7 +47,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
   * [Node Version](#node-version)
   * [Install AllProxy](#install-allproxy-proxy)
   * [Start the AllProxy](#start-the-allproxy-proxy)
-  * [Install CA Certificate](#install-ca-certificate)
+  * [Install and Trust CA Certificate](#install-and-trust-ca-certificate)
   * [Open Dashboard in Browser](#open-dashboard-in-browser)
   * [Configure Proxy](#configure-proxy)
 * [Screenshots](#screenshots)
@@ -75,10 +75,10 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 ## Quick Start
 
 ### Node Version
-Version 10 or higher is required.  Use nvm to install the appropriate node version.
+Version 12 or higher is required.  Use nvm to install the appropriate node version.
 
 ### Install AllProxy
-The AllProxy may be install from either NPM or GitHub.
+The AllProxy may be installed from [Releases](https://github.com/allproxy/allproxy/releases), [NPM](https://www.npmjs.com/package/allproxy), or cloning the repo.
 
 #### Install From NPM
 ```sh
@@ -108,55 +108,38 @@ The AllProxy server is started using either the NPM installed **allproxy** scrip
     Listening on http:  8888
     Open browser to http://localhost:8888/allproxy
    ```
-### Install CA Certificate
+### Install and Trust CA Certificate
 
-The **allproxy-ca** can be used to install the CA certificate so it is trusted by your browser.
+After starting AllProxy, run **~/.allproxy/bin/trustCert.sh enable** from your terminal to install and trust the CA certificate.
 
 The **ca.pem** location:
-* *GitHub Project*: ~/git/allproxy/ca.pem # assuming the allproxy project was cloned to ~/git/
-* *NPM Package*: ~/allproxy/ca.pem
+* ~/.allproxy/ca.pem
 
-If you need to manually install the AllProxy ca.pem.  These online tutorials many help:
-* https://portswigger.net/burp/documentation/desktop/external-browser-config/certificate/ca-cert-firefox
-* https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-D60F08AD-6E54-4959-A272-458D08B8B038.html
-
-#### NPM Package
-
-```sh
-$ allproxy-ca
-```
-
-#### GitHub Project
-
-```sh
-$ cd ~/git/allproxy/bin
-bin$ ./allproxy-ca
-```
+Some browsers (e.g., Firefox) do not use the system certificate store, and will require the certificate to be imported in to the browser CA certificate store.
 
 ### Open Dashboard in Browser
 
-Enter http://localhost:8888/allproxy in browser.
+If the allproxy NPM package is installed, you will need to open the dashboard in a browser:
+* http://localhost:8888/allproxy in browser.
 
 ### Configure Proxy
 
-Chrome will also honor the system proxy configuration for MacOS.  The **allproxy-system-proxy** command can be used to configure the system proxy.
+Run **~/.allproxy/bin/systemProxy.sh enable** from your terminal to configure the system proxy.
 
-#### NPM Package
-```sh
-$ cd ~/git/allproxy
-allproxy$ allproxy-system-proxy enable
-```
-
-#### GitHub Project
-```sh
-$ allproxy-system-proxy enable
-```
+Some browser (e.g., Firefox) do not use the system proxy settings, and you will not to configure the browser proxy settings to:
+* host: localhost
+* port: 8888
 
 #### Terminal
-To capture http/https messages initiated by terminal commands, set the https_proxy and http_proxy environment variables.
+To capture http/https messages initiated by terminal commands, set the HTTPS_PROXY and HTTP_PROXY environment variables.
 ```sh
-$ export https_proxy=localhost:8888
-$ export http_proxy=localhost:8888
+$ export HTTPS_PROXY=localhost:8888
+$ export HTTP_PROXY=localhost:8888
+```
+
+To prevent hosts from being proxied to AllProxy, use the NO_PROXY environment variable:
+```sh
+$ export NO_PROXY=domain1,domain2,...
 ```
 
 #### Firefox Proxy Configuration
@@ -168,7 +151,7 @@ To capture HTTP and HTTPS messages, configure your browser to proxy HTTP/HTTPS m
 
 For chrome and chromium you can set the browser proxy using environment variables http_proxy and https_proxy.
 ```sh
-$ http_proxy=http://localhost:8888 https_proxy://8888 chromium-browser
+$ HTTP_PROXY=http://localhost:8888 HTTPS_PROXY://8888 chromium-browser
 ```
 
 ## Screenshots
