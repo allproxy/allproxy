@@ -12,15 +12,30 @@ import { breakpointStore } from './store/BreakpointStore';
 import { createTheme, PaletteType, ThemeProvider } from '@material-ui/core';
 import React from 'react';
 
-export let colorScheme = 'light';
+const theme = localStorage.getItem('allproxy-theme');
+let defaultTheme : 'dark' | 'light' = 'dark'
+if (theme === 'dark' || theme === 'light') {
+  defaultTheme = theme;
+}
+export let colorScheme = theme;
 
 let colorSchemeQueryList: MediaQueryList | undefined = window.matchMedia('(prefers-color-scheme: dark)');
 
-function App() {
-  const [paletteType, setPaletteType] = React.useState<PaletteType>('light');
+function initTheme() {
+	const theme = localStorage.getItem('allproxy-theme');
+	if (theme) {
+		if(theme !== 'system' && theme !== colorScheme) {
+			window.darkMode.toggle();
+		}
+	}
+}
 
-  if (colorSchemeQueryList) {
+function App() {
+  const [paletteType, setPaletteType] = React.useState<PaletteType>(defaultTheme);
+
+  if (colorSchemeQueryList !== undefined) {
     setTheme(colorSchemeQueryList);
+    setTimeout(initTheme, 1000);
     colorSchemeQueryList = undefined;
   }
 
@@ -36,7 +51,6 @@ function App() {
 
   function setTheme(e: any) {
 		const cs = e.matches ? "dark" : "light";
-		console.log(cs);
     colorScheme = cs;
     setPaletteType(cs);
 	}

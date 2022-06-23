@@ -1,14 +1,14 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
+contextBridge.exposeInMainWorld('darkMode', {
+  toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
+  system: () => ipcRenderer.invoke('dark-mode:system')
+})
+
 function render() {
   const remote = require('@electron/remote');
   const FindInPage = require('electron-find').FindInPage;
   const { ipcRenderer } = require('electron');
-
-  contextBridge.exposeInMainWorld('darkMode', {
-    toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
-    system: () => ipcRenderer.invoke('dark-mode:system')
-  })
 
   const webContents = remote.getCurrentWebContents();
   let findInPage = new FindInPage(webContents);

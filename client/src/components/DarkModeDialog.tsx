@@ -3,6 +3,8 @@ import React from 'react';
 import { Dialog, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
 import { colorScheme } from '../App';
 
+let once = false;
+
 declare global {
     interface Window {
 		darkMode: any;
@@ -16,22 +18,24 @@ type Props = {
 const DarkModeDialog = observer(({ open, onClose }: Props) => {
 	const [theme, setTheme] = React.useState('system');
 	const t = localStorage.getItem('allproxy-theme');
-	if (t) {
+	if (!once && t) {
 		setTheme(t);
+		once = true;
 	}
 
 	const handleClose = () => {
+		localStorage.setItem('allproxy-theme', theme)
 		onClose(theme);
 	}
 
 	function handleDark() {
-		if (theme == 'light' || colorScheme === 'light') {
+		if (theme === 'light' || colorScheme === 'light') {
 			window.darkMode.toggle();
 		}
 		setTheme('dark');
 	}
 	function handleLight() {
-		if (theme == 'dark' || colorScheme === 'dark') {
+		if (theme === 'dark' || colorScheme === 'dark') {
 			window.darkMode.toggle();
 		}
 		setTheme('light');
