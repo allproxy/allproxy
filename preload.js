@@ -1,23 +1,21 @@
-// preload.js
-//const { contextBridge } = require("electron");
+const { contextBridge, ipcRenderer } = require('electron')
 
-//contextBridge.exposeInMainWorld("teste", "hello");
+contextBridge.exposeInMainWorld('darkMode', {
+  toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
+  system: () => ipcRenderer.invoke('dark-mode:system')
+})
 
-//renderer.js
-
-//console.log(window.teste)
-
-function doIt() {
+function render() {
   const remote = require('@electron/remote');
   const FindInPage = require('electron-find').FindInPage;
   const { ipcRenderer } = require('electron');
 
   const webContents = remote.getCurrentWebContents();
   let findInPage = new FindInPage(webContents);
-  
-  ipcRenderer.on('on-find', (e, args) => {    
+
+  ipcRenderer.on('on-find', (e, args) => {
     findInPage.openFindWindow()
-  }) 
+  })
 }
 
-setTimeout(doIt, 5000);
+setTimeout(render, 5000);

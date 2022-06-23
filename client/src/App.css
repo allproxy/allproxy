@@ -4,11 +4,17 @@
 		color: rgba(232, 230, 227, 0.87) !important;
 		background-color: rgb(24, 26, 27) !important;
 	}
+	.settings-modal__proxy-row {
+		color: rgba(232, 230, 227, 0.87) !important;
+	}
 	.btn-default,
 	input,
 	.MuiPaper-root {
 		color: #e8e6e3de !important;
 		background-color: rgb(26, 24, 24) !important;
+	}
+	table, tr, td{
+		border-color: black !important;
 	}
 }
 
@@ -20,6 +26,9 @@
 	.MuiPaper-root {
 		background-color: whitesmoke !important;
 		color: black !important;
+	}
+	table, tr, td{
+		border-color: white !important;
 	}
 }
 
@@ -40,7 +49,7 @@ td input {
 
 .table-compact th,
 .table-compact td {
-	padding-top: 0 !important;
+	padding-top: .5rem !important;
 	padding-bottom: 0 !important;
 }
 

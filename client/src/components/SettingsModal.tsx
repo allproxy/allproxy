@@ -122,9 +122,9 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 						))}
 					</TabContext>
 					<div style={{borderTop: 'solid steelblue', paddingTop: '.5rem'}}>
-						<table className="table table-compact">
+						<table className="table">
 							<tbody>
-								<tr>
+								<tr >
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
 											placeholder={
@@ -175,7 +175,6 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 								</tr>
 							</tbody>
 						</table>
-						<hr/>
 						<table>
 							<tbody>
 								<tr>
@@ -191,19 +190,21 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 							</tbody>
 						</table>
 					</div>
-					<div className="modal-footer">
+					<div className="modal-footer" style={{marginTop: '1rem'}}>
 						<label className="settings-modal__error-message">{ store.getError() }</label>
-						<button type="button" className="settings-modal__cancel btn btn-secondary"
-							onClick={ onClose }
-						>
-							Cancel
-						</button>
-						<button type="button" className="settings-modal__save btn btn-success"
-							disabled={ !store.isChanged() }
-							onClick={() => { store.save(); onClose(); } }
-						>
-							Save
-						</button>
+						<div style={{marginTop: '1rem'}}>
+							<button type="button" className="settings-modal__cancel btn btn-secondary"
+								onClick={ onClose }
+							>
+								Cancel
+							</button>
+							<button type="button" className="settings-modal__save btn btn-success"
+								disabled={ !store.isChanged() }
+								onClick={() => { store.save(); onClose(); } }
+							>
+								Save
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
