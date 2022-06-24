@@ -7,6 +7,7 @@
 	.settings-modal__proxy-row {
 		color: rgba(232, 230, 227, 0.87) !important;
 	}
+	pre,
 	.btn-default,
 	input,
 	.MuiPaper-root {
@@ -30,6 +31,11 @@
 	table, tr, td{
 		border-color: white !important;
 	}
+	pre {
+		background-color: #f9f9f9 !important;
+		border: solid thin #e7e2e2 !important;
+		color: black;
+	}
 }
 
 button:disabled {
@@ -37,8 +43,6 @@ button:disabled {
 }
 
 pre {
-	background-color: #f9f9f9 !important;
-	border: solid thin #e7e2e2 !important;
 	border-radius: .5rem !important;
 	padding-left: 1.5rem !important;
 }
