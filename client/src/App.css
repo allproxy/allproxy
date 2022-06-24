@@ -1,19 +1,34 @@
 @media screen and (prefers-color-scheme: dark) {
 	body {
 		font-family: Menlo, Monaco, 'Courier New', monospace;
-		color: rgba(232, 230, 227, 0.87) !important;
-		background-color: rgb(24, 26, 27) !important;
+		color: rgba(232, 230, 227) !important;
+		background-color: #111111 !important;
 	}
 	.settings-modal__proxy-row {
-		color: rgba(232, 230, 227, 0.87) !important;
+		color: rgba(232, 230, 227) !important;
 	}
 	pre,
 	.btn-default,
 	input,
+	textarea,
+	select,
 	.MuiPaper-root {
-		color: #e8e6e3de !important;
-		background-color: rgb(26, 24, 24) !important;
+		color: rgba(232, 230, 227) !important;
+		background-color: #111111 !important;
 	}
+	.btn-default,
+	input,
+	textarea,
+	select {
+		color: rgba(232, 230, 227) !important;
+		background-color: #333333 !important;
+		border-color: #333333 !important;
+	}
+	.MuiTab-textColorPrimary.Mui-selected,
+	.PrivateTabIndicator-colorPrimary-2 {
+		color: #007bff !important;
+	}
+
 	table, tr, td{
 		border-color: black !important;
 	}
@@ -75,7 +90,7 @@ td input {
 
 .spinner {
 	font-size: 2rem !important;
-	color: #9fd6f8;
+	color: #007bff;
 }
 
 .modal-dialog {
@@ -128,7 +143,7 @@ td input {
 }
 
 .visited-color {
-	color: #5587c0;
+	color: #007bff;
 }
 @media screen and (prefers-color-scheme: light) {
 	.visited-color {
@@ -384,6 +399,15 @@ td input {
 .snapshot__close,
 .snapshot__folder-plus {
 	cursor: pointer;
+}
+.snapshot__folder-plus {
+	font-size: x-large;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+	.snapshot__folder-plus {
+		color: #bbbbbb;
+	}
 }
 
 .request-response__container {
@@ -721,7 +745,7 @@ td input {
 }
 
 .settings__recording {
-	color: rgba(6, 29, 230, 0.76);
+	color: #007bff;
 }
 
 .settings-modal__label-max-messages {
