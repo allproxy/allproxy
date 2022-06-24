@@ -176,9 +176,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					onClick={() => { setShowHelp(true); }}>
 				</div>
 				<div className="header__settings fa fa-chart-bar" title="Metrics"
+					hidden
 					onClick={() => { setShowMetricsModal(true); }}>
 				</div>
 				<div className="header__settings fa fa-network-wired" title="Reachable Hosts"
+					hidden
 					onClick={() => { setShowReachableHostsModal(true); settingsStore.setConfig(); }}>
 				</div>
 				<div className={'header__settings fa fa-cog'} title="Settings"
