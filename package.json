@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.4.1",
+  "version": "3.5.0",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -57,6 +57,8 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron/remote": "^2.0.8",
     "axios": "^0.21.4",
     "bufferutil": "^4.0.3",
@@ -78,11 +80,9 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.63",
     "@electron-forge/maker-dmg": "^6.0.0-beta.63",
     "@electron-forge/maker-rpm": "^6.0.0-beta.63",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@types/jquery": "^3.5.5",
     "@types/node": "^14.14.35",
     "@types/socket.io": "^2.1.13",
