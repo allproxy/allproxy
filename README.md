@@ -19,7 +19,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 <img width="1187" alt="image" src="https://user-images.githubusercontent.com/10223382/170111493-a6593aa1-8d92-46d7-8b6b-624d0e73d87c.png">
 
-**AllProxy Dashboard**
+**AllProxy Application**
 ![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
 **Features:**
@@ -32,7 +32,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 * Stop/Start Recording
 * Take snapshots of captured messages
 * Export and Import captured messages
-* Supports multiple dashboard browser tabs
+* Open AllProxy application in multiple browser tabs
 * Dark/Light Mode 
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
@@ -48,7 +48,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
   * [Install AllProxy](#install-allproxy-proxy)
   * [Start the AllProxy](#start-the-allproxy-proxy)
   * [Install and Trust CA Certificate](#install-and-trust-ca-certificate)
-  * [Open Dashboard in Browser](#open-dashboard-in-browser)
+  * [Open Application in Browser](#open-application-in-browser)
   * [Configure Proxy](#configure-proxy)
 * [Screenshots](#screenshots)
 * [Configuration](#configuration)
@@ -60,7 +60,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
   * [Redis Proxy](#redis-proxy)
   * [TCP Proxy](tcp-proxy)
   * [Docker Logs](#docker-logs)
-* [Dashboard](#dashboard)
+* [AllProxy Application](#allproxy-application)
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
@@ -97,16 +97,14 @@ The AllProxy server is started using either the NPM installed **allproxy** scrip
   ```sh
   $ allproxy
 
-    Listening on http:  8888
-    Open browser to http://localhost:8888/allproxy
+    Listening on http:  8888    
   ```
 
 #### Start GitHub Project
    ```sh
    allproxy$ npm start
 
-    Listening on http:  8888
-    Open browser to http://localhost:8888/allproxy
+    Listening on http:  8888    
    ```
 ### Install and Trust CA Certificate
 
@@ -117,9 +115,9 @@ The **ca.pem** location:
 
 Some browsers (e.g., Firefox) do not use the system certificate store, and will require the certificate to be imported in to the browser CA certificate store.
 
-### Open Dashboard in Browser
+### Open Application in Browser
 
-If the allproxy NPM package is installed, you will need to open the dashboard in a browser:
+The AllProxy application may also be opened in your browser:
 * http://localhost:8888/allproxy in browser.
 
 ### Configure Proxy
@@ -155,7 +153,7 @@ $ HTTP_PROXY=http://localhost:8888 HTTPS_PROXY://8888 chromium-browser
 ```
 
 ## Screenshots
-### Dashboard
+### AllProxy Application
 ![image](https://user-images.githubusercontent.com/10223382/169716662-5b42e911-d157-47e7-8087-322a7945592b.png)
 
 
@@ -299,8 +297,8 @@ The Docker log proxy can capture log messages.
 The AllProxy is configured to capture Dockers log messages:
 ![image](https://user-images.githubusercontent.com/10223382/169716855-37c271ce-1b03-4b68-87e1-cf117630420c.png)
 
-## Dashboard
-The AllProxy dashboard is stated from the browser with URL http://localhost:8888/allproxy.
+## AllProxy Application
+The AllProxy application can be opened from the browser with URL http://localhost:8888/allproxy.
 
 ### Pause Recording
 The recording of messages can be temporarily stopped, to allow time to examine the messages without the log wrapping.
@@ -317,7 +315,7 @@ Types of filters:
 Boolean filters can use &&, ||, !, and parenthesis.
 
 ### Resend HTTP Requests
-To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If the dashboard is not paused, the resent request should appear at the bottom of the dashboard request log.
+To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If recording is not paused, the resent request should appear at the bottom of the request panel.
 
 ### Breakpoint to Modify HTTPS Responses
 Breakpoints can be set to match any part of the HTTP request or response, and then modify the JSON response then the breakpoint matches.
@@ -358,9 +356,9 @@ module.exports = function InterceptJsonResponse(clientReq, json) {
 Clicking on the camera icon will take a snapshot of the currently captured messages, and create a new snapshot tab.  A snapshot tab may be exported to a file, and later imported again.
 
 ### Multiple Browser Tabs
-Multiple Dashboard instances can be opened in separate browser tabs, and all of the open Dashboards will record messages.
+Multiple Application instances can be opened in separate browser tabs, and all of the open Applications will record messages.
 
-Each Dashboard instance keeps its own copy of the messages, so clearing or stopping recording in one Dashboard instance, does not affect another other Dashboard instances.
+Each Application instance keeps its own copy of the messages, so clearing or stopping recording in one Application instance, does not affect another other Application instances.
 
 ## Certificates
 Certificates are managed by the [node-http-mitm-proxy](https://github.com/joeferner/node-http-mitm-proxy/tree/master/examples) package.
@@ -375,8 +373,8 @@ For Windows, execute the allproxy-ca script to get the path of the CA certificat
 - **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.
 - **HTTPS proxy** - The *node-http-mitm-proxy* package is used to build certificates to capture decrypted HTTPS traffic as either a forward or reverse proxy.
 - **TCP proxy** - The *net* package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
-- **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a dashboard.
-- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the dashboard.
+- **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a application.
+- **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the application.
 
 ### Configuration File
 * When running from a GitHub package, **config.json** file is stored in the root directory of your GitHub project.
