@@ -59,7 +59,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
 						`}>
 							{message.method && message.method.length > 0 &&
-							<div className="request__msg-method" style={{width: maxMethodSize+'ch'}}>
+							<div className="request__msg-method" style={{width: maxMethodSize+1+'ch'}}>
 								{message.method}
 							</div>}
 							{message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{width: maxEndpointSize+'ch'}}>
