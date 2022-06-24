@@ -5,31 +5,5 @@ SYMLINK=$(readlink "${BASH_SOURCE[0]}")
 if [ ! -z "$SYMLINK" ]; then
   BIN_DIR=$BIN_DIR/$(dirname $SYMLINK)
 fi
-
-if [ -f "$BIN_DIR/../app.ts" ]; then
-  DATA_DIR=$BIN_DIR/../
-else
-  DATA_DIR=$HOME/.allproxy
-fi
-
-export NODE_ENV=production
-export ALLPROXY_DATA_DIR=$DATA_DIR
-if [ ! -d "$DATA_DIR" ]; then
-  mkdir $DATA_DIR
-fi
-
-INTERCEPT_DIR=$DATA_DIR/intercept
-if [ ! -d "$INTERCEPT_DIR" ]; then
-  mkdir $INTERCEPT_DIR
-fi
-
-PROTO_DIR=$DATA_DIR/proto
-if [ ! -d "$PROTO_DIR" ]; then
-  mkdir $PROTO_DIR
-fi
-
-if [ ! -d $DATA_DIR/bin ]; then
-  mkdir $BIN_DIR/bin
-fi
-
-node $BIN_DIR/../build/app $@
+cd $BIN_DIR
+npm start

@@ -222,7 +222,7 @@ td input {
 }
 
 .header__title {
-	margin: 0 0 0 1rem;
+	margin: 0 1rem;
 	color: whitesmoke;
 	float: left;
 	vertical-align: middle;
@@ -247,7 +247,7 @@ td input {
 }
 
 .header__sort-req-res {
-	margin-right: 1.5rem;
+	margin-right: .5rem;
 	width: 2ch;
 }
 
@@ -321,7 +321,7 @@ td input {
 
 .header__status,
 .header__settings {
-	margin: 0 0 0 1rem;
+	margin: 0 0 0 0;
 	font-size: large !important;
 }
 

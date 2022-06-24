@@ -1,5 +1,4 @@
 const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');
-const Renderer = require('electron/renderer');
 const fs = require('fs');
 const path = require('path');
 
