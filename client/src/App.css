@@ -61,6 +61,7 @@
 	border: rgb(255, 154, 154) !important;
 	color: black !important;
 	font-weight: bold;
+	font-size: large !important;
 }
 
 button:disabled {
@@ -240,9 +241,13 @@ td input {
 	align-items: center;
 }
 .footer__exclude-filter {
-	margin-left: 1rem;
 	display: flex;
 	align-items: center;
+}
+.footer__item {
+	margin: 0 0 0 1rem;
+	color: whitesmoke;
+	line-height: 2ch;
 }
 
 .header__left-container {
@@ -303,8 +308,8 @@ td input {
 .react-tagsinput-input,
 .header__filter-input {
 	margin: 0 0 0 1rem;
-	height: 20px;
 	width: calc(100vw - 700px) !important;
+	height: 32px;
 }
 
 .header__filter-input.active {
@@ -346,12 +351,6 @@ td input {
 		background: whitesmoke;
 		border-radius: .5rem;
 	}
-}
-
-.footer__count {
-	margin: 0 0 0 1rem;
-	color: whitesmoke;
-	line-height: 2ch;
 }
 
 .header__status,
