@@ -7,10 +7,6 @@
 	.settings-modal__proxy-row {
 		color: rgba(232, 230, 227) !important;
 	}
-	.react-tagsinput,
-	.react-tagsinput input,
-	.header__filter-input,
-	.header__filter-input input,
 	pre,
 	.MuiPaper-root {
 		color: rgba(232, 230, 227) !important;
@@ -51,6 +47,14 @@
 		border: solid thin #e7e2e2 !important;
 		color: black;
 	}
+}
+
+.react-tagsinput,
+.react-tagsinput input,
+.header__filter-input,
+.header__filter-input input {
+	color: rgba(232, 230, 227) !important;
+	background-color: #111111 !important;
 }
 
 .react-tagsinput {
