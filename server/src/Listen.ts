@@ -1,10 +1,12 @@
+import { dialog } from "electron";
+
 export default async function listen (
   serverName: string,
   server: any,
   port: number,
-  host?: string
+  host?: string,
+  maxRetries = 5,
 ): Promise<number> {
-  const MAX_RETRIES = 5;
   let retries = 0;
   let backOff = 1000;
 
@@ -23,10 +25,11 @@ export default async function listen (
 
     // Retry the listen with exponential back off
     function onError (err: any) {
-      if (++retries < MAX_RETRIES) {
+      if (++retries < maxRetries) {
         setTimeout(() => _listen(), backOff *= 2);
       } else {
         console.error(`${serverName} listen error on port ${port}`, err);
+        dialog.showErrorBox(`AllProxy Port Error`, `${err}`);
       }
     }
   });

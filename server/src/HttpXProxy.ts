@@ -33,7 +33,7 @@ export default class HttpXProxy {
       })
 
     this.server = net.createServer(this.onConnect.bind(this));
-    listen('HttpXProxy', this.server, port, hostname);
+    listen('HttpXProxy', this.server, port, hostname, 0);
     // GrpcProxy.forwardProxy(GRPC_PORT, false);
   }
 
