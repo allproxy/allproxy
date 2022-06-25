@@ -8,10 +8,6 @@
 		color: rgba(232, 230, 227) !important;
 	}
 	pre,
-	.btn-default,
-	input,
-	textarea,
-	select,
 	.MuiPaper-root {
 		color: rgba(232, 230, 227) !important;
 		background-color: #111111 !important;
@@ -51,6 +47,25 @@
 		border: solid thin #e7e2e2 !important;
 		color: black;
 	}
+}
+
+.react-tagsinput,
+.react-tagsinput input,
+.header__filter-input,
+.header__filter-input input {
+	color: rgba(232, 230, 227) !important;
+	background-color: #111111 !important;
+}
+
+.react-tagsinput {
+	border: none !important;
+}
+.react-tagsinput-tag {
+	background-color: rgb(255, 154, 154) !important;
+	border: rgb(255, 154, 154) !important;
+	color: black !important;
+	font-weight: bold;
+	font-size: large !important;
 }
 
 button:disabled {
@@ -225,9 +240,18 @@ td input {
 	bottom: 0;
 	background-color: #333333;
 	width: 100%;
-	height: 2rem;
+	height: 3rem;
 	display: flex;
 	align-items: center;
+}
+.footer__exclude-filter {
+	display: flex;
+	align-items: center;
+}
+.footer__item {
+	margin: 0 0 0 1rem;
+	color: whitesmoke;
+	line-height: 2ch;
 }
 
 .header__left-container {
@@ -285,10 +309,11 @@ td input {
 	float: left;
 }
 
+.react-tagsinput-input,
 .header__filter-input {
 	margin: 0 0 0 1rem;
-	height: 20px;
-	width: calc(100vw - 800px);
+	width: calc(100vw - 700px) !important;
+	height: 32px;
 }
 
 .header__filter-input.active {
@@ -330,12 +355,6 @@ td input {
 		background: whitesmoke;
 		border-radius: .5rem;
 	}
-}
-
-.footer__count {
-	margin: 0 0 0 1rem;
-	color: whitesmoke;
-	line-height: 2ch;
 }
 
 .header__status,
@@ -421,8 +440,8 @@ td input {
 	padding-right: .5rem;
 	overflow: auto;
 	width: 50%;
-	height: calc(100vh - 8rem);
-	max-height: calc(100vh - 8rem);
+	height: calc(100vh - 9rem);
+	max-height: calc(100vh - 9rem);
 	resize: horizontal;
 	border-right: solid grey;
 	margin: 0 1rem 0 0;
