@@ -16,6 +16,7 @@ export default class FilterStore {
     private _logical = true;
     private _deleteFiltered = false;
     private showErrors = false;
+    private excludeTags: string[] = [];
 
     public constructor() {
 		makeAutoObservable(this);
@@ -87,6 +88,10 @@ export default class FilterStore {
 
     public getShowErrors(): boolean {
         return this.showErrors;
+    }
+
+    @action public setExcludeTags(excludeList: string[]) {
+        this.excludeTags = excludeList;
     }
 
     @action public toggleShowErrors() {
@@ -193,6 +198,10 @@ export default class FilterStore {
         if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
 
         this.invalidFilterSyntax = false;
+
+        // Check exclude tags
+        if (this.excludeTags.length > 0 && this.isMessageExcluded(messageStore)) return true;
+
         if (this.searchFilter.length === 0) return false;
         if (this._logical && this.boolString.length > 0) {
             let boolString = this.boolString;
@@ -234,7 +243,37 @@ export default class FilterStore {
     	return true;
     }
 
-	private isMatch(needle: string, haystack: string | undefined) {
+    private isMessageExcluded(messageStore: MessageStore) {
+        const message = messageStore.getMessage();
+        if (message.proxyConfig && this.isExcluded(message.proxyConfig.protocol)) return true;
+        if (this.isExcluded( message.protocol)) return true;
+        if (message.protocol !== 'log:') {
+            if (this.isExcluded(
+                            message.status + ' ' + message.method
+                            + ' '
+                            + message.clientIp!+'->'+message.serverHost
+                            + ' '
+                            + messageStore.getUrl())) return true;
+            if (this.isExcluded( message.endpoint)) return true;
+            if (this.isExcluded(JSON.stringify(message.requestHeaders))) return true;
+            if (this.isExcluded(JSON.stringify(message.responseHeaders))) return true;
+            if(this.isExcluded(messageStore.getRequestBody())) return true;
+        }
+        if (message.responseBody && this.isExcluded(JSON.stringify(message.responseBody))) return true;
+    	return false;
+    }
+
+    private isExcluded(haystack: string | undefined): boolean {
+        if (haystack === undefined) return false;
+       for(const needle of this.excludeTags) {
+            if (haystack.indexOf(needle) !== -1) {
+                return true;
+            }
+       }
+       return false;
+    }
+
+	private isMatch(needle: string, haystack: string | undefined): boolean {
         if (haystack === undefined) return false;
         if(!this._matchCase) {
             needle = needle.toLowerCase();
