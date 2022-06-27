@@ -18,6 +18,7 @@ export default class FilterStore {
     private excludeTags: string[] = [];
     private sideBarProtocols: Map<string, boolean> = new Map();
     private sideBarDomains: Map<string, boolean> = new Map();
+    private sideBarUserAgents: Map<string, boolean> = new Map();
 
     public constructor() {
         makeAutoObservable(this);
@@ -146,6 +147,28 @@ export default class FilterStore {
         this.sideBarDomains.set(domain, !this.sideBarDomains.get(domain));
     }
 
+    // User Agents filter
+    public getSideBarUserAgents(): string[] {
+        const iconClasses: string[] = [];
+        this.sideBarUserAgents.forEach((_, ua) => iconClasses.push(ua));
+        return iconClasses;
+    }
+
+    public isSideBarUserAgentChecked(userAgent: string): boolean {
+        return !!this.sideBarUserAgents.get(userAgent);
+    }
+
+    public getSideBarUserAgentChecked(userAgent: string): boolean | undefined {
+        return this.sideBarUserAgents.get(userAgent);
+    }
+
+    @action public setSideBarUserAgentChecked(userAgent: string, value: boolean) {
+        this.sideBarUserAgents.set(userAgent, value);
+    }
+    @action public toggleSideBarUserAgentChecked(userAgent: string) {
+        this.sideBarUserAgents.set(userAgent, !this.sideBarUserAgents.get(userAgent));
+    }
+
     @action public setFilterNoDebounce(filter: string) {
         if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
@@ -254,6 +277,19 @@ export default class FilterStore {
                 filterStore.setSideBarDomainChecked(domain, true);
             }
             if (this.isSideBarDomainChecked(domain) === false) return true;
+        }
+
+        // User Agents filter
+        let ua = messageStore.getUserAgent();
+        if (ua) {
+            if (ua) {
+                ua = ua.split(' ')[0];
+                ua = ua.split('/')[0];
+            }
+            if (filterStore.getSideBarUserAgentChecked(ua) === undefined) {
+                filterStore.setSideBarUserAgentChecked(ua, true);
+            }
+            if (this.isSideBarUserAgentChecked(ua) === false) return true;
         }
 
         if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;

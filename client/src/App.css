@@ -270,17 +270,14 @@ td input {
 	background-color: #333333;
 	color: whitesmoke;
 	height: 100%;
-	width: 6rem;
-}
-
-.side-bar-protocol {
-	padding: .5rem;
+	width: 8rem;
 }
 
 .side-bar-item {
 	display: flex;
 	justify-content: center;
 	width: 100%;
+	padding: .5rem;
 }
 
 .side-bar-count {

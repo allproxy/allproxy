@@ -54,7 +54,7 @@ export default class MessageStore {
         return this.iconClass;
     }
 
-    public getDomain(): string|undefined {
+    public getDomain(): string | undefined {
         return this.message.requestHeaders['host'];
     }
 
@@ -141,7 +141,7 @@ export default class MessageStore {
         return body;
     }
 
-    private getUserAgent(): string | undefined {
+    public getUserAgent(): string | undefined {
         return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : undefined;
     }
 
