@@ -28,6 +28,10 @@
 	table, tr, td{
 		border-color: black !important;
 	}
+
+	.fa-keyboard {
+		color: whitesmoke !important;
+	}
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -45,6 +49,9 @@
 	pre {
 		background-color: #f9f9f9 !important;
 		border: solid thin #e7e2e2 !important;
+		color: black;
+	}
+	.fa-keyboard {
 		color: black;
 	}
 }
@@ -234,6 +241,44 @@ td input {
 	justify-content: space-between;
 }
 
+.side-bar-snapshots {
+	display: flex;
+	width: 100%;
+}
+.side-bar {
+	padding-top: 3rem;
+	margin-top: 3rem;
+	background-color: #333333;
+	color: whitesmoke;
+	height: 100%;
+	width: 5rem;
+}
+.side-bar-protocol {
+	padding: .5rem;
+}
+.side-bar-item {
+	display: flex;
+  	justify-content: center;
+	width: 100%;
+}
+.side-bar-count {
+	font-size: x-small;
+}
+.side-bar-checkbox-icon {
+	display: flex;
+	justify-content: space-evenly;
+	width: 100%;
+	color: whitesmoke !important;
+}
+.side-bar-icon {
+	font-size: x-large;
+	color: whitesmoke !important;
+}
+.side-bar-checkbox {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
 .footer__container {
 	z-index: 99;
 	position: fixed;
@@ -346,13 +391,13 @@ td input {
 
 .breakpoint__icon.active {
 	color: whitesmoke;
-	background: black;
+	background-color: black;
 	border-radius: .5rem;
 }
 @media screen and (prefers-color-scheme: dark) {
 	.breakpoint__icon.active {
 		color: black;
-		background: whitesmoke;
+		background-color: whitesmoke;
 		border-radius: .5rem;
 	}
 }
@@ -401,7 +446,7 @@ td input {
 }
 
 .snapshot__container .Mui-selected {
-	/* background: whitesmoke */
+	/* background-color: whitesmoke */
 }
 
 .snapshot__container .MuiTabPanel-root {
@@ -434,6 +479,7 @@ td input {
 	/* Safari */
 	display: flex;
 	padding-top: 3rem;
+	width: calc(100vw - 3rem);
 }
 
 .request__container {
@@ -476,12 +522,12 @@ td input {
 
 .request__msg-time-bar {
 	height: 10px;
-	background: #007bff;
+	background-color: #007bff;
 	opacity: .5;
 }
 
 .request__msg-time-bar.no-response {
-	background: crimson;
+	background-color: crimson;
 }
 
 .request__msg-time-ms {
@@ -635,7 +681,7 @@ td input {
 .metrics-modal,
 .reachable-modal,
 .settings-modal {
-	background: rgb(24, 26, 27);
+	background-color: rgb(24, 26, 27);
 	width: 99vw;
 	padding: 1rem 1rem;
 }
@@ -646,7 +692,7 @@ td input {
 	.metrics-modal,
 	.reachable-modal,
 	.settings-modal {
-		background: white;
+		background-color: white;
 	}
 }
 
@@ -682,7 +728,7 @@ td input {
 
 .settings-modal__proxy-row.nocapture,
 .settings-modal__proxy-row.nocapture input {
-	background: rgba(216, 214, 214, 0.3);
+	background-color: rgba(216, 214, 214, 0.3);
 }
 
 
