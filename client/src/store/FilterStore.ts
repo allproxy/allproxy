@@ -16,10 +16,11 @@ export default class FilterStore {
     private _deleteFiltered = false;
     private showErrors = false;
     private excludeTags: string[] = [];
-    private sideBarFilter: Map<string,boolean> = new Map();
+    private sideBarProtocols: Map<string, boolean> = new Map();
+    private sideBarDomains: Map<string, boolean> = new Map();
 
     public constructor() {
-		makeAutoObservable(this);
+        makeAutoObservable(this);
     }
 
     public isEnabled() {
@@ -101,25 +102,48 @@ export default class FilterStore {
         }
     }
 
-    public getSideBarIconClasses(): string[] {
+    // Protocols filter
+    public getSideBarProtocolIconClasses(): string[] {
         const iconClasses: string[] = [];
-        this.sideBarFilter.forEach((_, iconClass) => iconClasses.push(iconClass));
+        this.sideBarProtocols.forEach((_, iconClass) => iconClasses.push(iconClass));
         return iconClasses;
     }
 
-    public isSideBarChecked(iconClass: string): boolean {
-        return !!this.sideBarFilter.get(iconClass);
+    public isSideBarProtocolChecked(iconClass: string): boolean {
+        return !!this.sideBarProtocols.get(iconClass);
     }
 
-    public getSideBarChecked(iconClass: string): boolean | undefined {
-        return this.sideBarFilter.get(iconClass);
+    public getSideBarProtocolChecked(iconClass: string): boolean | undefined {
+        return this.sideBarProtocols.get(iconClass);
     }
 
-    @action  public setSideBarChecked(iconClass: string, value: boolean) {
-        this.sideBarFilter.set(iconClass, value);
+    @action private setSideBarProtocolChecked(iconClass: string, value: boolean) {
+        this.sideBarProtocols.set(iconClass, value);
     }
-    @action  public toggleSideBarChecked(iconClass: string) {
-        this.sideBarFilter.set(iconClass, !this.sideBarFilter.get(iconClass));
+    @action public toggleSideBarProtocolChecked(iconClass: string) {
+        this.sideBarProtocols.set(iconClass, !this.sideBarProtocols.get(iconClass));
+    }
+
+    // Domains filter
+    public getSideBarDomains(): string[] {
+        const iconClasses: string[] = [];
+        this.sideBarDomains.forEach((_, domain) => iconClasses.push(domain));
+        return iconClasses;
+    }
+
+    public isSideBarDomainChecked(domain: string): boolean {
+        return !!this.sideBarDomains.get(domain);
+    }
+
+    public getSideBarDomainChecked(domain: string): boolean | undefined {
+        return this.sideBarDomains.get(domain);
+    }
+
+    @action public setSideBarDomainChecked(domain: string, value: boolean) {
+        this.sideBarDomains.set(domain, value);
+    }
+    @action public toggleSideBarDomainChecked(domain: string) {
+        this.sideBarDomains.set(domain, !this.sideBarDomains.get(domain));
     }
 
     @action public setFilterNoDebounce(filter: string) {
@@ -154,7 +178,7 @@ export default class FilterStore {
         if (this._logical && this.boolString.length > 0) {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
-                boolString = boolString.replace('###'+i, 'true');
+                boolString = boolString.replace('###' + i, 'true');
             }
             //console.log(boolString);
             try {
@@ -216,11 +240,21 @@ export default class FilterStore {
     }
 
     public isFiltered(messageStore: MessageStore) {
+        // Protocols filter
         const iconClass = messageStore.getIconClass();
-        if (filterStore.getSideBarChecked(iconClass) === undefined) {
-            filterStore.setSideBarChecked(iconClass, true);
+        if (filterStore.getSideBarProtocolChecked(iconClass) === undefined) {
+            filterStore.setSideBarProtocolChecked(iconClass, true);
         }
-        if (this.isSideBarChecked(iconClass) === false) return true;
+        if (this.isSideBarProtocolChecked(iconClass) === false) return true;
+
+        // Domains filter
+        const domain = messageStore.getDomain();
+        if (domain) {
+            if (filterStore.getSideBarDomainChecked(domain) === undefined) {
+                filterStore.setSideBarDomainChecked(domain, true);
+            }
+            if (this.isSideBarDomainChecked(domain) === false) return true;
+        }
 
         if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
 
@@ -232,7 +266,7 @@ export default class FilterStore {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
                 const filtered = this.isMessageFiltered(this.boolOperands[i], messageStore);
-                boolString = boolString.replace('###'+i, (filtered ? 'false' : 'true'));
+                boolString = boolString.replace('###' + i, (filtered ? 'false' : 'true'));
             }
             //console.log(boolString);
             try {
@@ -253,58 +287,58 @@ export default class FilterStore {
         if (this.isMatch(needle, message.protocol)) return false;
         if (message.protocol !== 'log:') {
             if (this.isMatch(needle,
-                            message.status + ' ' + message.method
-                            + ' '
-                            + message.clientIp!+'->'+message.serverHost
-                            + ' '
-                            + messageStore.getUrl())) return false;
+                message.status + ' ' + message.method
+                + ' '
+                + message.clientIp! + '->' + message.serverHost
+                + ' '
+                + messageStore.getUrl())) return false;
             if (this.isMatch(needle, message.endpoint)) return false;
             if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
             if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
-            if(this.isMatch(needle, messageStore.getRequestBody())) return false;
+            if (this.isMatch(needle, messageStore.getRequestBody())) return false;
         }
         if (message.responseBody && this.isMatch(needle, JSON.stringify(message.responseBody))) return false;
-    	return true;
+        return true;
     }
 
     private isMessageExcluded(messageStore: MessageStore) {
         const message = messageStore.getMessage();
         if (message.proxyConfig && this.isExcluded(message.proxyConfig.protocol)) return true;
-        if (this.isExcluded( message.protocol)) return true;
+        if (this.isExcluded(message.protocol)) return true;
         if (message.protocol !== 'log:') {
             if (this.isExcluded(
-                            message.status + ' ' + message.method
-                            + ' '
-                            + message.clientIp!+'->'+message.serverHost
-                            + ' '
-                            + messageStore.getUrl())) return true;
-            if (this.isExcluded( message.endpoint)) return true;
+                message.status + ' ' + message.method
+                + ' '
+                + message.clientIp! + '->' + message.serverHost
+                + ' '
+                + messageStore.getUrl())) return true;
+            if (this.isExcluded(message.endpoint)) return true;
             if (this.isExcluded(JSON.stringify(message.requestHeaders))) return true;
             if (this.isExcluded(JSON.stringify(message.responseHeaders))) return true;
-            if(this.isExcluded(messageStore.getRequestBody())) return true;
+            if (this.isExcluded(messageStore.getRequestBody())) return true;
         }
         if (message.responseBody && this.isExcluded(JSON.stringify(message.responseBody))) return true;
-    	return false;
+        return false;
     }
 
     private isExcluded(haystack: string | undefined): boolean {
         if (haystack === undefined) return false;
-       for(const needle of this.excludeTags) {
+        for (const needle of this.excludeTags) {
             if (haystack.indexOf(needle) !== -1) {
                 return true;
             }
-       }
-       return false;
+        }
+        return false;
     }
 
-	private isMatch(needle: string, haystack: string | undefined): boolean {
+    private isMatch(needle: string, haystack: string | undefined): boolean {
         if (haystack === undefined) return false;
-        if(!this._matchCase) {
+        if (!this._matchCase) {
             needle = needle.toLowerCase();
             haystack = haystack.toLowerCase();
         }
 
-        if(this._regex) {
+        if (this._regex) {
             return haystack.search(needle) !== -1;
         }
         else {

@@ -4,14 +4,17 @@
 		color: rgba(232, 230, 227) !important;
 		background-color: #111111 !important;
 	}
+
 	.settings-modal__proxy-row {
 		color: rgba(232, 230, 227) !important;
 	}
+
 	pre,
 	.MuiPaper-root {
 		color: rgba(232, 230, 227) !important;
 		background-color: #111111 !important;
 	}
+
 	.btn-default,
 	input,
 	textarea,
@@ -20,12 +23,15 @@
 		background-color: #333333 !important;
 		border-color: #333333 !important;
 	}
+
 	.MuiTab-textColorPrimary.Mui-selected,
 	.PrivateTabIndicator-colorPrimary-2 {
 		color: #007bff !important;
 	}
 
-	table, tr, td{
+	table,
+	tr,
+	td {
 		border-color: black !important;
 	}
 
@@ -39,20 +45,30 @@
 		background-color: whitesmoke !important;
 		color: black !important;
 	}
+
 	.MuiPaper-root {
 		background-color: whitesmoke !important;
 		color: black !important;
 	}
-	table, tr, td{
+
+	table,
+	tr,
+	td {
 		border-color: white !important;
 	}
+
 	pre {
 		background-color: #f9f9f9 !important;
 		border: solid thin #e7e2e2 !important;
 		color: black;
 	}
+
 	.fa-keyboard {
 		color: black;
+	}
+
+	.MuiCheckbox-colorSecondary {
+		color: blue;
 	}
 }
 
@@ -67,6 +83,7 @@
 .react-tagsinput {
 	border: none !important;
 }
+
 .react-tagsinput-tag {
 	background-color: rgb(255, 154, 154) !important;
 	border: rgb(255, 154, 154) !important;
@@ -167,6 +184,7 @@ td input {
 .visited-color {
 	color: #007bff;
 }
+
 @media screen and (prefers-color-scheme: light) {
 	.visited-color {
 		color: #1a0dab;
@@ -245,38 +263,59 @@ td input {
 	display: flex;
 	width: 100%;
 }
+
 .side-bar {
 	padding-top: 3rem;
 	margin-top: 3rem;
 	background-color: #333333;
 	color: whitesmoke;
 	height: 100%;
-	width: 5rem;
+	width: 6rem;
 }
+
 .side-bar-protocol {
 	padding: .5rem;
 }
+
 .side-bar-item {
 	display: flex;
-  	justify-content: center;
+	justify-content: center;
 	width: 100%;
 }
+
 .side-bar-count {
 	font-size: x-small;
 }
+
 .side-bar-checkbox-icon {
 	display: flex;
 	justify-content: space-evenly;
 	width: 100%;
 	color: whitesmoke !important;
 }
+
 .side-bar-icon {
 	font-size: x-large;
 	color: whitesmoke !important;
 }
+
+.side-bar-domain-checkbox,
 .side-bar-checkbox {
 	padding: 0 !important;
 	margin: 0 !important;
+}
+
+.side-bar-domain-checkbox.MuiCheckbox-root {
+	color: black !important;
+}
+
+.side-bar-domain-checkbox.MuiCheckbox-colorSecondary.Mui-checked {
+	color: #f50057 !important;
+}
+
+.sdie-bar.MuiMenuItem-root {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
 }
 
 .footer__container {
@@ -289,10 +328,12 @@ td input {
 	display: flex;
 	align-items: center;
 }
+
 .footer__exclude-filter {
 	display: flex;
 	align-items: center;
 }
+
 .footer__item {
 	margin: 0 0 0 1rem;
 	color: whitesmoke;
@@ -394,6 +435,7 @@ td input {
 	background-color: black;
 	border-radius: .5rem;
 }
+
 @media screen and (prefers-color-scheme: dark) {
 	.breakpoint__icon.active {
 		color: black;
@@ -464,6 +506,7 @@ td input {
 .snapshot__folder-plus {
 	cursor: pointer;
 }
+
 .snapshot__folder-plus {
 	font-size: x-large;
 }
@@ -687,6 +730,7 @@ td input {
 }
 
 @media screen and (prefers-color-scheme: light) {
+
 	.breakpoint-modal,
 	.no-capture-modal,
 	.metrics-modal,
