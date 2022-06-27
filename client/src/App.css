@@ -269,7 +269,7 @@ td input {
 	margin-top: 3rem;
 	background-color: #333333;
 	color: whitesmoke;
-	height: 100%;
+	height: calc(100vh - 6rem);
 	width: 8rem;
 }
 
@@ -336,7 +336,7 @@ td input {
 	height: .1rem;
 }
 
-.side .footer__container {
+.footer__container {
 	z-index: 99;
 	position: fixed;
 	bottom: 0;
