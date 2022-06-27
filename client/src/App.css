@@ -299,26 +299,48 @@ td input {
 	color: whitesmoke !important;
 }
 
-.side-bar-domain-checkbox,
 .side-bar-checkbox {
 	padding: 0 !important;
 	margin: 0 !important;
 }
 
-.side-bar-domain-checkbox.MuiCheckbox-root {
-	color: black !important;
+.side-bar-select {
+	color: whitesmoke !important;
+}
+
+.MuiSelect-icon {
+	color: whitesmoke !important;
+}
+
+@media screen and (prefers-color-scheme: light) {
+	.side-bar-domain-checkbox.MuiCheckbox-root {
+		color: black !important;
+	}
+}
+
+@media screen and (prefers-color-scheme: dark) {
+	.side-bar-domain-checkbox.MuiCheckbox-root {
+		color: whitesmoke !important;
+	}
 }
 
 .side-bar-domain-checkbox.MuiCheckbox-colorSecondary.Mui-checked {
 	color: #f50057 !important;
 }
 
-.sdie-bar.MuiMenuItem-root {
+.side-bar.MuiMenuItem-root {
 	padding-top: 0 !important;
 	padding-bottom: 0 !important;
 }
 
-.footer__container {
+.side-bar-divider {
+	background-color: #007bff;
+	margin-left: .25rem;
+	margin-right: .25rem;
+	height: .1rem;
+}
+
+.side .footer__container {
 	z-index: 99;
 	position: fixed;
 	bottom: 0;

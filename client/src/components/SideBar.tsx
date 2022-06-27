@@ -40,38 +40,41 @@ const SideBar = observer(() => {
 				)
 			}
 
-			{filterStore.getSideBarDomains().length > 0 &&
-				<div className="side-bar-item">
-					<Select
-						labelId="mutiple-select-label"
-						multiple
-						value={filterStore.getSideBarDomains()}
-						renderValue={() => "Domains"}
-					>
-						<MenuItem
-							value="all"
+			{
+				filterStore.getSideBarDomains().length > 0 &&
+				<div>
+					<hr className="side-bar-divider"></hr>
+					<div className="side-bar-item">
+						<Select className="side-bar-select"
+							multiple
+							value={filterStore.getSideBarDomains()}
+							renderValue={() => "Domains"}
 						>
-							<Checkbox className="side-bar-domain-checkbox"
-								checked={areAllDomainsSelected()}
-								onChange={handleAllDomainChange}
-							/>
-							<ListItemText
-								primary="Select All"
-							/>
-						</MenuItem>
-						{filterStore.getSideBarDomains().map((domain) => (
-							<MenuItem key={domain} value={domain}>
+							<MenuItem
+								value="all"
+							>
 								<Checkbox className="side-bar-domain-checkbox"
-									checked={filterStore.isSideBarDomainChecked(domain)}
-									onChange={() => filterStore.toggleSideBarDomainChecked(domain)}
+									checked={areAllDomainsSelected()}
+									onChange={handleAllDomainChange}
 								/>
-								<ListItemText primary={domain} />
+								<ListItemText
+									primary="Select All"
+								/>
 							</MenuItem>
-						))}
-					</Select>
+							{filterStore.getSideBarDomains().map((domain) => (
+								<MenuItem key={domain} value={domain}>
+									<Checkbox className="side-bar-domain-checkbox"
+										checked={filterStore.isSideBarDomainChecked(domain)}
+										onChange={() => filterStore.toggleSideBarDomainChecked(domain)}
+									/>
+									<ListItemText primary={domain} />
+								</MenuItem>
+							))}
+						</Select>
+					</div>
 				</div>
 			}
-		</div>
+		</div >
 	)
 });
 
