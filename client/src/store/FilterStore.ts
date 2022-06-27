@@ -6,7 +6,6 @@ import { messageQueueStore } from "./MessageQueueStore";
 export default class FilterStore {
     private enabled = true;
     private filter = '';
-    private invalidFilterSyntax = false;
     private searchFilter = '';
     private boolString = '';
     private boolOperands: string[] = [];
@@ -17,6 +16,7 @@ export default class FilterStore {
     private _deleteFiltered = false;
     private showErrors = false;
     private excludeTags: string[] = [];
+    private sideBarFilter: Map<string,boolean> = new Map();
 
     public constructor() {
 		makeAutoObservable(this);
@@ -101,6 +101,27 @@ export default class FilterStore {
         }
     }
 
+    public getSideBarIconClasses(): string[] {
+        const iconClasses: string[] = [];
+        this.sideBarFilter.forEach((_, iconClass) => iconClasses.push(iconClass));
+        return iconClasses;
+    }
+
+    public isSideBarChecked(iconClass: string): boolean {
+        return !!this.sideBarFilter.get(iconClass);
+    }
+
+    public getSideBarChecked(iconClass: string): boolean | undefined {
+        return this.sideBarFilter.get(iconClass);
+    }
+
+    @action  public setSideBarChecked(iconClass: string, value: boolean) {
+        this.sideBarFilter.set(iconClass, value);
+    }
+    @action  public toggleSideBarChecked(iconClass: string) {
+        this.sideBarFilter.set(iconClass, !this.sideBarFilter.get(iconClass));
+    }
+
     @action public setFilterNoDebounce(filter: string) {
         if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
@@ -129,7 +150,7 @@ export default class FilterStore {
     }
 
     public isInvalidFilterSyntax(): boolean {
-        this.invalidFilterSyntax = false;
+        let invalidFilterSyntax = false;
         if (this._logical && this.boolString.length > 0) {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
@@ -141,11 +162,11 @@ export default class FilterStore {
                 eval(boolString);
                 return false;
             } catch (e) {
-                this.invalidFilterSyntax = true;
+                invalidFilterSyntax = true;
                 return true;
             }
         }
-        return this.invalidFilterSyntax;
+        return invalidFilterSyntax;
     }
 
     private updateBoolString() {
@@ -195,9 +216,13 @@ export default class FilterStore {
     }
 
     public isFiltered(messageStore: MessageStore) {
-        if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
+        const iconClass = messageStore.getIconClass();
+        if (filterStore.getSideBarChecked(iconClass) === undefined) {
+            filterStore.setSideBarChecked(iconClass, true);
+        }
+        if (this.isSideBarChecked(iconClass) === false) return true;
 
-        this.invalidFilterSyntax = false;
+        if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
 
         // Check exclude tags
         if (this.excludeTags.length > 0 && this.isMessageExcluded(messageStore)) return true;
@@ -214,7 +239,6 @@ export default class FilterStore {
                 // eslint-disable-next-line no-eval
                 return !eval(boolString);
             } catch (e) {
-                this.invalidFilterSyntax = true;
                 return true;
             }
         }

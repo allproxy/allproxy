@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import { breakpointStore } from './store/BreakpointStore';
 import { createTheme, PaletteType, ThemeProvider } from '@material-ui/core';
 import React from 'react';
+import SideBar from './components/SideBar';
 
 const theme = localStorage.getItem('allproxy-theme');
 let defaultTheme : 'dark' | 'light' = 'dark'
@@ -64,10 +65,17 @@ function App() {
           messageQueueStore={messageQueueStore}
           snapshotStore={snapshotStore}
         />
-        <Snapshots
-          messageQueueStore={messageQueueStore}
-          snapshotStore={snapshotStore}
-        />
+        <div className="side-bar-snapshots">
+          <div>
+            <SideBar/>
+          </div>
+          <div>
+            <Snapshots
+              messageQueueStore={messageQueueStore}
+              snapshotStore={snapshotStore}
+            />
+          </div>
+        </div>
         <Footer
           socketStore={socketStore}
           filterStore={filterStore}

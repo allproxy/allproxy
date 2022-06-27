@@ -13,7 +13,7 @@ export default function colorPicker(message: Message): string {
 		if (pickIcon(message.proxyConfig!.protocol, message.requestHeaders['user-agent']).indexOf('keyboard') === -1) {
 			return firefoxColor;
 		} else {
-			return 'black';
+			return ''; // color is set by App.css fa-keyboard
 		}
 	}
 
@@ -24,7 +24,7 @@ export default function colorPicker(message: Message): string {
 	let key = '';
 	if (message.clientIp) {
 		key = message.clientIp.trim();
-	}	
+	}
 
 	let color = colorMap.get(key);
 	if (color === undefined) {
