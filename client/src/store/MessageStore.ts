@@ -54,6 +54,10 @@ export default class MessageStore {
         return this.iconClass;
     }
 
+    public getDomain(): string|undefined {
+        return this.message.requestHeaders['host'];
+    }
+
     public getTooltip(): string {
         return this.tooltip;
     }
