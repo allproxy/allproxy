@@ -23,7 +23,7 @@ export default function pickIcon(protocol: ConfigProtocol, userAgent?: string): 
 			iconClass = 'fa fa-bahai';
 			break;
 		case 'log:':
-			iconClass = 'fa fa-exclamation-triangle';
+			iconClass = 'fa fa-scroll';
 			break;
 		default:
 			iconClass = 'fa fa-arrows-alt-h';
