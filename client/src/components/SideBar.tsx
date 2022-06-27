@@ -41,13 +41,15 @@ const SideBar = observer(() => {
 					<div key={iconClass}>
 						<div className="side-bar-item">
 							<div className="side-bar-checkbox-icon">
-								<Checkbox className="side-bar-checkbox"
-									size="small"
-									defaultChecked
-									value={filterStore.isSideBarProtocolChecked(iconClass)}
-									onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)}
-								/>
-								<div className={`${iconClass} side-bar-icon`} />
+								<div style={{ display: 'flex' }}>
+									<Checkbox className="side-bar-checkbox"
+										size="small"
+										defaultChecked
+										value={filterStore.isSideBarProtocolChecked(iconClass)}
+										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)}
+									/>
+									<div className={`${iconClass} side-bar-icon`} />
+								</div>
 							</div>
 						</div>
 					</div>

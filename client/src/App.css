@@ -275,7 +275,6 @@ td input {
 
 .side-bar-item {
 	display: flex;
-	justify-content: center;
 	width: 100%;
 	padding: .5rem;
 }
@@ -286,7 +285,7 @@ td input {
 
 .side-bar-checkbox-icon {
 	display: flex;
-	justify-content: space-evenly;
+	justify-content: center;
 	width: 100%;
 	color: whitesmoke !important;
 }
@@ -298,7 +297,7 @@ td input {
 
 .side-bar-checkbox {
 	padding: 0 !important;
-	margin: 0 !important;
+	margin-right: .5rem !important;
 }
 
 .side-bar-select {
