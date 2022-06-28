@@ -141,8 +141,21 @@ export default class MessageStore {
         return body;
     }
 
-    public getUserAgent(): string | undefined {
+    private getUserAgent(): string | undefined {
         return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : undefined;
+    }
+
+    public getUserAgentDisplayable(): string | undefined {
+        let ua = this.getUserAgent();
+        if (ua) {
+            if (ua) {
+                ua = ua.split(' ')[0];
+                ua = ua.split('/')[0];
+            }
+            return ua;
+        } else {
+            return undefined;
+        }
     }
 
     public isHttpOrHttps() {

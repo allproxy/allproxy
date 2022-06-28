@@ -285,7 +285,6 @@ td input {
 
 .side-bar-checkbox-icon {
 	display: flex;
-	justify-content: center;
 	width: 100%;
 	color: whitesmoke !important;
 }
@@ -300,6 +299,11 @@ td input {
 	margin-right: .5rem !important;
 }
 
+.side-bar-protocol-count {
+	padding-left: .25rem;
+	font-size: x-small;
+}
+
 .side-bar-select {
 	color: whitesmoke !important;
 }
@@ -309,6 +313,10 @@ td input {
 }
 
 @media screen and (prefers-color-scheme: light) {
+	.side-bar-checkbox.MuiCheckbox-root {
+		color: whitesmoke !important;
+	}
+
 	.side-bar-domain-checkbox.MuiCheckbox-root {
 		color: black !important;
 	}

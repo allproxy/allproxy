@@ -1,6 +1,7 @@
 import { Checkbox, ListItemText, MenuItem, Select } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
 import { filterStore } from "../store/FilterStore";
+import { messageQueueStore } from "../store/MessageQueueStore";
 
 const SideBar = observer(() => {
 
@@ -34,6 +35,61 @@ const SideBar = observer(() => {
 		}
 	};
 
+	function getIconClassCounts(): Map<string, number> {
+		const countsByIconClassMap: Map<string, number> = new Map();
+		messageQueueStore.getMessages().forEach((messageStore) => {
+			const iconClass = messageStore.getIconClass();
+			const count = countsByIconClassMap.get(iconClass);
+			if (count) {
+				countsByIconClassMap.set(iconClass, count + 1);
+			} else {
+				countsByIconClassMap.set(iconClass, 1);
+			}
+		})
+		return countsByIconClassMap;
+	}
+
+	const iconClassCounts = getIconClassCounts();
+
+	function getIconClassCountByIconClass(iconClass: string): number {
+		const count = iconClassCounts.get(iconClass);
+		return count ? count : 0;
+	}
+
+	function getDomains(): Map<string, number> {
+		const countsByDomainMap: Map<string, number> = new Map();
+		messageQueueStore.getMessages().forEach((messageStore) => {
+			const domain = messageStore.getDomain();
+			if (!domain) return;
+			const count = countsByDomainMap.get(domain);
+			if (count) {
+				countsByDomainMap.set(domain, count + 1);
+			} else {
+				countsByDomainMap.set(domain, 1);
+			}
+		})
+		return countsByDomainMap;
+	}
+
+	const domains = Array.from(getDomains().keys());
+
+	function getUserAgents(): Map<string, number> {
+		const countsByUserAgentMap: Map<string, number> = new Map();
+		messageQueueStore.getMessages().forEach((messageStore) => {
+			const userAgent = messageStore.getUserAgentDisplayable();
+			if (!userAgent) return;
+			const count = countsByUserAgentMap.get(userAgent);
+			if (count) {
+				countsByUserAgentMap.set(userAgent, count + 1);
+			} else {
+				countsByUserAgentMap.set(userAgent, 1);
+			}
+		})
+		return countsByUserAgentMap;
+	}
+
+	const userAgents = Array.from(getUserAgents().keys());
+
 	return (
 		<div className="side-bar">
 			{
@@ -49,6 +105,7 @@ const SideBar = observer(() => {
 										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)}
 									/>
 									<div className={`${iconClass} side-bar-icon`} />
+									<div className="side-bar-protocol-count">{getIconClassCountByIconClass(iconClass)}</div>
 								</div>
 							</div>
 						</div>
@@ -68,8 +125,8 @@ const SideBar = observer(() => {
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
 							multiple
-							value={filterStore.getSideBarDomains()}
-							renderValue={() => "Domains"}
+							value={domains.concat('all')}
+							renderValue={() => "Host Names"}
 						>
 							<MenuItem
 								value="all"
@@ -82,7 +139,7 @@ const SideBar = observer(() => {
 									primary="Select All"
 								/>
 							</MenuItem>
-							{filterStore.getSideBarDomains().map((domain) => (
+							{domains.map((domain) => (
 								<MenuItem key={domain} value={domain}>
 									<Checkbox className="side-bar-domain-checkbox"
 										checked={filterStore.isSideBarDomainChecked(domain)}
@@ -101,7 +158,7 @@ const SideBar = observer(() => {
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
 							multiple
-							value={filterStore.getSideBarUserAgents()}
+							value={userAgents.concat('all')}
 							renderValue={() => "User Agents"}
 						>
 							<MenuItem
@@ -115,7 +172,7 @@ const SideBar = observer(() => {
 									primary="Select All"
 								/>
 							</MenuItem>
-							{filterStore.getSideBarUserAgents().map((userAgent) => (
+							{userAgents.map((userAgent) => (
 								<MenuItem key={userAgent} value={userAgent}>
 									<Checkbox className="side-bar-domain-checkbox"
 										checked={filterStore.isSideBarUserAgentChecked(userAgent)}

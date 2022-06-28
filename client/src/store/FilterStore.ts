@@ -280,12 +280,8 @@ export default class FilterStore {
         }
 
         // User Agents filter
-        let ua = messageStore.getUserAgent();
+        let ua = messageStore.getUserAgentDisplayable();
         if (ua) {
-            if (ua) {
-                ua = ua.split(' ')[0];
-                ua = ua.split('/')[0];
-            }
             if (filterStore.getSideBarUserAgentChecked(ua) === undefined) {
                 filterStore.setSideBarUserAgentChecked(ua, true);
             }
