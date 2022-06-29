@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.9.4",
+  "version": "3.9.5",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -106,7 +106,7 @@
     "forge": {
       "packagerConfig": {
         "icon": "icons/icon",
-        "ignore": "(.git|.vscode|client\/node_modules|client\/src|.gitignore|ca.pem|certs\/+|keys\/+|@electron-forge|@types|@typescript-eslint|eslint*|nodemon|rimraf|ts_node|typescript|@babel)"
+        "ignore": "(.git|.vscode|client/node_modules|client/src|.gitignore|ca.pem|certs/+|keys/+|@electron-forge|@types|@typescript-eslint|eslint*|nodemon|rimraf|ts_node|typescript|@babel)"
       },
       "makers": [
         {

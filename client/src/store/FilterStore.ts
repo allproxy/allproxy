@@ -16,6 +16,7 @@ export default class FilterStore {
     private _deleteFiltered = false;
     private showErrors = false;
     private excludeTags: string[] = [];
+    private _excludeMatchCase = false;
     private sideBarProtocols: Map<string, boolean> = new Map();
     private sideBarDomains: Map<string, boolean> = new Map();
     private sideBarUserAgents: Map<string, boolean> = new Map();
@@ -92,15 +93,27 @@ export default class FilterStore {
         return this.showErrors;
     }
 
-    @action public setExcludeTags(excludeList: string[]) {
-        this.excludeTags = excludeList;
-    }
-
     @action public toggleShowErrors() {
         this.showErrors = !this.showErrors;
         if (!this.showErrors && this.filter.length === 0) {
             this.resetScroll = true;
         }
+    }
+
+    @action public setExcludeTags(excludeList: string[]) {
+        this.excludeTags = excludeList;
+    }
+
+    public excludeMatchCase(): boolean {
+        return this._excludeMatchCase;
+    }
+
+    @action public toggleExcludeMatchCase() {
+        this._excludeMatchCase = !this._excludeMatchCase;
+    }
+
+    @action public setExcludeMatchCase(matchCase: boolean) {
+        this._excludeMatchCase = matchCase;
     }
 
     // Protocols filter
@@ -355,7 +368,14 @@ export default class FilterStore {
 
     private isExcluded(haystack: string | undefined): boolean {
         if (haystack === undefined) return false;
-        for (const needle of this.excludeTags) {
+        if (!this._excludeMatchCase) {
+            haystack = haystack.toLowerCase();
+        }
+
+        for (let needle of this.excludeTags) {
+            if (!this._excludeMatchCase) {
+                needle = needle.toLowerCase();
+            }
             if (haystack.indexOf(needle) !== -1) {
                 return true;
             }
