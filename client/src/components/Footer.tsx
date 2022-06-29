@@ -47,10 +47,12 @@ const Footer = observer(({ socketStore, messageQueueStore, filterStore, breakpoi
 				</div>
 			</div>
 			<div className="footer__item footer__exclude-filter">
-				<div style={{marginRight: '.5rem'}}>Exclude:</div>
+				<div style={{ marginRight: '.5rem' }}>Exclude:</div>
 				<div>
-					<ExcludeTags/>
+					<ExcludeTags />
 				</div>
+				<div className={`header__filter-case ${filterStore.excludeMatchCase() ? 'active' : ''}`}
+					title="Match case" onClick={() => filterStore.toggleExcludeMatchCase()}>Aa</div>
 			</div>
 		</div>
 	)
