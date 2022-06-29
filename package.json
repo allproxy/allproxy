@@ -106,9 +106,7 @@
     "forge": {
       "packagerConfig": {
         "icon": "icons/icon",
-        "ignore": [
-          "^.*.(pem,key,settings,vscode,*ignore,project,yml,ts,tsx,json)$"
-        ]
+        "ignore": "(.git|.vscode|client\/node_modules|client\/src|.gitignore|ca.pem|certs\/+|keys\/+|@electron-forge|@types|@typescript-eslint|eslint*|nodemon|rimraf|ts_node|typescript|@babel)"
       },
       "makers": [
         {
