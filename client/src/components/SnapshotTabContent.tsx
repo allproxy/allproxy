@@ -2,7 +2,6 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { filterStore } from '../store/FilterStore';
 import MessageQueueStore from '../store/MessageQueueStore';
-import { CircularProgress, Fade } from '@material-ui/core';
 import Request from './Request';
 import Response from './Response';
 import ResendModal from './ResendModal';
@@ -10,6 +9,7 @@ import ResendStore from '../store/ResendStore';
 import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
+import { Fade } from '@material-ui/core';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -109,39 +109,47 @@ const SnapshotTabContent = observer(({
 				</div>
 			}
 			{messageQueueStore.getMessages().length === 0 &&
-				<div className="request__container">
-					<CircularProgress className="center" />
+				<div className="request__container unselected">
+					<div className="center fas fa-exchange-alt"
+						style={{ fontSize: '8rem', color: '#007bff' }}>
+					</div>
 				</div>
 			}
-			<div className="response__container">
-				{activeRequestIndex < messageQueueStore.getMessages().length ?
-					<Response
-						store={messageQueueStore.getMessages()[activeRequestIndex]}
-						message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
+			{
+				messageQueueStore.getMessages().length > 0 &&
+				<div className="response__container">
+					{activeRequestIndex < messageQueueStore.getMessages().length ?
+						<Response
+							store={messageQueueStore.getMessages()[activeRequestIndex]}
+							message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
+							onClose={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
+						/>
+						:
+						<Fade in={true}>
+							<div className="center">
+								Select request from left column
+							</div>
+						</Fade>
+					}
+				</div>
+			}
+			{
+				resendStore ? (
+					<ResendModal
+						open={resendStore !== undefined}
+						onClose={handleResendClose}
+						store={resendStore}
 					/>
-					:
-					<Fade in={true}>
-						<div className="center">
-							Select request from left column
-						</div>
-					</Fade>
-				}
-			</div>
-			{resendStore ? (
-				<ResendModal
-					open={resendStore !== undefined}
-					onClose={handleResendClose}
-					store={resendStore}
-				/>
-			) : null}
-			{messageStore !== null &&
+				) : null}
+			{
+				messageStore !== null &&
 				<BreakpointResponseModal
 					open={breakpointStore.getMessageStore() !== null}
 					onClose={handleCloseBreakpointResponseModal}
 					store={messageStore}
 				/>
 			}
-		</div>
+		</div >
 	);
 
 	function handleResend(message: Message) {
