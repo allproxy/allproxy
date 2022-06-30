@@ -47,7 +47,7 @@ const Footer = observer(({ socketStore, messageQueueStore, filterStore, breakpoi
 				</div>
 			</div>
 			<div className="footer__item footer__exclude-filter">
-				<div style={{ marginRight: '.5rem' }}>Exclude:</div>
+				<div className="footer__exclude-label">Exclude:</div>
 				<div>
 					<ExcludeTags />
 				</div>
