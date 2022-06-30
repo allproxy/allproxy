@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "target": "es6",
     "module": "commonjs",
     "noImplicitAny": true,
@@ -13,5 +14,8 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "exclude": ["node_modules", "client", "client_old"]
+  "exclude": [
+    "node_modules",
+    "client"
+  ]
 }

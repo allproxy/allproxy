@@ -62,7 +62,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						width="24" height="24" />
 				</div>
 				<div className="header__title" onClick={() => window.location.reload()}>
-					<span style={{ color: 'red' }}>All</span>Proxy
+					<span style={{ color: '#f50057' }}>All</span>Proxy
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
@@ -277,8 +277,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					}
 				}}
 			/>
-			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)}/>
-			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)}/>
+			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
+			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)} />
 		</div>
 	)
 });

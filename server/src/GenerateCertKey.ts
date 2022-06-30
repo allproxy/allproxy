@@ -1,15 +1,15 @@
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import Proxy from '../../node-http-mitm-proxy';
 import Global from './Global';
 import Paths from './Paths';
+const ca = require('./ca');
 
 let theCa: any;
 
 export function createCertificateAuthority(): Promise<void> {
   return new Promise<void>((resolve) => {
-    Proxy.ca.create(Paths.sslCaDir(), function (_err: any, ca: any) {
+    ca.create(Paths.sslCaDir(), function (_err: any, ca: any) {
       theCa = ca;
       resolve();
     });

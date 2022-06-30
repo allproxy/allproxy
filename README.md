@@ -33,7 +33,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 * Take snapshots of captured messages
 * Export and Import captured messages
 * Open AllProxy application in multiple browser tabs
-* Dark/Light Mode 
+* Dark/Light Mode
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
@@ -97,14 +97,14 @@ The AllProxy server is started using either the NPM installed **allproxy** scrip
   ```sh
   $ allproxy
 
-    Listening on http:  8888    
+    Listening on http:  8888
   ```
 
 #### Start GitHub Project
    ```sh
    allproxy$ npm start
 
-    Listening on http:  8888    
+    Listening on http:  8888
    ```
 ### Install and Trust CA Certificate
 
@@ -361,8 +361,6 @@ Multiple Application instances can be opened in separate browser tabs, and all o
 Each Application instance keeps its own copy of the messages, so clearing or stopping recording in one Application instance, does not affect another other Application instances.
 
 ## Certificates
-Certificates are managed by the [node-http-mitm-proxy](https://github.com/joeferner/node-http-mitm-proxy/tree/master/examples) package.
-
 Generated certificates are stored in **.allproxy/.http-mitm-proxy/certs/**.  Import **allproxy/ca.pem** to your browser to trust all AllProxy generated certificates.
 
 The **allproxy-ca** script can be used to install the CA certificate on MacOS and Linux.
@@ -371,7 +369,6 @@ For Windows, execute the allproxy-ca script to get the path of the CA certificat
 
 ## Implementation:
 - **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.
-- **HTTPS proxy** - The *node-http-mitm-proxy* package is used to build certificates to capture decrypted HTTPS traffic as either a forward or reverse proxy.
 - **TCP proxy** - The *net* package is used to listen on a TCP port for non-HTTP messages, and proxy the protocol messages to the target host.
 - **Socket.IO** - The node *socket.io* package is used to pass messages between the server and browser where they are recorded and displayed in a application.
 - **stdout/stderr** - Spawn a child process to read *stdout* and *stderr* from any docker log or log file, and display the log messages in the application.

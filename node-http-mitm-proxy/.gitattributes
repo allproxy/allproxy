@@ -1,2 +1,0 @@
-# The test files should be treated as binary to prevent LF/CRLF conversion on windows.
-*.bin binary
