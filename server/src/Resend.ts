@@ -30,10 +30,22 @@ const resend = async (
     }
   }
 
+  headers.allproxy = 'resend';
+
+  // Do environment variable replacement, when a header value is set to a defined environment variable.
+  for (const key in headers) {
+    const value = headers[key];
+    if (value.startsWith('$') && value.length > 1) {
+      const value2 = process.env[value.substring(1)];
+      if (value2 && value2.length > 0) {
+        console.log(`Environment variable "${value}" is defined: Setting header "${key}" to "${value2}"`);
+        headers[key] = value2;
+      }
+    }
+  }
+
   // eslint-disable-next-line node/no-deprecated-api
   const reqUrl = urlParser.parse(url);
-
-  headers.allproxy = 'resend';
 
   // console.log(`Resend ${method} ${url} \n${body} \n${headers}`)
 
