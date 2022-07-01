@@ -35,24 +35,55 @@ const SideBar = observer(() => {
 		}
 	};
 
-	function getIconClassCounts(): Map<string, number> {
-		const countsByIconClassMap: Map<string, number> = new Map();
+	const areAllStatusesSelected = (): boolean => {
+		const statuses = filterStore.getSideBarStatuses();
+		for (const status of statuses) if (!filterStore.isSideBarStatusChecked(status)) return false;
+		return true;
+	}
+
+	const handleAllStatusChange = () => {
+		const statuses = filterStore.getSideBarStatuses();
+		if (areAllStatusesSelected()) {
+			statuses.forEach((status) => filterStore.setSideBarStatusChecked(status, false));
+		} else {
+			statuses.forEach((status) => filterStore.setSideBarStatusChecked(status, true));
+		}
+	};
+
+
+	let countsByIconClassMap: Map<string, number> = new Map();
+	let countsByStatusMap: Map<number, number> = new Map();
+
+	function getCounts() {
 		messageQueueStore.getMessages().forEach((messageStore) => {
 			const iconClass = messageStore.getIconClass();
-			const count = countsByIconClassMap.get(iconClass);
+			let count = countsByIconClassMap.get(iconClass);
 			if (count) {
 				countsByIconClassMap.set(iconClass, count + 1);
 			} else {
 				countsByIconClassMap.set(iconClass, 1);
 			}
+
+			const status = messageStore.getMessage().status;
+			if (!status) return;
+			count = countsByStatusMap.get(status);
+			if (count) {
+				countsByStatusMap.set(status, count + 1);
+			} else {
+				countsByStatusMap.set(status, 1);
+			}
 		})
-		return countsByIconClassMap;
 	}
 
-	const iconClassCounts = getIconClassCounts();
+	getCounts();
 
 	function getIconClassCountByIconClass(iconClass: string): number {
-		const count = iconClassCounts.get(iconClass);
+		const count = countsByIconClassMap.get(iconClass);
+		return count ? count : 0;
+	}
+
+	function getStatusCount(status: number): number {
+		const count = countsByStatusMap.get(status);
 		return count ? count : 0;
 	}
 
@@ -93,7 +124,7 @@ const SideBar = observer(() => {
 	return (
 		<div className="side-bar">
 			{
-				filterStore.getSideBarProtocolIconClasses().map((iconClass) => (
+				filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => (
 					<div key={iconClass}>
 						<div className="side-bar-item">
 							<div className="side-bar-checkbox-icon">
@@ -105,7 +136,7 @@ const SideBar = observer(() => {
 										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)}
 									/>
 									<div className={`${iconClass} side-bar-icon`} />
-									<div className="side-bar-protocol-count">{getIconClassCountByIconClass(iconClass)}</div>
+									<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
 								</div>
 							</div>
 						</div>
@@ -139,7 +170,7 @@ const SideBar = observer(() => {
 									primary="Select All"
 								/>
 							</MenuItem>
-							{domains.map((domain) => (
+							{domains.sort().map((domain) => (
 								<MenuItem key={domain} value={domain}>
 									<Checkbox className="side-bar-domain-checkbox"
 										checked={filterStore.isSideBarDomainChecked(domain)}
@@ -172,7 +203,7 @@ const SideBar = observer(() => {
 									primary="Select All"
 								/>
 							</MenuItem>
-							{userAgents.map((userAgent) => (
+							{userAgents.sort().map((userAgent) => (
 								<MenuItem key={userAgent} value={userAgent}>
 									<Checkbox className="side-bar-domain-checkbox"
 										checked={filterStore.isSideBarUserAgentChecked(userAgent)}
@@ -185,6 +216,46 @@ const SideBar = observer(() => {
 					</div>
 				</div>
 			}
+
+			{
+				(filterStore.getSideBarStatuses().length > 0) && (
+					<hr className="side-bar-divider"></hr>
+				)
+			}
+
+			{
+				(filterStore.getSideBarStatuses().length > 0) && (
+					<div className="side-bar-item">
+						<div>
+							<div>Status Codes:</div>
+							<div style={{ display: 'flex' }}>
+								<Checkbox className="side-bar-checkbox"
+									size="small"
+									checked={areAllStatusesSelected()}
+									onChange={handleAllStatusChange}
+								/>
+								<div>All</div>
+							</div>
+							{
+								filterStore.getSideBarStatuses().sort().map((status) => (
+									<div key={status}>
+										<div style={{ display: 'flex' }}>
+											<Checkbox className="side-bar-checkbox"
+												size="small"
+												checked={filterStore.isSideBarStatusChecked(status)}
+												onChange={() => filterStore.toggleSideBarStatusChecked(status)}
+											/>
+											<div className="side-bar-status">{status}</div>
+											<div className="side-bar-small-count">{getStatusCount(status)}</div>
+										</div>
+									</div>
+								))
+							}
+						</div>
+					</div>
+				)
+			}
+
 		</div >
 	)
 });

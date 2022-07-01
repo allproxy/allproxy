@@ -27,7 +27,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 
 	function handleDeleteTab(event: any, value: string) {
 		// console.log('handleDeleteSnapshot', value);
-;		event.stopPropagation();
+		; event.stopPropagation();
 		if (snapshotStore.getSelectedSnapshotName() === value) {
 			snapshotStore.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
@@ -45,14 +45,15 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 					aria-label="Snapshots">
 					{snapshotStore.getSnapshotNames().map((value, i) => (
 						<Tab
-							value={ value }
+							key={value}
+							value={value}
 							label={
 								<div className={'snapshot__tab'}>
 									<div>{(i === 0
 										? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
-										: snapshotStore.getSnapshotName(value)) + ' ('+snapshotStore.getSnapshotSize(value)+')'}</div>
+										: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
-										? <div className={ 'snapshot__folder-plus fa fa-camera' }
+										? <div className={'snapshot__folder-plus fa fa-camera'}
 											style={{
 												marginLeft: '.5rem',
 												pointerEvents: snapshotStore.getSnapshotSize(value) === 0 ? 'none' : undefined,
@@ -60,12 +61,12 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 											}}
 											title="Take snapshot"
 											onClick={() => handleTakeSnapshot(value)}
-											/>
-										: <div className={ 'snapshot__close fa fa-times' }
-											style={{marginLeft: '.5rem'}}
+										/>
+										: <div className={'snapshot__close fa fa-times'}
+											style={{ marginLeft: '.5rem' }}
 											title="Delete snapshot"
 											onClick={(e) => handleDeleteTab(e, value)}
-											/>
+										/>
 									}
 								</div>
 							}>
@@ -73,9 +74,11 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 					))}
 				</Tabs>
 				{snapshotStore.getSnapshotNames().map((value, i) => (
-					<TabPanel value={value}>
+					<TabPanel
+						key={value}
+						value={value}>
 						<SnapshotTabContent
-							messageQueueStore={ messageQueueStore }
+							messageQueueStore={messageQueueStore}
 							selectedReqSeqNum={snapshotStore.getSelectedReqSeqNumbers()[i]}
 							setSelectedReqSeqNum={
 								(num) => snapshotStore.getSelectedReqSeqNumbers()[i] = num
@@ -84,7 +87,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 							setScrollTop={
 								(scrollTop) => snapshotStore.getScrollTop()[i] = scrollTop
 							}
-					/>
+						/>
 					</TabPanel>
 				))}
 			</TabContext>
