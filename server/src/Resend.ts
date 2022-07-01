@@ -33,7 +33,7 @@ const resend = async (
 
   headers.allproxy = 'resend';
 
-  // Do environment variable replacement, when a header value is set to a defined environment variable.
+  // Header environment variable replacement:
   for (const key in headers) {
     const value = headers[key];
     if (value.startsWith('$') && value.length > 1) {
@@ -47,6 +47,23 @@ const resend = async (
 
   // eslint-disable-next-line node/no-deprecated-api
   const reqUrl = urlParser.parse(url);
+
+  // URL environment variable replacement:
+  if (url.indexOf('$')) {
+    const path = reqUrl.pathname;
+    if (path) {
+      const tokens = path.split('/');
+      for (let i = 0; i < tokens.length; ++i) {
+        if (tokens[i].startsWith('$') && tokens[i].length > 1) {
+          const value = process.env[tokens[i].substring(1)];
+          if (value && value.length > 0) {
+            ConsoleLog.info(`Environment variable "${tokens[i]}" is defined: Replaced with "${value}"`);
+            url = url.replace('/' + tokens[i], '/' + value);
+          }
+        }
+      }
+    }
+  }
 
   // ConsoleLog.info(`Resend ${method} ${url} \n${body} \n${headers}`)
 
