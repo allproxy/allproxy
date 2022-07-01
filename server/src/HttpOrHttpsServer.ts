@@ -11,6 +11,7 @@ import generateCertKey from './GenerateCertKey';
 import { compressResponse, decompressResponse } from './Zlib';
 import InterceptJsonResponse from '../../intercept';
 import AllProxyApp from './AllProxyApp';
+import ConsoleLog from './ConsoleLog';
 
 // Hop-by-hop headers. These are removed when sent to the backend.
 // As of RFC 7230, hop-by-hop headers are required to appear in the
@@ -100,7 +101,7 @@ export default class HttpOrHttpsServer {
       return;
     }
 
-    console.log('HttpOrHttpsServer onRequest', reqUrl.path);
+    ConsoleLog.info('HttpOrHttpsServer onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
     const sequenceNumber = Global.nextSequenceNumber();
@@ -128,7 +129,7 @@ export default class HttpOrHttpsServer {
       }
     }
 
-    Global.log('HttpOrHttpsServer - ProxyConfig:', proxyConfig);
+    ConsoleLog.debug('HttpOrHttpsServer - ProxyConfig:', proxyConfig);
 
     // URLs for requests proxied from terminal (e.g., https_proxy=localhost:8888) do not include schema and hostname
     let urlWithHostname = clientReq.url!;
@@ -226,7 +227,7 @@ export default class HttpOrHttpsServer {
       headers
     };
 
-    Global.log('HttpOrHttpsServer proxy request options', options);
+    ConsoleLog.debug('HttpOrHttpsServer proxy request options', options);
     let retryCount = 0;
     const MAX_RETRIES = 5;
     doProxy(this.protocol);
@@ -237,7 +238,7 @@ export default class HttpOrHttpsServer {
       proxyReq.on('error', async function (error: { [key: string]: string }) {
         proxyReq.destroy();
         if (error.code === 'EAI_AGAIN' && retryCount++ < MAX_RETRIES) {
-          console.log(`Retry ${retryCount} for ${options.hostname}`);
+          ConsoleLog.info(`Retry ${retryCount} for ${options.hostname}`);
           setTimeout(doProxy, retryCount * 1000, protocol);
         } else {
           console.error('Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig);
@@ -297,7 +298,7 @@ export default class HttpOrHttpsServer {
           }
 
           if (modified) {
-            console.log('InterceptJsonResponse changed the JSON body');
+            ConsoleLog.info('InterceptJsonResponse changed the JSON body');
             let buffer = Buffer.from(JSON.stringify(message.responseBody));
             buffer = compressResponse(proxyRes.headers, buffer);
             chunks.splice(0, chunks.length);

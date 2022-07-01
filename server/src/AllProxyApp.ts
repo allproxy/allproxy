@@ -6,6 +6,7 @@ import fs from 'fs';
 import Global from './Global';
 import GrpcProxy from './GrpcProxy';
 import ProxyConfig, { DYNAMICALLY_ADDED } from '../../common/ProxyConfig';
+import ConsoleLog from './ConsoleLog';
 
 const portToGrpcProxyMap: Map<string, ProxyConfig> = new Map();
 
@@ -75,10 +76,10 @@ const AllProxyApp = (
     case 'POST':
       if (reqUrl.protocol === null &&
         reqUrl.pathname === '/api/allproxy/grpc-proxy') {
-        console.log('POST' + reqUrl.pathname);
+        ConsoleLog.info('POST' + reqUrl.pathname);
         getReqBody(clientReq)
           .then((reqBody) => {
-            console.log(reqBody);
+            ConsoleLog.info(reqBody);
             if (!reqBody.server || reqBody.server.indexOf(':') === -1) {
               clientRes.writeHead(400, { "content-type": "application/json; charset=utf-8" });
               clientRes.write(JSON.stringify({ error: "server field is invalid or missing" }));
@@ -108,7 +109,7 @@ const AllProxyApp = (
     case 'DELETE':
       if (reqUrl.protocol === null &&
         reqUrl.pathname!.startsWith('/api/allproxy/grpc-proxy/')) {
-        console.log('DELETE' + reqUrl.pathname)
+        ConsoleLog.info('DELETE' + reqUrl.pathname)
         const tokens = reqUrl.pathname!.split('/');
         const id = tokens[tokens.length - 1];
         const config = portToGrpcProxyMap.get(id);

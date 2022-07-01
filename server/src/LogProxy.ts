@@ -5,6 +5,7 @@ import { MessageType } from '../../common/Message';
 import fs from 'fs'
 import { BATCH_SIZE } from './SocketIoManager';
 import BoolFilter from '../../common/BoolFilter'
+import ConsoleLog from './ConsoleLog';
 const exec = require('child_process').exec;
 
 export default class LogProxy {
@@ -13,9 +14,9 @@ export default class LogProxy {
   primaryJsonFields: string[];
   boolFilter: BoolFilter;
   retry = true;
-  prevTimeMsec: number| undefined;
+  prevTimeMsec: number | undefined;
 
-  constructor (proxyConfig: ProxyConfig) {
+  constructor(proxyConfig: ProxyConfig) {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
     this.primaryJsonFields = proxyConfig.hostname ? proxyConfig.hostname.split(',') : [];
@@ -23,7 +24,7 @@ export default class LogProxy {
     this.start();
   }
 
-  static destructor (proxyConfig: ProxyConfig) {
+  static destructor(proxyConfig: ProxyConfig) {
     if (proxyConfig.logProxyProcess) {
       try {
         const proc = proxyConfig.logProxyProcess;
@@ -37,7 +38,7 @@ export default class LogProxy {
     }
   }
 
-  async start () {
+  async start() {
     LogProxy.destructor(this.proxyConfig);
     this.retry = true;
 
@@ -45,7 +46,7 @@ export default class LogProxy {
     if (fs.existsSync(this.command)) {
       this.command = 'cat ' + this.command;
     }
-    Global.log('LogProxy:start', this.command);
+    ConsoleLog.debug('LogProxy:start', this.command);
 
     const tokens = this.command.split(' ');
 
@@ -59,10 +60,10 @@ export default class LogProxy {
 
       // Read the entire file and process each record...
       const buffer = fs.readFileSync(tokens[1]);
-      for(const record of buffer.toString().split('\n')) {
-        if(this.boolFilter.isFiltered(record)) continue;
+      for (const record of buffer.toString().split('\n')) {
+        if (this.boolFilter.isFiltered(record)) continue;
         const queueCount = await this.processLogRecord('stdout', record);
-        if(queueCount >= BATCH_SIZE * 2) {
+        if (queueCount >= BATCH_SIZE * 2) {
           await delay();
         }
       }
@@ -76,8 +77,8 @@ export default class LogProxy {
 
     proc.stdout.on('data', (buffer: Buffer) => {
       if (warmUpCompleted()) {
-        for(const record of buffer.toString().split('\n')) {
-          if(this.boolFilter.isFiltered(record)) continue;
+        for (const record of buffer.toString().split('\n')) {
+          if (this.boolFilter.isFiltered(record)) continue;
           this.processLogRecord('stdout', record);
         }
       }
@@ -85,8 +86,8 @@ export default class LogProxy {
 
     proc.stderr.on('data', (buffer: Buffer) => {
       if (warmUpCompleted()) {
-        for(const record of buffer.toString().split('\n')) {
-          if(this.boolFilter.isFiltered(record)) continue;
+        for (const record of buffer.toString().split('\n')) {
+          if (this.boolFilter.isFiltered(record)) continue;
           this.processLogRecord('stderr', record);
         }
       }
@@ -107,7 +108,7 @@ export default class LogProxy {
     });
 
     const warmUpCompleted = () => {
-      return this.command.indexOf('tail ') !== -1 ?  Date.now() > startTime + 3000 : true;
+      return this.command.indexOf('tail ') !== -1 ? Date.now() > startTime + 3000 : true;
     }
   }
 
@@ -117,9 +118,9 @@ export default class LogProxy {
   recordCount = 0;
   buffer = '';
   // eslint-disable-next-line no-undef
-  timerHandle: NodeJS.Timeout|undefined;
+  timerHandle: NodeJS.Timeout | undefined;
 
-  async processLogRecord (streamName: string, record: string): Promise<number> {
+  async processLogRecord(streamName: string, record: string): Promise<number> {
     let queueCount = 0;
     if (this.timerHandle) {
       clearInterval(this.timerHandle);
@@ -136,44 +137,44 @@ export default class LogProxy {
 
     // Look for embedded JSON object
     let nonJson = '';
-    if(!record.startsWith('{') && !record.startsWith('[')) {
+    if (!record.startsWith('{') && !record.startsWith('[')) {
       const i = record.indexOf('{');
       if (i !== -1) {
         try {
           const json = JSON.parse(record.substring(i));
-          nonJson = record.substring(0,i) + ' ';
+          nonJson = record.substring(0, i) + ' ';
           record = JSON.stringify(json);
-        } catch(e) {}
+        } catch (e) { }
       }
     }
 
-    const hasPrimaryJsonField = (json: {[key:string]: any}): boolean => {
+    const hasPrimaryJsonField = (json: { [key: string]: any }): boolean => {
       const keys = Object.keys(json);
-      for(const key of this.primaryJsonFields) {
-        if(keys.indexOf(key) !== -1) {
+      for (const key of this.primaryJsonFields) {
+        if (keys.indexOf(key) !== -1) {
           return true;
         }
       }
       return false;
     }
 
-    const title = (json: {[key: string]: string}): string => {
+    const title = (json: { [key: string]: string }): string => {
       let title = '';
       this.primaryJsonFields.forEach((field) => {
-        if(title.length > 0) title += ', ';
-        title += field+ ': ' + json[field];
+        if (title.length > 0) title += ', ';
+        title += field + ': ' + json[field];
       })
       return title;
     }
 
-    let json: {[key:string]: any} | undefined
+    let json: { [key: string]: any } | undefined
     try {
       json = JSON.parse(record)
-    } catch(e) {}
+    } catch (e) { }
 
     if (json) {
       if (hasPrimaryJsonField(json)) {
-        let timeMsec: number|undefined;
+        let timeMsec: number | undefined;
         if (json['LogTime']) {
           timeMsec = Date.parse(json['LogTime']);
         } else if (json['msg_timestamp']) {
@@ -181,10 +182,10 @@ export default class LogProxy {
         } else {
           timeMsec = Date.now();
         }
-        queueCount = await this.emitToBrowser(nonJson+title(json), streamName, json, timeMsec);
+        queueCount = await this.emitToBrowser(nonJson + title(json), streamName, json, timeMsec);
       } else {
         const title = record.split('\n')[0];
-        queueCount = await this.emitToBrowser(nonJson+ title, streamName, json, Date.now());
+        queueCount = await this.emitToBrowser(nonJson + title, streamName, json, Date.now());
       }
     } else {
       const title = record.split('\n')[0];

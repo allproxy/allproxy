@@ -8,6 +8,7 @@ import listen from './Listen';
 import { AddressInfo } from 'net';
 import generateCertKey from './GenerateCertKey';
 import { decompressResponse } from './Zlib';
+import ConsoleLog from './ConsoleLog';
 
 type ProxyType = 'forward' | 'reverse';
 
@@ -68,7 +69,7 @@ export default class Https2Server {
     // eslint-disable-next-line node/no-deprecated-api
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
-    console.log('Https2Server onRequest', reqUrl.path);
+    ConsoleLog.info('Https2Server onRequest', reqUrl.path);
 
     const clientHostName = await Global.resolveIp(clientReq.socket.remoteAddress);
     const sequenceNumber = Global.nextSequenceNumber();
@@ -167,12 +168,12 @@ export default class Https2Server {
     try {
       proxyStream = clientHttp2Session.request(headers);
     } catch (e) {
-      console.log('Https2Server', headers);
+      ConsoleLog.info('Https2Server', headers);
       throw e;
     }
 
     proxyStream.on('response', (headers, flags) => {
-      Global.log('Http2Server on response', clientReq.url, headers, 'flags:', flags);
+      ConsoleLog.debug('Http2Server on response', clientReq.url, headers, 'flags:', flags);
       if (clientRes.stream) {
         clientRes.stream.respond(headers, { waitForTrailers: true });
       }
@@ -182,7 +183,7 @@ export default class Https2Server {
       });
 
       proxyStream.on('end', async () => {
-        Global.log('Http2Server end of response received');
+        ConsoleLog.debug('Http2Server end of response received');
 
         clientRes.end();
         if (clientHttp2Session) {

@@ -1,6 +1,7 @@
 import { dialog } from "electron";
+import ConsoleLog from "./ConsoleLog";
 
-export default async function listen (
+export default async function listen(
   serverName: string,
   server: any,
   port: number,
@@ -15,16 +16,16 @@ export default async function listen (
 
     _listen();
 
-    function _listen () {
+    function _listen() {
       server.listen(port, host, 511, () => {
         port = server.address().port;
-        console.log(`Listening on ${serverName} port ${port}`);
+        ConsoleLog.info(`Listening on ${serverName} port ${port}`);
         resolve(port);
       });
     }
 
     // Retry the listen with exponential back off
-    function onError (err: any) {
+    function onError(err: any) {
       if (++retries < maxRetries) {
         setTimeout(() => _listen(), backOff *= 2);
       } else {

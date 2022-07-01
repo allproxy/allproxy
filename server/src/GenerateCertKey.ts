@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import Global from './Global';
+import ConsoleLog from './ConsoleLog';
 import Paths from './Paths';
 const ca = require('./ca');
 
@@ -22,32 +22,32 @@ export function trustCertificateAuthority() {
 
   // MacOS?
   if (fs.existsSync('/Library/Keychains/System.keychain')) {
-    // console.log('Installing ca.pem in /Library/Keychains/System.keychain/');
+    // ConsoleLog.info('Installing ca.pem in /Library/Keychains/System.keychain/');
     // const cmd = `/usr/bin/security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ${caPem}`;
-    // console.log(cmd);
+    // ConsoleLog.info(cmd);
     // exec(`/usr/bin/osascript -e 'do shell script "sudo ${cmd}" with prompt "Install AllProxy CA Certificate " with administrator privileges'`,
     // (error, stdout, stderr) => {
     //   if (error) {
-    //     console.log(error);
+    //     ConsoleLog.info(error);
     //   }
-    //   console.log(stdout);
-    //   console.log(stderr);
+    //   ConsoleLog.info(stdout);
+    //   ConsoleLog.info(stderr);
     // });
     // Ubuntu/Debian?
   } else if (fs.existsSync('/usr/local/share/ca-certificates/')) {
-    console.log('Adding ca.pem in /usr/local/share/ca-certificates/');
+    ConsoleLog.info('Adding ca.pem in /usr/local/share/ca-certificates/');
     exec(`sudo cp ${caPem} /usr/local/share/ca-certificates/allproxyca.pem`);
     // CentOS 5?
   } else if (fs.existsSync('/etc/pki/tls/certs/ca-bundle.crt')) {
-    console.log('Adding ca.pem in /etc/pki/tls/certs/ca-bundle.crt');
+    ConsoleLog.info('Adding ca.pem in /etc/pki/tls/certs/ca-bundle.crt');
     exec(`cat ${caPem} >> /etc/pki/tls/certs/ca-bundle.crt`);
     // Windows?
   } else if (path.sep === '\\') {
-    console.log('Adding ca.pem to certificate store');
+    ConsoleLog.info('Adding ca.pem to certificate store');
     exec(`certutil -addstore -f "ROOT" ${caPem}`);
   }
 
-  console.log(`Please run ${home}/.allproxy/bin/trustCa.sh to add AllProxy certificate to certificate store`);
+  ConsoleLog.info(`Please run ${home}/.allproxy/bin/trustCa.sh to add AllProxy certificate to certificate store`);
 }
 
 const generateCertKey = async (hostname: string): Promise<{ cert: string, key: string }> => {
@@ -65,7 +65,7 @@ const generateCertKey = async (hostname: string): Promise<{ cert: string, key: s
         key: fs.readFileSync(keyPemFile).toString()
       });
     } else {
-      Global.log('GenerateCertKey generating new cert/key', hostname, wildcardHost);
+      ConsoleLog.debug('GenerateCertKey generating new cert/key', hostname, wildcardHost);
       theCa.generateServerCertificateKeys([wildcardHost], function (certPEM: string, privateKeyPEM: string) {
         resolve({
           cert: certPEM,

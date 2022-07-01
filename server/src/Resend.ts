@@ -3,6 +3,7 @@ import Message, { MessageProtocol } from '../../common/Message';
 import HttpMessage from './HttpMessage';
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
 import Global from './Global';
+import ConsoleLog from './ConsoleLog';
 const fetch = require('node-fetch');
 
 const resend = async (
@@ -38,7 +39,7 @@ const resend = async (
     if (value.startsWith('$') && value.length > 1) {
       const value2 = process.env[value.substring(1)];
       if (value2 && value2.length > 0) {
-        console.log(`Environment variable "${value}" is defined: Setting header "${key}" to "${value2}"`);
+        ConsoleLog.info(`Environment variable "${value}" is defined: Setting header "${key}" to "${value2}"`);
         headers[key] = value2;
       }
     }
@@ -47,7 +48,7 @@ const resend = async (
   // eslint-disable-next-line node/no-deprecated-api
   const reqUrl = urlParser.parse(url);
 
-  // console.log(`Resend ${method} ${url} \n${body} \n${headers}`)
+  // ConsoleLog.info(`Resend ${method} ${url} \n${body} \n${headers}`)
 
   body = typeof body === 'string' && body.length === 0 ? undefined : body;
 
@@ -62,7 +63,7 @@ const resend = async (
     body = JSON.stringify(body);
   }
   try {
-    Global.log('resend', method, url, headers, body);
+    ConsoleLog.debug('resend', method, url, headers, body);
     const response = await fetch(
       url,
       {

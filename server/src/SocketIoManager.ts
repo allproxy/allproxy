@@ -11,6 +11,7 @@ import resend from './Resend';
 import GrpcProxy from './GrpcProxy';
 import Paths from './Paths';
 import Global from './Global';
+import ConsoleLog from './ConsoleLog';
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -135,13 +136,13 @@ export default class SocketIoManager {
   }
 
   public addHttpServer(httpServer: any) {
-    Global.log('SocketIoManager add Server');
+    ConsoleLog.debug('SocketIoManager add Server');
     const server = new io.Server(httpServer);
     server.on('connection', (socket: io.Socket) => this._socketConnection(socket));
   }
 
   _socketConnection(socket: io.Socket) {
-    Global.log('SocketIoManager on connection');
+    ConsoleLog.debug('SocketIoManager on connection');
     const config = this.getConfig();
 
     socket.emit('port config', Global.portConfig); // send port config to browser
@@ -149,7 +150,7 @@ export default class SocketIoManager {
     socket.emit('proxy config', config); // send config to browser
 
     socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
-      console.log(`${Paths.configJson()}:\n`, proxyConfigs);
+      ConsoleLog.info(`${Paths.configJson()}:\n`, proxyConfigs);
       this.saveConfig(proxyConfigs);
 
       // Make sure all matching connection based servers are closed.
@@ -176,7 +177,7 @@ export default class SocketIoManager {
     socket.on('breakpoint', (enable: boolean) => {
       const socketIoInfo = this.socketIoMap.get(socket.conn.id);
       if (socketIoInfo) {
-        //console.log('breakpoint', enable);
+        //ConsoleLog.info('breakpoint', enable);
         socketIoInfo.breakpointEnabled = enable;
       }
     })
@@ -299,7 +300,7 @@ export default class SocketIoManager {
     this.socketIoMap.forEach((socketInfo: SocketIoInfo, _key: string) => {
       for (const proxyConfig of socketInfo.configs) {
         if (proxyConfig.protocol === 'grpc:' && proxyConfig.hostname === hostname && proxyConfig.port === port) {
-          Global.log(`findGrpcProxy(${hostname}, ${port}) return:`, proxyConfig)
+          ConsoleLog.debug(`findGrpcProxy(${hostname}, ${port}) return:`, proxyConfig)
           matchingProxyConfig = proxyConfig;
         }
       }
@@ -361,7 +362,7 @@ export default class SocketIoManager {
           (_response: string) => {
             --socketInfo.messagesOut;
 
-            // console.log(
+            // ConsoleLog.info(
             //             `out=${socketInfo.messagesOut}`,
             //             `sent=${messages.length}`,
             //             `queued=${socketInfo.queuedMessages.length}`,

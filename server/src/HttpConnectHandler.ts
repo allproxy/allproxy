@@ -2,6 +2,7 @@ import HttpOrHttpsServer from './HttpOrHttpsServer';
 import Https2Server from './Https2Server';
 import net from 'net';
 import Global from './Global';
+import ConsoleLog from './ConsoleLog';
 
 const HttpOrHttpsServers: { [key: string]: HttpOrHttpsServer } = {};
 const https2Servers: { [key: string]: Https2Server } = {};
@@ -16,24 +17,24 @@ export enum HttpVersion {
 let httpVersion: HttpVersion = HttpVersion.HTTP1;
 
 export default class HttpConnectHandler {
-  public static async start (_httpVersion: HttpVersion) {
+  public static async start(_httpVersion: HttpVersion) {
     httpVersion = _httpVersion;
   }
 
-  public static async doConnect (httpXSocket: net.Socket, data: Buffer) {
-    Global.log('HttpConnectHandler doConnect', data.toString());
+  public static async doConnect(httpXSocket: net.Socket, data: Buffer) {
+    ConsoleLog.debug('HttpConnectHandler doConnect', data.toString());
     const hostPort = data.toString().split(' ', 2)[1];
     const tokens = hostPort!.split(':', 2);
     const port = tokens.length === 2 ? parseInt(tokens[1]) : 443;
     HttpConnectHandler.onConnect(tokens[0], port, httpXSocket);
   }
 
-  private static async onConnect (hostname: string, port: number, socket: net.Socket) {
-    Global.log('HttpConnectHandler onConnect', hostname, port);
+  private static async onConnect(hostname: string, port: number, socket: net.Socket) {
+    ConsoleLog.debug('HttpConnectHandler onConnect', hostname, port);
 
     const proxyConfig = Global.socketIoManager.findGrpcProxyConfig(hostname, port);
     if (proxyConfig) {
-      console.log(`Proxy ${hostname}:${port} to gRPC`);
+      ConsoleLog.info(`Proxy ${hostname}:${port} to gRPC`);
       HttpConnectHandler.createTunnel(socket, parseInt(proxyConfig.path), 'localhost');
     } else {
       const key = hostname;
@@ -46,10 +47,10 @@ export default class HttpConnectHandler {
           httpsServer = new Https2Server(hostname, port, 'forward');
           https2Servers[key] = httpsServer;
         }
-        Global.log('HttpConnectHandler start https server');
+        ConsoleLog.debug('HttpConnectHandler start https server');
         await httpsServer.start(0);
       } else {
-        Global.log('HttpConnectHandler wait for https server to start');
+        ConsoleLog.debug('HttpConnectHandler wait for https server to start');
         await httpsServer.waitForServerToStart();
       }
 
@@ -58,8 +59,8 @@ export default class HttpConnectHandler {
     }
   }
 
-  private static respond (socket: net.Socket) {
-    Global.log('HttpConnectHandler HTTP/1.1 200 Connection Established');
+  private static respond(socket: net.Socket) {
+    ConsoleLog.debug('HttpConnectHandler HTTP/1.1 200 Connection Established');
     socket.write('HTTP/1.1 200 Connection Established\r\n' +
       // 'Connection: Keep-Alive\n\r' +
       'Proxy-agent: Node.js-Proxy\r\n' +
@@ -68,8 +69,8 @@ export default class HttpConnectHandler {
 
   // Create tunnel from client to AllProxy https server.  The AllProxy https server decrypts and captures
   // the HTTP messages, and forwards it to the origin server.
-  private static createTunnel (httpXSocket: any, httpsServerPort: number, hostname: string) {
-    Global.log('HttpConnectionHandler createTunnel', httpsServerPort, hostname);
+  private static createTunnel(httpXSocket: any, httpsServerPort: number, hostname: string) {
+    ConsoleLog.debug('HttpConnectionHandler createTunnel', httpsServerPort, hostname);
     const httpsServerSocket = net.connect(httpsServerPort, hostname, () => {
       HttpConnectHandler.respond(httpXSocket);
 
@@ -79,11 +80,11 @@ export default class HttpConnectHandler {
     });
 
     httpXSocket.on('error', (err: any) => {
-      Global.log('HttpConnectHandler Client socket error: ', err);
+      ConsoleLog.debug('HttpConnectHandler Client socket error: ', err);
     });
 
     httpsServerSocket.on('error', (err: any) => {
-      Global.log('HttpConnectHandler Server socket error: ', err);
+      ConsoleLog.debug('HttpConnectHandler Server socket error: ', err);
     });
   }
 }
