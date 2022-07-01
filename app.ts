@@ -9,6 +9,7 @@ import { createCertificateAuthority, trustCertificateAuthority } from './server/
 import { parseProtoFiles } from './server/src/Protobuf';
 import path from 'path';
 import fs from 'fs';
+import ConsoleLog from './server/src/ConsoleLog';
 
 const listen: {
   protocol: string,
@@ -65,7 +66,10 @@ for (let i = 2; i < process.argv.length; ++i) {
       Global.useHttp2 = true;
       break;
     case '--debug':
-      Global.debug = true;
+      ConsoleLog.enableDebug = true;
+      break;
+    case '--info':
+      ConsoleLog.enableInfo = true;
       break;
     default:
       usage();

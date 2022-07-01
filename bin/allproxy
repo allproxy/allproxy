@@ -6,4 +6,5 @@ if [ ! -z "$SYMLINK" ]; then
   BIN_DIR=$BIN_DIR/$(dirname $SYMLINK)
 fi
 cd $BIN_DIR
+
 npm start

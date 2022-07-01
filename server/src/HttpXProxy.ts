@@ -5,6 +5,7 @@ import HexFormatter from './formatters/HexFormatter';
 import HttpOrHttpsServer from './HttpOrHttpsServer';
 import Global from './Global';
 import Https2Server from './Https2Server';
+import ConsoleLog from './ConsoleLog';
 
 // const GRPC_PORT = 11111;
 
@@ -42,30 +43,30 @@ export default class HttpXProxy {
   }
 
   private onConnect(httpXSocket: net.Socket) {
-    Global.log('HttpXProxy onConnect');
+    ConsoleLog.debug('HttpXProxy onConnect');
     let done = false;
     const onData = async (data: Buffer) => {
       if (!done) {
         const line1 = data.toString().split('\r\n')[0];
         if (line1.startsWith('CONNECT')) {
-          console.log(line1);
+          ConsoleLog.info(line1);
           HttpConnectHandler.doConnect(httpXSocket, data);
         } else if (this.isClientHello(data)) {
-          Global.log('HttpXProxy client hello:\n', HexFormatter.format(data));
+          ConsoleLog.debug('HttpXProxy client hello:\n', HexFormatter.format(data));
           const httpsServerSocket = net.connect(this.httpsServer.getEphemeralPort(), undefined, () => {
-            Global.log('HttpXProxy connected to httpsServer');
+            ConsoleLog.debug('HttpXProxy connected to httpsServer');
             httpsServerSocket.write(data);
             httpsServerSocket.pipe(httpXSocket);
             httpXSocket.pipe(httpsServerSocket);
           });
         } else { // Assume this is just HTTP in the clear
-          console.log(line1);
+          ConsoleLog.info(line1);
           // const port = line1.endsWith('HTTP/1.0') || line1.endsWith('HTTP/1.1')
           //   ? this.http1Port
           //   : GRPC_PORT;
-          Global.log('HttpXProxy http:\n', HexFormatter.format(data));
+          ConsoleLog.debug('HttpXProxy http:\n', HexFormatter.format(data));
           const httpServerSocket = net.connect(this.httpPort, undefined, () => {
-            Global.log('HttpXProxy connected to httpServer');
+            ConsoleLog.debug('HttpXProxy connected to httpServer');
             httpServerSocket.write(data);
             httpServerSocket.pipe(httpXSocket);
             httpXSocket.pipe(httpServerSocket);

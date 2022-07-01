@@ -3,6 +3,7 @@ import Message, { MessageProtocol } from '../../common/Message';
 import HttpMessage from './HttpMessage';
 import ProxyConfig, { ConfigProtocol } from '../../common/ProxyConfig';
 import Global from './Global';
+import ConsoleLog from './ConsoleLog';
 const fetch = require('node-fetch');
 
 const resend = async (
@@ -30,12 +31,41 @@ const resend = async (
     }
   }
 
+  headers.allproxy = 'resend';
+
+  // Header environment variable replacement:
+  for (const key in headers) {
+    const value = headers[key];
+    if (value.startsWith('$') && value.length > 1) {
+      const value2 = process.env[value.substring(1)];
+      if (value2 && value2.length > 0) {
+        ConsoleLog.info(`Environment variable "${value}" is defined: Setting header "${key}" to "${value2}"`);
+        headers[key] = value2;
+      }
+    }
+  }
+
   // eslint-disable-next-line node/no-deprecated-api
   const reqUrl = urlParser.parse(url);
 
-  headers.allproxy = 'resend';
+  // URL environment variable replacement:
+  if (url.indexOf('$')) {
+    const path = reqUrl.pathname;
+    if (path) {
+      const tokens = path.split('/');
+      for (let i = 0; i < tokens.length; ++i) {
+        if (tokens[i].startsWith('$') && tokens[i].length > 1) {
+          const value = process.env[tokens[i].substring(1)];
+          if (value && value.length > 0) {
+            ConsoleLog.info(`Environment variable "${tokens[i]}" is defined: Replaced with "${value}"`);
+            url = url.replace('/' + tokens[i], '/' + value);
+          }
+        }
+      }
+    }
+  }
 
-  // console.log(`Resend ${method} ${url} \n${body} \n${headers}`)
+  // ConsoleLog.info(`Resend ${method} ${url} \n${body} \n${headers}`)
 
   body = typeof body === 'string' && body.length === 0 ? undefined : body;
 
@@ -50,7 +80,7 @@ const resend = async (
     body = JSON.stringify(body);
   }
   try {
-    Global.log('resend', method, url, headers, body);
+    ConsoleLog.debug('resend', method, url, headers, body);
     const response = await fetch(
       url,
       {

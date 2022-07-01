@@ -20,6 +20,7 @@ export default class FilterStore {
     private sideBarProtocols: Map<string, boolean> = new Map();
     private sideBarDomains: Map<string, boolean> = new Map();
     private sideBarUserAgents: Map<string, boolean> = new Map();
+    private sideBarStatuses: Map<number, boolean> = new Map();
 
     public constructor() {
         makeAutoObservable(this);
@@ -136,6 +137,28 @@ export default class FilterStore {
     }
     @action public toggleSideBarProtocolChecked(iconClass: string) {
         this.sideBarProtocols.set(iconClass, !this.sideBarProtocols.get(iconClass));
+    }
+
+    // Statuses filter
+    public getSideBarStatuses(): number[] {
+        const statuses: number[] = [];
+        this.sideBarStatuses.forEach((_, status) => statuses.push(status));
+        return statuses;
+    }
+
+    public isSideBarStatusChecked(status: number): boolean {
+        return !!this.sideBarStatuses.get(status);
+    }
+
+    public getSideBarStatusChecked(status: number): boolean | undefined {
+        return this.sideBarStatuses.get(status);
+    }
+
+    @action public setSideBarStatusChecked(status: number, value: boolean) {
+        this.sideBarStatuses.set(status, value);
+    }
+    @action public toggleSideBarStatusChecked(status: number) {
+        this.sideBarStatuses.set(status, !this.sideBarStatuses.get(status));
     }
 
     // Domains filter
@@ -282,6 +305,15 @@ export default class FilterStore {
             filterStore.setSideBarProtocolChecked(iconClass, true);
         }
         if (this.isSideBarProtocolChecked(iconClass) === false) return true;
+
+        // Status filter
+        const status = messageStore.getMessage().status;
+        if (status) {
+            if (filterStore.getSideBarStatusChecked(status) === undefined) {
+                filterStore.setSideBarStatusChecked(status, true);
+            }
+            if (this.isSideBarStatusChecked(status) === false) return true;
+        }
 
         // Domains filter
         const domain = messageStore.getDomain();

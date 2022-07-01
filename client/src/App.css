@@ -283,7 +283,7 @@ td input {
 	font-size: x-small;
 }
 
-.side-bar-checkbox-icon {
+.side-bar-checkbox-container {
 	display: flex;
 	width: 100%;
 	color: whitesmoke !important;
@@ -299,10 +299,12 @@ td input {
 	margin-right: .5rem !important;
 }
 
-.side-bar-protocol-count {
+.side-bar-small-count {
 	padding-left: .25rem;
 	font-size: x-small;
 }
+
+.side-bar-status {}
 
 .side-bar-select {
 	color: whitesmoke !important;

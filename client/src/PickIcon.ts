@@ -23,7 +23,7 @@ export default function pickIcon(protocol: ConfigProtocol, userAgent?: string): 
 			iconClass = 'fa fa-bahai';
 			break;
 		case 'log:':
-			iconClass = 'fa fa-scroll';
+			iconClass = 'fa fa-file';
 			break;
 		default:
 			iconClass = 'fa fa-arrows-alt-h';
@@ -41,7 +41,7 @@ declare global {
 	}
 
 	interface Document {
-		documentMode:string;
+		documentMode: string;
 	}
 }
 
