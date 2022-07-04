@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.9.8",
+  "version": "3.10.0",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -19,7 +19,7 @@
     "url": "https://github.com/davechri/allproxy/issues",
     "email": "davechri58@gmail.com"
   },
-  "main": "main.js",
+  "main": "build/main.js",
   "bin": {
     "allproxy": "bin/allproxy",
     "allproxy-ca": "bin/allproxy-ca",
@@ -103,7 +103,7 @@
     "forge": {
       "packagerConfig": {
         "icon": "icons/icon",
-        "ignore": "(.git|.vscode|client/node_modules|client/src|test|.gitignore|ca.pem|certs/+|keys/+|@electron-forge|@types|@typescript-eslint|eslint*|nodemon|rimraf|ts_node|typescript|@babel)"
+        "ignore": "^/(common|css|icons|intercept|out|packages|proto|replace-responses|scripts|server|.git|client/node_modules|client/src|.gitignore|ca.pem|.http-mitm-proxy)|^/node_modules/(@electron-forge|electron|electron-notarize|electron-osx-sign|electron-packager|electron-rebuild|electron-winstaller|@types|@typescript-eslint|eslint*|@eslint|nodemon|rimraf|ts_node|typescript|@babel)"
       },
       "makers": [
         {

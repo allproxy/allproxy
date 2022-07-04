@@ -22,7 +22,7 @@ const startServer = () => {
   }
   mkDir(`${dataDir + path.sep}proto`);
   mkDir(`${dataDir + path.sep}bin`);
-  require('./build/app.js');
+  require('./app.js');
 };
 
 const createWindow = () => {

@@ -18,6 +18,8 @@ import ExportDialog from './ExportDialog';
 import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
+import { importJSONFile } from '../ImportJSONFile';
+import ImportJSONFileDialog from './ImportJSONFileDialog';
 
 let filterWasStopped = false;
 
@@ -39,17 +41,30 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
+	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
+	const [primaryJSONFields, setPrimaryJSONFields] = React.useState<string[]>([]);
 
-	const [openFileSelector, { filesContent, clear }] = useFilePicker({
+	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
 		multiple: false,
 		accept: ".allproxy"
 	});
 
-	if (!!filesContent.length && filesContent[0].content) {
-		snapshotStore.importSnapshot(filesContent[0].name, filesContent[0].content);
-		clear();
+	if (!!snapshotContent.length && snapshotContent[0].content) {
+		snapshotStore.importSnapshot(snapshotContent[0].name, snapshotContent[0].content);
+		snapshotClear();
+	}
+
+	const [openJSONFileSelector, { filesContent: jsonContent, clear: jsonClear }] = useFilePicker({
+		multiple: false
+	});
+
+	if (!!jsonContent.length) {
+		for (const fileContent of jsonContent) {
+			snapshotStore.importSnapshot(fileContent.name, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
+		}
+		jsonClear();
 	}
 
 	const statusClassName = 'fa ' + (socketStore.isConnected()
@@ -142,11 +157,21 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="header__import fa fa-upload" title="Import snapshot file"
 							onClick={() => {
-								openFileSelector();
+								openSnapshotFileSelector();
 								setMoreMenuIcon(null);
 							}}
 						>
 							&nbsp;Import Snapshot
+						</div>
+					</MenuItem>
+					<MenuItem>
+						<div className="header__import fa fa-file" title="Import JSON file"
+							onClick={() => {
+								setOpenImportJSONFileDialog(true);
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;Import JSON File
 						</div>
 					</MenuItem>
 				</Menu>
@@ -275,6 +300,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					if (fileName.length > 0) {
 						snapshotStore.exportSelectedSnapshot(fileName);
 					}
+				}}
+			/>
+			<ImportJSONFileDialog
+				open={openImportJSONFileDialog}
+				onClose={(primaryJSONFields) => {
+					setPrimaryJSONFields(primaryJSONFields);
+					setOpenImportJSONFileDialog(false);
+					openJSONFileSelector();
 				}}
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />

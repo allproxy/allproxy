@@ -21,12 +21,12 @@ class Snapshots {
 	}
 
 	public set(
-			key: string,
-			snapshot: MessageStore[],
-			fileName?: string,
-			selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
-			scrollTop = 0
-		) {
+		key: string,
+		snapshot: MessageStore[],
+		fileName?: string,
+		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
+		scrollTop = 0
+	) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
 		this.selectedReqSeqNumbers.push(selectedReqSeqNumber);
@@ -122,12 +122,12 @@ export default class SnapshotStore {
 	}
 
 	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
-		const padTime = (num: number) => (num+'').padStart(2, '0');
+		const padTime = (num: number) => (num + '').padStart(2, '0');
 		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
 		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
-		if(snapshot) {
+		if (snapshot) {
 			this.snapshots.set(name, snapshot, fileName);
 		} else {
 			this.snapshots.set(
@@ -150,8 +150,8 @@ export default class SnapshotStore {
 	}
 
 	public deleteAllSnapshots() {
-		for(const name of this.snapshots.getNames().slice()) {
-			if(name !== ACTIVE_SNAPSHOT_NAME) {
+		for (const name of this.snapshots.getNames().slice()) {
+			if (name !== ACTIVE_SNAPSHOT_NAME) {
 				this.deleteSnapshot(name);
 			}
 		}
@@ -164,15 +164,15 @@ export default class SnapshotStore {
 		for (const messageStore of this.getSelectedMessages()) {
 			messages.push(messageStore.getMessage());
 		}
-		const file = new Blob([JSON.stringify(messages, null, 2)], {type: 'text/plain'});
+		const file = new Blob([JSON.stringify(messages, null, 2)], { type: 'text/plain' });
 		element.href = URL.createObjectURL(file);
 		element.download = fileName + '.allproxy';
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}
 
-	public importSnapshot(fileName: string, snapshot: string) {
-		const parsedBlob = JSON.parse(snapshot);
+	public importSnapshot(fileName: string, snapshot: string | Message[]) {
+		const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
 		const messageStores: MessageStore[] = [];
 		for (const message of parsedBlob) {
 			const ms = new MessageStore(message);
