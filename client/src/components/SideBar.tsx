@@ -238,7 +238,7 @@ const SideBar = observer(() => {
 							</div>
 							{
 								filterStore.getSideBarStatuses().sort().map((status) => (
-									<div key={status}>
+									<div key={status} hidden={getStatusCount(status) === 0}>
 										<div style={{ display: 'flex' }}>
 											<Checkbox className="side-bar-checkbox"
 												size="small"
