@@ -431,8 +431,12 @@ td input {
 .react-tagsinput-input,
 .header__filter-input {
 	margin: 0 0 0 1rem;
-	width: calc(100vw - 700px) !important;
 	height: 32px;
+}
+
+.react-tagsinput,
+.header__filter-input {
+	width: calc(100vw - 700px) !important;
 }
 
 .header__filter-input.active {
