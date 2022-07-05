@@ -26,12 +26,12 @@ const Footer = observer(({ socketStore, messageQueueStore, filterStore, breakpoi
 
 	return (
 		<div className="footer__container">
-			<div>
+			<div hidden>
 				<div className="footer__item" title="Received messages">
 					<div>{getDisplayedCount() + ' of ' + messageQueueStore.getTotalLength()}</div>
 				</div>
 			</div>
-			<div>
+			<div hidden>
 				<div className="footer__item" title="Received messages">
 					{socketStore.getRequestCount() > socketStore.getResponseCount() ??
 						<div>No Response: {socketStore.getRequestCount() - socketStore.getResponseCount()}</div>
