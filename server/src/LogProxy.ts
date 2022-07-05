@@ -162,7 +162,7 @@ export default class LogProxy {
       let title = '';
       this.primaryJsonFields.forEach((field) => {
         if (title.length > 0) title += ', ';
-        title += field + ': ' + json[field];
+        title += '<span class="request__msg-highlight">' + field + '</span>: ' + json[field];
       })
       return title;
     }
