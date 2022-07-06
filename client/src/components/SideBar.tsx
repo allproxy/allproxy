@@ -227,7 +227,7 @@ const SideBar = observer(() => {
 				(filterStore.getSideBarStatuses().length > 0) && (
 					<div className="side-bar-item">
 						<div>
-							<div>Status Codes:</div>
+							<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
 							<div style={{ display: 'flex' }}>
 								<Checkbox className="side-bar-checkbox"
 									size="small"
@@ -238,7 +238,7 @@ const SideBar = observer(() => {
 							</div>
 							{
 								filterStore.getSideBarStatuses().sort().map((status) => (
-									<div key={status}>
+									<div key={status} hidden={getStatusCount(status) === 0}>
 										<div style={{ display: 'flex' }}>
 											<Checkbox className="side-bar-checkbox"
 												size="small"

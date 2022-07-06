@@ -36,9 +36,17 @@ const resend = async (
   // Header environment variable replacement:
   for (const key in headers) {
     const value = headers[key];
-    if (value.startsWith('$') && value.length > 1) {
-      const value2 = process.env[value.substring(1)];
+    if (value.indexOf('$') !== -1 && value.length > 1) {
+      const s = value.indexOf('$');
+      let e: number | undefined = value.substring(s).indexOf(' ');
+      if (e === -1) {
+        e = undefined;
+      }
+      const replaceVar = value.substring(s, e);
+
+      let value2 = process.env[replaceVar.substring(1)];
       if (value2 && value2.length > 0) {
+        value2 = value.replace(replaceVar, value2);
         ConsoleLog.info(`Environment variable "${value}" is defined: Setting header "${key}" to "${value2}"`);
         headers[key] = value2;
       }
