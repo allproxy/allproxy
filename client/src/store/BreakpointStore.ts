@@ -65,7 +65,7 @@ export default class BreakpointStore {
 	public findMatchingBreakpoint(message: Message): FilterStore | null {
 		if (this.breakpointList.length === 0 || this._editing) return null;
 		for (const breakpoint of this.breakpointList) {
-			if (breakpoint.isEnabled() && !breakpoint.isFiltered(new MessageStore(message))) {
+			if (breakpoint.isEnabled() && !breakpoint.isFiltered(new MessageStore(message), true)) {
 				return breakpoint;
 			}
 		}

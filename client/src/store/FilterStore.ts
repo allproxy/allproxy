@@ -298,39 +298,41 @@ export default class FilterStore {
         return this.filter;
     }
 
-    public isFiltered(messageStore: MessageStore) {
-        // Protocols filter
-        const iconClass = messageStore.getIconClass();
-        if (filterStore.getSideBarProtocolChecked(iconClass) === undefined) {
-            filterStore.setSideBarProtocolChecked(iconClass, true);
-        }
-        if (this.isSideBarProtocolChecked(iconClass) === false) return true;
-
-        // Status filter
-        const status = messageStore.getMessage().status;
-        if (status) {
-            if (filterStore.getSideBarStatusChecked(status) === undefined) {
-                filterStore.setSideBarStatusChecked(status, true);
+    public isFiltered(messageStore: MessageStore, isBreakpoint?: boolean) {
+        if (!isBreakpoint) {
+            // Protocols filter
+            const iconClass = messageStore.getIconClass();
+            if (filterStore.getSideBarProtocolChecked(iconClass) === undefined) {
+                filterStore.setSideBarProtocolChecked(iconClass, true);
             }
-            if (this.isSideBarStatusChecked(status) === false) return true;
-        }
+            if (this.isSideBarProtocolChecked(iconClass) === false) return true;
 
-        // Domains filter
-        const domain = messageStore.getDomain();
-        if (domain) {
-            if (filterStore.getSideBarDomainChecked(domain) === undefined) {
-                filterStore.setSideBarDomainChecked(domain, true);
+            // Status filter
+            const status = messageStore.getMessage().status;
+            if (status) {
+                if (filterStore.getSideBarStatusChecked(status) === undefined) {
+                    filterStore.setSideBarStatusChecked(status, true);
+                }
+                if (this.isSideBarStatusChecked(status) === false) return true;
             }
-            if (this.isSideBarDomainChecked(domain) === false) return true;
-        }
 
-        // User Agents filter
-        let ua = messageStore.getUserAgentDisplayable();
-        if (ua) {
-            if (filterStore.getSideBarUserAgentChecked(ua) === undefined) {
-                filterStore.setSideBarUserAgentChecked(ua, true);
+            // Domains filter
+            const domain = messageStore.getDomain();
+            if (domain) {
+                if (filterStore.getSideBarDomainChecked(domain) === undefined) {
+                    filterStore.setSideBarDomainChecked(domain, true);
+                }
+                if (this.isSideBarDomainChecked(domain) === false) return true;
             }
-            if (this.isSideBarUserAgentChecked(ua) === false) return true;
+
+            // User Agents filter
+            let ua = messageStore.getUserAgentDisplayable();
+            if (ua) {
+                if (filterStore.getSideBarUserAgentChecked(ua) === undefined) {
+                    filterStore.setSideBarUserAgentChecked(ua, true);
+                }
+                if (this.isSideBarUserAgentChecked(ua) === false) return true;
+            }
         }
 
         if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
