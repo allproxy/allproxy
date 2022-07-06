@@ -516,6 +516,7 @@ td input {
 	top: 3rem;
 	height: 3rem;
 	background-color: rgb(26, 24, 24) !important;
+	width: 100%;
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -559,18 +560,17 @@ td input {
 	/* Safari */
 	display: flex;
 	padding-top: 3rem;
-	width: calc(100vw - 3rem);
+	width: calc(100vw - 8rem);
 }
 
 .request__container {
 	padding-right: .5rem;
 	overflow: auto;
-	width: calc(50% - 4rem);
+	width: calc(50vw - 4rem);
 	height: calc(100vh - 9rem);
 	max-height: calc(100vh - 9rem);
 	resize: horizontal;
 	border-right: solid grey;
-	margin: 0 1rem 0 0;
 	display: flex;
 	flex-direction: column;
 }
@@ -643,6 +643,7 @@ td input {
 
 .response__loading,
 .response__container {
+	padding-left: 1rem;
 	height: calc(100vh - 8rem);
 	max-height: calc(100vh - 8rem);
 	overflow-y: auto;
