@@ -57,6 +57,15 @@
 		border-color: white !important;
 	}
 
+	td {
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	td input {
+		height: 48px !important;
+	}
+
 	pre {
 		background-color: #f9f9f9 !important;
 		border: solid thin #e7e2e2 !important;
@@ -103,12 +112,6 @@ pre {
 
 td input {
 	width: 100%;
-}
-
-.table-compact th,
-.table-compact td {
-	padding-top: .5rem !important;
-	padding-bottom: 0 !important;
 }
 
 .MuiTab-root {
@@ -858,23 +861,12 @@ td input {
 	padding-left: 0 !important;
 }
 
-.settings-modal__proxy-delete-button {
-	margin-top: .5rem;
-}
-
 .settings-modal__icon {
 	margin-top: .725rem;
 	display: inline-block;
 }
 
-.settings-modal__proxy-path,
-.settings-modal__proxy-protocol,
-.settings-modal__proxy-host,
-.settings-modal__proxy-comment {
-	padding-top: .5rem;
-}
-
-.settings-modal__proxy-host .settings-modal__proxy-port .settings-modal__status-container,
+.settings-modal__proxy-host .settings-modal__proxy-port,
 .settings-modal__recording-container {
 	display: flex;
 	align-items: center;
@@ -885,9 +877,7 @@ td input {
 	width: 8ch;
 }
 
-.settings-modal__status,
 .settings__recording {
-	margin-top: .70rem !important;
 	cursor: pointer;
 }
 

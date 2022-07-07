@@ -53,11 +53,11 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 			onClose={onClose}
 			disableBackdropClick
 			aria-labelledby="simple-modal-title"
-  		aria-describedby="simple-modal-description"
+			aria-describedby="simple-modal-description"
 		>
 			<div className="settings-modal" role="dialog">
 				<div>
-					<h3>Setting: <span style={{color: 'steelblue'}}>{store.getSubTitle()}</span></h3>
+					<h3>Setting: <span style={{ color: 'steelblue' }}>{store.getSubTitle()}</span></h3>
 					<TabContext value={tabCategory}>
 						<Tabs
 							value={tabCategory}
@@ -65,109 +65,113 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 							indicatorColor="primary"
 							textColor="primary"
 							variant="scrollable"
-  						scrollButtons="auto"
+							scrollButtons="auto"
 							aria-label="Settings table">
 							{store.getConfigCategories().map(category => (
 								<Tab
-									key={ category }
+									key={category}
 									value={category}
 									label={
 										<div>
 											<span style={{ marginLeft: '.25rem' }}>{category}</span>
 										</div>
 									}
-									>
+								>
 								</Tab>
 							))}
 						</Tabs>
 						{store.getConfigCategories().map(category => (
-								<TabPanel value={ category } key={ category }>
-									<div className="settings-modal__scroll-container">
-										{ConfigCategoryGroups.get(store.getConfigCategory())!.length === 1
-											?
-												<SettingsTable
-													store={store}
-													protocol={ store.getProtocol() as ConfigProtocol }
-												/>
-											:
-												<TabContext value={tabProtocol}>
-													<Tabs
-														style={{background: 'whitesmoke'}}
-														value={tabProtocol}
-														onChange={handleTabProtocolChange}
-														indicatorColor="secondary"
-														textColor="secondary"
-														variant="fullWidth"
-														aria-label="Settings table">
-														{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
-															<Tab
-																value={protocolDesc.protocol}
-																label={getProtocolLabel(protocolDesc.protocol)}
-																>
-															</Tab>
-														))}
-													</Tabs>
-													{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
-														<TabPanel value={ protocolDesc.protocol } key={ protocolDesc.protocol }>
-																<SettingsTable
-																	store={store}
-																	protocol={ protocolDesc.protocol }
-																/>
-														</TabPanel>
-													))}
-											</TabContext>
-										}
-									</div>
-								</TabPanel>
+							<TabPanel value={category} key={category}>
+								<div className="settings-modal__scroll-container">
+									{ConfigCategoryGroups.get(store.getConfigCategory())!.length === 1
+										?
+										<SettingsTable
+											store={store}
+											protocol={store.getProtocol() as ConfigProtocol}
+										/>
+										:
+										<TabContext value={tabProtocol}>
+											<Tabs
+												style={{ background: 'whitesmoke' }}
+												value={tabProtocol}
+												onChange={handleTabProtocolChange}
+												indicatorColor="secondary"
+												textColor="secondary"
+												variant="fullWidth"
+												aria-label="Settings table">
+												{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
+													<Tab
+														value={protocolDesc.protocol}
+														label={getProtocolLabel(protocolDesc.protocol)}
+													>
+													</Tab>
+												))}
+											</Tabs>
+											{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
+												<TabPanel value={protocolDesc.protocol} key={protocolDesc.protocol}>
+													<SettingsTable
+														store={store}
+														protocol={protocolDesc.protocol}
+													/>
+												</TabPanel>
+											))}
+										</TabContext>
+									}
+								</div>
+							</TabPanel>
 						))}
 					</TabContext>
-					<div style={{borderTop: 'solid steelblue', paddingTop: '.5rem'}}>
-						<table className="table">
+					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
+						<button className="settings-modal__add-button btn btn-lg btn-primary"
+							onClick={() => store.addEntry()}
+						>
+							+ New Rule
+						</button>
+						<table className="table" hidden>
 							<tbody>
 								<tr >
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
 											placeholder={
 												store.getProtocol() === 'log:'
-												? 'Log tail command (e.g., docker logs -f container)'
+													? 'Log tail command (e.g., docker logs -f container)'
 													: store.getProtocol() === 'http:'
-													|| store.getProtocol() === 'https:'
-												? 'Path: /xxx, .*/xxx, or hostname/xxx'
-												: store.getProtocol() === 'browser:'
-													? 'Path: /xxx, or .*/xxx'
-													: 'Source TCP port'
+														|| store.getProtocol() === 'https:'
+														? 'Path: /xxx, .*/xxx, or hostname/xxx'
+														: store.getProtocol() === 'browser:'
+															? 'Path: /xxx, or .*/xxx'
+															: 'Source TCP port'
 											}
-											value={ store.getPath() }
+											value={store.getPath()}
 											onChange={(e) => store.setPath(e.target.value)}
 										/>
 									</td>
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
-											hidden={ store.isProxyOrLog() }
+											hidden={store.isProxyOrLog()}
 											placeholder={store.isProxyOrLog() ? '' : 'Target host name'}
-											value={ store.getTargetHost() }
+											value={store.getTargetHost()}
 											onChange={(e) => store.setTargetHost(e.target.value)}
 										/>
 									</td>
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
-											hidden={ store.isProxyOrLog() }
+											hidden={store.isProxyOrLog()}
 											placeholder={store.isProxyOrLog() ? '' : 'Target port number'}
-											value={ store.getTargetPort() }
+											value={store.getTargetPort()}
 											onChange={(e) => store.setTargetPort(e.target.value)}
 										/>
 									</td>
 									<td className="settings-modal__add-container">
 										<input type="text" className="form-control settings-modal__add-input"
 											placeholder={'Optional comment'}
-											value={ store.getComment() }
+											value={store.getComment()}
 											onChange={(e) => store.setComment(e.target.value)}
 										/>
 									</td>
 									<td className="settings-modal__add-button-container">
 										<button className="settings-modal__add-button btn btn-primary"
-											disabled={ store.isAddDisabled() }
-											onClick={ () => store.addEntry() }
+											onClick={() => store.addEntry()}
 										>
 											Add
 										</button>
@@ -183,24 +187,24 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 									</td>
 									<td className="settings-modal__label-max-messages">
 										<input type="number" className="form-control settings-modal__input-max-messages"
-											onChange={ (e) => store.setMessageQueueLimit(+e.target.value) }
-											value={ store.getMessageQueueLimit() } />
+											onChange={(e) => store.setMessageQueueLimit(+e.target.value)}
+											value={store.getMessageQueueLimit()} />
 									</td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
-					<div className="modal-footer" style={{marginTop: '1rem'}}>
-						<label className="settings-modal__error-message">{ store.getError() }</label>
-						<div style={{marginTop: '1rem'}}>
+					<div className="modal-footer" style={{ marginTop: '1rem' }}>
+						<label className="settings-modal__error-message">{store.getError()}</label>
+						<div style={{ marginTop: '1rem' }}>
 							<button type="button" className="settings-modal__cancel btn btn-secondary"
-								onClick={ onClose }
+								onClick={onClose}
 							>
 								Cancel
 							</button>
 							<button type="button" className="settings-modal__save btn btn-success"
-								disabled={ !store.isChanged() }
-								onClick={() => { store.save(); onClose(); } }
+								disabled={!store.isChanged()}
+								onClick={() => { store.save(); onClose(); }}
 							>
 								Save
 							</button>

@@ -43,7 +43,7 @@ ConfigCategoryGroups.set('BROWSER',
 	[
 		{
 			protocol: 'browser:',
-			title: 'Browser Forward Proxy',
+			title: 'Forward Proxy',
 			ports: [8888, 8888],
 		},
 	]
@@ -156,7 +156,7 @@ export default class SettingsStore {
 					}
 					this.statusUpdating = false;
 				})
-		})
+			})
 	}
 
 	@action public async reset() {
@@ -246,14 +246,6 @@ export default class SettingsStore {
 		this.error = '';
 	}
 
-	public isAddDisabled(): boolean {
-		if (this.isProxyOrLog()) {
-			return this.path.length === 0;
-		} else {
-			return this.path.length === 0 || this.targetHost.length === 0 || this.targetPort.length === 0;
-		}
-	}
-
 	@action public addEntry(): void {
 		if (this.protocol === 'http:' || this.protocol === 'https:' || this.protocol === 'browser:') {
 			// if (!this.path.startsWith('/')) {
@@ -310,7 +302,7 @@ export default class SettingsStore {
 
 	@action public updateEntryHost(index: number, value: string) {
 		const entry = { ...this.entries[index] };
-		entry.hostname = value;		
+		entry.hostname = value;
 		if (entry.protocol === 'log:' && value.length > 0) {
 			entry.port = 0;
 		}
