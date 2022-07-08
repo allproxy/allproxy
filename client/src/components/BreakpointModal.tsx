@@ -1,8 +1,9 @@
-import { List, ListItem, Modal } from '@material-ui/core'
+import { IconButton, List, ListItem, Modal } from '@material-ui/core'
 import BreakpointStore from '../store/BreakpointStore';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import FilterStore from '../store/FilterStore';
+import CloseIcon from "@material-ui/icons/Close";
 
 type Props = {
 	open: boolean,
@@ -82,20 +83,21 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 									Only responses with Content-Type application/json are examined.
 								</li>
 							</ul>
-							<div className="no-capture-modal__add-button fa fa-plus-circle"
-								onClick={handleAddBreakpoint}>
-								&nbsp;Add breakpoint
-							</div>
+							<button className="btn btn-lg btn-primary"
+								onClick={handleAddBreakpoint}
+							>
+								+ New Breakpoint
+							</button>
 							<List>
 								{store.getBreakpointList().map((breakpoint, i) => (
 									<ListItem key={i}
 										style={{
 											display: 'flex', alignItems: 'center',
 										}}>
-										<div className="no-capture-modal__remove fa fa-minus-circle"
-											title="Remove breakpoint"
-											onClick={() => handleDeleteBreakpoint(i)} />
-										<button className={`btn ${breakpoint.isEnabled() ? 'btn-primary' : 'btn-secondary'}`}
+										<IconButton onClick={() => handleDeleteBreakpoint(i)} title="Delete breakpoint">
+											<CloseIcon style={{ color: 'red' }} />
+										</IconButton>
+										<button className={`btn ${breakpoint.isEnabled() ? 'btn-success' : 'btn-secondary'}`}
 											onClick={() => handleToggleEnable(breakpoint)}
 											title={breakpoint.isEnabled() ? 'Disable breakpoint' : 'Enable breakpoint'}
 										>

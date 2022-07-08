@@ -122,63 +122,11 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 						))}
 					</TabContext>
 					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
-						<button className="settings-modal__add-button btn btn-lg btn-primary"
+						<button className="btn btn-lg btn-primary"
 							onClick={() => store.addEntry()}
 						>
 							+ New Rule
 						</button>
-						<table className="table" hidden>
-							<tbody>
-								<tr >
-									<td className="settings-modal__add-container">
-										<input type="text" className="form-control settings-modal__add-input"
-											placeholder={
-												store.getProtocol() === 'log:'
-													? 'Log tail command (e.g., docker logs -f container)'
-													: store.getProtocol() === 'http:'
-														|| store.getProtocol() === 'https:'
-														? 'Path: /xxx, .*/xxx, or hostname/xxx'
-														: store.getProtocol() === 'browser:'
-															? 'Path: /xxx, or .*/xxx'
-															: 'Source TCP port'
-											}
-											value={store.getPath()}
-											onChange={(e) => store.setPath(e.target.value)}
-										/>
-									</td>
-									<td className="settings-modal__add-container">
-										<input type="text" className="form-control settings-modal__add-input"
-											hidden={store.isProxyOrLog()}
-											placeholder={store.isProxyOrLog() ? '' : 'Target host name'}
-											value={store.getTargetHost()}
-											onChange={(e) => store.setTargetHost(e.target.value)}
-										/>
-									</td>
-									<td className="settings-modal__add-container">
-										<input type="text" className="form-control settings-modal__add-input"
-											hidden={store.isProxyOrLog()}
-											placeholder={store.isProxyOrLog() ? '' : 'Target port number'}
-											value={store.getTargetPort()}
-											onChange={(e) => store.setTargetPort(e.target.value)}
-										/>
-									</td>
-									<td className="settings-modal__add-container">
-										<input type="text" className="form-control settings-modal__add-input"
-											placeholder={'Optional comment'}
-											value={store.getComment()}
-											onChange={(e) => store.setComment(e.target.value)}
-										/>
-									</td>
-									<td className="settings-modal__add-button-container">
-										<button className="settings-modal__add-button btn btn-primary"
-											onClick={() => store.addEntry()}
-										>
-											Add
-										</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
 						<table>
 							<tbody>
 								<tr>

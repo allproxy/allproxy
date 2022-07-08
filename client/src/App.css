@@ -789,20 +789,6 @@ td input {
 	max-width: 400px;
 }
 
-.no-capture-modal__add-button {
-	margin-top: .5rem;
-	font-size: large;
-	cursor: pointer;
-	color: #28a745;
-}
-
-.no-capture-modal__remove {
-	font-size: large;
-	color: red;
-	cursor: pointer;
-	margin-right: .5rem;
-}
-
 .reachable-modal {
 	max-width: 700px;
 }
@@ -845,15 +831,6 @@ td input {
 
 .settings-modal__proxy-protocol-container {
 	white-space: nowrap;
-}
-
-.settings-modal__add-container {
-	padding-left: .5rem;
-	width: 25% !important;
-}
-
-.settings-modal__add-input {
-	width: 100% !important;
 }
 
 .settings-modal__select-protocol {
