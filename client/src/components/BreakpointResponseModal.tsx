@@ -3,6 +3,7 @@ import { Modal } from '@material-ui/core'
 import MessageStore from '../store/MessageStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import { colorScheme } from '../App';
+import React from 'react';
 
 type Props = {
 	open: boolean,
@@ -10,6 +11,8 @@ type Props = {
 	store: MessageStore,
 };
 const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
+	const [responseBody, setResponseBody] = React.useState(store.getMessage().responseBody);
+	const [modified, setModified] = React.useState(false);
 	const message = store.getMessage();
 	const saveResponseBody = JSON.parse(JSON.stringify(message.responseBody));
 	return (
@@ -38,7 +41,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 								<button type="button" className="resend-modal__send btn btn-sm btn-primary"
 									style={{ marginLeft: '.5rem' }}
 									onClick={handleToggleStrJson}>
-									{typeof message.responseBody === 'object' ? 'To String' : 'To JSON'}
+									{typeof responseBody === 'object' ? 'To String' : 'To JSON'}
 								</button>
 								<button type="button" className="resend-modal__send btn btn-sm btn-danger"
 									style={{ marginLeft: '.5rem' }}
@@ -47,10 +50,10 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 								</button>
 							</div>
 							<div className="resend-modal__body-container">
-								{message.responseBody && typeof message.responseBody === 'object' ?
+								{responseBody && typeof responseBody === 'object' ?
 									<ReactJson
-										theme={colorScheme ==='dark' ? 'google' : undefined}
-										src={message.responseBody}
+										theme={colorScheme === 'dark' ? 'google' : undefined}
+										src={responseBody}
 										name={false}
 										displayDataTypes={false}
 										quotesOnKeys={false}
@@ -60,21 +63,25 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 									/>
 									:
 									<textarea className="resend-modal__body form-control" rows={100} cols={300}
-										onChange={(e) => message.responseBody = e.target.value}
-										value={message.responseBody as string}
+										onChange={(e) => {
+											setResponseBody(e.target.value);
+											setModified(true);
+										}}
+										value={responseBody as string}
 										placeholder="Enter response body" />
 								}
 							</div>
 						</div>
 					</div>
 					<div className="modal-footer">
-						<button type="button" className="settings-modal__cancel btn btn-default btn-secondary"
-							onClick={handleCancel}
+						<button type="button" className="settings-modal__cancel btn btn-default btn-danger"
+							disabled={!modified}
+							onClick={handleUndo}
 						>
-							Cancel
+							Undo
 						</button>
 						<button type="button" className="resend-modal__send btn btn-success"
-							onClick={onClose}
+							onClick={handleOk}
 						>
 							Ok
 						</button>
@@ -85,39 +92,48 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 	);
 
 	function handleCopy() {
-		const s = typeof message.responseBody === 'object' ? JSON.stringify(message.responseBody, null, 2) : message.responseBody;
+		const s = typeof responseBody === 'object' ? JSON.stringify(responseBody, null, 2) : responseBody;
 		navigator.clipboard.writeText(s);
 	}
 
-	function handleCancel() {
-		message.responseBody = saveResponseBody;
+	function handleOk() {
+		message.responseBody = responseBody;
 		onClose();
 	}
 
+	function handleUndo() {
+		setResponseBody(saveResponseBody);
+		setModified(false);
+	}
+
 	function handleToggleStrJson() {
-		if (typeof message.responseBody === 'object') {
-			message.responseBody = JSON.stringify(message.responseBody, null, 2);
+		if (typeof responseBody === 'object') {
+			setResponseBody(JSON.stringify(responseBody, null, 2));
 		} else {
-			message.responseBody = JSON.parse(message.responseBody as string);
+			setResponseBody(JSON.parse(responseBody as string));
 		}
 	}
 
 	function handleClear() {
-		message.responseBody = '';
+		setModified(true);
+		setResponseBody('');
 	}
 
 	function handleEdit(props: InteractionProps) {
-		message.responseBody = props.updated_src;
+		setModified(true);
+		setResponseBody(props.updated_src);
 		return true;
 	}
 
 	function handleAdd(props: InteractionProps) {
-		message.responseBody = props.updated_src;
+		setModified(true);
+		setResponseBody(props.updated_src);
 		return true;
 	}
 
 	function handleDelete(props: InteractionProps) {
-		message.responseBody = props.updated_src;
+		setModified(true);
+		setResponseBody(props.updated_src);
 		return true;
 	}
 })
