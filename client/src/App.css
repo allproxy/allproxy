@@ -10,6 +10,7 @@
 	}
 
 	pre,
+	.MuiTabs-scroller,
 	.MuiPaper-root {
 		color: rgba(232, 230, 227) !important;
 		background-color: #111111 !important;
@@ -523,6 +524,7 @@ td input {
 }
 
 @media screen and (prefers-color-scheme: light) {
+
 	.snapshot__container .MuiTabs-root {
 		background-color: rgb(228, 227, 227) !important;
 	}
@@ -823,7 +825,6 @@ td input {
 	white-space: nowrap;
 }
 
-.settings-modal__error-message,
 .resend-modal__error-message {
 	float: left;
 	color: red;

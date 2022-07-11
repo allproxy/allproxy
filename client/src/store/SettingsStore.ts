@@ -119,15 +119,10 @@ export default class SettingsStore {
 	private changed = false;
 	private configCategory: ConfigCategory = 'BROWSER';
 	private protocol: ConfigProtocol | '' = '';
-	private path = '';
-	private targetHost = '';
-	private targetPort = '';
-	private comment = '';
 
 	private statusUpdating = true;
 	private entries: ProxyConfig[] = [];
 	private messageQueueLimit = messageQueueStore.getLimit();
-	private error = '';
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -162,13 +157,8 @@ export default class SettingsStore {
 	@action public async reset() {
 		this.changed = false;
 		this.protocol = 'http:';
-		this.path = '';
-		this.targetHost = '';
-		this.targetPort = '';
-		this.comment = '';
 		this.messageQueueLimit = messageQueueStore.getLimit();
 		this.setConfig();
-		this.error = '';
 	}
 
 	public isChanged() {
@@ -194,7 +184,6 @@ export default class SettingsStore {
 
 	@action public setConfigCategory(configCategory: ConfigCategory) {
 		this.configCategory = configCategory;
-		this.error = '';
 	}
 
 	public getProtocol() {
@@ -203,82 +192,17 @@ export default class SettingsStore {
 
 	@action public setProtocol(protocol: ConfigProtocol) {
 		this.protocol = protocol;
-		this.error = '';
 	}
 
 	public isProxyOrLog() {
 		return this.protocol === 'browser:' || this.protocol === 'log:';
 	}
 
-	public getPath() {
-		return this.path;
-	}
-
-	@action public setPath(path: string) {
-		this.path = path;
-		this.error = '';
-	}
-
-	public getTargetHost() {
-		return this.targetHost;
-	}
-
-	@action public setTargetHost(host: string) {
-		this.targetHost = host;
-		this.error = '';
-	}
-
-	public getTargetPort() {
-		return this.targetPort;
-	}
-
-	@action public setTargetPort(port: string) {
-		this.targetPort = port;
-		this.error = '';
-	}
-
-	public getComment() {
-		return this.comment;
-	}
-
-	@action public setComment(comment: string) {
-		this.comment = comment;
-		this.error = '';
-	}
-
 	@action public addEntry(): void {
-		if (this.protocol === 'http:' || this.protocol === 'https:' || this.protocol === 'browser:') {
-			// if (!this.path.startsWith('/')) {
-			// 	this.error = `When protocol "${this.protocol}" is selected the path must begin with "/"`;
-			// }
-		} else if (this.protocol === 'log:') {
-		} else {
-			if (isNaN(+this.path)) {
-				this.error = `'When protocol "${this.protocol}" is selected port number must be specified`;
-			}
-		}
-
-		if (this.error.length === 0 && this.protocol !== 'browser:' && this.protocol !== 'log:') {
-			if (isNaN(+this.targetPort)) {
-				this.error = `Invalid target port number`;
-			}
-		}
-
-		if (this.error.length === 0) {
-			const proxyConfig = new ProxyConfig();
-			proxyConfig.protocol = this.protocol as ConfigProtocol;
-			proxyConfig.path = this.path;
-			proxyConfig.hostname = this.targetHost;
-			proxyConfig.port = +this.targetPort;
-			proxyConfig.comment = this.comment;
-			this.entries.push(proxyConfig);
-
-			this.path = '';
-			this.targetHost = '';
-			this.targetPort = '';
-			this.comment = '';
-			this.changed = true;
-		}
+		const proxyConfig = new ProxyConfig();
+		proxyConfig.protocol = this.protocol as ConfigProtocol;
+		this.entries.push(proxyConfig);
+		this.changed = true;
 	}
 
 	@action public deleteEntry(index: number) {
@@ -311,14 +235,10 @@ export default class SettingsStore {
 	}
 
 	@action public updateEntryPort(index: number, value: string) {
-		if (isNaN(+this.targetPort)) {
-			this.error = `Invalid port number: ${this.targetPort}`;
-		} else {
-			const entry = { ...this.entries[index] };
-			entry.port = +value;
-			this.entries.splice(index, 1, entry);
-			this.changed = true;
-		}
+		const entry = { ...this.entries[index] };
+		entry.port = +value;
+		this.entries.splice(index, 1, entry);
+		this.changed = true;
 	}
 
 	@action public updateComment(index: number, value: string) {
@@ -380,10 +300,6 @@ export default class SettingsStore {
 	@action setMessageQueueLimit(messageQueueLimit: number) {
 		this.messageQueueLimit = messageQueueLimit;
 		this.changed = true;
-	}
-
-	public getError(): string {
-		return this.error;
 	}
 
 	@action public save() {
