@@ -101,6 +101,11 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							>
 								<input className="form-control settings-modal__proxy-path"
 									style={{ width: pathLabel().includes('Port') ? '8ch' : undefined }}
+									placeholder={pathLabel().includes('Port')
+										? ''
+										: entry.protocol === 'log:'
+											? 'Command to follow log file (e.g., tail -f <file>)'
+											: 'URL path'}
 									onChange={(e) => store.updateEntryPath(index, e.target.value)}
 									value={entry.path} />
 							</td>
@@ -113,6 +118,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 							{targetPortLabel().length === 0 ||
 								<td className="settings-modal__proxy-host-container">
 									<input className="form-control settings-modal__proxy-port"
+										placeholder="Remote port"
 										onChange={(e) => store.updateEntryPort(index, e.target.value)}
 										value={entry.port} />
 								</td>}
@@ -141,7 +147,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 					))}
 				</tbody>
 			</table>
-			{store.getEntries().filter(e => e.protocol === protocol).length === 0 && <div className="center">Add new entries below</div>}
+			{store.getEntries().filter(e => e.protocol === protocol).length === 0 && <div className="center">Click New Rule button</div>}
 		</div >
 	);
 });

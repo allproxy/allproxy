@@ -28,7 +28,7 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 			open={open}
 			onClose={onClose}
 			aria-labelledby="simple-modal-title"
-  		aria-describedby="simple-modal-description"
+			aria-describedby="simple-modal-description"
 		>
 			<div className="reachable-modal" role="dialog">
 				<div>
@@ -54,12 +54,12 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 										textColor="primary"
 										aria-label="Settings table">
 										{TAB_VALUES.map(value => (
-											<Tab value={ value }
+											<Tab value={value}
 												label={
-													<div className={ 'fa ' +
+													<div className={'fa ' +
 														(value === HostStatus.Reachable
-														? 'success fa-circle'
-														: 'error fa-exclamation-triangle') }>
+															? 'success fa-circle'
+															: 'error fa-exclamation-triangle')}>
 														<span style={{ marginLeft: '.25rem', color: 'black' }}>{value}</span>
 													</div>
 												}>
@@ -70,7 +70,7 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 										<TabPanel value={value}>
 											{store.getEntries(value).length === 0
 												? <div>No hosts are {value.toLocaleLowerCase()} !</div>
-												: <table className="table table-compact settings-modal__table" style={{pointerEvents: 'none'}}>
+												: <table className="table table-compact settings-modal__table" style={{ pointerEvents: 'none' }}>
 													{store.getEntries(value).length > 0 ?
 														<thead>
 															<tr>
@@ -85,13 +85,13 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 																<tr className="settings-modal__proxy-row" key={index}>
 																	<td className="settings-modal__proxy-host-container">
 																		<input className="form-control settings-modal__proxy-host"
-																			style={{border: 'none'}}
-																			value={entry.hostname}/>
+																			style={{ border: 'none' }}
+																			value={entry.hostname} />
 																	</td>
 																	<td className="settings-modal__proxy-host-container">
 																		<input className="form-control settings-modal__proxy-host"
-																			style={{border: 'none'}}
-																			value={entry.port}/>
+																			style={{ border: 'none' }}
+																			value={entry.port} />
 																	</td>
 																</tr>
 															))}
@@ -101,18 +101,17 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 										</TabPanel>
 									))}
 								</TabContext>
-								}
-							</div>
+							}
+						</div>
 					</div>
 					<div className="modal-footer">
-						<label className="settings-modal__error-message">{store.getError()}</label>
 						<button type="button" className="settings-modal__cancel btn btn-success"
-							onClick={ onRefresh }
+							onClick={onRefresh}
 						>
 							Refresh
 						</button>
 						<button type="button" className="settings-modal__cancel btn btn-secondary"
-							onClick={ onClose }
+							onClick={onClose}
 						>
 							Close
 						</button>

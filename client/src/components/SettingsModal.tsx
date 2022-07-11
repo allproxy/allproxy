@@ -143,7 +143,6 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 						</table>
 					</div>
 					<div className="modal-footer" style={{ marginTop: '1rem' }}>
-						<label className="settings-modal__error-message">{store.getError()}</label>
 						<div style={{ marginTop: '1rem' }}>
 							<button type="button" className="settings-modal__cancel btn btn-secondary"
 								onClick={onClose}
