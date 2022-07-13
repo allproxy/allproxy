@@ -110,8 +110,8 @@ if (dataDir) {
       fs.copyFileSync(`${dirName + path.sep}/bin/macos/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
       break;
     case 'win32':
-      fs.copyFileSync(`${dirName + path.sep}bin\\win32\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
-      fs.copyFileSync(`${dirName + path.sep}bin\\win32\\systemProxy.bat`, `${dataDir}\\bin\\systemProxy.bat`);
+      fs.copyFileSync(`${dirName + path.sep}bin\\windows\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
+      fs.copyFileSync(`${dirName + path.sep}bin\\windows\\systemProxy.bat`, `${dataDir}\\bin\\systemProxy.bat`);
       break;
     case 'linux':
       fs.copyFileSync(`${dirName + path.sep}/bin/linux/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);

@@ -42,13 +42,13 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					<li>
 						<b>Trust AllProxy certificate:</b>
 						<br></br>
-						Run in terminal: <strong>~/.allproxy/bin/trustCert.sh enable</strong>
+						Run in terminal: <strong>{trustCertCmd()}</strong>
 						<button type="button" className="btn btn-sm btn-default"
 							title="Copy"
-							onClick={() => navigator.clipboard.writeText("~/.allproxy/bin/trustCert.sh enable")}
+							onClick={() => navigator.clipboard.writeText(trustCertCmd())}
 						>
 							<div className="fa fa-copy" />
-						</button>					
+						</button>
 						<p></p>
 						This will import the AllProxy CA certificate into your certificate store
 						and mark it as trusted.
@@ -66,13 +66,13 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							<li>
 								Configure System Proxy
 								<br></br>
-								- Run in terminal: <b>~/.allproxy/bin/systemProxy.sh enable</b>
+								- Run in terminal: <b>{systemProxyCmd()}</b>
 								<button type="button" className="btn btn-sm btn-default"
 									title="Copy"
-									onClick={() => navigator.clipboard.writeText("~/.allproxy/bin/systemProxy.sh enable")}
+									onClick={() => navigator.clipboard.writeText(systemProxyCmd())}
 								>
 									<div className="fa fa-copy" />
-								</button>	
+								</button>
 								<p></p>
 								Some browsers (eg, Firefox) do not use the system proxy settings.
 								<p></p>
@@ -99,5 +99,19 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 		</Dialog>
 	);
 });
+
+function isWin32(): boolean {
+	return window.navigator.userAgent.indexOf('Windows') !== -1;
+}
+
+function trustCertCmd(): string {
+	const cmd = isWin32() ? '%USERPROFILE%\.allproxy\bin\trustCert.bat' : '~/.allproxy/bin/trustCert.sh enable';
+	return cmd;
+}
+
+function systemProxyCmd(): string {
+	const cmd = isWin32() ? '%USERPROFILE%\.allproxy\bin\systemProxy.bat' : '~/.allproxy/bin/systemProxy.sh enable';
+	return cmd;
+}
 
 export default HelpDialog;

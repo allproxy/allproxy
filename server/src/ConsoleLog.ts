@@ -3,10 +3,10 @@ export default class ConsoleLog {
   static enableInfo = false;
 
   static debug(...args: any[]) {
-    if (ConsoleLog.enableDebug) ConsoleLog.info(...args);
+    if (ConsoleLog.enableDebug) console.log(...args);
   }
 
   static info(...args: any[]) {
-    if (ConsoleLog.enableDebug || ConsoleLog.enableInfo) ConsoleLog.info(...args);
+    if (ConsoleLog.enableDebug || ConsoleLog.enableInfo) console.log(...args);
   }
 }
