@@ -27,7 +27,7 @@
   },
   "scripts": {
     "install": "npm run install-client",
-    "install-client": "[ -d ./client/src ] && cd ./client && yarpm install; exit 0",
+    "install-client": "cd ./client && yarpm install",
     "startdev": "NODE_ENV=development nodemon --config nodemon.json app.ts && tsc --force --project ./tsconfig.json",
     "build": "npm run build-server && npm run build-client",
     "build-server": "npm run clean && tsc --project ./tsconfig.json",

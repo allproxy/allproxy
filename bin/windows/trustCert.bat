@@ -1,1 +1,1 @@
-certutil -addstore -f "ROOT" %HOME%\.allproxy\ca.pem
+runas /user:administrator certutil -addstore -f "ROOT" %HOME%\.allproxy\ca.pem
