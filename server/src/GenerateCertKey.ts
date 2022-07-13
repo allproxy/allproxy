@@ -18,7 +18,7 @@ export function createCertificateAuthority(): Promise<void> {
 
 export function trustCertificateAuthority() {
   const caPem = Paths.certsDirAndSlash() + 'ca.pem';
-  const home = process.env.HOME;
+  const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;
 
   // MacOS?
   if (fs.existsSync('/Library/Keychains/System.keychain')) {
