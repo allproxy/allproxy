@@ -6,7 +6,7 @@ AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify al
 > Install options:
 > 1. Install application package: **[Releases](https://github.com/allproxy/allproxy/releases)**
 > 2. Install NPM package: **npm install -g allproxy**
-> 3. Clone repo and run: **npm install && npm start**
+> 3. Clone repo and run: **npm install && npm run build && npm start**
 
 ### Additional Features
 
@@ -16,6 +16,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 ![image](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 <img width="1187" alt="image" src="https://user-images.githubusercontent.com/10223382/170111493-a6593aa1-8d92-46d7-8b6b-624d0e73d87c.png">
 
@@ -364,10 +365,6 @@ Each Application instance keeps its own copy of the messages, so clearing or sto
 
 ## Certificates
 Generated certificates are stored in **.allproxy/.http-mitm-proxy/certs/**.  Import **allproxy/ca.pem** to your browser to trust all AllProxy generated certificates.
-
-The **allproxy-ca** script can be used to install the CA certificate on MacOS and Linux.
-
-For Windows, execute the allproxy-ca script to get the path of the CA certificate, and manually import it to your browser.
 
 ## Implementation:
 - **HTTP proxy** - The *http* package is used to proxy HTTP traffic as either a forward or reverse proxy.

@@ -3,8 +3,8 @@ set -euo pipefail
 
 usage() {
     echo "Usage:"
-    echo "  allproxy-system-proxy enable"
-    echo "  allproxy-system-proxy disable"
+    echo "  systemProxy.sh enable"
+    echo "  systemProxy.sh disable"
     exit
 }
 
@@ -33,4 +33,3 @@ else
     command networksetup -setwebproxystate Wi-Fi off
     command networksetup -setsecurewebproxystate Wi-Fi off
 fi
-          

@@ -21,9 +21,7 @@
   },
   "main": "build/main.js",
   "bin": {
-    "allproxy": "bin/allproxy",
-    "allproxy-ca": "bin/allproxy-ca",
-    "allproxy-system-proxy": "bin/allproxy-system-proxy"
+    "allproxy": "bin/allproxy"
   },
   "scripts": {
     "install": "npm run install-client",
