@@ -105,12 +105,12 @@ function isWin32(): boolean {
 }
 
 function trustCertCmd(): string {
-	const cmd = isWin32() ? '%USERPROFILE%\.allproxy\bin\trustCert.bat' : '~/.allproxy/bin/trustCert.sh enable';
+	const cmd = isWin32() ? '%USERPROFILE%\\.allproxy\\bin\\trustCert.bat' : '~/.allproxy/bin/trustCert.sh enable';
 	return cmd;
 }
 
 function systemProxyCmd(): string {
-	const cmd = isWin32() ? '%USERPROFILE%\.allproxy\bin\systemProxy.bat' : '~/.allproxy/bin/systemProxy.sh enable';
+	const cmd = isWin32() ? '%USERPROFILE%\\.allproxy\\bin\\systemProxy.bat' : '~/.allproxy/bin/systemProxy.sh enable';
 	return cmd;
 }
 
