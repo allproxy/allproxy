@@ -83,12 +83,14 @@ The AllProxy may be installed from [Releases](https://github.com/allproxy/allpro
 #### Install From NPM
 ```sh
 $ npm install -g allproxy
+$ npm run build
 ```
 
 #### Install From GitHub Project
 ```sh
 $ cd ~/git/allproxy
-allproxy$ npm install
+$ allproxy$ npm install
+$ npm run build
 ```
 
 ### Start the AllProxy Server
