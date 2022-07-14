@@ -26,7 +26,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 **Features:**
 * Captures HTTP and/or HTTPS messages as either a forward or reverse proxy
 * Captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
-* Captures log messages from dockers logs
+* Captures log messages
 * Modify and resend HTTP requests
 * Add breakpoints to modify HTTP responses
 * Search entire request/response message for matching text
@@ -46,8 +46,8 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 * [Quick Start](#quick-start)
   * [Node Version](#node-version)
-  * [Install AllProxy](#install-allproxy-proxy)
-  * [Start the AllProxy](#start-the-allproxy-proxy)
+  * [Install AllProxy](#install-allproxy)
+  * [Start AllProxy](#start-allproxy)
   * [Install and Trust CA Certificate](#install-and-trust-ca-certificate)
   * [Open Application in Browser](#open-application-in-browser)
   * [Configure Proxy](#configure-proxy)
@@ -56,16 +56,16 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
   * [HTTP/HTTPS Proxy](#http-https-proxy)
   * [HTTP/2 Support](#http2-support)
   * [MySQL Proxy](#mysql-proxy)
-  * [gRPC Proxy](#grpc-Proxy)
+  * [gRPC Proxy](#grpc-proxy)
   * [MongoDB Proxy](#mongodb-proxy)
   * [Redis Proxy](#redis-proxy)
   * [TCP Proxy](tcp-proxy)
-  * [Docker Logs](#docker-logs)
+  * [Capture Log Messages](#capture-log-messages)
 * [AllProxy Application](#allproxy-application)
   * [Pause Recording](#pause-recording)
   * [Filter Messages](#filter-messages)
   * [Resend HTTP Requests](#resend-http-requests)
-  * [Breakpoint to Modify HTTPS Responses(#breakepoint-to-modify-https-responses)]
+  * [Breakpoint to Modify HTTP Response](#breakpoint-to-modify-http-response)
   * [Modify HTTPS JSON Responses](#modify-https-json-responses)
   * [Snapshots](#snapshots)
   * [Multiple Browser Tabs](#multiple-browser-tabs)
@@ -94,8 +94,7 @@ $ allproxy$ npm install
 $ npm run build
 ```
 
-### Start the AllProxy Server
-The AllProxy server is started using either the NPM installed **allproxy** script or using npm start, depending on how it was installed.
+### Start AllProxy
 #### Start NPM Package
   ```sh
   $ allproxy
@@ -294,10 +293,9 @@ MEMCACHED_PORT=11211
 The AllProxy is configured to proxy Memcached requests to a microservice:
 ![image](https://user-images.githubusercontent.com/10223382/169716834-4b186b8a-e2c9-462a-a0a6-e7b4706dd895.png)
 
-### Dockers Logs
-The Docker log proxy can capture log messages.
+### Capture Log Messages
+AllProxy can capture log messages with the tail, docker, or kubectl command.  The **-f** option is used to capture log messages, and view them in the AllProxy application.
 
-The AllProxy is configured to capture Dockers log messages:
 ![image](https://user-images.githubusercontent.com/10223382/169716855-37c271ce-1b03-4b68-87e1-cf117630420c.png)
 
 ## AllProxy Application
@@ -320,7 +318,7 @@ Boolean filters can use &&, ||, !, and parenthesis.
 ### Resend HTTP Requests
 To resend an HTTP or HTTPS request, click on the icon next to the request to open a modal.  Optionally modify the request body, and then click the send button.  If recording is not paused, the resent request should appear at the bottom of the request panel.
 
-### Breakpoint to Modify HTTPS Responses
+### Breakpoint to Modify HTTP Response
 Breakpoints can be set to match any part of the HTTP request or response, and then modify the JSON response then the breakpoint matches.
 
 Click Settings->Breakpoints: <img width="100" alt="breakpoint" src="https://user-images.githubusercontent.com/10223382/169717271-c713fd42-91bf-4606-964a-88cdd6d0666b.png">
