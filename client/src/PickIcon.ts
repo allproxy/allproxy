@@ -47,6 +47,17 @@ declare global {
 
 declare const InstallTrigger: any;
 
+export function getDisplayableUserAgent(userAgent: string): string {
+	const icon = pickIcon('browser:', userAgent);
+	if (icon.indexOf('chrome') !== -1) return 'Chrome';
+	if (icon.indexOf('chromium') !== -1) return 'Chromium';
+	if (icon.indexOf('opera') !== -1) return 'Opera';
+	if (icon.indexOf('firefox') !== -1) return 'Firefox';
+	if (icon.indexOf('edge') !== -1) return 'Edge';
+	const out = userAgent.split(' ')[0];
+	return out.split('/')[0];
+}
+
 function browserIcon(userAgent?: string): string {
 	let icon = 'fa fa-window-maximize';
 
