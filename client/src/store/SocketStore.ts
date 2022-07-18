@@ -13,6 +13,7 @@ import { filterStore } from "./FilterStore";
 import MessageStore from "./MessageStore";
 import { snapshotStore } from "./SnapshotStore";
 import { breakpointStore } from "./BreakpointStore";
+import { Browser } from "./BrowserStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -178,6 +179,18 @@ export default class SocketStore {
 
 	public emitBreakpoint(enable: boolean) {
 		this.socket?.emit('breakpoint', enable);
+	}
+
+	public async emitDetectBrowsers(): Promise<Browser[]> {
+		return new Promise((resolve) => {
+			this.socket?.emit('detect browsers', (browsers: Browser[]) => {
+				resolve(browsers);
+			});
+		})
+	}
+
+	public emitLaunchBrowser(browser: Browser) {
+		this.socket?.emit('launch browser', browser);
 	}
 }
 

@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
 import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
-import pickIcon from '../PickIcon';
+import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
 
 export default class MessageStore {
@@ -88,12 +88,7 @@ export default class MessageStore {
     public getRequestClient(): string | undefined {
         let ip = this.message.clientIp;
         if (ip === undefined || ip === '127.0.0.1' || ip === '::1' || ip?.indexOf('loopback') !== -1) {
-            const ua = this.message.requestHeaders['user-agent'];
-            if (ua) {
-                ip = ua;
-                ip = ip.split(' ')[0];
-                ip = ip.split('/')[0];
-            }
+            ip = getDisplayableUserAgent(this.getUserAgent());
         }
         return ip;
     }
@@ -141,21 +136,12 @@ export default class MessageStore {
         return body;
     }
 
-    private getUserAgent(): string | undefined {
-        return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : undefined;
+    private getUserAgent(): string {
+        return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : "";
     }
 
     public getUserAgentDisplayable(): string | undefined {
-        let ua = this.getUserAgent();
-        if (ua) {
-            if (ua) {
-                ua = ua.split(' ')[0];
-                ua = ua.split('/')[0];
-            }
-            return ua;
-        } else {
-            return undefined;
-        }
+        return getDisplayableUserAgent(this.getUserAgent());
     }
 
     public isHttpOrHttps() {
