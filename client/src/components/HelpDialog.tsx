@@ -1,6 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { Dialog, DialogTitle, Grid, IconButton, Typography } from '@material-ui/core';
 import CloseIcon from "@material-ui/icons/Close";
+import pickIcon from '../PickIcon';
+import { Browser, browserStore } from '../store/BrowserStore';
 
 type Props = {
 	open: boolean,
@@ -33,11 +35,15 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 			}}>
 				<b>AllProxy</b> started on <b>localhost:8888</b>
 				<p></p>
+				<b>Launch Browser:</b>
+				<b></b>
+				{showBrowsers()}
+				<p></p>
 				<b>Shortcuts:</b>
 				<br></br>
 				- <b>{key}-f</b> Find text in page
 				<p></p>
-				<b>Setup:</b>
+				<b>Manual Setup:</b>
 				<ol style={{ paddingLeft: "1rem" }}>
 					<li>
 						<b>Trust AllProxy certificate:</b>
@@ -99,6 +105,28 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 		</Dialog>
 	);
 });
+
+function showBrowsers() {
+	return (
+		<div>
+			{browserStore.getBrowsers().length === 0 ?
+				'No browsers detected.'
+				: browserStore.getBrowsers().map(browser => (
+					<span style={{ marginRight: '1rem' }}>
+						<button className="btn btn-lg btn-primary" onClick={() => browserStore.launchBrowser(browser)}>
+							<div className={pickIcon('browser:', browser.name)} style={{ marginRight: '.5rem' }} />
+							{browserName(browser)}
+						</button>
+					</span>
+				))}
+		</div>
+	);
+}
+
+function browserName(browser: Browser): string {
+	const name = browser.name.substring(0, 1).toUpperCase() + browser.name.substring(1);
+	return name;
+}
 
 function isWin32(): boolean {
 	return window.navigator.userAgent.indexOf('Windows') !== -1;

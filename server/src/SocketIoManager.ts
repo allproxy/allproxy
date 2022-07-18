@@ -12,6 +12,7 @@ import GrpcProxy from './GrpcProxy';
 import Paths from './Paths';
 import Global from './Global';
 import ConsoleLog from './ConsoleLog';
+import BrowserLauncher, { Browser } from './BrowserLauncher';
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -180,6 +181,24 @@ export default class SocketIoManager {
         //ConsoleLog.info('breakpoint', enable);
         socketIoInfo.breakpointEnabled = enable;
       }
+    })
+
+    socket.on('detect browsers', (callback: any) => {
+      BrowserLauncher.detect()
+        .then((browsers) => {
+          callback(browsers)
+        })
+        .catch(e => {
+          console.log('Error detecting browsers:', e)
+          callback([]);
+        });
+    })
+
+    socket.on('launch browser', (browser: Browser) => {
+      BrowserLauncher.launch(browser)
+        .catch(e => {
+          console.log('Error launching browser:', e, browser);
+        });
     })
 
     socket.on('disconnect', () => {
