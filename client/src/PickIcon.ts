@@ -47,6 +47,18 @@ declare global {
 
 declare const InstallTrigger: any;
 
+export function getBrowserIconColor(userAgent: string): string {
+	const icon = pickIcon('browser:', userAgent);
+	if (icon.indexOf('chrome') !== -1) return '#4DCE5B';
+	if (icon.indexOf('chromium') !== -1) return '#4DCE5B';
+	if (icon.indexOf('opera') !== -1) return '#F76464';
+	if (icon.indexOf('firefox') !== -1) return 'orangered';
+	if (icon.indexOf('edge') !== -1) return '#007bff';
+	if (icon.indexOf('safari') !== -1) return '#007bff';
+	if (icon.indexOf('explorer') !== -1) return '#007bff';
+	return 'whitesmoke';
+}
+
 export function getDisplayableUserAgent(userAgent: string): string {
 	const icon = pickIcon('browser:', userAgent);
 	if (icon.indexOf('chrome') !== -1) return 'Chrome';
@@ -55,6 +67,7 @@ export function getDisplayableUserAgent(userAgent: string): string {
 	if (icon.indexOf('firefox') !== -1) return 'Firefox';
 	if (icon.indexOf('edge') !== -1) return 'Edge';
 	if (icon.indexOf('safari') !== -1) return 'Safari';
+	if (icon.indexOf('explorer') !== -1) return 'Explorer';
 	const out = userAgent.split(' ')[0];
 	return out.split('/')[0];
 }
@@ -72,6 +85,15 @@ function browserIcon(userAgent?: string): string {
 		}
 		if (userAgent.includes('safari')) {
 			return 'fab fa-safari';
+		}
+		if (userAgent.includes('edge')) {
+			return 'fab fa-edge';
+		}
+		if (userAgent.includes('explorer')) {
+			return 'fab fa-internet-explorer';
+		}
+		if (userAgent.includes('opera')) {
+			return 'fab fa-opera';
 		}
 		return 'fas fa-keyboard';
 		// return 'fas fa-terminal';

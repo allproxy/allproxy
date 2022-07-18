@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Dialog, DialogTitle, Grid, IconButton, Typography } from '@material-ui/core';
 import CloseIcon from "@material-ui/icons/Close";
-import pickIcon from '../PickIcon';
+import pickIcon, { getBrowserIconColor } from '../PickIcon';
 import { Browser, browserStore } from '../store/BrowserStore';
 
 type Props = {
@@ -113,8 +113,13 @@ function showBrowsers() {
 				'No browsers detected.'
 				: browserStore.getBrowsers().map(browser => (
 					<span style={{ marginRight: '1rem' }}>
-						<button className="btn btn-lg btn-primary" onClick={() => browserStore.launchBrowser(browser)}>
-							<div className={pickIcon('browser:', browser.name)} style={{ marginRight: '.5rem' }} />
+						<button className="btn btn-lg btn-primary"
+							style={{ background: getBrowserIconColor(browserName(browser)) }}
+							onClick={() => browserStore.launchBrowser(browser)}>
+							<div className={pickIcon('browser:', browser.name)}
+								style={{
+									marginRight: '.5rem'
+								}} />
 							{browserName(browser)}
 						</button>
 					</span>
@@ -124,8 +129,12 @@ function showBrowsers() {
 }
 
 function browserName(browser: Browser): string {
-	const name = browser.name.substring(0, 1).toUpperCase() + browser.name.substring(1);
-	return name;
+	if (browser.name === 'ie') {
+		return 'Internet Explorer';
+	} else {
+		const name = browser.name.substring(0, 1).toUpperCase() + browser.name.substring(1);
+		return name;
+	}
 }
 
 function isWin32(): boolean {
