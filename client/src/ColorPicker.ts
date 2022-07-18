@@ -1,17 +1,16 @@
 import Message from './common/Message';
-import pickIcon from './PickIcon';
+import pickIcon, { getBrowserIconColor } from './PickIcon';
 
-const firefoxColor = 'orangered';
 const colors = ['blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
 let count = 0;
 let colorMap: Map<string, string> = new Map();
 
 export default function colorPicker(message: Message): string {
 	const protocol = message.protocol;
-
+	const ua = message.requestHeaders['user-agent'];
 	if (message.proxyConfig!.protocol === 'browser:') {
-		if (pickIcon(message.proxyConfig!.protocol, message.requestHeaders['user-agent']).indexOf('keyboard') === -1) {
-			return firefoxColor;
+		if (pickIcon(message.proxyConfig!.protocol, ua).indexOf('keyboard') === -1) {
+			return getBrowserIconColor(ua);
 		} else {
 			return ''; // color is set by App.css fa-keyboard
 		}

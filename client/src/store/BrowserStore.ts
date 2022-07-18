@@ -18,7 +18,9 @@ export default class BrowserStore {
 
 	@action private detectBrowsers() {
 		socketStore.emitDetectBrowsers()
-			.then((browsers) => this.browsers = browsers)
+			.then((browsers) => {
+				this.browsers = browsers.filter(browser => browser.name !== 'safari');
+			})
 	}
 
 	public getBrowsers() {
