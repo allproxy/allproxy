@@ -1,4 +1,4 @@
-const launcher = require('@james-proxy/james-browser-launcher');
+const launcher = require('./browser-launcher');
 
 export interface Browser {
     name: string,
