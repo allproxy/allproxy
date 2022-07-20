@@ -112,7 +112,7 @@ CA.create = function (caFolder, callback) {
   ca.baseCAFolder = caFolder
   ca.certsFolder = path.join(ca.baseCAFolder, 'certs')
   ca.keysFolder = path.join(ca.baseCAFolder, 'keys')
-  console.log('mkdirp xxx', ca);
+
   mkdirp.sync(ca.baseCAFolder);
   mkdirp.sync(ca.certsFolder);
   mkdirp.sync(ca.keysFolder);
@@ -243,4 +243,9 @@ CA.prototype.generateServerCertificateKeys = function (hosts, cb) {
 CA.prototype.getCACertPath = function () {
   return this.certsFolder + '/ca.pem'
 }
+
+CA.prototype.getCertContent = function () {
+  return this.CAcert;
+}
+
 module.exports = CA

@@ -10,7 +10,7 @@ export default function colorPicker(message: Message): string {
 	const ua = message.requestHeaders['user-agent'];
 	if (message.proxyConfig!.protocol === 'browser:') {
 		if (pickIcon(message.proxyConfig!.protocol, ua).indexOf('keyboard') === -1) {
-			return getBrowserIconColor(ua);
+			return getBrowserIconColor(ua) || 'whitesmoke';
 		} else {
 			return ''; // color is set by App.css fa-keyboard
 		}

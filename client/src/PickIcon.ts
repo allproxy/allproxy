@@ -47,7 +47,7 @@ declare global {
 
 declare const InstallTrigger: any;
 
-export function getBrowserIconColor(userAgent: string): string {
+export function getBrowserIconColor(userAgent: string): string | undefined {
 	const icon = pickIcon('browser:', userAgent);
 	if (icon.indexOf('chrome') !== -1) return '#4DCE5B';
 	if (icon.indexOf('chromium') !== -1) return '#4DCE5B';
@@ -56,7 +56,7 @@ export function getBrowserIconColor(userAgent: string): string {
 	if (icon.indexOf('edge') !== -1) return '#007bff';
 	if (icon.indexOf('safari') !== -1) return '#007bff';
 	if (icon.indexOf('explorer') !== -1) return '#007bff';
-	return 'whitesmoke';
+	return undefined;
 }
 
 export function getDisplayableUserAgent(userAgent: string): string {
