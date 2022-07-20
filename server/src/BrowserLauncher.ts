@@ -23,7 +23,8 @@ export default class BrowserLauncher {
     }
 
     public static launch(browser: Launcher.Browser) {
-        const id = 'fresh-' + browser.type;
+        const name = browser.type.replace('msedge', 'edge');
+        const id = 'fresh-' + name;
         const interceptor = interceptors[id];
         interceptor.activate(8888);
     }

@@ -116,7 +116,7 @@ function showBrowsers() {
 						<button className="btn btn-lg btn-primary"
 							style={{ background: getBrowserIconColor(browserName(browser)) }}
 							onClick={() => browserStore.launchBrowser(browser)}>
-							<div className={pickIcon('browser:', browser.name)}
+							<div className={pickIcon('browser:', browser.name.replace('msedge', 'edge'))}
 								style={{
 									marginRight: '.5rem'
 								}} />
