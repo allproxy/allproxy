@@ -112,10 +112,11 @@ CA.create = function (caFolder, callback) {
   ca.baseCAFolder = caFolder
   ca.certsFolder = path.join(ca.baseCAFolder, 'certs')
   ca.keysFolder = path.join(ca.baseCAFolder, 'keys')
+
+  mkdirp.sync(ca.baseCAFolder);
+  mkdirp.sync(ca.certsFolder);
+  mkdirp.sync(ca.keysFolder);
   async.series([
-    mkdirp.bind(null, ca.baseCAFolder),
-    mkdirp.bind(null, ca.certsFolder),
-    mkdirp.bind(null, ca.keysFolder),
     function (callback) {
       FS.exists(path.join(ca.certsFolder, 'ca.pem'), function (exists) {
         if (exists) {
@@ -242,4 +243,9 @@ CA.prototype.generateServerCertificateKeys = function (hosts, cb) {
 CA.prototype.getCACertPath = function () {
   return this.certsFolder + '/ca.pem'
 }
+
+CA.prototype.getCertContent = function () {
+  return this.CAcert;
+}
+
 module.exports = CA

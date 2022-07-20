@@ -10,6 +10,7 @@ import { parseProtoFiles } from './server/src/Protobuf';
 import path from 'path';
 import fs from 'fs';
 import ConsoleLog from './server/src/ConsoleLog';
+import BrowserLauncher from './server/src/BrowserLauncher';
 
 const listen: {
   protocol: string,
@@ -95,8 +96,11 @@ function usage() {
  */
 process.on('uncaughtException', (err) => {
   console.trace('uncaughtException:', err.stack);
+  BrowserLauncher.shutdown();
   // process.exit()
 });
+
+process.on('exit', () => BrowserLauncher.shutdown());
 
 Paths.makeCaPemSymLink();
 Paths.setupInterceptDir();

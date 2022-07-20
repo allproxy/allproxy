@@ -19,7 +19,7 @@ export default class BrowserStore {
 	@action private detectBrowsers() {
 		socketStore.emitDetectBrowsers()
 			.then((browsers) => {
-				this.browsers = browsers.filter(browser => browser.name !== 'safari');
+				this.browsers = browsers.filter(browser => browser.name !== 'safari' && browser.name !== 'ie');
 			})
 	}
 

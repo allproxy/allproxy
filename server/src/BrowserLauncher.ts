@@ -1,37 +1,48 @@
-const launcher = require('@james-proxy/james-browser-launcher');
+import { buildInterceptors, Interceptor, shutdownInterceptors } from "./interceptors";
+import Paths from "./Paths";
+import { getAvailableBrowsers } from "./interceptors/browsers";
+import { getCertContent } from "./GenerateCertKey";
+import Launcher from "@httptoolkit/browser-launcher";
+import { Dictionary } from "lodash";
 
-export interface Browser {
-    name: string,
-    version: string,
-    type: string,
-    command: string
-}
+let interceptors: Dictionary<Interceptor>;
 
 export default class BrowserLauncher {
-    public static async detect(): Promise<Browser[]> {
+    public static async detect(): Promise<Launcher.Browser[]> {
         return new Promise((resolve) => {
-            launcher.detect(function (available: Browser[]) {
-                console.log('Available browsers:');
-                console.dir(available);
-                resolve(available);
-            });
+            const config = getConfig();
+            console.log(config);
+            interceptors = buildInterceptors(config);
+            console.log(interceptors);
+            getAvailableBrowsers(config.configPath)
+                .then((browsers) => {
+                    console.log(browsers);
+                    resolve(browsers);
+                });
         });
     }
 
-    public static launch(browser: Browser): Promise<number> {
-        return new Promise((resolve, reject) => {
-            launcher((err: any, launch: any) => {
-                if (err) return reject(err);
-                const options = {
-                    proxy: 'localhost:8888',
-                    browser: browser.name,
-                    version: browser.version
-                };
-                launch('https://google.com/', options, (launchErr: any) => {
-                    if (launchErr) return reject(launchErr);
-                    resolve(0);
-                });
-            });
-        })
+    public static launch(browser: Launcher.Browser) {
+        const name = browser.type.replace('msedge', 'edge');
+        const id = 'fresh-' + name;
+        const interceptor = interceptors[id];
+        interceptor.activate(8888);
+    }
+
+    public static shutdown() {
+        shutdownInterceptors(Object.values(interceptors));
+    }
+}
+
+function getConfig() {
+    return {
+        configPath: Paths.getDataDir(),
+        authToken: undefined,
+        https: {
+            keyPath: Paths.keysDirAndSlash() + 'ca.private.key',
+            certPath: Paths.certsDirAndSlash() + 'ca.pem',
+            certContent: getCertContent(),
+            keyLength: 2048,
+        }
     }
 }

@@ -12,7 +12,8 @@ import GrpcProxy from './GrpcProxy';
 import Paths from './Paths';
 import Global from './Global';
 import ConsoleLog from './ConsoleLog';
-import BrowserLauncher, { Browser } from './BrowserLauncher';
+import BrowserLauncher from './BrowserLauncher';
+import Launcher from '@httptoolkit/browser-launcher';
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -194,11 +195,8 @@ export default class SocketIoManager {
         });
     })
 
-    socket.on('launch browser', (browser: Browser) => {
-      BrowserLauncher.launch(browser)
-        .catch(e => {
-          console.log('Error launching browser:', e, browser);
-        });
+    socket.on('launch browser', (browser: Launcher.Browser) => {
+      BrowserLauncher.launch(browser);
     })
 
     socket.on('disconnect', () => {

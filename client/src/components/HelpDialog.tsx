@@ -116,7 +116,7 @@ function showBrowsers() {
 						<button className="btn btn-lg btn-primary"
 							style={{ background: getBrowserIconColor(browserName(browser)) }}
 							onClick={() => browserStore.launchBrowser(browser)}>
-							<div className={pickIcon('browser:', browser.name)}
+							<div className={pickIcon('browser:', browser.name.replace('msedge', 'edge'))}
 								style={{
 									marginRight: '.5rem'
 								}} />
@@ -129,12 +129,8 @@ function showBrowsers() {
 }
 
 function browserName(browser: Browser): string {
-	if (browser.name === 'ie') {
-		return 'Internet Explorer';
-	} else {
-		const name = browser.name.substring(0, 1).toUpperCase() + browser.name.substring(1);
-		return name;
-	}
+	const name = browser.name.substring(0, 1).toUpperCase() + browser.name.substring(1);
+	return name;
 }
 
 function isWin32(): boolean {

@@ -16,6 +16,10 @@ export function createCertificateAuthority(): Promise<void> {
   });
 }
 
+export function getCertContent(): string {
+  return theCa.getCertContent();
+}
+
 export function trustCertificateAuthority() {
   const caPem = Paths.certsDirAndSlash() + 'ca.pem';
   const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;

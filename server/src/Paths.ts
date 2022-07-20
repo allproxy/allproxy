@@ -10,11 +10,15 @@ export default class Paths {
     ? `${process.env.ALLPROXY_DATA_DIR}/`
     : Paths.baseDir
 
-  public static configJson (): string {
+  public static getDataDir(): string {
+    return this.dataDir;
+  }
+
+  public static configJson(): string {
     return Paths.platform(`${Paths.dataDir}config.json`);
   }
 
-  public static sslCaDir (): string {
+  public static sslCaDir(): string {
     return Paths.platform(`${Paths.dataDir}.http-mitm-proxy`);
   }
 
@@ -26,7 +30,7 @@ export default class Paths {
     return Paths.platform(`${Paths.sslCaDir()}/keys/`);
   }
 
-  public static makeCaPemSymLink () {
+  public static makeCaPemSymLink() {
     const target = Paths.platform(Paths.platform('.http-mitm-proxy/certs/ca.pem'));
     const path = Paths.platform(Paths.dataDir + 'ca.pem');
     try {
@@ -34,7 +38,7 @@ export default class Paths {
     } catch (e) { } // Already exists
   }
 
-  public static setupInterceptDir () {
+  public static setupInterceptDir() {
     // Installed from NPM?
     if (process.env.ALLPROXY_DATA_DIR) {
       const target = Paths.platform(`${Paths.interceptDir()}/InterceptResponse.js`);
@@ -49,23 +53,23 @@ export default class Paths {
     }
   }
 
-  public static clientDir (): string {
+  public static clientDir(): string {
     return Paths.platform(`${Paths.baseDir}client`);
   }
 
-  public static protoDir (): string {
+  public static protoDir(): string {
     return Paths.platform(`${Paths.dataDir}proto`);
   }
 
-  public static interceptDir (): string {
+  public static interceptDir(): string {
     return Paths.platform(`${Paths.dataDir}intercept`);
   }
 
-  public static sep (): string {
+  public static sep(): string {
     return process.env.SHELL?.indexOf('bash') !== -1 ? '/' : path.sep;
   }
 
-  private static platform (dir: string): string {
+  private static platform(dir: string): string {
     return dir.replace(/\//g, Paths.sep());
   }
 }
