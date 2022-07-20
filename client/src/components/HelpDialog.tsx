@@ -129,7 +129,7 @@ function showBrowsers() {
 }
 
 function browserName(browser: Browser): string {
-	const name = browser.name.substring(0, 1).toUpperCase() + browser.name.substring(1);
+	const name = browser.name.replace('msedge', 'edge').substring(0, 1).toUpperCase() + browser.name.substring(1);
 	return name;
 }
 

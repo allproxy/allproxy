@@ -148,7 +148,7 @@ export class CertCheckServer {
                             <p>
                                 This browser does not trust the AllProxy certificate authority, so HTTPS traffic can't be intercepted.
                             </p><p>
-                                Closing the AllProxy app and starting it again will often resolve this.
+                                Opening a another browser tab may resolve this issue.
                             </p>
                     `)
                 };
