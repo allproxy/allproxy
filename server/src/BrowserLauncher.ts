@@ -4,16 +4,19 @@ import { getAvailableBrowsers } from "./interceptors/browsers";
 import { getCertContent } from "./GenerateCertKey";
 import Launcher from "@httptoolkit/browser-launcher";
 import { Dictionary } from "lodash";
+import { HtkConfig } from './interceptors/config'
 
+let config: HtkConfig;
 let interceptors: Dictionary<Interceptor>;
 
 export default class BrowserLauncher {
+    public static init() {
+        config = getConfig();
+        interceptors = buildInterceptors(config);
+    }
+
     public static async detect(): Promise<Launcher.Browser[]> {
         return new Promise((resolve) => {
-            const config = getConfig();
-            console.log(config);
-            interceptors = buildInterceptors(config);
-            console.log(interceptors);
             getAvailableBrowsers(config.configPath)
                 .then((browsers) => {
                     console.log(browsers);

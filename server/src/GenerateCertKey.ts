@@ -1,6 +1,4 @@
-import { exec } from 'child_process';
 import fs from 'fs';
-import path from 'path';
 import ConsoleLog from './ConsoleLog';
 import Paths from './Paths';
 const ca = require('./ca');
@@ -18,40 +16,6 @@ export function createCertificateAuthority(): Promise<void> {
 
 export function getCertContent(): string {
   return theCa.getCertContent();
-}
-
-export function trustCertificateAuthority() {
-  const caPem = Paths.certsDirAndSlash() + 'ca.pem';
-  const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;
-
-  // MacOS?
-  if (fs.existsSync('/Library/Keychains/System.keychain')) {
-    // ConsoleLog.info('Installing ca.pem in /Library/Keychains/System.keychain/');
-    // const cmd = `/usr/bin/security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ${caPem}`;
-    // ConsoleLog.info(cmd);
-    // exec(`/usr/bin/osascript -e 'do shell script "sudo ${cmd}" with prompt "Install AllProxy CA Certificate " with administrator privileges'`,
-    // (error, stdout, stderr) => {
-    //   if (error) {
-    //     ConsoleLog.info(error);
-    //   }
-    //   ConsoleLog.info(stdout);
-    //   ConsoleLog.info(stderr);
-    // });
-    // Ubuntu/Debian?
-  } else if (fs.existsSync('/usr/local/share/ca-certificates/')) {
-    ConsoleLog.info('Adding ca.pem in /usr/local/share/ca-certificates/');
-    exec(`sudo cp ${caPem} /usr/local/share/ca-certificates/allproxyca.pem`);
-    // CentOS 5?
-  } else if (fs.existsSync('/etc/pki/tls/certs/ca-bundle.crt')) {
-    ConsoleLog.info('Adding ca.pem in /etc/pki/tls/certs/ca-bundle.crt');
-    exec(`cat ${caPem} >> /etc/pki/tls/certs/ca-bundle.crt`);
-    // Windows?
-  } else if (path.sep === '\\') {
-    ConsoleLog.info('Adding ca.pem to certificate store');
-    exec(`certutil -addstore -f "ROOT" ${caPem}`);
-  }
-
-  ConsoleLog.info(`Please run ${home}/.allproxy/bin/trustCa.sh to add AllProxy certificate to certificate store`);
 }
 
 const generateCertKey = async (hostname: string): Promise<{ cert: string, key: string }> => {
