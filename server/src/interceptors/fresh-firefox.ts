@@ -46,7 +46,9 @@ const getCertutilCommand = _.memoize(async () => {
         if (await testCertutil(bundledCertUtil)) {
             return { command: bundledCertUtil };
         } else {
-            throw new Error("No certutil available");
+            //throw new Error("No certutil available");
+            console.log("No certutil available");
+            return;
         }
     }
 
@@ -62,7 +64,9 @@ const getCertutilCommand = _.memoize(async () => {
     if (await testCertutil(bundledCertUtil, { env: certutilEnv })) {
         return { command: bundledCertUtil, options: { env: certutilEnv } };
     } else {
-        throw new Error("No certutil available");
+        //throw new Error("No certutil available");
+        console.log("No certutil available");
+        return;
     }
 });
 
@@ -218,21 +222,25 @@ export class FreshFirefox implements Interceptor {
 
         // Once firefox has shut, rewrite the certificate database of the newly created profile:
         const certutil = await getCertutilCommand();
-        const certUtilResult = await spawnToResult(
-            certutil.command, [
-            '-A',
-            '-d', `sql:${this.firefoxProfilePath}`,
-            '-t', 'C,,',
-            '-i', this.config.https.certPath,
-            '-n', 'AllProxy'
-        ],
-            certutil.options || {}
-        );
+        if (certutil) {
+            const certUtilResult = await spawnToResult(
+                certutil.command, [
+                '-A',
+                '-d', `sql:${this.firefoxProfilePath}`,
+                '-t', 'C,,',
+                '-i', this.config.https.certPath,
+                '-n', 'AllProxy'
+            ],
+                certutil.options || {}
+            );
 
-        if (certUtilResult.exitCode !== 0) {
-            console.error(certUtilResult.stdout);
-            console.error(certUtilResult.stderr);
-            throw new Error(`Certutil firefox profile setup failed with code ${certUtilResult.exitCode}`);
+            if (certUtilResult.exitCode !== 0) {
+                console.error(certUtilResult.stdout);
+                console.error(certUtilResult.stderr);
+                //throw new Error(`Certutil firefox profile setup failed with code ${certUtilResult.exitCode}`);
+                console.log(`Certutil firefox profile setup failed with code ${certUtilResult.exitCode}`);
+                return;
+            }
         }
     }
 
