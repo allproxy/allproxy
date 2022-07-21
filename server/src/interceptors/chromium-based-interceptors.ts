@@ -46,6 +46,7 @@ const getChromiumLaunchOptions = async (
         options: [
             // Trust our CA certificate's fingerprint:
             `--ignore-certificate-errors-spki-list=${spkiFingerprint}`,
+            `--ignore-certificate-errors`,
             // Disable annoying "What's New" page
             '--disable-features=ChromeWhatsNewUI',
             // Avoid annoying extra network noise:
