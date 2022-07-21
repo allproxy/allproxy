@@ -224,7 +224,7 @@ export class FreshFirefox implements Interceptor {
             '-d', `sql:${this.firefoxProfilePath}`,
             '-t', 'C,,',
             '-i', this.config.https.certPath,
-            '-n', 'HTTP Toolkit'
+            '-n', 'AllProxy'
         ],
             certutil.options || {}
         );
