@@ -95,7 +95,7 @@ function browserIcon(userAgent?: string): string {
 		if (userAgent.includes('explorer')) {
 			return 'fab fa-internet-explorer';
 		}
-		return 'fas fa-keyboard';
+		return 'fas fa-terminal';
 		// return 'fas fa-terminal';
 	}
 
