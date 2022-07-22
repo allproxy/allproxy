@@ -35,7 +35,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 			}}>
 				<b>AllProxy</b> started on <b>localhost:8888</b>
 				<p></p>
-				<b>Launch Browser:</b>
+				<b>Launch Browser or Terminal:</b>
 				<b></b>
 				{showBrowsers()}
 				<p></p>
@@ -113,7 +113,7 @@ function showBrowsers() {
 				'No browsers detected.'
 				: browserStore.getBrowsers().map(browser => (
 					<span style={{ marginRight: '1rem' }}>
-						<button className="btn btn-lg btn-primary"
+						<button className="btn btn-lg btn-secondary"
 							style={{ background: getBrowserIconColor(browserName(browser)) }}
 							onClick={() => browserStore.launchBrowser(browser)}>
 							<div className={pickIcon('browser:', browser.name)}

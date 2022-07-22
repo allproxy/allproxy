@@ -19,6 +19,16 @@ export default class BrowserLauncher {
         return new Promise((resolve) => {
             getAvailableBrowsers(config.configPath)
                 .then((browsers) => {
+                    const terminal = interceptors['fresh-terminal'];
+                    if (terminal) {
+                        browsers.push({
+                            profile: 'terminal',
+                            type: 'terminal',
+                            name: 'terminal',
+                            command: 'tbd',
+                            version: 'unknown',
+                        });
+                    }
                     console.log(browsers);
                     resolve(browsers);
                 });

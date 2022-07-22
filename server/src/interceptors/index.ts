@@ -18,6 +18,7 @@ import {
     FreshBrave,
     FreshOpera
 } from './chromium-based-interceptors';
+import { FreshTerminalInterceptor } from './fresh-terminal-interceptor';
 
 export interface Interceptor {
     id: string;
@@ -60,6 +61,8 @@ export function buildInterceptors(config: HtkConfig): _.Dictionary<Interceptor> 
         new FreshOpera(config),
         new FreshBrave(config),
         new FreshFirefox(config),
+
+        new FreshTerminalInterceptor(config),
     ];
 
     const interceptorIndex = _.keyBy(interceptors, (interceptor) => interceptor.id);
