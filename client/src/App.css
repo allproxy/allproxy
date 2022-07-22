@@ -36,8 +36,9 @@
 		border-color: black !important;
 	}
 
-	.fa-keyboard {
-		color: whitesmoke !important;
+	.fa-terminal {
+		border: whitesmoke solid thin;
+		padding: 0 2px;
 	}
 }
 
@@ -73,12 +74,13 @@
 		color: black;
 	}
 
-	.fa-keyboard {
-		color: black;
-	}
-
 	.MuiCheckbox-colorSecondary {
 		color: blue;
+	}
+
+	.fa-terminal {
+		border: black solid thin;
+		padding: 0 2px;
 	}
 }
 
