@@ -80,20 +80,20 @@ function browserIcon(userAgent?: string): string {
 		if (userAgent.includes('firefox')) {
 			return 'fab fa-firefox';
 		}
+		if (userAgent.includes('edge')) {
+			return 'fab fa-edge';
+		}
+		if (userAgent.includes('opera')) {
+			return 'fab fa-opera';
+		}
 		if (userAgent.includes('chrome') || userAgent.includes('chromium')) {
 			return 'fab fa-chrome';
 		}
 		if (userAgent.includes('safari')) {
 			return 'fab fa-safari';
 		}
-		if (userAgent.includes('edge')) {
-			return 'fab fa-edge';
-		}
 		if (userAgent.includes('explorer')) {
 			return 'fab fa-internet-explorer';
-		}
-		if (userAgent.includes('opera')) {
-			return 'fab fa-opera';
 		}
 		return 'fas fa-keyboard';
 		// return 'fas fa-terminal';

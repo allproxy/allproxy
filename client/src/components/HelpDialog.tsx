@@ -116,7 +116,7 @@ function showBrowsers() {
 						<button className="btn btn-lg btn-primary"
 							style={{ background: getBrowserIconColor(browserName(browser)) }}
 							onClick={() => browserStore.launchBrowser(browser)}>
-							<div className={pickIcon('browser:', browser.name.replace('msedge', 'edge'))}
+							<div className={pickIcon('browser:', browser.name)}
 								style={{
 									marginRight: '.5rem'
 								}} />
@@ -129,7 +129,8 @@ function showBrowsers() {
 }
 
 function browserName(browser: Browser): string {
-	const name = browser.name.replace('msedge', 'edge').substring(0, 1).toUpperCase() + browser.name.substring(1);
+	let name = browser.name.replace('msedge', 'edge');
+	name = name.substring(0, 1).toUpperCase() + name.substring(1);
 	return name;
 }
 
