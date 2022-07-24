@@ -3,6 +3,11 @@ import { Dialog, DialogTitle, Grid, IconButton, Typography } from '@material-ui/
 import CloseIcon from "@material-ui/icons/Close";
 import pickIcon, { getBrowserIconColor } from '../PickIcon';
 import { Browser, browserStore } from '../store/BrowserStore';
+import ImportJSONFileDialog from './ImportJSONFileDialog';
+import React from 'react';
+import { snapshotStore } from '../store/SnapshotStore';
+import { importJSONFile } from '../ImportJSONFile';
+import { useFilePicker } from 'use-file-picker';
 
 type Props = {
 	open: boolean,
@@ -10,6 +15,8 @@ type Props = {
 };
 
 const HelpDialog = observer(({ open, onClose }: Props) => {
+	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
+	const [primaryJSONFields, setPrimaryJSONFields] = React.useState<string[]>([]);
 
 	const handleClose = () => {
 		onClose();
@@ -18,8 +25,35 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 	const isMac = navigator.appVersion.indexOf('Mac') !== -1;
 	const key = isMac ? 'cmd' : 'ctl';
 
+	const [openJSONFileSelector, { filesContent: jsonContent, clear: jsonClear }] = useFilePicker({
+		multiple: false
+	});
+
+	if (!!jsonContent.length) {
+		for (const fileContent of jsonContent) {
+			snapshotStore.importSnapshot(fileContent.name, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
+		}
+		jsonClear();
+	}
+
+	function jsonLogFileButton() {
+		return (
+			<span style={{ marginRight: '1rem' }}>
+				<button className="btn btn-lg btn-primary"
+					onClick={() => setOpenImportJSONFileDialog(true)}>
+					<div className={pickIcon('log:', '')}
+						style={{
+							marginRight: '.5rem'
+						}}
+					/>
+					View JSON Log File
+				</button>
+			</span>
+		);
+	}
+
 	return (
-		<Dialog onBackdropClick={handleClose} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+		<><Dialog onBackdropClick={handleClose} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
 			<DialogTitle id="simple-dialog-title">
 				<Grid container justify="space-between" alignItems="center">
 					<Typography><h3>Help</h3></Typography>
@@ -36,8 +70,11 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				<b>AllProxy</b> started on <b>localhost:8888</b>
 				<p></p>
 				<b>Launch Browser or Terminal:</b>
-				<b></b>
 				{showBrowsers()}
+				<p></p>
+				<b>AllProxy can view, filter, and search JSON based log file:</b>
+				<br></br>
+				{jsonLogFileButton()}
 				<p></p>
 				<b>Shortcuts:</b>
 				<br></br>
@@ -102,7 +139,13 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					</li>
 				</ol>
 			</div>
-		</Dialog>
+		</Dialog><ImportJSONFileDialog
+				open={openImportJSONFileDialog}
+				onClose={(primaryJSONFields) => {
+					setPrimaryJSONFields(primaryJSONFields);
+					setOpenImportJSONFileDialog(false);
+					openJSONFileSelector();
+				}} /></>
 	);
 });
 
