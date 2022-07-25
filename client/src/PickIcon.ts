@@ -73,7 +73,7 @@ export function getDisplayableUserAgent(userAgent: string): string {
 }
 
 function browserIcon(userAgent?: string): string {
-	let icon = 'fa fa-window-maximize';
+	let icon = 'fa fa-keyboard-maximize';
 
 	if (userAgent) {
 		userAgent = userAgent.toLowerCase();
@@ -95,8 +95,8 @@ function browserIcon(userAgent?: string): string {
 		if (userAgent.includes('explorer')) {
 			return 'fab fa-internet-explorer';
 		}
-		return 'fas fa-terminal';
-		// return 'fas fa-terminal';
+		return 'fas fa-keyboard';
+		// return 'fas fa-keyboard';
 	}
 
 	// Opera 8.0+

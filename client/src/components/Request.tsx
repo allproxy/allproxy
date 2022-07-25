@@ -38,7 +38,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 							style={{ width: percent }} />
 					</div>
 					<div className={`${store.getIconClass()} request__msg-icon`}
-						style={{ cursor: 'pointer', float: 'left', color: store.getColor() }}
+						style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px' }}
 						onClick={handleClick}
 						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
 					>

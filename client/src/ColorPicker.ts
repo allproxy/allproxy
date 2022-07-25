@@ -12,7 +12,7 @@ export default function colorPicker(message: Message): string {
 		if (pickIcon(message.proxyConfig!.protocol, ua).indexOf('terminal') === -1) {
 			return getBrowserIconColor(ua) || 'whitesmoke';
 		} else {
-			return ''; // color is set by App.css fa-terminal
+			return ''; // color is set by App.css fa-keyboard
 		}
 	}
 
