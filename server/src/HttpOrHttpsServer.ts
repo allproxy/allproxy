@@ -134,7 +134,7 @@ export default class HttpOrHttpsServer {
     // URLs for requests proxied from terminal (e.g., https_proxy=localhost:8888) do not include schema and hostname
     let urlWithHostname = clientReq.url!;
     if (this.proxyType === 'forward' && urlWithHostname.startsWith('/')) {
-      urlWithHostname = this.protocol + "://" + this.reverseProxyHostname + urlWithHostname;
+      urlWithHostname = this.protocol + "//" + this.reverseProxyHostname + urlWithHostname;
     }
 
     const httpMessage = new HttpMessage(

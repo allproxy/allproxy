@@ -15,7 +15,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-			<DialogTitle id="simple-dialog-title">Entry Primary JSON Fields</DialogTitle>
+			<DialogTitle id="simple-dialog-title">Enter Primary JSON Field Names (optional)</DialogTitle>
 			<input className={'form-control'}
 				style={{
 					marginLeft: '1rem',
