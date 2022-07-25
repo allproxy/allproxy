@@ -140,14 +140,14 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 
 	function copyToClipboard() {
 		const method = store.getMessage().method;
-		const url = store.getMessage().url;
+		const url = `"${store.getMessage().url?.split('"').join('\\"')}"`;
 		let requestBody = store.getMessage().requestBody;
 		if (typeof requestBody !== 'string') {
 			requestBody = JSON.stringify(requestBody, null, 2);
 			requestBody = requestBody.split('\n').join(' \\\n');
-			requestBody = requestBody.substring(0, requestBody.length - ' \\\n'.length);
+			requestBody = requestBody.split('"').join('\\"');
 		}
-		const body = requestBody.length > 0 ? '-d ' + requestBody : '';
+		const body = requestBody.length > 0 ? '-d "' + requestBody + '"\\\n' : '';
 		let headers = '';
 		for (const key in store.getMessage().requestHeaders) {
 			const value = store.getMessage().requestHeaders[key].split('"').join('\\"');
