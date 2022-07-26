@@ -24,9 +24,11 @@ const Response = ({ message, store, onClose }: Props) => {
 				<IconButton onClick={onClose}>
 					<div className={"fa fa-chevron-right"} />
 				</IconButton>
-				<div className={message.status < 400 ? '' : 'error'}>
-					<b>Status:&nbsp;</b>{message.status}
-				</div>
+				{store.getMessage().protocol !== 'log:' &&
+					<div className={message.status < 400 ? '' : 'error'}>
+						<b>Status:&nbsp;</b>{message.status}
+					</div>
+				}
 				{store.isGrpc() && (
 					<div>
 						<div className={store.getGrpcStatus() === 0 ? '' : 'error'}>
@@ -38,9 +40,11 @@ const Response = ({ message, store, onClose }: Props) => {
 							</div>)}
 					</div>
 				)}
-				<div>
-					<b>Elapsed time:&nbsp;</b>{message.elapsedTime} ms
-				</div>
+				{store.getMessage().protocol !== 'log:' &&
+					<div>
+						<b>Elapsed time:&nbsp;</b>{message.elapsedTime} ms
+					</div>
+				}
 				{Object.keys(message.requestHeaders).length > 0 ?
 					< Accordion >
 						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -78,17 +82,23 @@ const Response = ({ message, store, onClose }: Props) => {
 					</Accordion>
 					: null}
 
-				<Accordion defaultExpanded={true}>
-					<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-						<b>Response Data:</b>
-					</AccordionSummary>
-					<AccordionDetails>
-						{typeof responseBody === 'string'
-							? <pre>{responseBody}</pre>
-							: responseBody
-						}
-					</AccordionDetails>
-				</Accordion>
+				{store.getMessage().protocol === 'log:' ?
+					typeof responseBody === 'string'
+						? <pre>{responseBody}</pre>
+						: responseBody
+					:
+					<Accordion defaultExpanded={true}>
+						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+							<b>Response Data:</b>
+						</AccordionSummary>
+						<AccordionDetails>
+							{typeof responseBody === 'string'
+								? <pre>{responseBody}</pre>
+								: responseBody
+							}
+						</AccordionDetails>
+					</Accordion>
+				}
 				{responseBody === LOADING &&
 					<div style={{
 						width: '100%',
