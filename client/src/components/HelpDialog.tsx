@@ -56,7 +56,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 		<><Dialog onBackdropClick={handleClose} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
 			<DialogTitle id="simple-dialog-title">
 				<Grid container justify="space-between" alignItems="center">
-					<Typography><h3>Help</h3></Typography>
+					<Typography><h3>Welcome</h3></Typography>
 					<IconButton onClick={handleClose}>
 						<CloseIcon />
 					</IconButton>
