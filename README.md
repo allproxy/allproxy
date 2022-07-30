@@ -1,6 +1,10 @@
 <h1 align="center" style="border-bottom: none;">AllProxy: MITM HTTP Debugging Tool</h1>
 
-AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between their machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
+AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between your machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
+
+![image](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
+![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 ### Install
 > Install options:
@@ -8,15 +12,127 @@ AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify al
 > 2. Install NPM package: **npm install -g allproxy**
 > 3. Clone repo and run: **npm install && npm run build && npm start**
 
+### Features
+<details>
+<summary>Capture Browser and Terminal Network Traffic</summary>
+Launch your favorite browser or terminal, and capture all HTTP and HTTPS traffic.  Click a browser or terminal button from the Welcome modal:
+<p>
+<img width="300" alt="image" src="https://user-images.githubusercontent.com/10223382/181995543-5b452ea3-acaa-4918-aa95-ca6b4c9ff1d4.png">
+
+</details>
+
+<details>
+<summary>Modify and Resend Captured HTTP Requests</summary>
+1. Click a request line to select it.<p>
+2. Click green hamburger menu.<p>
+<img width="300" alt="image" src="https://user-images.githubusercontent.com/10223382/181996556-28e13d61-60b6-44af-aea0-7f788cf2dea1.png">
+<p>
+3. Select Resend Request to open Resend Modal.
+<p>
+<img width="150" alt="image" src="https://user-images.githubusercontent.com/10223382/181996610-92d02f2f-c0de-48a1-bf0a-e81aab102691.png">
+<p>
+4. Modify the request, and click the Send button to resent the modified request.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/181997040-f9b24c50-59a2-4589-9228-64856b2dc35b.png">
+
+</details>
+
+<details>
+<summary>Intercept and Modify HTTP Response</summary>
+1. Click the Settings icon in the upper right corner, and select Breakpoints.
+<p>
+<img width="150" alt="image" src="https://user-images.githubusercontent.com/10223382/182001973-b70c3152-0360-4b97-bf2c-8bffb2a56adb.png">
+<p>
+2. Click the Add Breakpoint button, and enter a string that matches any part of the request (e.g., URL) or response you wish to intercept.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002181-a85edacd-691e-42c1-9031-0510b9b9dbb0.png">
+<p>
+3. When a matching request/response is detected, a Breakpoint modal pops up.  Modify the HTTP response body and click Ok.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002262-5c964c01-a33f-4d85-be69-c60c63b5bbf8.png">
+<p>
+
+</details>
+
+<details>
+<summary>Take Snapshots</summary>
+To take a snapshot of all the captured network traffic: 
+1. Click the camera icon, enter a snapshot name, and click Create.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002395-1e5b02ae-e429-4e9b-b03d-8c5870c05143.png">
+<p>
+2. A new tab is created called "My Snapshot".  Click the new tab to view the snapshot.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002437-0e97953d-ae64-4fdd-966b-0ce0d812e2f6.png">
+
+</details>
+
+<details>
+<summary>Export and Import Shapshots</summary>
+To export a snapshot to a file:
+<p>
+1. Click the More menu, and select Export Snapshot.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002497-5ad5fa2b-c8d3-4d2a-93af-a7db5dfa5f85.png">
+<p>
+2. Enter a snapshot name, and click Export.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002536-30bde283-e449-44d6-add7-cba0fbf71734.png">
+<p>
+To import a snapshot:
+<p>
+1. Click the More menu, and select Import Snapshot.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002582-210c93e7-f27a-4369-9b37-b6cf058ed0a9.png">
+<p>
+2. Select a snapshot file from the browser file manager, and click Open.  A new tab is created from the imported snapshot.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002641-b9308802-03db-456f-9e28-91bd4ba6de62.png">
+<p>
+
+</details>
+
+<details>
+<summary>HTTP Reverse Proxy</summary>
+To configure rules for an HTTP reverse proxy, click the Settings icon in the upper right corner, and select Proxy Configuration.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002722-e1a1df51-67e6-4391-a1a7-c14b761a324e.png">
+<p>
+
+
+To configure rules for an HTTP reverse proxy, click the Settings icon in the upper right corner, and select Proxy Configuration.
+</details>
+
+<details>
+<summary>GRPC Proxy</summary>
+
+</details>
+
+<details>
+<summary>MySQL Proxy</summary>
+
+</details>
+
+<details>
+<summary>Other Protocol</summary>
+
+</details>
+
+<details>
+<summary>View JSON Log File</summary>
+
+</details>
+
+<details>
+<summary>Dark Mode</summary>
+
+</details>
+
 ### Additional Features
 
 Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 ![npm](https://img.shields.io/npm/v/allproxy) ![npm](https://img.shields.io/npm/dm/allproxy)
-
-![image](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
-![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 <img width="1187" alt="image" src="https://user-images.githubusercontent.com/10223382/170111493-a6593aa1-8d92-46d7-8b6b-624d0e73d87c.png">
 
