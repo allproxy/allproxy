@@ -58,60 +58,65 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 									value={store.getPath()}
 								/>
 							</div>
-							<h5>Headers:</h5>
-							<List>
-								{store.getHeaders().map((header, i) => (
-									<ListItem key={i}
-										style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-										<div style={{ width: maxHeaderKeySize() + 2 + 'ch' }}>
-											{header.key}
-										</div>
-										<input className="resend-modal__header-input"
-											placeholder="Header value"
-											value={header.value}
-											onChange={(e) => store.setHeaderValue(i, e.target.value)}
+							<details>
+								<summary>Headers:</summary>
+								<List>
+									{store.getHeaders().map((header, i) => (
+										<ListItem key={i}
+											style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+											<div style={{ width: maxHeaderKeySize() + 2 + 'ch' }}>
+												{header.key}
+											</div>
+											<input className="resend-modal__header-input"
+												placeholder="Header value"
+												value={header.value}
+												onChange={(e) => store.setHeaderValue(i, e.target.value)}
+											/>
+										</ListItem>
+									))}
+								</List>
+							</details>
+							<p></p>
+							<details open>
+								<summary>Body:</summary>
+								<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
+									<button type="button" className="resend-modal__send btn btn-sm btn-default"
+										title="Copy request body to clipboard"
+										onClick={handleCopy}
+									>
+										<div className="fa fa-copy" />
+									</button>
+									<button type="button" className="resend-modal__send btn btn-sm btn-primary"
+										style={{ marginLeft: '.5rem' }}
+										onClick={handleToggleStrJson}>
+										{typeof message.requestBody === 'object' ? 'To String' : 'To JSON'}
+									</button>
+									<button type="button" className="resend-modal__send btn btn-sm btn-danger"
+										style={{ marginLeft: '.5rem' }}
+										onClick={handleClear}>
+										Clear
+									</button>
+								</div>
+								<div className="resend-modal__body-container">
+									{message.requestBody && typeof message.requestBody === 'object' ?
+										<ReactJson
+											theme={colorScheme === 'dark' ? 'google' : undefined}
+											src={message.requestBody}
+											name={false}
+											displayDataTypes={false}
+											quotesOnKeys={false}
+											onEdit={handleEdit}
+											onAdd={handleAdd}
+											onDelete={handleDelete}
 										/>
-									</ListItem>
-								))}
-							</List>
-							<h5>Body:</h5>
-							<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
-								<button type="button" className="resend-modal__send btn btn-sm btn-default"
-									title="Copy request body to clipboard"
-									onClick={handleCopy}
-								>
-									<div className="fa fa-copy" />
-								</button>
-								<button type="button" className="resend-modal__send btn btn-sm btn-primary"
-									style={{ marginLeft: '.5rem' }}
-									onClick={handleToggleStrJson}>
-									{typeof message.requestBody === 'object' ? 'To String' : 'To JSON'}
-								</button>
-								<button type="button" className="resend-modal__send btn btn-sm btn-danger"
-									style={{ marginLeft: '.5rem' }}
-									onClick={handleClear}>
-									Clear
-								</button>
-							</div>
-							<div className="resend-modal__body-container">
-								{message.requestBody && typeof message.requestBody === 'object' ?
-									<ReactJson
-										theme={colorScheme ==='dark' ? 'google' : undefined}
-										src={message.requestBody}
-										name={false}
-										displayDataTypes={false}
-										quotesOnKeys={false}
-										onEdit={handleEdit}
-										onAdd={handleAdd}
-										onDelete={handleDelete}
-									/>
-									:
-									<textarea className="resend-modal__body form-control" rows={100} cols={300}
-										onChange={(e) => store.setBody(e.target.value)}
-										value={store.getBody() as string}
-										placeholder="Enter request body" />
-								}
-							</div>
+										:
+										<textarea className="resend-modal__body form-control" rows={100} cols={300}
+											onChange={(e) => store.setBody(e.target.value)}
+											value={store.getBody() as string}
+											placeholder="Enter request body" />
+									}
+								</div>
+							</details>
 						</div>
 					</div>
 					<div className="modal-footer">
