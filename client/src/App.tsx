@@ -14,7 +14,7 @@ import React from 'react';
 import SideBar from './components/SideBar';
 
 const theme = localStorage.getItem('allproxy-theme');
-let defaultTheme : 'dark' | 'light' = 'dark'
+let defaultTheme: 'dark' | 'light' = 'dark'
 if (theme === 'dark' || theme === 'light') {
   defaultTheme = theme;
 }
@@ -23,12 +23,12 @@ export let colorScheme = theme;
 let colorSchemeQueryList: MediaQueryList | undefined = window.matchMedia('(prefers-color-scheme: dark)');
 
 function initTheme() {
-	const theme = localStorage.getItem('allproxy-theme');
-	if (theme) {
-		if(theme !== 'system' && theme !== colorScheme) {
-			window.darkMode.toggle();
-		}
-	}
+  const theme = localStorage.getItem('allproxy-theme');
+  if (theme) {
+    if (theme !== 'system' && theme !== colorScheme) {
+      window.darkMode.toggle();
+    }
+  }
 }
 
 function App() {
@@ -47,14 +47,14 @@ function App() {
   });
 
   window
-	.matchMedia("(prefers-color-scheme: dark)")
-	.addEventListener("change", setTheme);
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", setTheme);
 
   function setTheme(e: any) {
-		const cs = e.matches ? "dark" : "light";
+    const cs = e.matches ? "dark" : "light";
     colorScheme = cs;
     setPaletteType(cs);
-	}
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -67,7 +67,7 @@ function App() {
         />
         <div className="side-bar-snapshots">
           <div>
-            <SideBar/>
+            <SideBar />
           </div>
           <div>
             <Snapshots
@@ -77,9 +77,7 @@ function App() {
           </div>
         </div>
         <Footer
-          socketStore={socketStore}
           filterStore={filterStore}
-          messageQueueStore={messageQueueStore}
           breakpointStore={breakpointStore}
         />
       </div>
