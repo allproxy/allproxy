@@ -15,7 +15,7 @@ AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify al
 ### Features
 <details>
 <summary>Capture Browser and Terminal Network Traffic</summary>
-Launch your favorite browser or terminal, and capture all HTTP and HTTPS traffic.  Click a browser or terminal button from the Welcome modal:
+Launch your favorite browser or terminal from the Welcome modal, and capture all HTTP and HTTPS traffic.  
 <p>
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/10223382/181995543-5b452ea3-acaa-4918-aa95-ca6b4c9ff1d4.png">
 
@@ -23,15 +23,15 @@ Launch your favorite browser or terminal, and capture all HTTP and HTTPS traffic
 
 <details>
 <summary>Modify and Resend Captured HTTP Requests</summary>
-1. Click a request line to select it.<p>
-2. Click green hamburger menu.<p>
+1. Select a request, and click the green menu button.
+<p>
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/10223382/181996556-28e13d61-60b6-44af-aea0-7f788cf2dea1.png">
 <p>
-3. Select Resend Request to open Resend Modal.
+2. Then, select the Resend Request option to open Resend Modal.
 <p>
 <img width="150" alt="image" src="https://user-images.githubusercontent.com/10223382/181996610-92d02f2f-c0de-48a1-bf0a-e81aab102691.png">
 <p>
-4. Modify the request, and click the Send button to resent the modified request.
+3. Modify the request, and click the Send button to resend the request.
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/181997040-f9b24c50-59a2-4589-9228-64856b2dc35b.png">
 
@@ -47,7 +47,7 @@ Launch your favorite browser or terminal, and capture all HTTP and HTTPS traffic
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002181-a85edacd-691e-42c1-9031-0510b9b9dbb0.png">
 <p>
-3. When a matching request/response is detected, a Breakpoint modal pops up.  Modify the HTTP response body and click Ok.
+3. When a matching request/response is detected, a Breakpoint modal pops up.  You can modify the HTTP response body and click Ok.
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002262-5c964c01-a33f-4d85-be69-c60c63b5bbf8.png">
 <p>
@@ -57,11 +57,11 @@ Launch your favorite browser or terminal, and capture all HTTP and HTTPS traffic
 <details>
 <summary>Take Snapshots</summary>
 To take a snapshot of all the captured network traffic: 
-1. Click the camera icon, enter a snapshot name, and click Create.
+1. Click the Camera icon, enter a snapshot name, and click Create.
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002395-1e5b02ae-e429-4e9b-b03d-8c5870c05143.png">
 <p>
-2. A new tab is created called "My Snapshot".  Click the new tab to view the snapshot.
+2. In this example a new tab is created called "My Snapshot".  Click the new tab to view the snapshot.
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002437-0e97953d-ae64-4fdd-966b-0ce0d812e2f6.png">
 
@@ -85,7 +85,7 @@ To import a snapshot:
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002582-210c93e7-f27a-4369-9b37-b6cf058ed0a9.png">
 <p>
-2. Select a snapshot file from the browser file manager, and click Open.  A new tab is created from the imported snapshot.
+2. Select a snapshot file from the file manager, and click Open.  A new tab is created from the imported snapshot.
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002641-b9308802-03db-456f-9e28-91bd4ba6de62.png">
 <p>
@@ -93,38 +93,26 @@ To import a snapshot:
 </details>
 
 <details>
-<summary>HTTP Reverse Proxy</summary>
-To configure rules for an HTTP reverse proxy, click the Settings icon in the upper right corner, and select Proxy Configuration.
-<p>
-<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002722-e1a1df51-67e6-4391-a1a7-c14b761a324e.png">
-<p>
-
-
-To configure rules for an HTTP reverse proxy, click the Settings icon in the upper right corner, and select Proxy Configuration.
-</details>
-
-<details>
-<summary>GRPC Proxy</summary>
-
-</details>
-
-<details>
-<summary>MySQL Proxy</summary>
-
-</details>
-
-<details>
-<summary>Other Protocol</summary>
-
-</details>
-
-<details>
 <summary>View JSON Log File</summary>
+1. From the Welcome modal, click the View JSON Log File button.
+<p>
+<img width="600" alt="image" src="https://user-images.githubusercontent.com/10223382/182190763-2d9d0a20-fdbb-424c-9578-882ce7359a5f.png">
+<p>
+2. Optionally, enter one or more comma separated primary JSON field names, and then click the Select JSON File button.
+<p>
+<img width="300" alt="image" src="https://user-images.githubusercontent.com/10223382/182191132-ef0951e6-ab59-4a22-8c41-956f03152582.png">
+<p>
+3. Select a JSON log file from the file manager.  The JSON log can now be viewed by the AllProxy application:
+<p>
+<img width="800" alt="image" src="https://user-images.githubusercontent.com/10223382/182192743-c9f95cf8-dec1-4dee-ac66-0aebfef78802.png">
 
 </details>
 
 <details>
 <summary>Dark Mode</summary>
+Click the Settings icon in the upper right corner, and select the Appearance option.
+<p>
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182190375-49108978-3afa-49f1-94ef-f84cf9389c35.png">
 
 </details>
 
@@ -138,19 +126,6 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 
 **AllProxy Application**
 ![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
-
-**Features:**
-* Captures HTTP and/or HTTPS messages as either a forward or reverse proxy
-* Captures SQL, MongoDB, Redis, gRPC, and other protocol messages sent to backend services
-* Captures log messages
-* Modify and resend HTTP requests
-* Add breakpoints to modify HTTP responses
-* Search entire request/response message for matching text
-* Stop/Start Recording
-* Take snapshots of captured messages
-* Export and Import captured messages
-* Open AllProxy application in multiple browser tabs
-* Dark/Light Mode
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
