@@ -5,9 +5,6 @@ import pickIcon, { getBrowserIconColor } from '../PickIcon';
 import { Browser, browserStore } from '../store/BrowserStore';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import React from 'react';
-import { snapshotStore } from '../store/SnapshotStore';
-import { importJSONFile } from '../ImportJSONFile';
-import { useFilePicker } from 'use-file-picker';
 
 type Props = {
 	open: boolean,
@@ -16,7 +13,6 @@ type Props = {
 
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
-	const [primaryJSONFields, setPrimaryJSONFields] = React.useState<string[]>([]);
 
 	const handleClose = () => {
 		onClose();
@@ -24,17 +20,6 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 
 	const isMac = navigator.appVersion.indexOf('Mac') !== -1;
 	const key = isMac ? 'cmd' : 'ctl';
-
-	const [openJSONFileSelector, { filesContent: jsonContent, clear: jsonClear }] = useFilePicker({
-		multiple: false
-	});
-
-	if (!!jsonContent.length) {
-		for (const fileContent of jsonContent) {
-			snapshotStore.importSnapshot(fileContent.name, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
-		}
-		jsonClear();
-	}
 
 	function jsonLogFileButton() {
 		return (
@@ -46,7 +31,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							marginRight: '.5rem'
 						}}
 					/>
-					View JSON Log File
+					View JSON Log
 				</button>
 			</span>
 		);
@@ -141,10 +126,8 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 			</div>
 		</Dialog><ImportJSONFileDialog
 				open={openImportJSONFileDialog}
-				onClose={(primaryJSONFields) => {
-					setPrimaryJSONFields(primaryJSONFields);
+				onClose={() => {
 					setOpenImportJSONFileDialog(false);
-					openJSONFileSelector();
 				}} /></>
 	);
 });
