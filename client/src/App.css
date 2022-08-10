@@ -864,3 +864,7 @@ td input {
 .settings-modal__input-max-messages {
 	width: 12ch !important;
 }
+
+.primary-text-color {
+	color: #007bff;
+}

@@ -18,7 +18,6 @@ import ExportDialog from './ExportDialog';
 import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
-import { importJSONFile } from '../ImportJSONFile';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 
 let filterWasStopped = false;
@@ -44,7 +43,6 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
-	const [primaryJSONFields, setPrimaryJSONFields] = React.useState<string[]>([]);
 
 	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
 		multiple: false,
@@ -54,17 +52,6 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	if (!!snapshotContent.length && snapshotContent[0].content) {
 		snapshotStore.importSnapshot(snapshotContent[0].name, snapshotContent[0].content);
 		snapshotClear();
-	}
-
-	const [openJSONFileSelector, { filesContent: jsonContent, clear: jsonClear }] = useFilePicker({
-		multiple: false
-	});
-
-	if (!!jsonContent.length) {
-		for (const fileContent of jsonContent) {
-			snapshotStore.importSnapshot(fileContent.name, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
-		}
-		jsonClear();
 	}
 
 	const statusClassName = 'fa ' + (socketStore.isConnected()
@@ -171,7 +158,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 								setMoreMenuIcon(null);
 							}}
 						>
-							&nbsp;Import JSON File
+							&nbsp;View JSON Log
 						</div>
 					</MenuItem>
 				</Menu>
@@ -304,10 +291,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<ImportJSONFileDialog
 				open={openImportJSONFileDialog}
-				onClose={(primaryJSONFields) => {
-					setPrimaryJSONFields(primaryJSONFields);
+				onClose={() => {
 					setOpenImportJSONFileDialog(false);
-					openJSONFileSelector();
 				}}
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
