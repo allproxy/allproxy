@@ -21,11 +21,39 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 	const isMac = navigator.appVersion.indexOf('Mac') !== -1;
 	const key = isMac ? 'cmd' : 'ctl';
 
+	function showBrowsers() {
+		return (
+			<div>
+				{browserStore.getBrowsers().length === 0 ?
+					'No browsers detected.'
+					: browserStore.getBrowsers().map(browser => (
+						<span style={{ marginRight: '1rem' }}>
+							<button className="btn btn-lg btn-secondary"
+								style={{ background: getBrowserIconColor(browserName(browser)) }}
+								onClick={() => {
+									browserStore.launchBrowser(browser);
+									handleClose();
+								}}>
+								<div className={pickIcon('browser:', browser.name)}
+									style={{
+										marginRight: '.5rem'
+									}} />
+								{browserName(browser)}
+							</button>
+						</span>
+					))}
+			</div>
+		);
+	}
+
 	function jsonLogFileButton() {
 		return (
 			<span style={{ marginRight: '1rem' }}>
 				<button className="btn btn-lg btn-primary"
-					onClick={() => setOpenImportJSONFileDialog(true)}>
+					onClick={() => {
+						setOpenImportJSONFileDialog(true);
+						handleClose();
+					}}>
 					<div className={pickIcon('log:', '')}
 						style={{
 							marginRight: '.5rem'
@@ -131,28 +159,6 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				}} /></>
 	);
 });
-
-function showBrowsers() {
-	return (
-		<div>
-			{browserStore.getBrowsers().length === 0 ?
-				'No browsers detected.'
-				: browserStore.getBrowsers().map(browser => (
-					<span style={{ marginRight: '1rem' }}>
-						<button className="btn btn-lg btn-secondary"
-							style={{ background: getBrowserIconColor(browserName(browser)) }}
-							onClick={() => browserStore.launchBrowser(browser)}>
-							<div className={pickIcon('browser:', browser.name)}
-								style={{
-									marginRight: '.5rem'
-								}} />
-							{browserName(browser)}
-						</button>
-					</span>
-				))}
-		</div>
-	);
-}
 
 function browserName(browser: Browser): string {
 	let name = browser.name.replace('msedge', 'edge');
