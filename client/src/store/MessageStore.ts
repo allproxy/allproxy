@@ -38,6 +38,10 @@ export default class MessageStore {
         return this.url;
     }
 
+    @action public setUrl(url: string) {
+        this.url = url;
+    }
+
     public isNoResponse(): boolean {
         return this.message.responseBody === NO_RESPONSE;
     }

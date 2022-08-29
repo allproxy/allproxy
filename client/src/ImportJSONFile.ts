@@ -30,15 +30,6 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             return false;
         }
 
-        const title = (json: { [key: string]: string }): string => {
-            let title = '';
-            primaryJsonFields.forEach((field) => {
-                if (title.length > 0) title += ', ';
-                title += '<span class="request__msg-highlight">' + field + '</span>: ' + json[field];
-            })
-            return title;
-        }
-
         let json: { [key: string]: any } | undefined
         try {
             json = JSON.parse(record)
@@ -46,7 +37,7 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
 
         if (json) {
             if (hasPrimaryJsonField(json)) {
-                messages.push(newMessage(nonJson + title(json), json));
+                messages.push(newMessage(nonJson + formatJSONPrimaryFields(json, primaryJsonFields), json));
             } else {
                 const title = record.split('\n')[0];
                 messages.push(newMessage(nonJson + title, json));
@@ -93,4 +84,15 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
         };
         return message;
     }
+}
+
+export function formatJSONPrimaryFields(json: { [key: string]: string }, primaryJsonFields: string[]): string {
+    let title = '';
+    primaryJsonFields.forEach((field) => {
+        if (json[field]) {
+            if (title.length > 0) title += ', ';
+            title += '<span class="request__msg-highlight">' + field + '</span>: ' + json[field];
+        }
+    })
+    return title;
 }

@@ -10,6 +10,7 @@ import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import { Fade } from '@material-ui/core';
+import { snapshotStore } from '../store/SnapshotStore';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -71,6 +72,7 @@ const SnapshotTabContent = observer(({
 				<div className={'request__container '
 					+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
 					ref={ref} onScroll={handleScroll}>
+					{snapshotStore.getSelectedHeader()(messageQueueStore)}
 					{messageQueueStore.getMessages().map((messageStore, index) => {
 						if (filterStore.isFiltered(messageStore)) {
 							return null;
