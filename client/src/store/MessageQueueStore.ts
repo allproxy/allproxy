@@ -13,9 +13,18 @@ export default class MessageQueueStore {
 	private sortByReq: boolean = true;
 	private freeze: boolean = false;
 	private freezeQ: Message[] = [];
+	private jsonPrimaryFields: { name: string, selected: boolean }[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public getJsonPrimaryFields() {
+		return this.jsonPrimaryFields;
+	}
+
+	@action public setJsonPrimaryFields(fields: { name: string, selected: boolean }[]) {
+		this.jsonPrimaryFields = fields;
 	}
 
 	private _getLimit(): number {
