@@ -11,7 +11,7 @@ type Props = {
 	onClose: () => void,
 };
 const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
-	const [primaryJSONFields, setPrimaryJSONFields] = React.useState<string[]>([]);
+	const [primaryJSONFields] = React.useState<string[]>([]);
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
 	const [submit, setSubmit] = React.useState(false);
@@ -51,7 +51,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					onChange={(value) => setTabName(value.target.value)}
 				/>
 
-				<div className="primary-text-color">Primary JSON Field Names:</div>
+				{/* <div className="primary-text-color">Primary JSON Field Names:</div>
 				<input className={'form-control'}
 					style={{
 						marginBottom: "1rem",
@@ -61,7 +61,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					value={primaryJSONFields}
 					onChange={(value) => setPrimaryJSONFields(value.target.value.split(','))}
 					placeholder="Comma Separated List"
-				/>
+				/> */}
 
 				<div className="primary-text-color">Read File or Paste Text:</div>
 				<div style={{ display: "flex", alignItems: "center", margin: ".5rem 0 1rem 0" }}>

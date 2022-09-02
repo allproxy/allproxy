@@ -17,7 +17,7 @@ export default function colorPicker(message: Message): string {
 	}
 
 	if (protocol === 'log:') {
-		return 'brown';
+		return '#007bff';
 	}
 
 	let key = '';
