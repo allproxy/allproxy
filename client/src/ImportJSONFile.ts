@@ -1,4 +1,5 @@
 import Message, { MessageType } from "./common/Message";
+import { pickButtonStyle } from "./PickButtonStyle";
 
 export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
     const messages: Message[] = [];
@@ -91,7 +92,10 @@ export function formatJSONPrimaryFields(json: { [key: string]: string }, primary
     primaryJsonFields.forEach((field) => {
         if (json[field]) {
             if (title.length > 0) title += ', ';
-            title += '<span class="request__msg-highlight">' + field + '</span>: ' + json[field];
+            const style = pickButtonStyle(field);
+            title += `<span style="background:${style.background};color:${style.color};padding: 0 .25rem;border-radius: .25rem">`
+                + field +
+                '</span> ' + json[field];
         }
     })
     return title;

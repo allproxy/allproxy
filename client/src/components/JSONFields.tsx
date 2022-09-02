@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { formatJSONPrimaryFields } from '../ImportJSONFile';
+import { pickButtonStyle } from '../PickButtonStyle';
 import MessageQueueStore from '../store/MessageQueueStore';
 
 /**
@@ -42,7 +43,7 @@ const JSONFields2 = observer(({ messageQueueStore }: Props): JSX.Element | null 
 			{messageQueueStore.getJsonPrimaryFields().map((field, i) => (
 				<button className={"btn btn-sm " + (field.selected ? "btn-primary" : "btn-secondary")}
 					key={field.name}
-					style={{ margin: ".5rem .25rem" }}
+					style={field.selected ? { margin: ".5rem .25rem", background: pickButtonStyle(field.name).background, color: pickButtonStyle(field.name).color } : { margin: ".5rem .25rem" }}
 					onClick={() => {
 						messageQueueStore.getJsonPrimaryFields()[i].selected = !messageQueueStore.getJsonPrimaryFields()[i].selected;
 						updatePrimaryJSONFields(messageQueueStore);
