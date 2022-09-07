@@ -154,6 +154,7 @@ export default class SnapshotStore {
 			);
 			activeSnapshot.splice(0, activeSnapshot.length);
 		}
+		this.setSelectedSnapshotName(name);
 		return name;
 	}
 
