@@ -537,6 +537,7 @@ td input {
 	width: 100%;
 	align-items: center;
 	justify-content: space-between;
+	white-space: nowrap;
 }
 
 .snapshot__close,
