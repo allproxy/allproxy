@@ -1,7 +1,9 @@
 import { makeAutoObservable, action } from "mobx";
 import ProxyConfig, { ConfigProtocol } from '../common/ProxyConfig';
+import { updatePrimaryJSONFields } from "../components/JSONFields";
 import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
+import { snapshotStore } from "./SnapshotStore";
 
 export type ConfigCategory =
 	'BROWSER'
@@ -307,6 +309,12 @@ export default class SettingsStore {
 		proxyConfigStore.setProxyConfigs(this.entries);
 		messageQueueStore.setLimit(this.messageQueueLimit);
 		proxyConfigStore.load();
+		this.entries.forEach(c => {
+			if (c.protocol === 'log:') {
+				const primaryJsonFields = c.hostname ? c.hostname.split(',') : [];
+				updatePrimaryJSONFields(snapshotStore.getActiveSnapshot(), primaryJsonFields);
+			}
+		});
 	}
 }
 

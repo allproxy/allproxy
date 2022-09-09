@@ -93,7 +93,7 @@ export function formatJSONPrimaryFields(json: { [key: string]: string }, primary
         if (json[field]) {
             if (title.length > 0) title += ', ';
             const style = pickButtonStyle(field);
-            title += `<span style="background:${style.background};color:${style.color};padding: 0 .25rem;border-radius: .25rem">`
+            title += `<span style="color:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
                 + field +
                 '</span> ' + json[field];
         }

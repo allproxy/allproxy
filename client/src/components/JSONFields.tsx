@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { formatJSONPrimaryFields } from '../ImportJSONFile';
 import { pickButtonStyle } from '../PickButtonStyle';
 import MessageQueueStore from '../store/MessageQueueStore';
+import MessageStore from '../store/MessageStore';
 
 /**
  * JSON Fields
@@ -46,7 +47,14 @@ const JSONFields2 = observer(({ messageQueueStore }: Props): JSX.Element | null 
 					style={field.selected ? { margin: ".5rem .25rem", background: pickButtonStyle(field.name).background, color: pickButtonStyle(field.name).color } : { margin: ".5rem .25rem" }}
 					onClick={() => {
 						messageQueueStore.getJsonPrimaryFields()[i].selected = !messageQueueStore.getJsonPrimaryFields()[i].selected;
-						updatePrimaryJSONFields(messageQueueStore);
+						const selectedFields = messageQueueStore.getJsonPrimaryFields();
+						const primaryFields: string[] = [];
+						for (const f of selectedFields) {
+							if (f.selected) {
+								primaryFields.push(f.name);
+							}
+						}
+						updatePrimaryJSONFields(messageQueueStore.getMessages(), primaryFields);
 					}}
 				>
 					{field.name}
@@ -56,21 +64,20 @@ const JSONFields2 = observer(({ messageQueueStore }: Props): JSX.Element | null 
 	)
 });
 
-function updatePrimaryJSONFields(messageQueueStore: MessageQueueStore) {
-	for (const message of messageQueueStore.getMessages()) {
+export function updatePrimaryJSONFields(messages: MessageStore[], primaryFields: string[]) {
+	for (const message of messages) {
+		if (message.getMessage().protocol !== 'log:' || typeof message.getMessage().responseBody === 'string') continue;
 		let nonJSON = '';
 		const i = message.getMessage().url?.indexOf('<span');
 		if (i !== -1) {
 			nonJSON = message.getMessage().url?.substring(0, i) + ' ';
+		} else if (primaryFields.length === 0) {
+			nonJSON = JSON.stringify(message.getMessage().responseBody)
 		}
-		const selectedFields: string[] = [];
-		const fields = messageQueueStore.getJsonPrimaryFields();
-		for (const key in fields) {
-			if (fields[key].selected) {
-				selectedFields.push(fields[key].name)
-			}
-		}
-		message.setUrl(nonJSON + formatJSONPrimaryFields(message.getMessage().responseBody as { [key: string]: string }, selectedFields));
+
+		message.setUrl(nonJSON +
+			formatJSONPrimaryFields(message.getMessage().responseBody as { [key: string]: string }, primaryFields)
+		);
 	}
 }
 
