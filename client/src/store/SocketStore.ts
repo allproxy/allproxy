@@ -14,7 +14,6 @@ import MessageStore from "./MessageStore";
 import { snapshotStore } from "./SnapshotStore";
 import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
-import { updatePrimaryJSONFields } from "../components/JSONFields";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
