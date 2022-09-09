@@ -6,6 +6,7 @@ import fs from 'fs'
 import { BATCH_SIZE } from './SocketIoManager';
 import BoolFilter from '../../common/BoolFilter'
 import ConsoleLog from './ConsoleLog';
+import { pickButtonStyle } from './PickButtonStyle';
 const exec = require('child_process').exec;
 
 export default class LogProxy {
@@ -163,7 +164,10 @@ export default class LogProxy {
       let title = '';
       this.primaryJsonFields.forEach((field) => {
         if (title.length > 0) title += ', ';
-        title += '<span class="request__msg-highlight">' + field + '</span>: ' + json[field];
+        const style = pickButtonStyle(field);
+        title += `<span style="color:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
+          + field +
+          '</span> ' + json[field];
       })
       return title;
     }
@@ -227,3 +231,4 @@ export default class LogProxy {
     return Global.socketIoManager.emitMessageToBrowser(MessageType.REQUEST_AND_RESPONSE, message, this.proxyConfig);
   }
 }
+
