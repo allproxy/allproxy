@@ -72,6 +72,14 @@
 	.MuiCheckbox-colorSecondary {
 		color: blue;
 	}
+
+	.fa-keyboard {
+		color: black !important;
+	}
+
+	.fa-keyboard.side-bar-icon {
+		color: whitesmoke !important;
+	}
 }
 
 .react-tagsinput,
