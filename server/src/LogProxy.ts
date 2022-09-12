@@ -6,7 +6,6 @@ import fs from 'fs'
 import { BATCH_SIZE } from './SocketIoManager';
 import BoolFilter from '../../common/BoolFilter'
 import ConsoleLog from './ConsoleLog';
-import { pickButtonStyle } from './PickButtonStyle';
 const exec = require('child_process').exec;
 
 export default class LogProxy {
@@ -160,18 +159,6 @@ export default class LogProxy {
       return false;
     }
 
-    const title = (json: { [key: string]: string }): string => {
-      let title = '';
-      this.primaryJsonFields.forEach((field) => {
-        if (title.length > 0) title += ', ';
-        const style = pickButtonStyle(field);
-        title += `<span style="color:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
-          + field +
-          '</span> ' + json[field];
-      })
-      return title;
-    }
-
     let json: { [key: string]: any } | undefined
     try {
       json = JSON.parse(record)
@@ -187,7 +174,7 @@ export default class LogProxy {
         } else {
           timeMsec = Date.now();
         }
-        queueCount = await this.emitToBrowser(nonJson + title(json), streamName, json, timeMsec);
+        queueCount = await this.emitToBrowser(nonJson, streamName, json, timeMsec);
       } else {
         const title = record.split('\n')[0];
         queueCount = await this.emitToBrowser(nonJson + title, streamName, json, Date.now());

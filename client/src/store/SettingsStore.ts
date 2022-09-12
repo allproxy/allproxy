@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import ProxyConfig, { ConfigProtocol } from '../common/ProxyConfig';
-import { updatePrimaryJSONFields } from "../components/JSONFields";
+import { updatePrimaryJSONFields } from "../components/JSONFieldButtons";
 import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 import { snapshotStore } from "./SnapshotStore";

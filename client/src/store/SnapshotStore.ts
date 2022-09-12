@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
-import MessageQueueStore, { messageQueueStore } from "./MessageQueueStore";
+import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
@@ -11,7 +11,7 @@ class Snapshots {
 	private selectedReqSeqNumbers: number[] = [];
 	private scrollTop: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
-	private headerMap: Map<string, (messageQueueStore: MessageQueueStore) => void> = new Map();
+	private jsonPrimaryFieldsMap: Map<string, { name: string, selected: boolean }[]> = new Map();
 
 	constructor() {
 		makeAutoObservable(this);
@@ -26,8 +26,7 @@ class Snapshots {
 		snapshot: MessageStore[],
 		fileName?: string,
 		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
-		scrollTop = 0,
-		header?: (messageQueueStore: MessageQueueStore) => void
+		scrollTop = 0
 	) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
@@ -35,9 +34,6 @@ class Snapshots {
 		this.scrollTop.push(scrollTop);
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
-		}
-		if (header) {
-			this.headerMap.set(key, header);
 		}
 	}
 
@@ -48,7 +44,7 @@ class Snapshots {
 		this.selectedReqSeqNumbers.splice(index, 1);
 		this.scrollTop.splice(index, 1);
 		this.fileNameMap.delete(key);
-		this.headerMap.delete(key);
+		this.jsonPrimaryFieldsMap.delete(key);
 	}
 
 	public count() {
@@ -71,8 +67,12 @@ class Snapshots {
 		return this.fileNameMap.get(key);
 	}
 
-	public getHeaders(key: string): ((messageQueueStore: MessageQueueStore) => void) | undefined {
-		return this.headerMap.get(key);
+	public getJsonPrimaryFields(key: string) {
+		return this.jsonPrimaryFieldsMap.get(key);
+	}
+
+	public setJsonPrimaryFields(key: string, jsonPrimaryFields: { name: string, selected: boolean }[]) {
+		this.jsonPrimaryFieldsMap.set(key, jsonPrimaryFields);
 	}
 }
 
@@ -81,7 +81,7 @@ export default class SnapshotStore {
 	private snapshots: Snapshots = new Snapshots();
 
 	public constructor() {
-		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, []);
+		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, [], undefined, undefined, undefined);
 		makeAutoObservable(this);
 	}
 
@@ -114,9 +114,13 @@ export default class SnapshotStore {
 		}
 	}
 
-	public getSelectedHeader(): ((messageQueueStore: MessageQueueStore) => void) {
-		const x = this.snapshots.getHeaders(this.selectedSnapshotName);
-		return x ? x : () => undefined
+	public getSelectedJsonFields() {
+		const fields = this.snapshots.getJsonPrimaryFields(this.selectedSnapshotName);
+		return fields ? fields : [];
+	}
+
+	public setSelectedJsonFields(fields: { name: string, selected: boolean }[]) {
+		return this.snapshots.setJsonPrimaryFields(this.selectedSnapshotName, fields);
 	}
 
 	public getSnapshotCount() {
@@ -136,14 +140,14 @@ export default class SnapshotStore {
 		messageQueueStore.resort();
 	}
 
-	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[], header?: (messageQueueStore: MessageQueueStore) => void): string {
+	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
 		const padTime = (num: number) => (num + '').padStart(2, '0');
 		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
 		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
 		if (snapshot) {
-			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0, header);
+			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0);
 		} else {
 			this.snapshots.set(
 				name,
@@ -187,14 +191,14 @@ export default class SnapshotStore {
 		element.click();
 	}
 
-	public importSnapshot(fileName: string, snapshot: string | Message[], header?: (messageQueueStore: MessageQueueStore) => void) {
+	public importSnapshot(fileName: string, snapshot: string | Message[]) {
 		const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
 		const messageStores: MessageStore[] = [];
 		for (const message of parsedBlob) {
 			const ms = new MessageStore(message);
 			messageStores.push(ms);
 		}
-		this.newSnapshot(fileName, messageStores, header);
+		this.newSnapshot(fileName, messageStores);
 	}
 
 	public getSelectedMessages(): MessageStore[] {

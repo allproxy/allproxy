@@ -4,7 +4,6 @@ import { Dialog, DialogTitle } from '@material-ui/core';
 import { useFilePicker } from 'use-file-picker';
 import { snapshotStore } from '../store/SnapshotStore';
 import { importJSONFile } from '../ImportJSONFile';
-import JSONFields from './JSONFields';
 
 type Props = {
 	open: boolean,
@@ -24,13 +23,13 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		if (!!jsonContent.length) {
 			for (const fileContent of jsonContent) {
 				console.log(fileContent.content);
-				snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields), JSONFields);
+				snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
 			}
 			jsonClear();
 		}
 
 		if (pastedJSON.length > 0) {
-			snapshotStore.importSnapshot(tabName, importJSONFile(tabName, pastedJSON, primaryJSONFields), JSONFields);
+			snapshotStore.importSnapshot(tabName, importJSONFile(tabName, pastedJSON, primaryJSONFields));
 			setPastedJSON('');
 		}
 		setTabName('');

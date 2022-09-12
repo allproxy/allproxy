@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message, { NO_RESPONSE } from '../common/Message';
+import { updatePrimaryJSONField } from "../components/JSONFieldButtons";
 import MessageStore from './MessageStore';
 import { snapshotStore } from './SnapshotStore';
 
@@ -13,18 +14,17 @@ export default class MessageQueueStore {
 	private sortByReq: boolean = true;
 	private freeze: boolean = false;
 	private freezeQ: Message[] = [];
-	private jsonPrimaryFields: { name: string, selected: boolean }[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
 	}
 
 	public getJsonPrimaryFields() {
-		return this.jsonPrimaryFields;
+		return snapshotStore.getSelectedJsonFields();
 	}
 
 	@action public setJsonPrimaryFields(fields: { name: string, selected: boolean }[]) {
-		this.jsonPrimaryFields = fields;
+		snapshotStore.setSelectedJsonFields(fields);
 	}
 
 	private _getLimit(): number {
@@ -172,6 +172,13 @@ export default class MessageQueueStore {
 			if (!message.proxyConfig?.recording) return;
 
 			const messageStore = new MessageStore(message);
+			if (messageStore.getMessage().protocol === 'log:') {
+				const primaryJSONFields = messageStore.getMessage().proxyConfig?.hostname.split(',');
+				this.buildJSONFields([messageStore], primaryJSONFields ? primaryJSONFields : []);
+				if (primaryJSONFields) {
+					updatePrimaryJSONField(messageStore, primaryJSONFields);
+				}
+			}
 			if (copyMessages.length === 0) {
 				copyMessages.push(messageStore);
 				continue;
@@ -218,6 +225,40 @@ export default class MessageQueueStore {
 
 		activeSnapshot.splice(0, activeSnapshot.length);
 		Array.prototype.push.apply(activeSnapshot, copyMessages);
+	}
+
+	public buildJSONFields(messageStores: MessageStore[], selectedJSONFields: string[]) {
+		const fieldsMap: { [key: string]: { count: number, selected: boolean } } = {};
+		for (const f of this.getJsonPrimaryFields()) {
+			fieldsMap[f.name] = { count: 2, selected: f.selected }
+		}
+		for (const f of selectedJSONFields) {
+			if (f.length > 0) {
+				fieldsMap[f] = { count: 2, selected: true };
+			}
+		}
+		for (const message of messageStores) {
+			if (message.getMessage().protocol !== 'log:') continue;
+			const json = message.getMessage().responseBody as { [key: string]: any };
+			for (const field of Object.keys(json)) {
+				if (isNaN(parseInt(field))) {
+					if (typeof json[field] === 'string') {
+						const selected = message.getMessage().url?.indexOf('>' + field + '<') !== -1;
+						fieldsMap[field] = fieldsMap[field] ?
+							{ count: fieldsMap[field].count + 1, selected: fieldsMap[field].selected } :
+							{ count: 1, selected };
+					}
+				}
+			}
+		}
+
+		const fields2: { name: string, selected: boolean }[] = [];
+		for (const key of Object.keys(fieldsMap)) {
+			if (fieldsMap[key].count >= 1) {
+				fields2.push({ name: key, selected: fieldsMap[key].selected });
+			}
+		}
+		messageQueueStore.setJsonPrimaryFields(fields2);
 	}
 }
 

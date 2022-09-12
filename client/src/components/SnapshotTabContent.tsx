@@ -10,7 +10,7 @@ import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import { Fade } from '@material-ui/core';
-import { snapshotStore } from '../store/SnapshotStore';
+import JSONFieldButtons from './JSONFieldButtons';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -28,7 +28,8 @@ const SnapshotTabContent = observer(({
 
 	let lastSeqNum = 0;
 
-	const ref = React.useRef<HTMLDivElement>(null);
+	const requestContainerRef = React.useRef<HTMLDivElement>(null);
+	const jsonFieldButtonsRef = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
 		if (filterStore.shouldResetScroll()) {
@@ -66,92 +67,105 @@ const SnapshotTabContent = observer(({
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	let matchCount = 0;
+
+	const calcHeight = () => {
+		const jsonFieldButtonsHeight = jsonFieldButtonsRef.current ? jsonFieldButtonsRef.current.clientHeight : 0;
+		return `calc(100vh - 6rem - ${jsonFieldButtonsHeight}px)`
+	};
+
 	return (
-		<div className="request-response__container">
-			{messageQueueStore.getMessages().length > 0 &&
-				<div className={'request__container '
-					+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
-					ref={ref} onScroll={handleScroll}>
-					{snapshotStore.getSelectedHeader()(messageQueueStore)}
-					{messageQueueStore.getMessages().map((messageStore, index) => {
-						if (filterStore.isFiltered(messageStore)) {
-							return null;
-						} else {
-							const message = messageStore.getMessage();
-							const seqNum = message.sequenceNumber;
-							lastSeqNum = seqNum;
-							const isActiveRequest = selectedReqSeqNum === seqNum;
-							if (isActiveRequest) {
-								activeRequestIndex = index;
+		<div>
+			<div ref={jsonFieldButtonsRef}>
+				{JSONFieldButtons(messageQueueStore)}
+			</div>
+			<div className="request-response__container">
+				{messageQueueStore.getMessages().length > 0 &&
+					<div className={'request__container '
+						+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
+						style={{ height: calcHeight() }}
+						ref={requestContainerRef} onScroll={handleScroll}>
+						{messageQueueStore.getMessages().map((messageStore, index) => {
+							if (filterStore.isFiltered(messageStore)) {
+								return null;
+							} else {
+								const message = messageStore.getMessage();
+								const seqNum = message.sequenceNumber;
+								lastSeqNum = seqNum;
+								const isActiveRequest = selectedReqSeqNum === seqNum;
+								if (isActiveRequest) {
+									activeRequestIndex = index;
+								}
+								matchCount++;
+								const timeBarPercent = maxElapsedTime > 0 && shouldShowTimeBar(message)
+									? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
+									: 0;
+								return (
+									<Request
+										maxStatusSize={maxStatusSize}
+										maxMethodSize={maxMethodSize}
+										maxEndpointSize={maxEndpointSize}
+										store={messageStore}
+										key={seqNum}
+										isActive={isActiveRequest}
+										timeBarPercent={timeBarPercent + '%'}
+										onClick={handleClick.bind(null, seqNum)}
+										onResend={() => handleResend(message)}
+									/>)
 							}
-							matchCount++;
-							const timeBarPercent = maxElapsedTime > 0 && shouldShowTimeBar(message)
-								? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
-								: 0;
-							return (
-								<Request
-									maxStatusSize={maxStatusSize}
-									maxMethodSize={maxMethodSize}
-									maxEndpointSize={maxEndpointSize}
-									store={messageStore}
-									key={seqNum}
-									isActive={isActiveRequest}
-									timeBarPercent={timeBarPercent + '%'}
-									onClick={handleClick.bind(null, seqNum)}
-									onResend={() => handleResend(message)}
-								/>)
-						}
-					})}
-					{matchCount > 0 && messageQueueStore.getAutoScroll() && selectedReqSeqNum === Number.MAX_SAFE_INTEGER && setScrollTo(lastSeqNum)}
-					{matchCount === 0 && (
-						<div className="center">
-							No matching request or response found.  Adjust your filter criteria.
-						</div>
-					)}
-				</div>
-			}
-			{messageQueueStore.getMessages().length === 0 &&
-				<div className="request__container unselected">
-					<div className="center fas fa-exchange-alt"
-						style={{ fontSize: '8rem', color: '#007bff' }}>
-					</div>
-				</div>
-			}
-			{
-				messageQueueStore.getMessages().length > 0 &&
-				<div className="response__container">
-					{activeRequestIndex < messageQueueStore.getMessages().length ?
-						<Response
-							store={messageQueueStore.getMessages()[activeRequestIndex]}
-							message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
-							onClose={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
-						/>
-						:
-						<Fade in={true}>
+						})}
+						{matchCount > 0 && messageQueueStore.getAutoScroll() && selectedReqSeqNum === Number.MAX_SAFE_INTEGER && setScrollTo(lastSeqNum)}
+						{matchCount === 0 && (
 							<div className="center">
-								Select request from left column
+								No matching request or response found.  Adjust your filter criteria.
 							</div>
-						</Fade>
-					}
-				</div>
-			}
-			{
-				resendStore ? (
-					<ResendModal
-						open={resendStore !== undefined}
-						onClose={handleResendClose}
-						store={resendStore}
+						)}
+					</div>
+				}
+				{messageQueueStore.getMessages().length === 0 &&
+					<div className="request__container unselected" style={{ height: calcHeight() }}>
+						<div className="center fas fa-exchange-alt"
+							style={{ fontSize: '8rem', color: '#007bff' }}>
+						</div>
+					</div>
+				}
+				{
+					messageQueueStore.getMessages().length > 0 &&
+					<div className="response__container"
+						style={{ height: calcHeight() }}
+					>
+						{activeRequestIndex < messageQueueStore.getMessages().length ?
+							<Response
+								store={messageQueueStore.getMessages()[activeRequestIndex]}
+								message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
+								onClose={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
+							/>
+							:
+							<Fade in={true}>
+								<div className="center">
+									Select request from left column
+								</div>
+							</Fade>
+						}
+					</div>
+				}
+				{
+					resendStore ? (
+						<ResendModal
+							open={resendStore !== undefined}
+							onClose={handleResendClose}
+							store={resendStore}
+						/>
+					) : null}
+				{
+					messageStore !== null &&
+					<BreakpointResponseModal
+						open={breakpointStore.getMessageStore() !== null}
+						onClose={handleCloseBreakpointResponseModal}
+						store={messageStore}
 					/>
-				) : null}
-			{
-				messageStore !== null &&
-				<BreakpointResponseModal
-					open={breakpointStore.getMessageStore() !== null}
-					onClose={handleCloseBreakpointResponseModal}
-					store={messageStore}
-				/>
-			}
-		</div >
+				}
+			</div >
+		</div>
 	);
 
 	function handleResend(message: Message) {
@@ -177,14 +191,14 @@ const SnapshotTabContent = observer(({
 	}
 
 	function handleScroll() {
-		const parent = (ref.current as Element);
+		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			setScrollTop(parent.scrollTop);
 			// If the last message is visible, we need setFreeze(false) to cause
 			// all queued messages to be merged into the message queue, and become
 			// visible.
 			setTimeout(() => {
-				const parent = (ref.current as Element);
+				const parent = (requestContainerRef.current as Element);
 				if (parent && parent.childNodes.length > 0) {
 					const children = parent.childNodes;
 					let i = messageQueueStore.getMessages().length - 1;
@@ -203,7 +217,7 @@ const SnapshotTabContent = observer(({
 	}
 
 	function restoreScrollTop() {
-		const parent = (ref.current as Element);
+		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			parent.scrollTop = scrollTop;
 		}
@@ -213,7 +227,7 @@ const SnapshotTabContent = observer(({
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
 			setTimeout(() => {
-				const parent = (ref.current as Element);
+				const parent = (requestContainerRef.current as Element);
 				if (parent && parent.childNodes.length > 0) {
 					const children = parent.childNodes;
 					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
