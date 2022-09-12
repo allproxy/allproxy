@@ -563,11 +563,14 @@ td input {
 	}
 }
 
+.jsonfieldbuttons {
+	padding-top: 3rem;
+}
+
 .request-response__container {
 	display: -webkit-flex;
 	/* Safari */
 	display: flex;
-	padding-top: 3rem;
 	width: calc(100vw - 8rem);
 }
 
@@ -575,8 +578,6 @@ td input {
 	padding-right: .5rem;
 	overflow: auto;
 	width: calc(50vw - 4rem);
-	height: calc(100vh - 9rem);
-	max-height: calc(100vh - 9rem);
 	resize: horizontal;
 	border-right: solid grey;
 	display: flex;
@@ -652,8 +653,7 @@ td input {
 .response__loading,
 .response__container {
 	padding-left: 1rem;
-	height: calc(100vh - 8rem);
-	max-height: calc(100vh - 8rem);
+	height: calc(100vh - 8rem - 3rem);
 	overflow-y: auto;
 	overflow-x: auto;
 	-webkit-flex: 1;
