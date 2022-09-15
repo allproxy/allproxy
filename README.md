@@ -11,7 +11,7 @@ AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify al
 
 > Mac installer: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.18.0/allproxy-3.18.1-x64.dmg)**
 
-> Windows installer: **[Setup.exe](allproxy-3.18.1.Setup.exe)**
+> Windows installer: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.18.0/allproxy-3.18.1.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
