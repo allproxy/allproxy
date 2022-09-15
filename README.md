@@ -7,15 +7,20 @@ AllProxy is a free HTTP debugging proxy that has a web GUI to view and modify al
 ![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 ### Install
-> Install options:
-> 1. Install application package: **[Releases](https://github.com/allproxy/allproxy/releases)**
-> 2. Install NPM package: **npm install -g allproxy**
-> 3. Clone repo and run: **npm install && npm run build && npm start**
+> Linux installer: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.18.0/allproxy_3.18.1_amd64.deb)**
+
+> Mac installer: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.18.0/allproxy-3.18.1-x64.dmg)**
+
+> Windows installer: **[Setup.exe](allproxy-3.18.1.Setup.exe)**
+
+> Other install options:
+> 1. Install NPM package: **npm install -g allproxy**
+> 2. Clone repo and run: **npm install && npm run build && npm start**
 
 ### Features
 <details>
 <summary>Capture Browser and Terminal Network Traffic</summary>
-Launch your favorite browser or terminal from the Welcome modal, and capture all HTTP and HTTPS traffic.  
+Launch your favorite browser or terminal from the Welcome modal, and capture all HTTP and HTTPS traffic.
 <p>
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/10223382/181995543-5b452ea3-acaa-4918-aa95-ca6b4c9ff1d4.png">
 
@@ -56,7 +61,7 @@ Launch your favorite browser or terminal from the Welcome modal, and capture all
 
 <details>
 <summary>Take Snapshots</summary>
-To take a snapshot of all the captured network traffic: 
+To take a snapshot of all the captured network traffic:
 1. Click the Camera icon, enter a snapshot name, and click Create.
 <p>
 <img width="700" alt="image" src="https://user-images.githubusercontent.com/10223382/182002395-1e5b02ae-e429-4e9b-b03d-8c5870c05143.png">
