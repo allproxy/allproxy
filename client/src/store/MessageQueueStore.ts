@@ -252,12 +252,13 @@ export default class MessageQueueStore {
 			}
 		}
 
-		const fields2: { name: string, selected: boolean }[] = [];
+		const fields2: { name: string, selected: boolean, count: number }[] = [];
 		for (const key of Object.keys(fieldsMap)) {
 			if (fieldsMap[key].count >= 1) {
-				fields2.push({ name: key, selected: fieldsMap[key].selected });
+				fields2.push({ name: key, selected: fieldsMap[key].selected, count: fieldsMap[key].count });
 			}
 		}
+		fields2.sort((a, b) => a.selected ? 1 : b.count - a.count)
 		messageQueueStore.setJsonPrimaryFields(fields2);
 	}
 }
