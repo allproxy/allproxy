@@ -29,7 +29,6 @@ const SnapshotTabContent = observer(({
 	let lastSeqNum = 0;
 
 	const requestContainerRef = React.useRef<HTMLDivElement>(null);
-	const jsonFieldButtonsRef = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
 		if (filterStore.shouldResetScroll()) {
@@ -69,13 +68,13 @@ const SnapshotTabContent = observer(({
 	let matchCount = 0;
 
 	const calcHeight = () => {
-		const jsonFieldButtonsHeight = jsonFieldButtonsRef.current ? jsonFieldButtonsRef.current.clientHeight : 0;
-		return `calc(100vh - 6rem - ${jsonFieldButtonsHeight}px)`
+		const jsonFieldButtonsHeight = messageQueueStore.getJsonPrimaryFields().length > 0 ? '40px' : '-3rem';
+		return `calc(100vh - 9rem - ${jsonFieldButtonsHeight})`
 	};
 
 	return (
 		<div>
-			<div ref={jsonFieldButtonsRef}>
+			<div>
 				{JSONFieldButtons(messageQueueStore)}
 			</div>
 			<div className="request-response__container">
