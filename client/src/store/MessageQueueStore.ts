@@ -1,8 +1,8 @@
 import { makeAutoObservable, action } from "mobx"
 import Message, { NO_RESPONSE } from '../common/Message';
-import { updatePrimaryJSONField } from "../components/JSONFieldButtons";
+import { updateRequestTitles } from "../components/JSONFieldButtons";
 import MessageStore from './MessageStore';
-import { snapshotStore } from './SnapshotStore';
+import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
 
 const DEFAULT_LIMIT = 1000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
@@ -17,14 +17,6 @@ export default class MessageQueueStore {
 
 	public constructor() {
 		makeAutoObservable(this);
-	}
-
-	public getJsonPrimaryFields() {
-		return snapshotStore.getSelectedJsonFields();
-	}
-
-	@action public setJsonPrimaryFields(fields: { name: string, selected: boolean }[]) {
-		snapshotStore.setSelectedJsonFields(fields);
 	}
 
 	private _getLimit(): number {
@@ -173,11 +165,8 @@ export default class MessageQueueStore {
 
 			const messageStore = new MessageStore(message);
 			if (messageStore.getMessage().protocol === 'log:') {
-				const primaryJSONFields = messageStore.getMessage().proxyConfig?.hostname.split(',');
-				this.buildJSONFields([messageStore], primaryJSONFields ? primaryJSONFields : []);
-				if (primaryJSONFields) {
-					updatePrimaryJSONField(messageStore, primaryJSONFields);
-				}
+				this.updateJSONFields(ACTIVE_SNAPSHOT_NAME, [messageStore]);
+				updateRequestTitles(ACTIVE_SNAPSHOT_NAME, [messageStore]);
 			}
 			if (copyMessages.length === 0) {
 				copyMessages.push(messageStore);
@@ -227,39 +216,39 @@ export default class MessageQueueStore {
 		Array.prototype.push.apply(activeSnapshot, copyMessages);
 	}
 
-	public buildJSONFields(messageStores: MessageStore[], selectedJSONFields: string[]) {
+	public updateJSONFields(snapshotName: string, newMessages: MessageStore[]) {
 		const fieldsMap: { [key: string]: { count: number, selected: boolean } } = {};
-		for (const f of this.getJsonPrimaryFields()) {
-			fieldsMap[f.name] = { count: 2, selected: f.selected }
+		for (const f of snapshotStore.getJsonFields(snapshotName)) {
+			fieldsMap[f.name] = { count: f.count, selected: f.selected }
 		}
-		for (const f of selectedJSONFields) {
-			if (f.length > 0) {
-				fieldsMap[f] = { count: 2, selected: true };
-			}
-		}
-		for (const message of messageStores) {
+
+		let newFieldFound = false;
+		for (const message of newMessages) {
 			if (message.getMessage().protocol !== 'log:') continue;
 			const json = message.getMessage().responseBody as { [key: string]: any };
 			for (const field of Object.keys(json)) {
 				if (isNaN(parseInt(field))) {
 					if (typeof json[field] === 'string') {
 						const selected = message.getMessage().url?.indexOf('>' + field + '<') !== -1;
-						fieldsMap[field] = fieldsMap[field] ?
-							{ count: fieldsMap[field].count + 1, selected: fieldsMap[field].selected } :
-							{ count: 1, selected };
+						if (fieldsMap[field]) {
+							fieldsMap[field] = { count: fieldsMap[field].count + 1, selected: fieldsMap[field].selected }
+						} else {
+							fieldsMap[field] = { count: 1, selected };
+							newFieldFound = true;
+						}
 					}
 				}
 			}
 		}
 
-		const fields2: { name: string, selected: boolean, count: number }[] = [];
-		for (const key of Object.keys(fieldsMap)) {
-			if (fieldsMap[key].count >= 1) {
+		if (newFieldFound) {
+			const fields2: { name: string, selected: boolean, count: number }[] = [];
+			for (const key of Object.keys(fieldsMap)) {
 				fields2.push({ name: key, selected: fieldsMap[key].selected, count: fieldsMap[key].count });
 			}
+			fields2.sort((a, b) => a.selected ? 1 : b.count - a.count)
+			snapshotStore.setJsonFields(snapshotName, fields2);
 		}
-		fields2.sort((a, b) => a.selected ? 1 : b.count - a.count)
-		messageQueueStore.setJsonPrimaryFields(fields2);
 	}
 }
 

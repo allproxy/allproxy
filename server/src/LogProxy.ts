@@ -11,7 +11,6 @@ const exec = require('child_process').exec;
 export default class LogProxy {
   proxyConfig: ProxyConfig;
   command: string;
-  primaryJsonFields: string[];
   boolFilter: BoolFilter;
   retry = true;
   prevTimeMsec: number | undefined;
@@ -19,7 +18,6 @@ export default class LogProxy {
   constructor(proxyConfig: ProxyConfig) {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
-    this.primaryJsonFields = proxyConfig.hostname ? proxyConfig.hostname.split(',') : [];
     this.boolFilter = new BoolFilter(proxyConfig.comment);
     this.start();
   }
@@ -149,36 +147,14 @@ export default class LogProxy {
       }
     }
 
-    const hasPrimaryJsonField = (json: { [key: string]: any }): boolean => {
-      const keys = Object.keys(json);
-      for (const key of this.primaryJsonFields) {
-        if (keys.indexOf(key) !== -1) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     let json: { [key: string]: any } | undefined
     try {
       json = JSON.parse(record)
     } catch (e) { }
 
     if (json) {
-      if (hasPrimaryJsonField(json)) {
-        let timeMsec: number | undefined;
-        if (json['LogTime']) {
-          timeMsec = Date.parse(json['LogTime']);
-        } else if (json['msg_timestamp']) {
-          timeMsec = Date.parse(json['msg_timestamp']);
-        } else {
-          timeMsec = Date.now();
-        }
-        queueCount = await this.emitToBrowser(nonJson, streamName, json, timeMsec);
-      } else {
-        const title = record.split('\n')[0];
-        queueCount = await this.emitToBrowser(nonJson + title, streamName, json, Date.now());
-      }
+      const title = record.split('\n')[0];
+      queueCount = await this.emitToBrowser(nonJson + title, streamName, json, Date.now());
     } else {
       const title = record.split('\n')[0];
       queueCount = await this.emitToBrowser(title, streamName, record, Date.now());
