@@ -11,7 +11,7 @@ class Snapshots {
 	private selectedReqSeqNumbers: number[] = [];
 	private scrollTop: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
-	private jsonPrimaryFieldsMap: Map<string, { name: string, selected: boolean }[]> = new Map();
+	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
 
 	constructor() {
 		makeAutoObservable(this);
@@ -26,7 +26,8 @@ class Snapshots {
 		snapshot: MessageStore[],
 		fileName?: string,
 		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
-		scrollTop = 0
+		scrollTop = 0,
+		jsonFields: { name: string, count: number, selected: boolean }[] = []
 	) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
@@ -35,6 +36,7 @@ class Snapshots {
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
+		this.jsonPrimaryFieldsMap.set(key, jsonFields)
 	}
 
 	public delete(key: string) {
@@ -71,7 +73,7 @@ class Snapshots {
 		return this.jsonPrimaryFieldsMap.get(key);
 	}
 
-	public setJsonPrimaryFields(key: string, jsonPrimaryFields: { name: string, selected: boolean }[]) {
+	public setJsonFields(key: string, jsonPrimaryFields: { name: string, count: number, selected: boolean }[]) {
 		this.jsonPrimaryFieldsMap.set(key, jsonPrimaryFields);
 	}
 }
@@ -114,13 +116,13 @@ export default class SnapshotStore {
 		}
 	}
 
-	public getSelectedJsonFields() {
-		const fields = this.snapshots.getJsonPrimaryFields(this.selectedSnapshotName);
+	public getJsonFields(name: string) {
+		const fields = this.snapshots.getJsonPrimaryFields(name);
 		return fields ? fields : [];
 	}
 
-	public setSelectedJsonFields(fields: { name: string, selected: boolean }[]) {
-		return this.snapshots.setJsonPrimaryFields(this.selectedSnapshotName, fields);
+	public setJsonFields(name: string, fields: { name: string, count: number, selected: boolean }[]) {
+		return this.snapshots.setJsonFields(name, fields);
 	}
 
 	public getSnapshotCount() {
@@ -154,7 +156,8 @@ export default class SnapshotStore {
 				activeSnapshot.slice(),
 				fileName,
 				this.getSelectedReqSeqNumbers()[0],
-				this.getScrollTop()[0]
+				this.getScrollTop()[0],
+				this.getJsonFields(ACTIVE_SNAPSHOT_NAME)
 			);
 			activeSnapshot.splice(0, activeSnapshot.length);
 		}

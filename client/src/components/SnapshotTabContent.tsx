@@ -10,7 +10,8 @@ import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import { Fade } from '@material-ui/core';
-import JSONFieldButtons from './JSONFieldButtons';
+import JSONFieldButtons, { JSONFieldButtonsHeight } from './JSONFieldButtons';
+import { snapshotStore } from '../store/SnapshotStore';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -68,7 +69,7 @@ const SnapshotTabContent = observer(({
 	let matchCount = 0;
 
 	const calcHeight = () => {
-		const jsonFieldButtonsHeight = messageQueueStore.getJsonPrimaryFields().length > 0 ? '40px' : '-3rem';
+		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '-3rem';
 		return `calc(100vh - 9rem - ${jsonFieldButtonsHeight})`
 	};
 
@@ -238,6 +239,9 @@ const SnapshotTabContent = observer(({
 						if (element) {
 							offset += element.clientHeight;
 						}
+					}
+					if (offset > 0) {
+						offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
 					}
 					parent.scrollTop = offset;
 				}

@@ -29,8 +29,8 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 	};
 	const targetHostLabel = () => {
 		switch (protocol) {
-			case 'log:':
-				return 'Primary JSON Fields (comma separated)';
+			// case 'log:':
+			// 	return 'Primary JSON Fields (comma separated)';
 			default:
 				return 'Target Host';
 		}
@@ -65,7 +65,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 								<td className="text-primary">Secure?</td>
 							}
 							<td className="text-primary" style={{ width: pathLabel().includes('Port') ? '12ch' : undefined }}><label>{pathLabel()}</label></td>
-							{protocol !== 'browser:' &&
+							{protocol !== 'log:' && protocol !== 'browser:' &&
 								<td className="text-primary"><label>{targetHostLabel()}</label></td>}
 							{targetPortLabel() &&
 								<td className="text-primary" style={{ width: '12ch' }}><label>{targetPortLabel()}</label></td>}
@@ -104,7 +104,7 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 									placeholder={pathLabel().includes('Port')
 										? ''
 										: entry.protocol === 'log:'
-											? 'Command to follow log file (e.g., tail -f <file>)'
+											? 'Command or log file path (e.g., kubectl logs <pod> --tail=0 -f)'
 											: 'URL path'}
 									onChange={(e) => store.updateEntryPath(index, e.target.value)}
 									value={entry.path} />
@@ -123,9 +123,11 @@ const SettingsTable = observer(({ store, protocol }: Props) => {
 										value={entry.port} />
 								</td>}
 							<td className="settings-modal__proxy-host-container">
-								<input className="form-control settings-modal__proxy-comment"
-									onChange={(e) => store.updateComment(index, e.target.value)}
-									value={entry.comment} />
+								{protocol !== 'log:' &&
+									<input className="form-control settings-modal__proxy-comment"
+										onChange={(e) => store.updateComment(index, e.target.value)}
+										value={entry.comment} />
+								}
 							</td>
 							<td>
 								{protocol === 'log:' || protocol === 'browser:' ||
