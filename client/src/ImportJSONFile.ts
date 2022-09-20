@@ -98,5 +98,5 @@ export function formatJSONPrimaryFields(json: { [key: string]: string }, primary
                 '</span> ' + json[field];
         }
     })
-    return title;
+    return title.length ? title : JSON.stringify(json);
 }
