@@ -27,7 +27,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 	const jsonFields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName());
 	return (
 		<div className="jsonfieldbuttons" style={{
-			maxHeight: `calc(3rem + ${JSONFieldButtonsHeight}+'px)`,
+			maxHeight: `calc(3rem + ${JSONFieldButtonsHeight}px)`,
 			overflowY: 'auto'
 		}}>
 
