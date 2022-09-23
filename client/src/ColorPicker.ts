@@ -5,14 +5,29 @@ const colors = ['blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'da
 let count = 0;
 let colorMap: Map<string, string> = new Map();
 
+export function colorPickerForIconClass(iconClass: string): string | undefined {
+	let color = getBrowserIconColor(iconClass);
+	if (color === undefined) {
+		if (iconClass.indexOf('terminal') !== -1) {
+			return '#6c757d';
+		} else if (iconClass.indexOf('file') !== -1) {
+			return '#007bff';
+		} else {
+			return undefined;
+		}
+	} else {
+		return color;
+	}
+}
+
 export default function colorPicker(message: Message): string {
 	const protocol = message.protocol;
 	const ua = message.requestHeaders['user-agent'];
 	if (message.proxyConfig!.protocol === 'browser:') {
 		if (pickIcon(message.proxyConfig!.protocol, ua).indexOf('terminal') === -1) {
-			return getBrowserIconColor(ua) || 'whitesmoke';
+			return getBrowserIconColor(ua) || '#6c757d';
 		} else {
-			return ''; // color is set by App.css fa-keyboard
+			return '#6c757d'; // color is set by App.css fa-keyboard
 		}
 	}
 
