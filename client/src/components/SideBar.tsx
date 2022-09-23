@@ -1,6 +1,6 @@
 import { Checkbox, ListItemText, MenuItem, Select } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
-import { getBrowserIconColor } from "../PickIcon";
+import { colorPickerForIconClass } from "../ColorPicker";
 import { filterStore } from "../store/FilterStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
 
@@ -137,7 +137,7 @@ const SideBar = observer(() => {
 										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)}
 									/>
 									<div className={`${iconClass} side-bar-icon`}
-										style={{ color: getBrowserIconColor(iconClass) }} />
+										style={{ color: colorPickerForIconClass(iconClass) }} />
 									<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
 								</div>
 							</div>
