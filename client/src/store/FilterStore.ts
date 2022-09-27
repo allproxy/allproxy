@@ -268,7 +268,11 @@ export default class FilterStore {
                 let c1 = filter.substr(i, 1);
                 let c2 = i < filter.length - 1 ? filter.substr(i + 1, 1) : '';
                 let nonOperand = '';
-                if (c1 === '!' || c1 === '-' || c1 === '(' || c1 === ')') nonOperand = c1;
+                if ((c1 === '!' && i === 0) || c1 === '(' || c1 === ')') nonOperand = c1;
+                if (c1 === ' ' && c2 === '!') {
+                    ++i;
+                    nonOperand = '!';
+                }
                 if (c1 === '&' && c2 === '&') {
                     ++i;
                     nonOperand = '&&';
@@ -384,8 +388,12 @@ export default class FilterStore {
                 return false;
             }
         }
-        if (message.responseBody && this.isMatch(needle, JSON.stringify(message.responseBody))) return false;
+        if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
         return true;
+    }
+
+    private stringify(o: string | {}) {
+        return typeof o !== 'string' ? JSON.stringify(o) : o;
     }
 
     private isMessageExcluded(messageStore: MessageStore) {
@@ -404,7 +412,7 @@ export default class FilterStore {
             if (this.isExcluded(JSON.stringify(message.responseHeaders))) return true;
             if (this.isExcluded(messageStore.getRequestBody())) return true;
         }
-        if (message.responseBody && this.isExcluded(JSON.stringify(message.responseBody))) return true;
+        if (message.responseBody && this.isExcluded(this.stringify(message.responseBody))) return true;
         return false;
     }
 
