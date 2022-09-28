@@ -1,6 +1,6 @@
 <h1 align="center" style="border-bottom: none;">AllProxy: HTTP MITM Debugging Proxy</h1>
 
-HTTP MITM debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between your machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
+MITM HTTP debugging proxy that has a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between your machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
 ![image](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
