@@ -1,4 +1,5 @@
 import Message, { MessageType } from "./common/Message";
+import { makeRequestTitle } from "./components/JSONFieldButtons";
 import { pickButtonStyle } from "./PickButtonStyle";
 
 export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
@@ -21,31 +22,15 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             }
         }
 
-        const hasPrimaryJsonField = (json: { [key: string]: any }): boolean => {
-            const keys = Object.keys(json);
-            for (const key of primaryJsonFields) {
-                if (keys.indexOf(key) !== -1) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         let json: { [key: string]: any } | undefined
         try {
             json = JSON.parse(record)
         } catch (e) { }
 
         if (json) {
-            if (hasPrimaryJsonField(json)) {
-                messages.push(newMessage(nonJson + formatJSONPrimaryFields(json, primaryJsonFields), json));
-            } else {
-                const title = record.split('\n')[0];
-                messages.push(newMessage(nonJson + title, json));
-            }
+            messages.push(newMessage(nonJson, json));
         } else {
-            const title = record.split('\n')[0];
-            messages.push(newMessage(title, record));
+            messages.push(newMessage('', record));
         }
     }
 
@@ -67,7 +52,7 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             requestBody: { allproxy_inner_body: fileName },
             clientIp: '',
             serverHost: fileName,
-            path: '',
+            path: title,
             elapsedTime: 0,
             responseHeaders: {},
             responseBody: data,
@@ -83,6 +68,7 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
                 "comment": ""
             }
         };
+        message.url = makeRequestTitle(message, []);
         return message;
     }
 }
@@ -98,5 +84,5 @@ export function formatJSONPrimaryFields(json: { [key: string]: string }, primary
                 '</span> ' + json[field];
         }
     })
-    return title.length ? title : JSON.stringify(json);
+    return title.length ? title : '';
 }

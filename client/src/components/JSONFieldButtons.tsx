@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+import Message from '../common/Message';
 import { formatJSONPrimaryFields } from '../ImportJSONFile';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
@@ -60,24 +61,34 @@ export function updateRequestTitles(snapShotName: string, messages: MessageStore
 		}
 	}
 	for (const messageStore of messages) {
-		updateRequestTitle(messageStore, primaryFields);
+		const message = messageStore.getMessage();
+		if (message.protocol === 'log:' && typeof message.responseBody !== 'string') {
+			const title = makeRequestTitle(messageStore.getMessage(), primaryFields);
+			messageStore.setUrl(title);
+		}
 	}
 }
 
-export function updateRequestTitle(messageStore: MessageStore, primaryFields: string[]) {
-	const message = messageStore.getMessage();
-	if (message.protocol !== 'log:' || typeof message.responseBody === 'string') return;
+export function makeRequestTitle(message: Message, primaryFields: string[]): string {
 	let nonJSON = '';
 	const i = message.url?.indexOf('<span');
 	if (i !== -1) {
 		nonJSON = message.url?.substring(0, i) + ' ';
-	} else if (primaryFields.length === 0) {
-		nonJSON = JSON.stringify(message.responseBody)
+	}
+	if (message.path.length > 0) {
+		nonJSON = message.path + ' ' + nonJSON;
 	}
 
-	messageStore.setUrl(nonJSON +
-		formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields)
-	);
+	let title = nonJSON +
+		formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
+	if (title.length === 0) {
+		title = JSON.stringify(message.responseBody);
+		if (title.length > 100) {
+			title = title.substring(0, 100) + '...';
+		}
+	}
+
+	return title;
 }
 
 function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
