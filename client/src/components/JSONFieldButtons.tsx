@@ -124,8 +124,8 @@ export function makeRequestTitle(message: Message, primaryFields: string[]): str
 		formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
 	if (title.length === 0) {
 		title = JSON.stringify(message.responseBody);
-		if (title.length > 100) {
-			title = title.substring(0, 100) + '...';
+		if (title.length > 200) {
+			title = title.substring(0, 200) + '...';
 		}
 	}
 
