@@ -15,21 +15,30 @@ export default class MessageQueueStore {
 	private freeze: boolean = false;
 	private freezeQ: Message[] = [];
 
-	private sortOrder: "desc" | "asc" | undefined = 'asc';
+	private sortOrder: "desc" | "asc" = 'asc';
 	private sortByField: string | undefined;
+
+	private showMoreDetail = false;
 
 	public constructor() {
 		makeAutoObservable(this);
 	}
 
+	public getRequestAPI() {
+		return this.showMoreDetail;
+	}
+	@action public toggleShowRequestAPI() {
+		this.showMoreDetail = !this.showMoreDetail;
+	}
+
 	public getSortOrder() {
 		return this.sortOrder;
 	}
+	@action public setSortOrder(order: "desc" | "asc") {
+		this.sortOrder = order;
+	}
 	public getSortByField() {
 		return this.sortByField;
-	}
-	@action public setSortOrder(order: "desc" | "asc" | undefined) {
-		this.sortOrder = order;
 	}
 	@action public setSortByField(field: string | undefined) {
 		this.sortByField = field;
@@ -133,14 +142,18 @@ export default class MessageQueueStore {
 		const selectedMessages = snapshotStore.getSelectedMessages();
 		const copyMessages = selectedMessages.slice(); // shallow copy
 
-		const getField = (message: Message): string => {
+		const getField = (message: Message): string | number => {
 			let field = this.sortOrder === 'asc' ? 'zzz' : 'a';
-			if (typeof message.responseBody === 'object') {
-				const body = message.responseBody as { [key: string]: any; };
-				if (this.sortByField && body[this.sortByField]) {
-					field = body[this.sortByField];
+			const obj = message as { [key: string]: any };
+			if (this.sortByField && obj[this.sortByField]) {
+				field = obj[this.sortByField];
+			} else
+				if (typeof message.responseBody === 'object') {
+					const body = message.responseBody as { [key: string]: any; };
+					if (this.sortByField && body[this.sortByField]) {
+						field = body[this.sortByField];
+					}
 				}
-			}
 			return field;
 		}
 
@@ -149,9 +162,9 @@ export default class MessageQueueStore {
 				const aField = getField(a.getMessage());
 				const bField = getField(b.getMessage());
 				if (this.sortOrder === 'asc') {
-					return aField.localeCompare(bField);
+					return typeof aField === 'string' ? aField.localeCompare(bField as string) : aField - (bField as number);
 				} else {
-					return bField.localeCompare(aField)
+					return typeof bField === 'string' ? bField.localeCompare(aField as string) : bField - (aField as number);
 				}
 			})
 		} else {
