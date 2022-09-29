@@ -1,10 +1,11 @@
+import { TableSortLabel } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import Message from '../common/Message';
 import { formatJSONPrimaryFields } from '../ImportJSONFile';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
-import MessageQueueStore from '../store/MessageQueueStore';
+import MessageQueueStore, { messageQueueStore } from '../store/MessageQueueStore';
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
 
@@ -36,21 +37,61 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 				style={{ color: iconColor, margin: '0 .5rem' }}></div>
 			{
 				jsonFields.map((field, i) => (
-					<button className={"btn btn-sm " + (field.selected ? "btn-primary" : "btn-secondary")}
-						key={field.name}
-						style={field.selected ? { margin: ".5rem .25rem", background: pickButtonStyle(field.name).background, color: pickButtonStyle(field.name).color } : { margin: ".5rem .25rem" }}
-						onClick={() => {
-							jsonFields[i].selected = !jsonFields[i].selected;
-							updateRequestTitles(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
-						}}
-					>
-						{field.name}
-					</button>
+					<span style={{ whiteSpace: "nowrap" }}>
+						<button className={"btn btn-sm " + (messageQueueStore.getSortByField() === field.name ? "" : "btn-secondary")}
+							key={field.name}
+							style={{
+								margin: ".5rem 0", marginLeft: ".25rem", padding: "0",
+								background: messageQueueStore.getSortByField() ? pickButtonStyle(field.name).background : undefined
+							}}
+							hidden={!field.selected || snapshotStore.isActiveSnapshotSelected()}
+							onClick={() => sortOrderHandler(field.name)}
+						>
+							<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
+								direction={messageQueueStore.getSortOrder()}></TableSortLabel>
+						</button>
+						<button className={"btn btn-sm " + (field.selected ? "" : "btn-secondary")}
+							key={field.name}
+							style={field.selected ?
+								{ margin: ".5rem 0", marginRight: ".25rem", background: pickButtonStyle(field.name).background, color: pickButtonStyle(field.name).color } :
+								{ margin: ".5rem .25rem" }}
+							onClick={() => {
+								jsonFields[i].selected = !jsonFields[i].selected;
+								updateRequestTitles(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+								if (messageQueueStore.getSortByField() === field.name) {
+									messageQueueStore.setSortByField(undefined);
+									messageQueueStore.setSortOrder('asc');
+									messageQueueStore.sortOrderChanged();
+								}
+							}}
+						>
+							{field.name}
+						</button>
+					</span>
 				))
 			}
 		</div >
 	)
 });
+
+function sortOrderHandler(fieldName: string) {
+	if (messageQueueStore.getSortByField && messageQueueStore.getSortByField() !== fieldName) {
+		messageQueueStore.setSortByField(undefined);
+		messageQueueStore.setSortOrder('asc');
+	}
+
+	if (messageQueueStore.getSortByField()) {
+		if (messageQueueStore.getSortOrder() === 'asc') {
+			messageQueueStore.setSortOrder('desc');
+		} else {
+			messageQueueStore.setSortOrder('asc');
+			messageQueueStore.setSortByField(undefined);
+		}
+	} else {
+		messageQueueStore.setSortByField(fieldName);
+	}
+	messageQueueStore.sortOrderChanged();
+}
 
 export function updateRequestTitles(snapShotName: string, messages: MessageStore[]) {
 	const selectedFields = snapshotStore.getJsonFields(snapShotName);

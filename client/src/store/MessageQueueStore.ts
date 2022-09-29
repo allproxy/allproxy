@@ -15,8 +15,27 @@ export default class MessageQueueStore {
 	private freeze: boolean = false;
 	private freezeQ: Message[] = [];
 
+	private sortOrder: "desc" | "asc" | undefined = 'asc';
+	private sortByField: string | undefined;
+
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public getSortOrder() {
+		return this.sortOrder;
+	}
+	public getSortByField() {
+		return this.sortByField;
+	}
+	@action public setSortOrder(order: "desc" | "asc" | undefined) {
+		this.sortOrder = order;
+	}
+	@action public setSortByField(field: string | undefined) {
+		this.sortByField = field;
+	}
+	@action public sortOrderChanged() {
+		this.sort();
 	}
 
 	private _getLimit(): number {
@@ -114,11 +133,34 @@ export default class MessageQueueStore {
 		const selectedMessages = snapshotStore.getSelectedMessages();
 		const copyMessages = selectedMessages.slice(); // shallow copy
 
-		copyMessages.sort((a, b) => {
-			const aSeq = this.sortByReq ? a.getMessage().sequenceNumber : a.getMessage().sequenceNumberRes;
-			const bSeq = this.sortByReq ? b.getMessage().sequenceNumber : b.getMessage().sequenceNumberRes;
-			return aSeq - bSeq;
-		})
+		const getField = (message: Message): string => {
+			let field = this.sortOrder === 'asc' ? 'zzz' : 'a';
+			if (typeof message.responseBody === 'object') {
+				const body = message.responseBody as { [key: string]: any; };
+				if (this.sortByField && body[this.sortByField]) {
+					field = body[this.sortByField];
+				}
+			}
+			return field;
+		}
+
+		if (this.sortByField) {
+			copyMessages.sort((a, b) => {
+				const aField = getField(a.getMessage());
+				const bField = getField(b.getMessage());
+				if (this.sortOrder === 'asc') {
+					return aField.localeCompare(bField);
+				} else {
+					return bField.localeCompare(aField)
+				}
+			})
+		} else {
+			copyMessages.sort((a, b) => {
+				const aSeq = this.sortByReq ? a.getMessage().sequenceNumber : a.getMessage().sequenceNumberRes;
+				const bSeq = this.sortByReq ? b.getMessage().sequenceNumber : b.getMessage().sequenceNumberRes;
+				return aSeq - bSeq;
+			})
+		}
 
 		selectedMessages.splice(0, selectedMessages.length);
 		Array.prototype.push.apply(selectedMessages, copyMessages);
