@@ -5,9 +5,10 @@ import Message from '../common/Message';
 import { formatJSONPrimaryFields } from '../ImportJSONFile';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
-import MessageQueueStore, { messageQueueStore } from '../store/MessageQueueStore';
+import MessageQueueStore from '../store/MessageQueueStore';
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
+import { sortOrderHandler } from './SortBy';
 
 export const JSONFieldButtonsHeight = 40;
 
@@ -42,9 +43,9 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 							key={field.name}
 							style={{
 								margin: ".5rem 0", marginLeft: ".25rem", padding: "0",
-								background: messageQueueStore.getSortByField() ? pickButtonStyle(field.name).background : undefined
+								background: messageQueueStore.getSortByField() === field.name ? pickButtonStyle(field.name).background : undefined
 							}}
-							hidden={!field.selected || snapshotStore.isActiveSnapshotSelected()}
+							hidden={!field.selected}
 							onClick={() => sortOrderHandler(field.name)}
 						>
 							<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
@@ -73,25 +74,6 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 		</div >
 	)
 });
-
-function sortOrderHandler(fieldName: string) {
-	if (messageQueueStore.getSortByField && messageQueueStore.getSortByField() !== fieldName) {
-		messageQueueStore.setSortByField(undefined);
-		messageQueueStore.setSortOrder('asc');
-	}
-
-	if (messageQueueStore.getSortByField()) {
-		if (messageQueueStore.getSortOrder() === 'asc') {
-			messageQueueStore.setSortOrder('desc');
-		} else {
-			messageQueueStore.setSortOrder('asc');
-			messageQueueStore.setSortByField(undefined);
-		}
-	} else {
-		messageQueueStore.setSortByField(fieldName);
-	}
-	messageQueueStore.sortOrderChanged();
-}
 
 export function updateRequestTitles(snapShotName: string, messages: MessageStore[]) {
 	const selectedFields = snapshotStore.getJsonFields(snapShotName);
@@ -124,8 +106,8 @@ export function makeRequestTitle(message: Message, primaryFields: string[]): str
 		formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
 	if (title.length === 0) {
 		title = JSON.stringify(message.responseBody);
-		if (title.length > 100) {
-			title = title.substring(0, 100) + '...';
+		if (title.length > 200) {
+			title = title.substring(0, 200) + '...';
 		}
 	}
 

@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactJson from "react-json-view";
 import { colorScheme } from "../App";
+import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
 
 
@@ -104,7 +105,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 								<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
 									{message.method}
 								</div>}
-							{message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
+							{messageQueueStore.getRequestAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
 								{message.endpoint}
 							</div>}
 							{message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}

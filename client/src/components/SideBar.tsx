@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import { colorPickerForIconClass } from "../ColorPicker";
 import { filterStore } from "../store/FilterStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
+import SortBy from "./SortBy";
 
 const SideBar = observer(() => {
 
@@ -124,6 +125,28 @@ const SideBar = observer(() => {
 
 	return (
 		<div className="side-bar">
+
+			<div className="side-bar-item">
+				<div className="side-bar-checkbox-icon">
+					<div style={{ display: 'flex' }}>
+						<Checkbox className="side-bar-checkbox"
+							size="small"
+							value={messageQueueStore.getRequestAPI()}
+							onChange={() => messageQueueStore.toggleShowRequestAPI()}
+						/>
+						Show API
+					</div>
+				</div>
+			</div>
+
+			<hr className="side-bar-divider"></hr>
+
+			<div>
+				<SortBy></SortBy>
+			</div>
+
+			<hr className="side-bar-divider"></hr>
+
 			{
 				filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => (
 					<div key={iconClass}>
