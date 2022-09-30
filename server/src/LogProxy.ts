@@ -61,7 +61,7 @@ export default class LogProxy {
       const buffer = fs.readFileSync(tokens[1]);
       for (const record of buffer.toString().split('\n')) {
         if (this.boolFilter.isFiltered(record)) continue;
-        const queueCount = await this.processLogRecord('stdout', record);
+        const queueCount = await this.processLogRecord(record);
         if (queueCount >= BATCH_SIZE * 2) {
           await delay();
         }
@@ -78,7 +78,7 @@ export default class LogProxy {
       if (warmUpCompleted()) {
         for (const record of buffer.toString().split('\n')) {
           if (this.boolFilter.isFiltered(record)) continue;
-          this.processLogRecord('stdout', record);
+          this.processLogRecord(record);
         }
       }
     });
@@ -87,7 +87,7 @@ export default class LogProxy {
       if (warmUpCompleted()) {
         for (const record of buffer.toString().split('\n')) {
           if (this.boolFilter.isFiltered(record)) continue;
-          this.processLogRecord('stderr', record);
+          this.processLogRecord(record);
         }
       }
     });
@@ -113,20 +113,15 @@ export default class LogProxy {
 
   TIMEOUT = 5000;
   //RECORD_LIMIT = 50;
-  streamName = '';
   recordCount = 0;
   buffer = '';
   // eslint-disable-next-line no-undef
   timerHandle: NodeJS.Timeout | undefined;
 
-  async processLogRecord(streamName: string, record: string): Promise<number> {
+  async processLogRecord(record: string): Promise<number> {
     let queueCount = 0;
     if (this.timerHandle) {
       clearInterval(this.timerHandle);
-    }
-
-    if (this.streamName.length === 0) {
-      this.streamName = streamName;
     }
 
     record = record.trim();
@@ -154,15 +149,15 @@ export default class LogProxy {
 
     if (json) {
       const title = record.split('\n')[0];
-      queueCount = await this.emitToBrowser(nonJson + title, streamName, json, Date.now());
+      queueCount = await this.emitToBrowser(nonJson + title, json, Date.now());
     } else {
       const title = record.split('\n')[0];
-      queueCount = await this.emitToBrowser(title, streamName, record, Date.now());
+      queueCount = await this.emitToBrowser(title, record, Date.now());
     }
     return queueCount;
   }
 
-  async emitToBrowser(title: string, streamName: string, data: string | {}, timeMsec?: number): Promise<number> {
+  async emitToBrowser(title: string, data: string | {}, timeMsec?: number): Promise<number> {
     const seqNo = Global.nextSequenceNumber();
     const message = await SocketIoMessage.buildRequest(
       Date.now(),
@@ -173,15 +168,15 @@ export default class LogProxy {
       '', // endpoint
       { allproxy_inner_body: this.command }, // req body
       '', // 'log:' + title, // clientIp
-      streamName, // serverHost
+      '', // serverHost
       '', // path
       0
     );
 
     let elapsedTime = 0;
-    if (timeMsec && this.prevTimeMsec) {
-      elapsedTime = timeMsec - this.prevTimeMsec;
-    }
+    // if (timeMsec && this.prevTimeMsec) {
+    //   elapsedTime = timeMsec - this.prevTimeMsec;
+    // }
     SocketIoMessage.appendResponse(
       message,
       {}, // res headers

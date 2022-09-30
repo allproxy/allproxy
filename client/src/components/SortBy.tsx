@@ -43,6 +43,7 @@ const SortBy = observer(({ }: Props): JSX.Element => {
 				fields.map(field => (
 					<div className="side-bar-item">
 						<button className={"btn btn-xs " + (messageQueueStore.getSortByField() === field.name ? "btn-primary" : "btn-secondary")}
+							style={{ width: "calc(128px - 2rem)", marginLeft: ".5rem", textAlign: "left" }}
 							key={field.name}
 							onClick={() => sortOrderHandler(field.name)}
 						>

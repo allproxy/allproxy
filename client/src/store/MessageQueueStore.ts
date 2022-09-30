@@ -157,30 +157,43 @@ export default class MessageQueueStore {
 	}
 
 	private sortCopy(copyMessages: MessageStore[]) {
-		const getField = (message: Message): string | number => {
-			let field = this.sortOrder === 'asc' ? 'zzz' : 'a';
+		const getField = (message: Message): string | number | undefined => {
+			let field;
+			if (message.protocol === 'log:' && this.sortByField === 'url') return undefined;
 			const obj = message as { [key: string]: any };
-			if (this.sortByField && obj[this.sortByField]) {
+			if (this.sortByField && obj[this.sortByField] !== undefined) {
 				field = obj[this.sortByField];
-			} else
+			} else {
 				if (typeof message.responseBody === 'object') {
 					const body = message.responseBody as { [key: string]: any; };
 					if (this.sortByField && body[this.sortByField]) {
 						field = body[this.sortByField];
 					}
 				}
+			}
 			return field;
 		}
 
 		if (this.sortByField) {
 			copyMessages.sort((a, b) => {
-				const aField = getField(a.getMessage());
-				const bField = getField(b.getMessage());
-				if (this.sortOrder === 'asc') {
-					return typeof aField === 'string' ? aField.localeCompare(bField as string) : aField - (bField as number);
-				} else {
-					return typeof bField === 'string' ? bField.localeCompare(aField as string) : bField - (aField as number);
+				let aField = getField(a.getMessage());
+				let bField = getField(b.getMessage());
+				if (aField === undefined) {
+					if (bField === undefined) {
+						aField = bField = 0;
+					} else {
+						aField = typeof bField === 'string' ? '' : -999999;
+					}
+				} else if (bField === undefined) {
+					bField = typeof aField === 'string' ? '' : -999999;
 				}
+				let rc = 0;
+				if (this.sortOrder === 'asc') {
+					rc = (typeof aField === 'string' ? aField.localeCompare(bField as string) : aField - (bField as number));
+				} else {
+					rc = (typeof bField === 'string' ? bField.localeCompare(aField as string) : bField - (aField as number));
+				}
+				return rc;
 			})
 		} else {
 			copyMessages.sort((a, b) => {
