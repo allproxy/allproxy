@@ -18,17 +18,25 @@ export default class MessageQueueStore {
 	private sortOrder: "desc" | "asc" = 'asc';
 	private sortByField: string | undefined;
 
-	private showMoreDetail = false;
+	private showAPI = false;
+	private showUserAgent = false;
 
 	public constructor() {
 		makeAutoObservable(this);
 	}
 
 	public getRequestAPI() {
-		return this.showMoreDetail;
+		return this.showAPI;
 	}
 	@action public toggleShowRequestAPI() {
-		this.showMoreDetail = !this.showMoreDetail;
+		this.showAPI = !this.showAPI;
+	}
+
+	public getRequestUA() {
+		return this.showUserAgent;
+	}
+	@action public toggleShowRequestUA() {
+		this.showUserAgent = !this.showUserAgent;
 	}
 
 	public getSortOrder() {
