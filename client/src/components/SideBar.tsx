@@ -125,16 +125,24 @@ const SideBar = observer(() => {
 
 	return (
 		<div className="side-bar">
-
 			<div className="side-bar-item">
-				<div className="side-bar-checkbox-icon">
+				<div>
+					<div style={{ whiteSpace: 'nowrap' }}>Show:</div>
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getRequestAPI()}
 							onChange={() => messageQueueStore.toggleShowRequestAPI()}
 						/>
-						Show API
+						API
+					</div>
+					<div style={{ display: 'flex' }}>
+						<Checkbox className="side-bar-checkbox"
+							size="small"
+							value={messageQueueStore.getRequestUA()}
+							onChange={() => messageQueueStore.toggleShowRequestUA()}
+						/>
+						User Agent
 					</div>
 				</div>
 			</div>

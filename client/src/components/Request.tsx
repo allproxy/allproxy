@@ -108,7 +108,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 							{messageQueueStore.getRequestAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
 								{message.endpoint}
 							</div>}
-							{message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
+							{messageQueueStore.getRequestUA() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
 							<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
 						</div>
 					</div>
