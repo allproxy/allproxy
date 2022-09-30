@@ -142,6 +142,13 @@ export default class MessageQueueStore {
 		const selectedMessages = snapshotStore.getSelectedMessages();
 		const copyMessages = selectedMessages.slice(); // shallow copy
 
+		this.sortCopy(copyMessages);
+
+		selectedMessages.splice(0, selectedMessages.length);
+		Array.prototype.push.apply(selectedMessages, copyMessages);
+	}
+
+	private sortCopy(copyMessages: MessageStore[]) {
 		const getField = (message: Message): string | number => {
 			let field = this.sortOrder === 'asc' ? 'zzz' : 'a';
 			const obj = message as { [key: string]: any };
@@ -174,9 +181,6 @@ export default class MessageQueueStore {
 				return aSeq - bSeq;
 			})
 		}
-
-		selectedMessages.splice(0, selectedMessages.length);
-		Array.prototype.push.apply(selectedMessages, copyMessages);
 	}
 
 	private binarySearch(sortedMessages: MessageStore[], matchSeqNum: number, sortByReq: boolean) {
@@ -215,6 +219,11 @@ export default class MessageQueueStore {
 		const activeSnapshot = snapshotStore.getActiveSnapshot();
 
 		const copyMessages = activeSnapshot.slice(); // shallow copy
+		// Not sorted by request?
+		if (!this.sortByReq || this.sortByField) {
+			copyMessages.sort((a, b) => a.getMessage().sequenceNumber - b.getMessage().sequenceNumber);
+		}
+
 		for (const message of messages) {
 			if (!message.proxyConfig?.recording) return;
 
@@ -228,29 +237,12 @@ export default class MessageQueueStore {
 				continue;
 			}
 
-			// Sorting by response, and
-			if (!this.sortByReq &&
-				message.responseBody !== NO_RESPONSE) {
-				const sortedByReqArray = copyMessages.slice(); // shallow copy
-				sortedByReqArray.sort((a, b) => a.getMessage().sequenceNumber - b.getMessage().sequenceNumber);
-				const m = this.binarySearch(sortedByReqArray, message.sequenceNumber, true);
-				const messageMatch = sortedByReqArray[m].getMessage();
-				if (messageMatch.sequenceNumber === message.sequenceNumber) {
-					const m2 = this.binarySearch(copyMessages, messageMatch.sequenceNumberRes, false);
-					copyMessages.splice(m2, 1); // delete matching message
-					if (copyMessages.length === 0) {
-						copyMessages.push(messageStore);
-						continue;
-					}
-				}
-			}
-
-			const msgSequenceNumber = this.sortByReq ? message.sequenceNumber : message.sequenceNumberRes;
-			const m = this.binarySearch(copyMessages, msgSequenceNumber, this.sortByReq);
+			const msgSequenceNumber = message.sequenceNumber;
+			const m = this.binarySearch(copyMessages, msgSequenceNumber, true);
 
 			const messageMatch = copyMessages[m].getMessage();
-			const sn = this.sortByReq ? messageMatch.sequenceNumber : messageMatch.sequenceNumberRes;
-			if (sn === msgSequenceNumber) {
+			const sn = messageMatch.sequenceNumber;
+			if (messageMatch.sequenceNumber === msgSequenceNumber) {
 				if (messageStore.getMessage().responseBody !== NO_RESPONSE) {
 					copyMessages[m] = messageStore;
 				}
@@ -265,6 +257,10 @@ export default class MessageQueueStore {
 			if (copyMessages.length > this.limit) {
 				copyMessages.splice(0, copyMessages.length - this.limit);
 			}
+		}
+
+		if (!this.sortByReq || this.sortByField) {
+			this.sortCopy(copyMessages);
 		}
 
 		activeSnapshot.splice(0, activeSnapshot.length);
