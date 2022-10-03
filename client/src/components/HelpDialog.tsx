@@ -5,6 +5,8 @@ import pickIcon, { getBrowserIconColor } from '../PickIcon';
 import { Browser, browserStore } from '../store/BrowserStore';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import React from 'react';
+import { ConfigCategoryGroups, settingsStore } from '../store/SettingsStore';
+import { ConfigProtocol } from '../common/ProxyConfig';
 
 type Props = {
 	open: boolean,
@@ -21,47 +23,43 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 	const isMac = navigator.appVersion.indexOf('Mac') !== -1;
 	const key = isMac ? 'cmd' : 'ctl';
 
-	function showBrowsers() {
+	function showConfigButtons() {
+		const colorMap: Map<ConfigProtocol, string> = new Map();
+		colorMap.set('mongo:', "green");
+		colorMap.set('redis:', "blue");
+		colorMap.set('mysql:', 'orange');
+		colorMap.set('grpc:', 'black');
+		colorMap.set('http:', 'steelblue');
+		colorMap.set('https:', 'green');
+		colorMap.set('tcp:', 'red');
 		return (
 			<div>
-				{browserStore.getBrowsers().length === 0 ?
-					'No browsers detected.'
-					: browserStore.getBrowsers().map(browser => (
-						<span style={{ marginRight: '1rem' }}>
-							<button className="btn btn-lg btn-secondary"
-								style={{ background: getBrowserIconColor(browserName(browser)) }}
-								onClick={() => {
-									browserStore.launchBrowser(browser);
-									handleClose();
-								}}>
-								<div className={pickIcon('browser:', browser.name)}
-									style={{
-										marginRight: '.5rem'
-									}} />
-								{browserName(browser)}
-							</button>
-						</span>
-					))}
+				{
+					settingsStore.getConfigCategories().map(category => {
+						if (category === 'LOGS') return null;
+						return ConfigCategoryGroups.get(category)?.map(proto => (
+							<span style={{ marginRight: '1rem' }}>
+								<button className="btn btn-lg btn-secondary"
+									onClick={() => {
+										settingsStore.setTabCategory(category);
+										settingsStore.setTabProtocol(proto.protocol);
+										settingsStore.toggleOpenSettingsModal();
+										handleClose();
+									}}
+									style={{ marginBottom: '1rem', background: colorMap.get(proto.protocol) }}
+								>
+									<div className={pickIcon(proto.protocol, '')}
+										style={{
+											marginRight: '.5rem'
+										}}
+									/>
+									{proto.name}
+								</button>
+							</span>
+						))
+					})
+				}
 			</div>
-		);
-	}
-
-	function jsonLogFileButton() {
-		return (
-			<span style={{ marginRight: '1rem' }}>
-				<button className="btn btn-lg btn-primary"
-					onClick={() => {
-						setOpenImportJSONFileDialog(true);
-						handleClose();
-					}}>
-					<div className={pickIcon('log:', '')}
-						style={{
-							marginRight: '.5rem'
-						}}
-					/>
-					View JSON Log
-				</button>
-			</span>
 		);
 	}
 
@@ -80,20 +78,48 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				paddingLeft: "1.5rem",
 				paddingRight: "1rem"
 			}}>
-				<b>AllProxy</b> started on <b>localhost:8888</b>
+				<h4>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h4>
 				<p></p>
-				<b>Launch Browser or Terminal:</b>
-				{showBrowsers()}
-				<p></p>
-				<b>AllProxy can view, filter, and search JSON based log file:</b>
-				<br></br>
-				{jsonLogFileButton()}
-				<p></p>
-				<b>Shortcuts:</b>
-				<br></br>
+				<h4>Launch Browser/Terminal or View Log:</h4>
+				{
+					browserStore.getBrowsers().map(browser => (
+						<span style={{ marginRight: '1rem' }}>
+							<button className="btn btn-lg btn-secondary"
+								style={{ marginBottom: "1rem", background: getBrowserIconColor(browserName(browser)) }}
+								onClick={() => {
+									browserStore.launchBrowser(browser);
+									handleClose();
+								}}>
+								<div className={pickIcon('browser:', browser.name)}
+									style={{
+										marginRight: '.5rem'
+									}} />
+								{browserName(browser)}
+							</button>
+						</span>
+					))
+				}
+				<span style={{ marginRight: '1rem' }}>
+					<button className="btn btn-lg btn-primary"
+						style={{ marginBottom: "1rem" }}
+						onClick={() => {
+							setOpenImportJSONFileDialog(true);
+							handleClose();
+						}}>
+						<div className={pickIcon('log:', '')}
+							style={{
+								marginRight: '.5rem'
+							}}
+						/>
+						JSON Log
+					</button>
+				</span>
+				<h4>Reverse Proxy Configuration:</h4>
+				{showConfigButtons()}
+				<h4>Shortcuts:</h4>
 				- <b>{key}-f</b> Find text in page
 				<p></p>
-				<b>Manual Setup:</b>
+				<h4>Manual Setup:</h4>
 				<ol style={{ paddingLeft: "1rem" }}>
 					<li>
 						<b>Trust AllProxy certificate:</b>
@@ -156,7 +182,8 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				open={openImportJSONFileDialog}
 				onClose={() => {
 					setOpenImportJSONFileDialog(false);
-				}} /></>
+				}} />
+		</>
 	);
 });
 

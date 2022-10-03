@@ -2,12 +2,6 @@ import { TableSortLabel } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { messageQueueStore } from '../store/MessageQueueStore';
 
-/**
- * Sort requests by field
- */
-type Props = {
-};
-
 const fields = [
 	{
 		name: 'timestamp',
@@ -35,7 +29,7 @@ const fields = [
 	},
 ]
 
-const SortBy = observer(({ }: Props): JSX.Element => {
+const SortBy = observer((): JSX.Element => {
 	return (
 		<>
 			<div className="side-bar-item">Sort By:</div>
