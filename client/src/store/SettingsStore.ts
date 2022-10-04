@@ -4,15 +4,15 @@ import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
 export type ConfigCategory =
-	'BROWSER'
-	| 'DATA STORES'
+	// 'BROWSER'
+	'DATA STORES'
 	| 'GRPC'
 	| 'HTTP'
 	| 'LOGS'
 	| 'TCP';
 
 export const ConfigCategories: ConfigCategory[] = [
-	'BROWSER',
+	// 'BROWSER',
 	'DATA STORES',
 	'GRPC',
 	'HTTP',
@@ -33,15 +33,17 @@ export const ConfigProtocols: ConfigProtocol[] = [
 ];
 
 interface ConfigProtocolDescription {
+	name: string,
 	protocol: ConfigProtocol,
 	title: string,
 	ports: number[],
 }
 
 export const ConfigCategoryGroups: Map<ConfigCategory, ConfigProtocolDescription[]> = new Map();
-ConfigCategoryGroups.set('BROWSER',
+ConfigCategoryGroups.set('DATA STORES',
 	[
 		{
+			name: 'Forward Proxy',
 			protocol: 'browser:',
 			title: 'Forward Proxy',
 			ports: [8888, 8888],
@@ -51,16 +53,19 @@ ConfigCategoryGroups.set('BROWSER',
 ConfigCategoryGroups.set('DATA STORES',
 	[
 		{
+			name: 'MongoDB',
 			protocol: 'mongo:',
 			title: 'MongoDb Reverse Proxy',
 			ports: [27017],
 		},
 		{
+			name: 'Redis',
 			protocol: 'redis:',
 			title: 'Redis Reverse Proxy',
 			ports: [6379],
 		},
 		{
+			name: 'MySQL',
 			protocol: 'mysql:',
 			title: 'MySQL Reverse Proxy',
 			ports: [3306],
@@ -70,6 +75,7 @@ ConfigCategoryGroups.set('DATA STORES',
 ConfigCategoryGroups.set('GRPC',
 	[
 		{
+			name: 'gRPC',
 			protocol: 'grpc:',
 			title: 'gRPC Reverse Proxy',
 			ports: [],
@@ -79,11 +85,13 @@ ConfigCategoryGroups.set('GRPC',
 ConfigCategoryGroups.set('HTTP',
 	[
 		{
+			name: 'HTTP',
 			protocol: 'http:',
 			title: 'HTTP Reverse Proxy',
 			ports: [8888],
 		},
 		{
+			name: 'HTTPS',
 			protocol: 'https:',
 			title: 'HTTPS Reverse Proxy',
 			ports: [8888],
@@ -93,6 +101,7 @@ ConfigCategoryGroups.set('HTTP',
 ConfigCategoryGroups.set('LOGS',
 	[
 		{
+			name: 'Log',
 			protocol: 'log:',
 			title: 'Log Monitor',
 			ports: [],
@@ -102,6 +111,7 @@ ConfigCategoryGroups.set('LOGS',
 ConfigCategoryGroups.set('TCP',
 	[
 		{
+			name: 'TCP',
 			protocol: 'tcp:',
 			title: 'TCP Proxy',
 			ports: [],
@@ -116,8 +126,11 @@ export enum HostStatus {
 }
 
 export default class SettingsStore {
+	private openSettingsModal = false;
+	private tabCategory: ConfigCategory = 'DATA STORES';
+	private tabProtocol: ConfigProtocol = ConfigCategoryGroups.get(this.tabCategory)![0].protocol;
+
 	private changed = false;
-	private configCategory: ConfigCategory = 'BROWSER';
 	private protocol: ConfigProtocol | '' = '';
 
 	private statusUpdating = true;
@@ -126,6 +139,26 @@ export default class SettingsStore {
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public getOpenSettingsModal() {
+		return this.openSettingsModal;
+	}
+	@action public toggleOpenSettingsModal() {
+		this.openSettingsModal = !this.openSettingsModal;
+	}
+
+	public getTabCategory() {
+		return this.tabCategory;
+	}
+	@action public setTabCategory(cat: ConfigCategory) {
+		this.tabCategory = cat;
+	}
+	public getTabProtocol() {
+		return this.tabProtocol
+	}
+	@action public setTabProtocol(protocol: ConfigProtocol) {
+		this.tabProtocol = protocol;
 	}
 
 	public isStatusUpdating() {
@@ -166,7 +199,7 @@ export default class SettingsStore {
 	}
 
 	public getSubTitle() {
-		const c = ConfigCategoryGroups.get(this.getConfigCategory())!.find(e => e.protocol === this.protocol);
+		const c = ConfigCategoryGroups.get(this.tabCategory)!.find(e => e.protocol === this.protocol);
 		return c ? c.title : '';
 	}
 
@@ -176,14 +209,6 @@ export default class SettingsStore {
 
 	public getProtocols(): ConfigProtocol[] {
 		return ConfigProtocols;
-	}
-
-	public getConfigCategory() {
-		return this.configCategory;
-	}
-
-	@action public setConfigCategory(configCategory: ConfigCategory) {
-		this.configCategory = configCategory;
 	}
 
 	public getProtocol() {
