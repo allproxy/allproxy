@@ -15,15 +15,22 @@ type Props = {
 	store: SettingsStore,
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
+	const [tabCategory, setTabCategory] = React.useState<ConfigCategory>('BROWSER');
+	const [tabProtocol, setTabProtocol] = React.useState<ConfigProtocol>(ConfigCategoryGroups.get(tabCategory)![0].protocol);
+
+	store.setConfigCategory(tabCategory as ConfigCategory);
+	store.setProtocol(tabProtocol);
 
 	function handleTabCategoryChange(_e: React.ChangeEvent<{}>, value: string) {
-		store.setTabCategory(value as ConfigCategory);
-		store.setProtocol(ConfigCategoryGroups.get(store.getTabCategory())![0].protocol);
-		store.setTabProtocol(store.getProtocol() as ConfigProtocol);
+		setTabCategory(value as ConfigCategory);
+		store.setConfigCategory(value as ConfigCategory);
+
+		store.setProtocol(ConfigCategoryGroups.get(store.getConfigCategory())![0].protocol);
+		setTabProtocol(store.getProtocol() as ConfigProtocol);
 	}
 
 	function handleTabProtocolChange(_e: React.ChangeEvent<{}>, value: string) {
-		store.setTabProtocol(value as ConfigProtocol);
+		setTabProtocol(value as ConfigProtocol);
 		store.setProtocol(value as ConfigProtocol);
 	}
 
@@ -51,9 +58,9 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 			<div className="settings-modal" role="dialog">
 				<div>
 					<h3>Setting: <span style={{ color: 'steelblue' }}>{store.getSubTitle()}</span></h3>
-					<TabContext value={store.getTabCategory()}>
+					<TabContext value={tabCategory}>
 						<Tabs
-							value={store.getTabCategory()}
+							value={tabCategory}
 							onChange={handleTabCategoryChange}
 							indicatorColor="primary"
 							textColor="primary"
@@ -76,23 +83,23 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 						{store.getConfigCategories().map(category => (
 							<TabPanel value={category} key={category}>
 								<div className="settings-modal__scroll-container">
-									{ConfigCategoryGroups.get(store.getTabCategory())!.length === 1
+									{ConfigCategoryGroups.get(store.getConfigCategory())!.length === 1
 										?
 										<SettingsTable
 											store={store}
 											protocol={store.getProtocol() as ConfigProtocol}
 										/>
 										:
-										<TabContext value={store.getTabProtocol()}>
+										<TabContext value={tabProtocol}>
 											<Tabs
 												style={{ background: 'whitesmoke' }}
-												value={store.getTabProtocol()}
+												value={tabProtocol}
 												onChange={handleTabProtocolChange}
 												indicatorColor="secondary"
 												textColor="secondary"
 												variant="fullWidth"
 												aria-label="Settings table">
-												{ConfigCategoryGroups.get(store.getTabCategory())!.map(protocolDesc => (
+												{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
 													<Tab
 														value={protocolDesc.protocol}
 														label={getProtocolLabel(protocolDesc.protocol)}
@@ -100,7 +107,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 													</Tab>
 												))}
 											</Tabs>
-											{ConfigCategoryGroups.get(store.getTabCategory())!.map(protocolDesc => (
+											{ConfigCategoryGroups.get(store.getConfigCategory())!.map(protocolDesc => (
 												<TabPanel value={protocolDesc.protocol} key={protocolDesc.protocol}>
 													<SettingsTable
 														store={store}

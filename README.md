@@ -7,11 +7,11 @@ MITM HTTP debugging proxy that has a web GUI to view and modify all of the HTTP 
 ![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 ### Install
-> Linux installer: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy_3.19.4_amd64.deb)**
+> Linux installer: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy_3.19.3_amd64.deb)**
 
-> Mac installer: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy-3.19.4-x64.dmg)**
+> Mac installer: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy-3.19.3-x64.dmg)**
 
-> Windows installer: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy-3.19.4.Setup.exe)**
+> Windows installer: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy-3.19.3.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
