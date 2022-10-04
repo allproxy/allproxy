@@ -16,8 +16,6 @@ type Props = {
 };
 const SettingsModal = observer(({ open, onClose, store }: Props) => {
 
-	store.setProtocol(store.getTabProtocol());
-
 	function handleTabCategoryChange(_e: React.ChangeEvent<{}>, value: string) {
 		store.setTabCategory(value as ConfigCategory);
 		store.setProtocol(ConfigCategoryGroups.get(store.getTabCategory())![0].protocol);
