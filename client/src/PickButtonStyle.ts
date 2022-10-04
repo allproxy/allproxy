@@ -16,7 +16,7 @@ export function pickButtonStyle(name: string): { background: string, color: stri
         style = colorStyles[index];
         styleMap[name] = style;
         ++index;
-        if (index === colorStyles.length) index = 0;
+        if (index == colorStyles.length) index = 0;
     }
     return style;
 }

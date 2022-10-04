@@ -32,6 +32,7 @@ type Props = {
 	filterStore: FilterStore
 };
 const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props): JSX.Element => {
+	const [showSettingsModal, setShowSettingsModal] = React.useState(false);
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
@@ -205,7 +206,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="fa fa-network-wired"
 							onClick={() => {
-								settingsStore.toggleOpenSettingsModal();
+								setShowSettingsModal(true);
 								settingsStore.reset();
 								setSettingsMenuIcon(null);
 								if (!messageQueueStore.getStopped()) {
@@ -258,9 +259,9 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				initTabValue={HostStatus.Reachable}
 			/>
 			<SettingsModal
-				open={settingsStore.getOpenSettingsModal()}
+				open={showSettingsModal}
 				onClose={() => {
-					settingsStore.toggleOpenSettingsModal();
+					setShowSettingsModal(false);
 					if (filterWasStopped) {
 						filterWasStopped = false;
 						messageQueueStore.setStopped(false);
