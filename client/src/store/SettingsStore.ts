@@ -4,19 +4,19 @@ import { messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
 export type ConfigCategory =
-	// 'BROWSER'
-	'DATA STORES'
+	'FORWARD PROXY'
+	| 'DATA STORES'
 	| 'GRPC'
 	| 'HTTP'
-	| 'LOGS'
+	| 'JSON LOGS'
 	| 'TCP';
 
 export const ConfigCategories: ConfigCategory[] = [
-	// 'BROWSER',
+	'FORWARD PROXY',
 	'DATA STORES',
 	'GRPC',
 	'HTTP',
-	'LOGS',
+	'JSON LOGS',
 	'TCP',
 ];
 
@@ -40,7 +40,7 @@ interface ConfigProtocolDescription {
 }
 
 export const ConfigCategoryGroups: Map<ConfigCategory, ConfigProtocolDescription[]> = new Map();
-ConfigCategoryGroups.set('DATA STORES',
+ConfigCategoryGroups.set('FORWARD PROXY',
 	[
 		{
 			name: 'Forward Proxy',
@@ -98,7 +98,7 @@ ConfigCategoryGroups.set('HTTP',
 		},
 	]
 );
-ConfigCategoryGroups.set('LOGS',
+ConfigCategoryGroups.set('JSON LOGS',
 	[
 		{
 			name: 'Log',

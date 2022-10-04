@@ -36,7 +36,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 			<div>
 				{
 					settingsStore.getConfigCategories().map(category => {
-						if (category === 'LOGS') return null;
+						if (category === 'FORWARD PROXY' || category === 'JSON LOGS') return null;
 						return ConfigCategoryGroups.get(category)?.map(proto => (
 							<span style={{ marginRight: '1rem' }}>
 								<button className="btn btn-lg btn-secondary"
@@ -44,6 +44,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 										settingsStore.setTabCategory(category);
 										settingsStore.setTabProtocol(proto.protocol);
 										settingsStore.toggleOpenSettingsModal();
+										settingsStore.reset();
 										handleClose();
 									}}
 									style={{ marginBottom: '1rem', background: colorMap.get(proto.protocol) }}
