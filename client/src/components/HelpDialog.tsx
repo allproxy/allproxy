@@ -45,7 +45,6 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 										settingsStore.setTabProtocol(proto.protocol);
 										settingsStore.toggleOpenSettingsModal();
 										settingsStore.reset();
-										handleClose();
 									}}
 									style={{ marginBottom: '1rem', background: colorMap.get(proto.protocol) }}
 								>
