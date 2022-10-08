@@ -19,20 +19,28 @@ export default class MessageQueueStore {
 	private sortByField: string | undefined;
 
 	private showAPI = false;
+	private showTooltip = false;
 	private showUserAgent = false;
 
 	public constructor() {
 		makeAutoObservable(this);
 	}
 
-	public getRequestAPI() {
+	public getShowAPI() {
 		return this.showAPI;
 	}
-	@action public toggleShowRequestAPI() {
+	@action public toggleShowAPI() {
 		this.showAPI = !this.showAPI;
 	}
 
-	public getRequestUA() {
+	public getShowTooltip() {
+		return this.showTooltip;
+	}
+	@action public toggleShowTooltip() {
+		this.showTooltip = !this.showTooltip;
+	}
+
+	public getShowUserAgent() {
 		return this.showUserAgent;
 	}
 	@action public toggleShowRequestUA() {

@@ -89,7 +89,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 						${isActive ? ' active' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
-						title={store.getRequestTooltip()}
+						title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
 						onClick={handleClick}
 					>
 						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
@@ -105,10 +105,10 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 								<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
 									{message.method}
 								</div>}
-							{messageQueueStore.getRequestAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
+							{messageQueueStore.getShowAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
 								{message.endpoint}
 							</div>}
-							{messageQueueStore.getRequestUA() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
+							{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
 							<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
 						</div>
 					</div>

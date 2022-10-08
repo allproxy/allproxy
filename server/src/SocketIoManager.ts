@@ -343,7 +343,10 @@ export default class SocketIoManager {
           (proxyConfig.path === path && inProxyConfig.protocol === proxyConfig.protocol)) {
           if (proxyConfig.protocol === 'log:' && inProxyConfig !== proxyConfig) continue;
           if (emittedSocketId[socketId]) continue;
-          if (!proxyConfig.recording) continue;
+          if (!proxyConfig.recording) {
+            ConsoleLog.info('Record is disabled for protocol ', proxyConfig.protocol);
+            continue;
+          }
           message.proxyConfig = isDynamic ? inProxyConfig : proxyConfig;
           if (socketInfo.socket) {
             if (socketInfo.queuedMessages.length > 0) {
@@ -379,11 +382,11 @@ export default class SocketIoManager {
           (_response: string) => {
             --socketInfo.messagesOut;
 
-            // ConsoleLog.info(
-            //             `out=${socketInfo.messagesOut}`,
-            //             `sent=${messages.length}`,
-            //             `queued=${socketInfo.queuedMessages.length}`,
-            //             `(${_response})`)
+            ConsoleLog.info(
+              `out=${socketInfo.messagesOut}`,
+              `sent=${messages.length}`,
+              `queued=${socketInfo.queuedMessages.length}`,
+              `(${_response})`)
 
             const count = Math.min(BATCH_SIZE, socketInfo.queuedMessages.length);
             if (count > 0) {

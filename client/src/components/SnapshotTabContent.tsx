@@ -69,13 +69,13 @@ const SnapshotTabContent = observer(({
 	let matchCount = 0;
 
 	const calcHeight = () => {
-		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '-3rem';
+		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0';
 		return `calc(100vh - 9rem - ${jsonFieldButtonsHeight})`
 	};
 
 	return (
 		<div>
-			<div>
+			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
 			</div>
 			<div className="request-response__container">
