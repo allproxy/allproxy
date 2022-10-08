@@ -254,7 +254,6 @@ export default class MessageQueueStore {
 		}
 
 		for (const message of messages) {
-			console.log(message.url);
 			if (!message.proxyConfig?.recording) return;
 
 			const messageStore = new MessageStore(message);
