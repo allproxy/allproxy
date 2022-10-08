@@ -1,3 +1,7 @@
+body {
+	overflow: hidden;
+}
+
 @media screen and (prefers-color-scheme: dark) {
 	body {
 		font-family: Menlo, Monaco, 'Courier New', monospace;
