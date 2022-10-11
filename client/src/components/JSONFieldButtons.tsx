@@ -93,17 +93,7 @@ export function updateRequestTitles(snapShotName: string, messages: MessageStore
 }
 
 export function makeRequestTitle(message: Message, primaryFields: string[]): string {
-	let nonJSON = '';
-	const i = message.url?.indexOf('<span');
-	if (i !== -1) {
-		nonJSON = message.url?.substring(0, i) + ' ';
-	}
-	if (message.path.length > 0) {
-		nonJSON = message.path + ' ' + nonJSON;
-	}
-
-	let title = nonJSON +
-		formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
+	let title = formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
 	if (title.length === 0) {
 		title = JSON.stringify(message.responseBody);
 		if (title.length > 200) {
