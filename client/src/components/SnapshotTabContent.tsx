@@ -69,7 +69,7 @@ const SnapshotTabContent = observer(({
 	let matchCount = 0;
 
 	const calcHeight = () => {
-		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0';
+		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0px';
 		return `calc(100vh - 9rem - ${jsonFieldButtonsHeight})`
 	};
 
