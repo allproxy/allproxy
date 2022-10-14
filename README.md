@@ -10,7 +10,7 @@ MITM HTTP debugging proxy that has a web GUI to view and modify all of the HTTP 
 
 > Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy-3.19.14-x64.dmg)**
 
-> RedHat: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy_3.19.14-1.x86_64)**
+> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy-3.19.14-1.x86_64.rpm)**
 
 > Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.19.0/allproxy_3.19.14_amd64.deb)**
 
