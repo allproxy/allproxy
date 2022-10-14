@@ -95,7 +95,10 @@ export function updateRequestTitles(snapShotName: string, messages: MessageStore
 export function makeRequestTitle(message: Message, primaryFields: string[]): string {
 	let title = formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
 	if (title.length === 0) {
-		title = JSON.stringify(message.responseBody);
+		// Look for embedded JSON object
+		let nonJson = message.path ? message.path + ' ' : '';
+
+		title = nonJson + JSON.stringify(message.responseBody);
 		if (title.length > 200) {
 			title = title.substring(0, 200) + '...';
 		}

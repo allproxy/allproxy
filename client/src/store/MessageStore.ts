@@ -79,7 +79,12 @@ export default class MessageStore {
             const tokens = str.split('://', 2);
             const parts = tokens[1].split('/');
             const host = parts[0];
-            const uri = parts.length === 1 ? '/' : '/' + parts.slice(1).join('/');
+            let uri = parts.length === 1 ? '/' : '/' + parts.slice(1).join('/');
+            if (uri.indexOf('?') !== -1) {
+                uri = uri.replace('?', '<span class="request__msg-unhighlight">?');
+                uri += '</span>';
+            }
+
             str = `${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;
         } else if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
             str = this.getUrl()

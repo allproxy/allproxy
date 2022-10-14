@@ -250,6 +250,10 @@ td input {
 	color: rgb(203, 75, 22) !important;
 }
 
+.request__msg-unhighlight {
+	color: grey !important;
+}
+
 .header__container {
 	z-index: 99;
 	position: fixed;
@@ -273,7 +277,8 @@ td input {
 	background-color: #333333;
 	color: whitesmoke;
 	height: calc(100vh - 6rem);
-	width: 8rem;
+	width: 9rem;
+	white-space: nowrap;
 }
 
 .side-bar-item {
