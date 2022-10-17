@@ -629,6 +629,10 @@ td input {
 	line-height: 24px;
 }
 
+.request__msg-log-level {
+	font-size: medium;
+}
+
 .request__msg {
 	cursor: pointer;
 	white-space: nowrap;
