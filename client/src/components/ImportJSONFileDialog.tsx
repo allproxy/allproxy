@@ -72,7 +72,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					<div style={{ width: "1rem" }}></div>
 					<textarea
 						className="form-control"
-						style={{ width: "100vw", height: "48px", textAlign: "center" }}
+						style={{ width: "100vw", height: "calc(3 * 48px)", textAlign: "center" }}
 						placeholder="Paste Text Here"
 						value={pastedJSON}
 						onChange={(value) => { setPastedJSON(value.target.value); }}
