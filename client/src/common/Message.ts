@@ -36,4 +36,5 @@ export default class Message {
 	status: number = 0;
 	proxyConfig?: ProxyConfig = undefined;
 	modified = false;
+	jsonTruncated = false;
 };

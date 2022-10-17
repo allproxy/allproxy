@@ -1,6 +1,7 @@
 import Message, { MessageType } from "./common/Message";
 import { makeRequestTitle } from "./components/JSONFieldButtons";
 import { pickButtonStyle } from "./PickButtonStyle";
+import { untruncateJson } from "./UntruncateJSON";
 
 export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
     const messages: Message[] = [];
@@ -10,25 +11,51 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
         if (record.length === 0) continue;
 
         // Look for embedded JSON object
+        let jsonTruncated = false;
         let nonJson = '';
         if (!record.startsWith('{') && !record.startsWith('[')) {
-            const i = record.indexOf('{');
-            if (i !== -1) {
+            const q = record.indexOf('"');
+            const p = record.indexOf('{');
+            const a = record.indexOf('[');
+            let i = -1;
+            if (p === -1) i = a;
+            else if (a === -1) i = p;
+            else i = Math.min(p, a);
+            if (i !== -1 && i < q) {
                 try {
                     const json = JSON.parse(record.substring(i));
                     nonJson = record.substring(0, i) + ' ';
                     record = JSON.stringify(json);
-                } catch (e) { }
+                } catch (e) {
+                    let fixed = '';
+                    try {
+                        fixed = untruncateJson(record.substring(i));
+                        jsonTruncated = true;
+                        const json = JSON.parse(fixed);
+                        nonJson = record.substring(0, i) + ' ';
+                        record = JSON.stringify(json);
+                    } catch (e) {
+                    }
+                }
             }
         }
 
         let json: { [key: string]: any } | undefined
         try {
             json = JSON.parse(record)
-        } catch (e) { }
+        } catch (e) {
+            try {
+                json = JSON.parse(untruncateJson(record));
+                jsonTruncated = true;
+            } catch (e) {
+            }
+        }
 
         if (json) {
-            messages.push(newMessage(nonJson, json));
+            const m = newMessage(nonJson, json);
+            m.jsonTruncated = jsonTruncated;
+            messages.push(m);
+
         } else {
             messages.push(newMessage('', record));
         }
@@ -66,7 +93,8 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
                 "recording": true,
                 "hostReachable": true,
                 "comment": ""
-            }
+            },
+            jsonTruncated: false
         };
         message.url = makeRequestTitle(message, []);
         return message;

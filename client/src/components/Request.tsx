@@ -25,13 +25,26 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 	const message = store.getMessage();
 	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
 	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime ? message.elapsedTime + ' ms' : '';
+	const level = typeof message.responseBody === 'object' ? message.responseBody['level'] : '';
+	const levelColor = function (level: string): string | undefined {
+		if (level === 'err' || level === 'error') return 'red';
+		if (level === 'warning' || level === 'warn') return 'rgb(203, 75, 22)';
+		return undefined;
+	}
 
 	return (
 		<div>
 			<div className="request__msg-container">
 				<div className="request__msg-header">
 					<div className="request__msg-time-ms">
-						{responseTime}
+						{message.protocol !== 'log:' ?
+							responseTime
+							:
+							<div className="request__msg-log-level"
+								style={{ color: levelColor(level) }}>
+								{level}
+							</div>
+						}
 					</div>
 					<div className="request__msg-time-bar-container">
 						<div style={{ width: `calc(100% - ${percent})` }} />

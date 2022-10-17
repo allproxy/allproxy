@@ -25,6 +25,9 @@ export default class MessageStore {
         }
         else {
             this.iconClass = pickIcon(message.proxyConfig!.protocol, this.getUserAgent());
+            if (message.jsonTruncated) {
+                this.iconClass = 'fa fa-file-excel';
+            }
         }
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
