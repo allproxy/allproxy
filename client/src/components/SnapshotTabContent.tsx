@@ -85,13 +85,16 @@ const SnapshotTabContent = observer(({
 						style={{ height: calcHeight() }}
 						ref={requestContainerRef} onScroll={handleScroll}>
 						{messageQueueStore.getMessages().map((messageStore, index) => {
+							const message = messageStore.getMessage();
+							const seqNum = message.sequenceNumber;
+							const isActiveRequest = selectedReqSeqNum === seqNum;
 							if (filterStore.isFiltered(messageStore)) {
+								if (isActiveRequest) {
+									setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+								}
 								return null;
 							} else {
-								const message = messageStore.getMessage();
-								const seqNum = message.sequenceNumber;
 								lastSeqNum = seqNum;
-								const isActiveRequest = selectedReqSeqNum === seqNum;
 								if (isActiveRequest) {
 									activeRequestIndex = index;
 								}
@@ -240,12 +243,12 @@ const SnapshotTabContent = observer(({
 							offset += element.clientHeight;
 						}
 					}
-					if (offset > 0) {
-						offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
-					}
+					// if (offset > 0) {
+					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
+					// }
 					parent.scrollTop = offset;
 				}
-			});
+			}, 2000);
 		}
 	}
 });
