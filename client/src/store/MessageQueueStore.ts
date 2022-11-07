@@ -305,7 +305,16 @@ export default class MessageQueueStore {
 		let newFieldFound = false;
 		for (const message of newMessages) {
 			if (message.getMessage().protocol !== 'log:') continue;
-			const json = message.getMessage().responseBody as { [key: string]: any };
+			let json = message.getMessage().responseBody as { [key: string]: any };
+			if (json['PREFIX'] === undefined && message.getMessage().path) {
+				const json2: { [key: string]: any } = {};
+				json2['PREFIX'] = message.getMessage().path;
+				for (const key in json) {
+					json2[key] = json[key];
+				}
+				message.getMessage().responseBody = json2;
+				json = json2;
+			}
 			for (const field of Object.keys(json)) {
 				if (isNaN(parseInt(field))) {
 					if (typeof json[field] === 'string') {

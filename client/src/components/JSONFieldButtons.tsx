@@ -47,6 +47,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 							}}
 							hidden={!field.selected}
 							onClick={() => sortOrderHandler(field.name)}
+							title={`Sort by ${field.name}`}
 						>
 							<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
 								direction={messageQueueStore.getSortOrder()}></TableSortLabel>
@@ -99,9 +100,9 @@ export function makeRequestTitle(message: Message, primaryFields: string[]): str
 		let nonJson = message.path ? message.path + ' ' : '';
 
 		title = nonJson + JSON.stringify(message.responseBody);
-		if (title.length > 200) {
-			title = title.substring(0, 200) + '...';
-		}
+		// if (title.length > 200) {
+		// 	title = title.substring(0, 200) + '...';
+		// }
 	}
 
 	return title;
