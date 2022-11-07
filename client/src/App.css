@@ -661,12 +661,9 @@ td input {
 	height: calc(100vh - 8rem - 3rem);
 	overflow-y: auto;
 	overflow-x: auto;
-	-webkit-flex: 1;
+	-webkit-flex: 100%;
 	flex: 1;
-}
-
-.response__data-container {
-	white-space: nowrap;
+	overflow-wrap: anywhere;
 }
 
 .response__body {
