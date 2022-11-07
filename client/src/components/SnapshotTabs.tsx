@@ -49,7 +49,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 							value={value}
 							label={
 								<div className={'snapshot__tab'}>
-									<div>{(i === 0
+									<div className="snapshot__tab-name">{(i === 0
 										? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
 										: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')'}</div>
 									{value === ACTIVE_SNAPSHOT_NAME
