@@ -543,10 +543,14 @@ td input {
 
 .snapshot__tab {
 	display: flex;
-	width: 100%;
 	align-items: center;
 	justify-content: space-between;
 	white-space: nowrap;
+}
+
+.snapshot__tab-name {
+	max-width: 25ch;
+	overflow-x: hidden;
 }
 
 .snapshot__close,
