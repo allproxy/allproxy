@@ -108,10 +108,12 @@ Paths.setupInterceptDir();
 const dirName = __dirname + path.sep + '..';
 const dataDir = process.env.ALLPROXY_DATA_DIR;
 if (dataDir) {
+  const binPath = ':/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
   switch (process.platform) {
     case 'darwin':
       fs.copyFileSync(`${dirName + path.sep}/bin/macos/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
       fs.copyFileSync(`${dirName + path.sep}/bin/macos/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
+      process.env.PATH += binPath;
       break;
     case 'win32':
       fs.copyFileSync(`${dirName + path.sep}bin\\windows\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
@@ -120,6 +122,7 @@ if (dataDir) {
     case 'linux':
       fs.copyFileSync(`${dirName + path.sep}/bin/linux/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
       fs.copyFileSync(`${dirName + path.sep}/bin/linux/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
+      process.env.PATH += binPath;
       break;
   }
 }
