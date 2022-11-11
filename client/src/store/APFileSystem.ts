@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 
-const CHUNKSIZE = 32000;
+const CHUNKSIZE = 1000000;
 
 export default class APFileSystem {
     private socket?: Socket = undefined;
@@ -44,19 +44,21 @@ export default class APFileSystem {
 
     // readFile
     public async readFile(path: string): Promise<string> {
-        let data: Buffer = Buffer.from('');
+        const chunks: string[] = []
         return new Promise<string>(async (resolve1) => {
             let done = false;
             for (let offset = 0; !done; offset += CHUNKSIZE) {
                 await new Promise((resolve2) => {
                     this.socket?.emit('readFile', path, offset, CHUNKSIZE, (chunk: string, eof: boolean) => {
-                        data = Buffer.concat([data, Buffer.from(chunk)]);
+                        chunks.push(chunk);
                         done = eof;
+                        //console.log('readFile', offset, chunk.length, chunks.length, eof);
                         resolve2(0);
                     });
                 })
             }
-            resolve1(data.toString());
+            const data = chunks.join('');
+            resolve1(data);
         })
     }
 }
