@@ -69,7 +69,7 @@ export default class Paths {
     return process.env.SHELL?.indexOf('bash') !== -1 ? '/' : path.sep;
   }
 
-  private static platform(dir: string): string {
+  public static platform(dir: string): string {
     return dir.replace(/\//g, Paths.sep());
   }
 }
