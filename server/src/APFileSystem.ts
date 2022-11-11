@@ -15,21 +15,21 @@ export default class APFileSystem {
         ConsoleLog.debug('APFileSystem.listen');
         // mkdir
         this.socket.on('mkdir', (path: string) => {
-            const dir = Paths.getDataDir() + Paths.platform(path);
+            const dir = Paths.platform(Paths.getDataDir() + path);
             ConsoleLog.debug('ApFileSystem.mkdir', dir);
             fs.mkdirSync(dir)
         })
 
         // rmdir
         this.socket.on('rmdir', (path: string) => {
-            const dir = Paths.getDataDir() + Paths.platform(path);
+            const dir = Paths.platform(Paths.getDataDir() + path);
             ConsoleLog.debug('ApFileSystem.rmdir', dir);
             rmdir(dir, () => { });
         })
 
         // writeFile
         this.socket.on('writeFile', (path: string, data: string, ack: () => void) => {
-            const dir = Paths.getDataDir() + Paths.platform(path);
+            const dir = Paths.platform(Paths.getDataDir() + path);
             ConsoleLog.debug('ApFileSystem.writeFile', dir);
             fs.writeFileSync(dir, data, { flag: 'a' });
             ack();
@@ -37,7 +37,7 @@ export default class APFileSystem {
 
         // readDir
         this.socket.on('readDir', (path: string, callback: (files: string[]) => void) => {
-            const dir = Paths.getDataDir() + Paths.platform(path);
+            const dir = Paths.platform(Paths.getDataDir() + path);
             const files = fs.readdirSync(dir);
             ConsoleLog.debug('ApFileSystem.readDir', dir, files);
             callback(files);

@@ -66,10 +66,14 @@ export default class Paths {
   }
 
   public static sep(): string {
-    return process.env.SHELL?.indexOf('bash') !== -1 ? '/' : path.sep;
+    return /*process.env.SHELL?.indexOf('bash') !== -1 ? '/' :*/ path.sep;
   }
 
   public static platform(dir: string): string {
-    return dir.replace(/\//g, Paths.sep());
+    dir = dir.replace(/\//g, Paths.sep());
+    if (path.sep === "\\") {
+      dir = dir.replace(/:/g, '-');
+    }
+    return dir;
   }
 }
