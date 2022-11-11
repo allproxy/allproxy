@@ -14,7 +14,7 @@ MITM proxy with a web GUI to view and modify all of the HTTP and HTTPS (SSL) tra
 
 > Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy_3.21.0_amd64.deb)**
 
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.0.Setup.exe)**
+> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.1.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
