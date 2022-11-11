@@ -83,20 +83,6 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 			}}>
 				<h4>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h4>
 				<p></p>
-				<h4>Restore Previous Session:</h4>
-				<button className="btn btn-lg btn-success"
-					style={{ marginBottom: "1rem" }}
-					onClick={() => {
-						setShowSessionModal(true);
-						handleClose();
-					}}>
-					<div className={'fa-solid fa-upload fas'}
-						style={{
-							marginRight: '.5rem'
-						}}
-					/>
-					Restore Session
-				</button>
 				<h4>Launch Browser/Terminal or View Log:</h4>
 				{
 					browserStore.getBrowsers().map(browser => (

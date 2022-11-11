@@ -28,10 +28,11 @@ export default class APFileSystem {
         })
 
         // writeFile
-        this.socket.on('writeFile', (path: string, data: string) => {
+        this.socket.on('writeFile', (path: string, data: string, ack: () => void) => {
             const dir = Paths.getDataDir() + path;
             ConsoleLog.debug('ApFileSystem.writeFile', dir);
-            fs.writeFileSync(dir, data);
+            fs.writeFileSync(dir, data, { flag: 'a' });
+            ack();
         })
 
         // readDir
@@ -43,11 +44,15 @@ export default class APFileSystem {
         })
 
         // readFile
-        this.socket.on('readFile', (path: string, callback: (data: string) => void) => {
+        this.socket.on('readFile', (path: string, offset: number, chunkSize: number, callback: (data: string, eof: boolean) => void) => {
             const dir = Paths.getDataDir() + path;
-            const data = fs.readFileSync(dir);
-            callback(data.toString());
-            ConsoleLog.debug('ApFileSystem.readFile', dir, data);
+            const fd = fs.openSync(dir, 'r');
+            const data = Buffer.alloc(chunkSize);
+            const read = fs.readSync(fd, data, 0, chunkSize, offset);
+            const size = fs.statSync(dir).size;
+            const eof = offset + chunkSize >= size;
+            callback(data.subarray(0, read).toString(), eof);
+            ConsoleLog.debug('ApFileSystem.readFile', dir, offset, chunkSize, eof, data.toString());
         })
     }
 }

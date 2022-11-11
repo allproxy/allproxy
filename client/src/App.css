@@ -273,11 +273,11 @@ td input {
 
 .side-bar {
 	padding-top: 3rem;
-	margin-top: 3rem;
+	margin-top: 0rem;
 	background-color: #333333;
 	color: whitesmoke;
-	height: calc(100vh - 6rem);
-	width: 9rem;
+	height: calc(100vh - 3rem);
+	width: 10rem;
 	white-space: nowrap;
 }
 

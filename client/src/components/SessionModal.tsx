@@ -33,7 +33,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		>
 			<div className="breakpoint-modal" role="dialog">
 				<div>
-					<h3>Saved Sessions</h3>
+					<h3>Sessions</h3>
 					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 						<div className="no-capture-modal__scroll-container">
 							<List>

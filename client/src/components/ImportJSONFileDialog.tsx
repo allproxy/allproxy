@@ -22,7 +22,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	if (submit) {
 		if (!!jsonContent.length) {
 			for (const fileContent of jsonContent) {
-				console.log(fileContent.content);
 				snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
 			}
 			jsonClear();

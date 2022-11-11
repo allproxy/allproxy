@@ -207,6 +207,7 @@ export default class SnapshotStore {
 	}
 
 	public saveSession(sessionName: string) {
+		messageQueueStore.setFreeze(true);
 		const date = new Date().toLocaleString().replaceAll('/', '-');
 		const dir = 'sessions/' + date + ' - ' + sessionName;
 		apFileSystem.mkdir(dir);
@@ -225,6 +226,7 @@ export default class SnapshotStore {
 				apFileSystem.writeFile(fileName, data);
 			}
 		}
+		messageQueueStore.setFreeze(false);
 	}
 
 	public getSelectedMessages(): MessageStore[] {

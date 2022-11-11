@@ -19,8 +19,6 @@ import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
-import SessionModal from './SessionModal';
-import { sessionStore } from '../store/SessionStore';
 
 let filterWasStopped = false;
 
@@ -44,9 +42,6 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
-	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
-	const [showSessionModal, setShowSessionModal] = React.useState(false);
-
 
 	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
 		multiple: false,
@@ -102,19 +97,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					{messageQueueStore.getSortByReq() ? 'Req' : 'Res'}
 				</div>
 
-				<div className={'header__save-restore fa-solid fa-download fas'}
-					onClick={() => setOpenSaveSessionDialog(true)}
-					title={'Save Session'}
-				/>
-				<div className={'header__save-restore fa-solid fa-upload fas'}
-					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}
-					title={'Restore Session'}
-				/>
-				{/* <div className={'header__show-errors fa-bug fa '
+				<div className={'header__show-errors fa-bug fa '
 					+ (filterStore.getShowErrors() ? 'active' : '')}
 					onClick={() => filterStore.toggleShowErrors()}
 					title={'Toggle show only errors'}
-				/> */}
+				/>
 
 				<div className={'header__more-menu fa fa-ellipsis-v'}
 					onClick={(e) => setMoreMenuIcon(e.currentTarget)}
@@ -292,18 +279,13 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				store={noCaptureStore}
 			/>
 			<ExportDialog
-				open={openExportDialog || openSaveSessionDialog}
-				heading={openExportDialog ? "Enter Snapshot Name" : "Enter Session Name"}
+				open={openExportDialog}
+				heading={"Enter Snapshot Name"}
 				name={''}
 				onClose={(fileName) => {
-					if (openExportDialog) {
-						setOpenExportDialog(false);
-						if (fileName.length > 0) {
-							snapshotStore.exportSelectedSnapshot(fileName);
-						}
-					} else {
-						setOpenSaveSessionDialog(false);
-						snapshotStore.saveSession(fileName);
+					setOpenExportDialog(false);
+					if (fileName.length > 0) {
+						snapshotStore.exportSelectedSnapshot(fileName);
 					}
 				}}
 			/>
@@ -315,11 +297,6 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)} />
-			<SessionModal
-				open={showSessionModal}
-				onClose={() => setShowSessionModal(false)}
-				store={sessionStore}
-			/>
 		</div >
 	)
 });
