@@ -23,6 +23,7 @@ const startServer = () => {
   }
   mkDir(`${dataDir + path.sep}proto`);
   mkDir(`${dataDir + path.sep}bin`);
+  mkDir(`${dataDir + path.sep}sessions`);
   require('./app.js');
 };
 

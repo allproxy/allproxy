@@ -1,6 +1,6 @@
 export default class ConsoleLog {
-  static enableDebug = false;
-  static enableInfo = false;
+  static enableDebug = true;
+  static enableInfo = true;
 
   static debug(...args: any[]) {
     if (ConsoleLog.enableDebug) console.log(...args);

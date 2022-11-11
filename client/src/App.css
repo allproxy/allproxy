@@ -405,6 +405,7 @@ td input {
 .header__auto-scroll,
 .header__sort-req-res,
 .header__stop,
+.header__save-restore,
 .header__more-menu {
 	float: left;
 	margin: 0 0 0 1rem;

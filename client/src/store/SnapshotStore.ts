@@ -2,6 +2,7 @@ import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
+import { apFileSystem } from './APFileSystem';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
 
@@ -81,6 +82,7 @@ class Snapshots {
 export default class SnapshotStore {
 	private selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
 	private snapshots: Snapshots = new Snapshots();
+	private count = 0;
 
 	public constructor() {
 		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, [], undefined, undefined, undefined);
@@ -147,7 +149,7 @@ export default class SnapshotStore {
 		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
-		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds());
+		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds()) + ' ' + this.count++;
 		if (snapshot) {
 			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0);
 		} else {
@@ -202,6 +204,27 @@ export default class SnapshotStore {
 			messageStores.push(ms);
 		}
 		this.newSnapshot(fileName, messageStores);
+	}
+
+	public saveSession(sessionName: string) {
+		const date = new Date().toLocaleString().replaceAll('/', '-');
+		const dir = 'sessions/' + date + ' - ' + sessionName;
+		apFileSystem.mkdir(dir);
+		for (const key of this.snapshots.getNames()) {
+			let messages: Message[] = [];
+			for (const messageStore of this.snapshots.get(key)) {
+				messages.push(messageStore.getMessage());
+			}
+			if (messages.length > 0) {
+				const data = JSON.stringify(messages, null, 2);
+				let name = this.snapshots.getFileName(key);
+				if (name === undefined) {
+					name = sessionName.length > 0 ? sessionName : date;
+				}
+				const fileName = dir + '/' + name;
+				apFileSystem.writeFile(fileName, data);
+			}
+		}
 	}
 
 	public getSelectedMessages(): MessageStore[] {
