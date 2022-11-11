@@ -34,6 +34,12 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 		snapshotStore.deleteSnapshot(value);
 	}
 
+	function title(value: string, i: number) {
+		return (i === 0
+			? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
+			: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')'
+	}
+
 	return (
 		<div className="snapshot__container">
 			<TabContext value={snapshotStore.getSelectedSnapshotName()}>
@@ -48,10 +54,10 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 							key={value}
 							value={value}
 							label={
-								<div className={'snapshot__tab'}>
-									<div className="snapshot__tab-name">{(i === 0
-										? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
-										: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')'}</div>
+								<div className={'snapshot__tab'} title={title(value, i)}>
+									<div className="snapshot__tab-name">
+										{title(value, i)}
+									</div>
 									{value === ACTIVE_SNAPSHOT_NAME
 										? <div className={'snapshot__folder-plus fa fa-camera'}
 											style={{
