@@ -360,7 +360,7 @@ export default class FilterStore {
                 // eslint-disable-next-line no-eval
                 return !eval(boolString);
             } catch (e) {
-                return true;
+                return false;
             }
         }
         else {

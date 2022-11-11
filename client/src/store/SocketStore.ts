@@ -14,6 +14,7 @@ import MessageStore from "./MessageStore";
 import { snapshotStore } from "./SnapshotStore";
 import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
+import { apFileSystem } from "./APFileSystem";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -33,6 +34,9 @@ export default class SocketStore {
 		this.socket.on('connect', () => {
 			//console.log('socket connected');
 			this.setSocketConnected(true);
+			if (this.socket) {
+				apFileSystem.setSocket(this.socket);
+			}
 		});
 
 		this.socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {

@@ -14,6 +14,7 @@ import Global from './Global';
 import ConsoleLog from './ConsoleLog';
 import BrowserLauncher from './BrowserLauncher';
 import Launcher from '@httptoolkit/browser-launcher';
+import APFileSystem from './APFileSystem';
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -177,7 +178,7 @@ export default class SocketIoManager {
     });
 
     socket.on('breakpoint', (enable: boolean) => {
-      const socketIoInfo = this.socketIoMap.get(socket.conn.id);
+      const socketIoInfo = this.socketIoMap.get(socket.id);
       if (socketIoInfo) {
         //ConsoleLog.info('breakpoint', enable);
         socketIoInfo.breakpointEnabled = enable;
@@ -200,16 +201,20 @@ export default class SocketIoManager {
     })
 
     socket.on('disconnect', () => {
-      this.closeAnyServersWithSocket(socket.conn.id);
-      this.socketIoMap.delete(socket.conn.id);
+      this.closeAnyServersWithSocket(socket.id);
+      this.socketIoMap.delete(socket.id);
     });
 
     socket.on('error', (e: any) => {
       console.error('error', e);
     });
+
+    const apFileSystem = new APFileSystem(socket);
+    apFileSystem.listen();
   }
 
   async activateConfig(proxyConfigs: ProxyConfig[], socket?: io.Socket) {
+    ConsoleLog.debug('SocketIoManager.activateConfig');
     for (const proxyConfig of proxyConfigs) {
       if (proxyConfig.protocol === 'log:') {
         // eslint-disable-next-line no-new
@@ -226,7 +231,7 @@ export default class SocketIoManager {
       }
     }
 
-    this.socketIoMap.set(socket ? socket.conn.id : CACHE_SOCKET_ID,
+    this.socketIoMap.set(socket ? socket.id : CACHE_SOCKET_ID,
       new SocketIoInfo((socket || undefined), proxyConfigs));
     if (socket !== undefined) {
       this.closeAnyServersWithSocket(CACHE_SOCKET_ID);
@@ -344,7 +349,9 @@ export default class SocketIoManager {
           if (proxyConfig.protocol === 'log:' && inProxyConfig !== proxyConfig) continue;
           if (emittedSocketId[socketId]) continue;
           if (!proxyConfig.recording) {
-            ConsoleLog.info('Record is disabled for protocol ', proxyConfig.protocol);
+            if (proxyConfig.protocol !== 'log:') {
+              ConsoleLog.info('Record is disabled for protocol ', proxyConfig.protocol);
+            }
             continue;
           }
           message.proxyConfig = isDynamic ? inProxyConfig : proxyConfig;

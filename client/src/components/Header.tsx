@@ -280,6 +280,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<ExportDialog
 				open={openExportDialog}
+				heading={"Enter Snapshot Name"}
 				name={''}
 				onClose={(fileName) => {
 					setOpenExportDialog(false);
@@ -296,7 +297,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)} />
-		</div>
+		</div >
 	)
 });
 

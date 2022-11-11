@@ -4,8 +4,15 @@ import { colorPickerForIconClass } from "../ColorPicker";
 import { filterStore } from "../store/FilterStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import SortBy from "./SortBy";
+import SessionModal from './SessionModal';
+import { sessionStore } from '../store/SessionStore';
+import ExportDialog from "./ExportDialog";
+import { snapshotStore } from "../store/SnapshotStore";
+import React from "react";
 
 const SideBar = observer(() => {
+	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
+	const [showSessionModal, setShowSessionModal] = React.useState(false);
 
 	const areAllDomainsSelected = (): boolean => {
 		const allDomains = filterStore.getSideBarDomains();
@@ -124,7 +131,21 @@ const SideBar = observer(() => {
 	const userAgents = Array.from(getUserAgents().keys());
 
 	return (
-		<div className="side-bar">
+		<><div className="side-bar">
+			<div className="side-bar-item">
+				<button className="btn btn-success"
+					onClick={() => setOpenSaveSessionDialog(true)}>
+					<div style={{ width: '11.5ch' }}>Save Session</div>
+				</button>
+			</div>
+			<div className="side-bar-item">
+				<button className="btn btn-primary"
+					style={{ width: '142.29' }}
+					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
+					<div style={{ width: '11.5ch' }}>Restore Session</div>
+				</button>
+			</div>
+			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
 				<div>
 					<div style={{ whiteSpace: 'nowrap' }}>Show:</div>
@@ -132,24 +153,21 @@ const SideBar = observer(() => {
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getShowAPI()}
-							onChange={() => messageQueueStore.toggleShowAPI()}
-						/>
+							onChange={() => messageQueueStore.toggleShowAPI()} />
 						API
 					</div>
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getShowTooltip()}
-							onChange={() => messageQueueStore.toggleShowTooltip()}
-						/>
+							onChange={() => messageQueueStore.toggleShowTooltip()} />
 						Tooltip
 					</div>
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getShowUserAgent()}
-							onChange={() => messageQueueStore.toggleShowRequestUA()}
-						/>
+							onChange={() => messageQueueStore.toggleShowRequestUA()} />
 						User Agent
 					</div>
 				</div>
@@ -163,36 +181,30 @@ const SideBar = observer(() => {
 
 			<hr className="side-bar-divider"></hr>
 
-			{
-				filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => (
-					<div key={iconClass}>
-						<div className="side-bar-item">
-							<div className="side-bar-checkbox-icon">
-								<div style={{ display: 'flex' }}>
-									<Checkbox className="side-bar-checkbox"
-										size="small"
-										defaultChecked
-										value={filterStore.isSideBarProtocolChecked(iconClass)}
-										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)}
-									/>
-									<div className={`${iconClass} side-bar-icon`}
-										style={{ color: colorPickerForIconClass(iconClass) }} />
-									<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
-								</div>
+			{filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => (
+				<div key={iconClass}>
+					<div className="side-bar-item">
+						<div className="side-bar-checkbox-icon">
+							<div style={{ display: 'flex' }}>
+								<Checkbox className="side-bar-checkbox"
+									size="small"
+									defaultChecked
+									value={filterStore.isSideBarProtocolChecked(iconClass)}
+									onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
+								<div className={`${iconClass} side-bar-icon`}
+									style={{ color: colorPickerForIconClass(iconClass) }} />
+								<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
 							</div>
 						</div>
 					</div>
-				)
-				)
-			}
+				</div>
+			)
+			)}
 
-			{
-				(filterStore.getSideBarDomains().length > 0 || filterStore.getSideBarUserAgents().length > 0) &&
-				<hr className="side-bar-divider"></hr>
-			}
+			{(filterStore.getSideBarDomains().length > 0 || filterStore.getSideBarUserAgents().length > 0) &&
+				<hr className="side-bar-divider"></hr>}
 
-			{
-				filterStore.getSideBarDomains().length > 0 &&
+			{filterStore.getSideBarDomains().length > 0 &&
 				<div>
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
@@ -205,27 +217,22 @@ const SideBar = observer(() => {
 							>
 								<Checkbox className="side-bar-domain-checkbox"
 									checked={areAllDomainsSelected()}
-									onChange={handleAllDomainChange}
-								/>
+									onChange={handleAllDomainChange} />
 								<ListItemText
-									primary="Select All"
-								/>
+									primary="Select All" />
 							</MenuItem>
 							{domains.sort().map((domain) => (
 								<MenuItem key={domain} value={domain}>
 									<Checkbox className="side-bar-domain-checkbox"
 										checked={filterStore.isSideBarDomainChecked(domain)}
-										onChange={() => filterStore.toggleSideBarDomainChecked(domain)}
-									/>
+										onChange={() => filterStore.toggleSideBarDomainChecked(domain)} />
 									<ListItemText primary={domain} />
 								</MenuItem>
 							))}
 						</Select>
 					</div>
-				</div>
-			}
-			{
-				filterStore.getSideBarUserAgents().length > 0 &&
+				</div>}
+			{filterStore.getSideBarUserAgents().length > 0 &&
 				<div>
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
@@ -238,66 +245,68 @@ const SideBar = observer(() => {
 							>
 								<Checkbox className="side-bar-domain-checkbox"
 									checked={areAllUserAgentsSelected()}
-									onChange={handleAllUserAgentChange}
-								/>
+									onChange={handleAllUserAgentChange} />
 								<ListItemText
-									primary="Select All"
-								/>
+									primary="Select All" />
 							</MenuItem>
 							{userAgents.sort().map((userAgent) => (
 								<MenuItem key={userAgent} value={userAgent}>
 									<Checkbox className="side-bar-domain-checkbox"
 										checked={filterStore.isSideBarUserAgentChecked(userAgent)}
-										onChange={() => filterStore.toggleSideBarUserAgentChecked(userAgent)}
-									/>
+										onChange={() => filterStore.toggleSideBarUserAgentChecked(userAgent)} />
 									<ListItemText primary={userAgent} />
 								</MenuItem>
 							))}
 						</Select>
 					</div>
-				</div>
-			}
+				</div>}
 
-			{
-				(filterStore.getSideBarStatuses().length > 0) && (
-					<hr className="side-bar-divider"></hr>
-				)
-			}
+			{(filterStore.getSideBarStatuses().length > 0) && (
+				<hr className="side-bar-divider"></hr>
+			)}
 
-			{
-				(filterStore.getSideBarStatuses().length > 0) && (
-					<div className="side-bar-item">
-						<div>
-							<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
-							<div style={{ display: 'flex' }}>
-								<Checkbox className="side-bar-checkbox"
-									size="small"
-									checked={areAllStatusesSelected()}
-									onChange={handleAllStatusChange}
-								/>
-								<div>All</div>
-							</div>
-							{
-								filterStore.getSideBarStatuses().sort().map((status) => (
-									<div key={status} hidden={getStatusCount(status) === 0}>
-										<div style={{ display: 'flex' }}>
-											<Checkbox className="side-bar-checkbox"
-												size="small"
-												checked={filterStore.isSideBarStatusChecked(status)}
-												onChange={() => filterStore.toggleSideBarStatusChecked(status)}
-											/>
-											<div className="side-bar-status">{status}</div>
-											<div className="side-bar-small-count">{getStatusCount(status)}</div>
-										</div>
-									</div>
-								))
-							}
+			{(filterStore.getSideBarStatuses().length > 0) && (
+				<div className="side-bar-item">
+					<div>
+						<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
+						<div style={{ display: 'flex' }}>
+							<Checkbox className="side-bar-checkbox"
+								size="small"
+								checked={areAllStatusesSelected()}
+								onChange={handleAllStatusChange} />
+							<div>All</div>
 						</div>
+						{filterStore.getSideBarStatuses().sort().map((status) => (
+							<div key={status} hidden={getStatusCount(status) === 0}>
+								<div style={{ display: 'flex' }}>
+									<Checkbox className="side-bar-checkbox"
+										size="small"
+										checked={filterStore.isSideBarStatusChecked(status)}
+										onChange={() => filterStore.toggleSideBarStatusChecked(status)} />
+									<div className="side-bar-status">{status}</div>
+									<div className="side-bar-small-count">{getStatusCount(status)}</div>
+								</div>
+							</div>
+						))}
 					</div>
-				)
-			}
+				</div>
+			)}
 
-		</div >
+		</div>
+			<ExportDialog
+				open={openSaveSessionDialog}
+				heading={"Enter Session Name"}
+				name={''}
+				onClose={(fileName) => {
+					setOpenSaveSessionDialog(false);
+					snapshotStore.saveSession(fileName);
+				}} />
+			<SessionModal
+				open={showSessionModal}
+				onClose={() => setShowSessionModal(false)}
+				store={sessionStore}
+			/>
+		</>
 	)
 });
 

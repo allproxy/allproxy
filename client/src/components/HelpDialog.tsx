@@ -7,6 +7,8 @@ import ImportJSONFileDialog from './ImportJSONFileDialog';
 import React from 'react';
 import { ConfigCategoryGroups, settingsStore } from '../store/SettingsStore';
 import { ConfigProtocol } from '../common/ProxyConfig';
+import SessionModal from './SessionModal';
+import { sessionStore } from '../store/SessionStore';
 
 type Props = {
 	open: boolean,
@@ -15,6 +17,7 @@ type Props = {
 
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
+	const [showSessionModal, setShowSessionModal] = React.useState(false);
 
 	const handleClose = () => {
 		onClose();
@@ -178,11 +181,17 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					</li>
 				</ol>
 			</div>
-		</Dialog><ImportJSONFileDialog
+		</Dialog>
+			<ImportJSONFileDialog
 				open={openImportJSONFileDialog}
 				onClose={() => {
 					setOpenImportJSONFileDialog(false);
 				}} />
+			<SessionModal
+				open={showSessionModal}
+				onClose={() => setShowSessionModal(false)}
+				store={sessionStore}
+			/>
 		</>
 	);
 });

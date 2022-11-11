@@ -18,7 +18,7 @@ const listen: {
   port: number
 }[] = [];
 
-console.log(process.argv);
+console.log('app.ts', process.argv);
 
 for (let i = 2; i < process.argv.length; ++i) {
   switch (process.argv[i]) {
@@ -137,6 +137,7 @@ parseProtoFiles();
 startServers();
 
 async function startServers() {
+  console.log('startServers')
   await createCertificateAuthority();
 
   BrowserLauncher.init();

@@ -18,7 +18,7 @@ export default class LogProxy {
   constructor(proxyConfig: ProxyConfig) {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
-    this.boolFilter = new BoolFilter(proxyConfig.comment);
+    this.boolFilter = new BoolFilter(proxyConfig.hostname);
     this.start();
   }
 
