@@ -11,25 +11,32 @@ export default class APFileSystem {
         this.socket = socket;
     }
 
+    private dirPath(path: string) {
+        if (Paths.sep() === "\\") {
+            path = path.replace(/:/g, '-');
+        }
+        return Paths.platform(Paths.getDataDir() + path);
+    }
+
     public listen() {
         ConsoleLog.debug('APFileSystem.listen');
         // mkdir
         this.socket.on('mkdir', (path: string) => {
-            const dir = Paths.platform(Paths.getDataDir() + path);
+            const dir = this.dirPath(path);
             ConsoleLog.debug('ApFileSystem.mkdir', dir);
             fs.mkdirSync(dir)
         })
 
         // rmdir
         this.socket.on('rmdir', (path: string) => {
-            const dir = Paths.platform(Paths.getDataDir() + path);
+            const dir = this.dirPath(path);
             ConsoleLog.debug('ApFileSystem.rmdir', dir);
             rmdir(dir, () => { });
         })
 
         // writeFile
         this.socket.on('writeFile', (path: string, data: string, ack: () => void) => {
-            const dir = Paths.platform(Paths.getDataDir() + path);
+            const dir = this.dirPath(path);
             ConsoleLog.debug('ApFileSystem.writeFile', dir);
             fs.writeFileSync(dir, data, { flag: 'a' });
             ack();
@@ -37,7 +44,7 @@ export default class APFileSystem {
 
         // readDir
         this.socket.on('readDir', (path: string, callback: (files: string[]) => void) => {
-            const dir = Paths.platform(Paths.getDataDir() + path);
+            const dir = this.dirPath(path);
             const files = fs.readdirSync(dir);
             ConsoleLog.debug('ApFileSystem.readDir', dir, files);
             callback(files);
@@ -45,7 +52,7 @@ export default class APFileSystem {
 
         // readFile
         this.socket.on('readFile', (path: string, offset: number, chunkSize: number, callback: (data: string, eof: boolean) => void) => {
-            const dir = Paths.getDataDir() + Paths.platform(path);
+            const dir = this.dirPath(path);
             const fd = fs.openSync(dir, 'r');
             const data = Buffer.alloc(chunkSize);
             const read = fs.readSync(fd, data, 0, chunkSize, offset);

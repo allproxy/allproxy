@@ -70,10 +70,6 @@ export default class Paths {
   }
 
   public static platform(dir: string): string {
-    dir = dir.replace(/\//g, Paths.sep());
-    if (path.sep === "\\") {
-      dir = dir.replace(/:/g, '-');
-    }
-    return dir;
+    return dir.replace(/\//g, Paths.sep());
   }
 }
