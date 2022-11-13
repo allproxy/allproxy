@@ -355,6 +355,14 @@ export default class SocketIoManager {
             continue;
           }
           message.proxyConfig = isDynamic ? inProxyConfig : proxyConfig;
+          // Remove _server: net.Server
+          if (message.proxyConfig && message.proxyConfig._server) {
+            const pc = message.proxyConfig;
+            const server = pc._server;
+            delete pc._server;
+            message.proxyConfig = Object.assign({}, pc);
+            pc._server = server;
+          }
           if (socketInfo.socket) {
             if (socketInfo.queuedMessages.length > 0) {
               socketInfo.queuedMessages.push(message);
