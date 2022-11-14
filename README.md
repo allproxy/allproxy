@@ -1,6 +1,6 @@
-<h1 align="center" style="border-bottom: none;">AllProxy: MITM HTTP Debugging Proxy</h1>
+<h1 align="center" style="border-bottom: none;">AllProxy: HTTP MITM Debugging Proxy</h1>
 
-MITM proxy with a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between your machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
+MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS (SSL) traffic between your machine and the Internet.  It is an open-source alternative to the popular Charles and Fiddler developer tools.
 
 ![image](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
@@ -8,13 +8,13 @@ MITM proxy with a web GUI to view and modify all of the HTTP and HTTPS (SSL) tra
 
 ### Install
 
-> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.3-x64.dmg)**
+> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.4-x64.dmg)**
 
-> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.3-1.x86_64.rpm)**
+> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.4-1.x86_64.rpm)**
 
-> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy_3.21.3_amd64.deb)**
+> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy_3.21.4_amd64.deb)**
 
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.3.Setup.exe)**
+> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.21.4.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
