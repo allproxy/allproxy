@@ -179,7 +179,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title="Use regular expression" onClick={() => filterStore.toggleRegex()}>.*</div>
 				<div className={`header__filter-logical ${filterStore.logical() ? 'active' : ''}`}
 					title="Use (), &&, ||, !" onClick={() => filterStore.toggleLogical()}>&&</div>
-				<div hidden className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
+				<div className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div>
 			<div>

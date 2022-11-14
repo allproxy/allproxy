@@ -36,6 +36,15 @@ export default class APFileSystem {
         })
     }
 
+    // exists
+    public async exists(path: string): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            this.socket?.emit('exists', path, (exists: boolean) => {
+                resolve(exists);
+            });
+        });
+    }
+
     // readdir
     public async readDir(path: string): Promise<string[]> {
         return new Promise<string[]>((resolve) => {

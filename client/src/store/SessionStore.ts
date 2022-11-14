@@ -3,6 +3,7 @@ import { apFileSystem } from "./APFileSystem";
 import { snapshotStore } from "./SnapshotStore";
 
 export default class SessionStore {
+	private sessionFileNameList: string[] = [];
 	private sessionList: string[] = [];
 
 	public constructor() {
@@ -10,9 +11,19 @@ export default class SessionStore {
 	}
 
 	public async init() {
+		this.sessionFileNameList.splice(0, this.sessionFileNameList.length);
 		this.sessionList.splice(0, this.sessionList.length);
-		for (const sessionName of await apFileSystem.readDir('sessions/')) {
-			this.sessionList.push(sessionName);
+
+		const fileNames = await apFileSystem.readDir('sessions/');
+		for (const fileName of fileNames) {
+			this.sessionFileNameList.push(fileName);
+			const exists = await apFileSystem.exists(`sessions/${fileName}/sessionName.txt`);
+			let sessionName = '';
+			if (exists) {
+				sessionName = await apFileSystem.readFile(`sessions/${fileName}/sessionName.txt`);
+			}
+			const sn = sessionName.length > 0 ? ' - ' + sessionName : '';
+			this.sessionList.push(fileName + sn);
 		}
 	}
 
@@ -21,16 +32,18 @@ export default class SessionStore {
 	}
 
 	@action public deleteEntry(index: number) {
-		const sessionName = this.sessionList[index];
+		const sessionName = this.sessionFileNameList[index];
 		apFileSystem.rmdir('sessions/' + sessionName);
+		this.sessionFileNameList.splice(index, 1);
 		this.sessionList.splice(index, 1);
 	}
 
 	public async restoreSession(index: number): Promise<number> {
 		return new Promise<number>(async (resolve) => {
-			const sessionName = this.sessionList[index];
+			const sessionName = this.sessionFileNameList[index];
 			const dir = 'sessions/' + sessionName;
 			for (const fileName of await apFileSystem.readDir(dir)) {
+				if (fileName === 'sessionName.txt') continue;
 				const data = await apFileSystem.readFile(dir + '/' + fileName);
 				snapshotStore.importSnapshot(fileName, data);
 			}

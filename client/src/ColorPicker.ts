@@ -1,7 +1,7 @@
 import Message from './common/Message';
 import pickIcon, { getBrowserIconColor } from './PickIcon';
 
-const colors = ['blue', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
+const colors = ['#007bff', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
 let count = 0;
 let colorMap: Map<string, string> = new Map();
 
@@ -31,13 +31,17 @@ export default function colorPicker(message: Message): string {
 		}
 	}
 
-	if (protocol === 'log:') {
-		return '#007bff';
-	}
-
 	let key = '';
-	if (message.clientIp) {
-		key = message.clientIp.trim();
+	if (protocol === 'log:') {
+		if (message.proxyConfig?.path) {
+			key = message.proxyConfig?.path;
+		} else {
+			return '#6c757d';
+		}
+	} else {
+		if (message.clientIp) {
+			key = message.clientIp.trim();
+		}
 	}
 
 	let color = colorMap.get(key);
