@@ -510,7 +510,7 @@ td input {
 
 .export__input-file-name {
 	margin: 0 1rem 1rem 1rem;
-	width: calc(100% - 2rem);
+	width: 600px;
 }
 
 .snapshot__container {
