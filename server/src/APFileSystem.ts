@@ -42,6 +42,13 @@ export default class APFileSystem {
             ack();
         })
 
+        // mkdir
+        this.socket.on('exists', (path: string, callback: (exists: boolean) => void) => {
+            const dir = this.dirPath(path);
+            ConsoleLog.debug('ApFileSystem.exists', dir);
+            callback(fs.existsSync(dir));
+        })
+
         // readDir
         this.socket.on('readDir', (path: string, callback: (files: string[]) => void) => {
             const dir = this.dirPath(path);
