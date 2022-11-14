@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 
-const CHUNKSIZE = 1000000;
+const CHUNKSIZE = 500000;
 
 export default class APFileSystem {
     private socket?: Socket = undefined;
@@ -20,17 +20,20 @@ export default class APFileSystem {
     }
 
     // writeFile
-    public async writeFile(path: string, data: string) {
-        for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
-            await new Promise((resolve) => {
-                const chunk = data.substring(offset, Math.min(offset + CHUNKSIZE, data.length));
-                this.socket?.emit('writeFile',
-                    path,
-                    chunk,
-                    () => resolve(0)
-                );
-            })
-        }
+    public async writeFile(path: string, data: string): Promise<void> {
+        return new Promise<void>(async (resolve1) => {
+            for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
+                await new Promise((resolve2) => {
+                    const chunk = data.substring(offset, Math.min(offset + CHUNKSIZE, data.length));
+                    this.socket?.emit('writeFile',
+                        path,
+                        chunk,
+                        () => resolve2(0)
+                    );
+                })
+            }
+            resolve1();
+        })
     }
 
     // readdir

@@ -26,13 +26,16 @@ export default class SessionStore {
 		this.sessionList.splice(index, 1);
 	}
 
-	public async restoreSession(index: number) {
-		const sessionName = this.sessionList[index];
-		const dir = 'sessions/' + sessionName;
-		for (const fileName of await apFileSystem.readDir(dir)) {
-			const data = await apFileSystem.readFile(dir + '/' + fileName);
-			snapshotStore.importSnapshot(fileName, data);
-		}
+	public async restoreSession(index: number): Promise<number> {
+		return new Promise<number>(async (resolve) => {
+			const sessionName = this.sessionList[index];
+			const dir = 'sessions/' + sessionName;
+			for (const fileName of await apFileSystem.readDir(dir)) {
+				const data = await apFileSystem.readFile(dir + '/' + fileName);
+				snapshotStore.importSnapshot(fileName, data);
+			}
+			resolve(0);
+		});
 	}
 }
 

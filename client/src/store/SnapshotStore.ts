@@ -206,27 +206,30 @@ export default class SnapshotStore {
 		this.newSnapshot(fileName, messageStores);
 	}
 
-	public saveSession(sessionName: string) {
-		messageQueueStore.setFreeze(true);
-		const date = new Date().toLocaleString().replaceAll('/', '-');
-		const dir = 'sessions/' + date + ' - ' + sessionName;
-		apFileSystem.mkdir(dir);
-		for (const key of this.snapshots.getNames()) {
-			let messages: Message[] = [];
-			for (const messageStore of this.snapshots.get(key)) {
-				messages.push(messageStore.getMessage());
-			}
-			if (messages.length > 0) {
-				const data = JSON.stringify(messages, null, 2);
-				let name = this.snapshots.getFileName(key);
-				if (name === undefined) {
-					name = sessionName.length > 0 ? sessionName : date;
+	public async saveSession(sessionName: string): Promise<void> {
+		return new Promise<void>(async (resolve) => {
+			messageQueueStore.setFreeze(true);
+			const date = new Date().toLocaleString().replaceAll('/', '-');
+			const dir = 'sessions/' + date + ' - ' + sessionName;
+			apFileSystem.mkdir(dir);
+			for (const key of this.snapshots.getNames()) {
+				let messages: Message[] = [];
+				for (const messageStore of this.snapshots.get(key)) {
+					messages.push(messageStore.getMessage());
 				}
-				const fileName = dir + '/' + name;
-				apFileSystem.writeFile(fileName, data);
+				if (messages.length > 0) {
+					const data = JSON.stringify(messages, null, 2);
+					let name = this.snapshots.getFileName(key);
+					if (name === undefined) {
+						name = sessionName.length > 0 ? sessionName : date;
+					}
+					const fileName = dir + '/' + name;
+					await apFileSystem.writeFile(fileName, data);
+				}
 			}
-		}
-		messageQueueStore.setFreeze(false);
+			messageQueueStore.setFreeze(false);
+			resolve();
+		})
 	}
 
 	public getSelectedMessages(): MessageStore[] {
