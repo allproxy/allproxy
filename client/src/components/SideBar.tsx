@@ -1,4 +1,4 @@
-import { Checkbox, ListItemText, MenuItem, Select } from "@material-ui/core";
+import { Checkbox, CircularProgress, ListItemText, MenuItem, Select } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
 import { colorPickerForIconClass } from "../ColorPicker";
 import { filterStore } from "../store/FilterStore";
@@ -13,6 +13,8 @@ import React from "react";
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
+	const [disableSaveSession, setDisableSession] = React.useState(false);
+
 
 	const areAllDomainsSelected = (): boolean => {
 		const allDomains = filterStore.getSideBarDomains();
@@ -134,9 +136,17 @@ const SideBar = observer(() => {
 		<><div className="side-bar">
 			<div className="side-bar-item">
 				<button className="btn btn-success"
-					onClick={() => setOpenSaveSessionDialog(true)}>
-					<div style={{ width: '11.5ch' }}>Save Session</div>
+					disabled={disableSaveSession}
+					onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true) }}>
+					<div style={{ width: '11.5ch' }}>
+						Save Session
+					</div>
 				</button>
+				{disableSaveSession &&
+					<div style={{ zIndex: 99, position: 'absolute', marginLeft: '5ch' }}>
+						<CircularProgress />
+					</div>
+				}
 			</div>
 			<div className="side-bar-item">
 				<button className="btn btn-primary"
@@ -297,9 +307,10 @@ const SideBar = observer(() => {
 				open={openSaveSessionDialog}
 				heading={"Enter Session Name"}
 				name={''}
-				onClose={(fileName) => {
+				onClose={async (fileName) => {
 					setOpenSaveSessionDialog(false);
-					snapshotStore.saveSession(fileName);
+					await snapshotStore.saveSession(fileName);
+					setDisableSession(false);
 				}} />
 			<SessionModal
 				open={showSessionModal}
