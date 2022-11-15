@@ -59,6 +59,18 @@ export function getBrowserIconColor(userAgent: string): string | undefined {
 	return undefined;
 }
 
+export function getBrowserIconColorClass(userAgent: string): string | undefined {
+	const icon = pickIcon('browser:', userAgent);
+	if (icon.indexOf('chrome') !== -1) return 'icon-color-chrome';
+	if (icon.indexOf('chromium') !== -1) return 'icon-color-chromium';
+	if (icon.indexOf('opera') !== -1) return 'icon-color-opera';
+	if (icon.indexOf('firefox') !== -1) return 'icon-color-firefox';
+	if (icon.indexOf('edge') !== -1) return 'icon-color-edge';
+	if (icon.indexOf('safari') !== -1) return 'icon-color-safari';
+	if (icon.indexOf('explorer') !== -1) return 'icon-color-explorer';
+	return undefined;
+}
+
 export function getDisplayableUserAgent(userAgent: string): string {
 	const icon = pickIcon('browser:', userAgent);
 	if (icon.indexOf('chrome') !== -1) return 'Chrome';

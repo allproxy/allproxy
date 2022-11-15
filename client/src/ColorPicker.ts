@@ -1,33 +1,18 @@
 import Message from './common/Message';
-import pickIcon, { getBrowserIconColor } from './PickIcon';
+import pickIcon, { getBrowserIconColor, getBrowserIconColorClass } from './PickIcon';
 
 const colors = ['#007bff', 'green', 'purple', 'brown', 'darkpink', 'slateblue', 'darkorange'];
 let count = 0;
-let colorMap: Map<string, string> = new Map();
+let colorMap: Map<string, { color: string, iconClass: string }> = new Map();
 
-export function colorPickerForIconClass(iconClass: string): string | undefined {
-	let color = getBrowserIconColor(iconClass);
-	if (color === undefined) {
-		if (iconClass.indexOf('terminal') !== -1) {
-			return '#6c757d';
-		} else if (iconClass.indexOf('file') !== -1) {
-			return '#007bff';
-		} else {
-			return undefined;
-		}
-	} else {
-		return color;
-	}
-}
-
-export default function colorPicker(message: Message): string {
+export default function colorPicker(message: Message): { color: string, iconClass: string } {
 	const protocol = message.protocol;
 	const ua = message.requestHeaders['user-agent'];
 	if (message.proxyConfig!.protocol === 'browser:') {
 		if (pickIcon(message.proxyConfig!.protocol, ua).indexOf('terminal') === -1) {
-			return getBrowserIconColor(ua) || '#6c757d';
+			return { color: getBrowserIconColor(ua) || '#6c757d', iconClass: getBrowserIconColorClass(ua) || 'icon-color-terminal' };
 		} else {
-			return '#6c757d'; // color is set by App.css fa-keyboard
+			return { color: '#6c757d', iconClass: 'icon-color-terminal' }; // color is set by App.css fa-keyboard
 		}
 	}
 
@@ -35,8 +20,6 @@ export default function colorPicker(message: Message): string {
 	if (protocol === 'log:') {
 		if (message.proxyConfig?.path) {
 			key = message.proxyConfig?.path;
-		} else {
-			return '#6c757d';
 		}
 	} else {
 		if (message.clientIp) {
@@ -44,20 +27,17 @@ export default function colorPicker(message: Message): string {
 		}
 	}
 
-	let color = colorMap.get(key);
-	if (color === undefined) {
-		if (key === 'error') {
-			color = 'red';
-		} else {
-			color = colors[count % colors.length];
-			++count;
-			colorMap.set(key, color);
-
-			if (!colors.includes(color)) {
-				console.error(`Color is undefined key=${key} count=${count}, ${colorMap}`);
-			}
+	if (key === 'error') {
+		return { color: 'red', iconClass: 'error' };
+	} else {
+		let colorObj = colorMap.get(key);
+		if (colorObj === undefined) {
+			const index = count++ % colors.length;
+			const color = colors[index];
+			const iconClass = 'icon-color' + index;
+			colorObj = { color, iconClass };
+			colorMap.set(key, colorObj);
 		}
+		return colorObj;
 	}
-
-	return color;
 }

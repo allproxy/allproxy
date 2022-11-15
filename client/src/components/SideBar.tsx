@@ -1,13 +1,11 @@
 import { Checkbox, CircularProgress, ListItemText, MenuItem, Select } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
-import { colorPickerForIconClass } from "../ColorPicker";
 import { filterStore } from "../store/FilterStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import SortBy from "./SortBy";
 import SessionModal from './SessionModal';
 import { sessionStore } from '../store/SessionStore';
 import ExportDialog from "./ExportDialog";
-import { snapshotStore } from "../store/SnapshotStore";
 import React from "react";
 
 const SideBar = observer(() => {
@@ -185,12 +183,6 @@ const SideBar = observer(() => {
 
 			<hr className="side-bar-divider"></hr>
 
-			<div>
-				<SortBy></SortBy>
-			</div>
-
-			<hr className="side-bar-divider"></hr>
-
 			{filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => (
 				<div key={iconClass}>
 					<div className="side-bar-item">
@@ -201,8 +193,7 @@ const SideBar = observer(() => {
 									defaultChecked
 									value={filterStore.isSideBarProtocolChecked(iconClass)}
 									onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
-								<div className={`${iconClass} side-bar-icon`}
-									style={{ color: colorPickerForIconClass(iconClass) }} />
+								<div className={`${iconClass} side-bar-icon`} />
 								<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
 							</div>
 						</div>
@@ -211,8 +202,11 @@ const SideBar = observer(() => {
 			)
 			)}
 
-			{(filterStore.getSideBarDomains().length > 0 || filterStore.getSideBarUserAgents().length > 0) &&
-				<hr className="side-bar-divider"></hr>}
+			<hr className="side-bar-divider"></hr>
+
+			<div>
+				<SortBy></SortBy>
+			</div>
 
 			{filterStore.getSideBarDomains().length > 0 &&
 				<div>
@@ -309,7 +303,7 @@ const SideBar = observer(() => {
 				name={''}
 				onClose={async (fileName) => {
 					setOpenSaveSessionDialog(false);
-					await snapshotStore.saveSession(fileName);
+					await sessionStore.saveSession(fileName);
 					setDisableSession(false);
 				}} />
 			<SessionModal
