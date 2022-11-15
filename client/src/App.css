@@ -191,6 +191,58 @@ td input {
 	}
 }
 
+/* These colors are used by ColorPicker.ts */
+.icon-color0 {
+	color: #007bff;
+}
+
+.icon-color1 {
+	color: green;
+}
+
+.icon-color2 {
+	color: purple;
+}
+
+.icon-color3 {
+	color: brown;
+}
+
+.icon-color4 {
+	color: darkpink;
+}
+
+.icon-color-terminal {
+	color: #6c757d;
+}
+
+.icon-color5 {
+	color: slateblue;
+}
+
+.icon-color6 {
+	color: darkorange;
+}
+
+.icon-color-chrome,
+.icon-color-safari {
+	color: #4DCE5B;
+}
+
+.icon-color-opera {
+	color: #F76464;
+}
+
+.icon-color-firefox {
+	color: orangered;
+}
+
+.icon-color-edge,
+.icon-color-safari,
+.icon-color-explore {
+	color: #007bff;
+}
+
 .request__msg-icon {
 	margin: 0 0 0 .5rem;
 	font-size: 1rem;

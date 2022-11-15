@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import Message from '../common/Message';
-import { Accordion, AccordionSummary, AccordionDetails, CircularProgress, IconButton } from '@material-ui/core';
+import { Accordion, AccordionSummary, AccordionDetails, CircularProgress } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
 import MessageStore from '../store/MessageStore';
@@ -9,9 +9,10 @@ import { colorScheme } from '../App';
 type Props = {
 	message: Message,
 	store: MessageStore,
+	onSync: () => void,
 	onClose: () => void,
 };
-const Response = ({ message, store, onClose }: Props) => {
+const Response = ({ message, store, onSync, onClose }: Props) => {
 	const LOADING = 'Loading...';
 	const [responseBody, setResponseBody] = React.useState<string | ReactElement<any, any>>(LOADING);
 
@@ -21,9 +22,8 @@ const Response = ({ message, store, onClose }: Props) => {
 	return (
 		<div>
 			<React.Fragment>
-				<IconButton onClick={onClose}>
-					<div className={"fa fa-chevron-right"} />
-				</IconButton>
+				<button className="btn btn-sm btn-primary" style={{ marginRight: '.5rem' }} onClick={onClose}>Close</button>
+				<button className="btn btn-sm btn-success" onClick={onSync}>Sync</button>
 				{store.getMessage().protocol !== 'log:' &&
 					<div className={message.status < 400 ? '' : 'error'}>
 						<b>Status:&nbsp;</b>{message.status}

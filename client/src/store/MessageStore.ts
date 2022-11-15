@@ -9,7 +9,7 @@ export default class MessageStore {
     private url = '';
     private _isError = false;
     private visited = false;
-    private color = '';
+    private colorObj: { color: string, iconClass: string };
     private iconClass = '';
     private tooltip = '';
 
@@ -18,9 +18,9 @@ export default class MessageStore {
         this.url = this.formatUrl(message.url!);
         this._isError = this.isErrorResponse(message);
         this.visited = false;
-        this.color = colorPicker(message);
+        this.colorObj = colorPicker(message);
         if (message.requestHeaders['allproxy'] === 'resend') {
-            this.iconClass = 'fa fa-clone';
+            this.iconClass = 'fa fa-clone ';
             this.iconClass += ' resend-icon';
         }
         else {
@@ -29,6 +29,7 @@ export default class MessageStore {
                 this.iconClass = 'fa fa-file-excel';
             }
         }
+        this.iconClass += ' ' + this.colorObj.iconClass;
         this.tooltip = message.method ? 'Click to resend request' : '';
         makeAutoObservable(this);
     }
@@ -54,7 +55,7 @@ export default class MessageStore {
     }
 
     public getColor(): string {
-        return this.color;
+        return this.colorObj.color;
     }
 
     public getIconClass(): string {

@@ -2,7 +2,6 @@ import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
-import { apFileSystem } from './APFileSystem';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
 
@@ -87,6 +86,10 @@ export default class SnapshotStore {
 	public constructor() {
 		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, [], undefined, undefined, undefined);
 		makeAutoObservable(this);
+	}
+
+	public getSnapshots() {
+		return this.snapshots;
 	}
 
 	public isActiveSnapshotSelected() {
@@ -204,33 +207,6 @@ export default class SnapshotStore {
 			messageStores.push(ms);
 		}
 		this.newSnapshot(fileName, messageStores);
-	}
-
-	public async saveSession(sessionName: string): Promise<void> {
-		return new Promise<void>(async (resolve) => {
-			messageQueueStore.setFreeze(true);
-			const date = new Date().toLocaleString().replaceAll('/', '-');
-			const dir = 'sessions/' + date;
-			apFileSystem.mkdir(dir);
-			apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
-			for (const key of this.snapshots.getNames()) {
-				let messages: Message[] = [];
-				for (const messageStore of this.snapshots.get(key)) {
-					messages.push(messageStore.getMessage());
-				}
-				if (messages.length > 0) {
-					const data = JSON.stringify(messages, null, 2);
-					let name = this.snapshots.getFileName(key);
-					if (name === undefined) {
-						name = sessionName.length > 0 ? sessionName : date;
-					}
-					const fileName = dir + '/' + name;
-					await apFileSystem.writeFile(fileName, data);
-				}
-			}
-			messageQueueStore.setFreeze(false);
-			resolve();
-		})
 	}
 
 	public getSelectedMessages(): MessageStore[] {

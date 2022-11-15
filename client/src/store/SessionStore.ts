@@ -1,5 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
+import Message from "../common/Message";
 import { apFileSystem } from "./APFileSystem";
+import { messageQueueStore } from "./MessageQueueStore";
 import { snapshotStore } from "./SnapshotStore";
 
 export default class SessionStore {
@@ -38,13 +40,48 @@ export default class SessionStore {
 		this.sessionList.splice(index, 1);
 	}
 
+	public async saveSession(sessionName: string): Promise<void> {
+		return new Promise<void>(async (resolve) => {
+			messageQueueStore.setFreeze(true);
+			const date = new Date().toLocaleString().replaceAll('/', '-');
+			const dir = 'sessions/' + date;
+			apFileSystem.mkdir(dir);
+			apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
+			for (const key of snapshotStore.getSnapshotNames()) {
+				let messages: Message[] = [];
+				for (const messageStore of snapshotStore.getSnapshots().get(key)) {
+					messages.push(messageStore.getMessage());
+				}
+				if (messages.length > 0) {
+					const data = JSON.stringify(messages, null, 2);
+					let name = snapshotStore.getSnapshots().getFileName(key);
+					if (name === undefined) {
+						name = date;
+					}
+					const fileName = dir + '/' + name;
+					await apFileSystem.writeFile(fileName, data);
+				}
+			}
+			messageQueueStore.setFreeze(false);
+			resolve();
+		})
+	}
+
 	public async restoreSession(index: number): Promise<number> {
 		return new Promise<number>(async (resolve) => {
-			const sessionName = this.sessionFileNameList[index];
-			const dir = 'sessions/' + sessionName;
-			for (const fileName of await apFileSystem.readDir(dir)) {
+			const dirName = this.sessionFileNameList[index];
+			const dir = 'sessions/' + dirName;
+			let sessionName = '';
+			const exists = await apFileSystem.exists(dir + '/sessionName.txt');
+			if (exists) {
+				sessionName = await apFileSystem.readFile(dir + '/sessionName.txt');
+			}
+			for (let fileName of await apFileSystem.readDir(dir)) {
 				if (fileName === 'sessionName.txt') continue;
 				const data = await apFileSystem.readFile(dir + '/' + fileName);
+				if (fileName === dirName && sessionName.length > 0) {
+					fileName = sessionName;
+				}
 				snapshotStore.importSnapshot(fileName, data);
 			}
 			resolve(0);

@@ -35,7 +35,7 @@ const SnapshotTabContent = observer(({
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
-				setScrollTo(selectedReqSeqNum);
+				setScrollTo(selectedReqSeqNum, 1000);
 			}
 		} else {
 			restoreScrollTop();
@@ -89,9 +89,6 @@ const SnapshotTabContent = observer(({
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
 							if (filterStore.isFiltered(messageStore)) {
-								if (isActiveRequest) {
-									setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-								}
 								return null;
 							} else {
 								lastSeqNum = seqNum;
@@ -116,7 +113,7 @@ const SnapshotTabContent = observer(({
 									/>)
 							}
 						})}
-						{matchCount > 0 && messageQueueStore.getAutoScroll() && selectedReqSeqNum === Number.MAX_SAFE_INTEGER && setScrollTo(lastSeqNum)}
+						{matchCount > 0 && messageQueueStore.getAutoScroll() && selectedReqSeqNum === Number.MAX_SAFE_INTEGER && setScrollTo(lastSeqNum, 0)}
 						{matchCount === 0 && (
 							<div className="center">
 								No matching request or response found.  Adjust your filter criteria.
@@ -140,12 +137,13 @@ const SnapshotTabContent = observer(({
 							<Response
 								store={messageQueueStore.getMessages()[activeRequestIndex]}
 								message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
+								onSync={() => setScrollTo(selectedReqSeqNum, 0)}
 								onClose={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
 							/>
 							:
 							<Fade in={true}>
 								<div className="center">
-									Select request from left column
+									{filterStore.getFilter().length > 0 ? 'Request is filtered' : 'Select request from left column'}
 								</div>
 							</Fade>
 						}
@@ -226,7 +224,7 @@ const SnapshotTabContent = observer(({
 		}
 	}
 
-	function setScrollTo(seqNum: number) {
+	function setScrollTo(seqNum: number, delayMsecs: number) {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
 			setTimeout(() => {
@@ -246,9 +244,10 @@ const SnapshotTabContent = observer(({
 					// if (offset > 0) {
 					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
 					// }
+					console.log('scrollTop', offset);
 					parent.scrollTop = offset;
 				}
-			}, 2000);
+			}, delayMsecs);
 		}
 	}
 });
