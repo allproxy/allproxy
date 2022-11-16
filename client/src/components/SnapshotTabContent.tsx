@@ -244,7 +244,6 @@ const SnapshotTabContent = observer(({
 					// if (offset > 0) {
 					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
 					// }
-					console.log('scrollTop', offset);
 					parent.scrollTop = offset;
 				}
 			}, delayMsecs);

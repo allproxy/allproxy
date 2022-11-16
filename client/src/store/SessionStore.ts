@@ -27,6 +27,11 @@ export default class SessionStore {
 			const sn = sessionName.length > 0 ? ' - ' + sessionName : '';
 			this.sessionList.push(fileName + sn);
 		}
+		this.sessionList.sort((a, b) => {
+			a = a.split(' - ')[0];
+			b = b.split(' - ')[0];
+			return new Date(a).getTime() - new Date(b).getTime();
+		});
 	}
 
 	public getSessionList() {
@@ -47,6 +52,7 @@ export default class SessionStore {
 			const dir = 'sessions/' + date;
 			apFileSystem.mkdir(dir);
 			apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
+			let i = 1;
 			for (const key of snapshotStore.getSnapshotNames()) {
 				let messages: Message[] = [];
 				for (const messageStore of snapshotStore.getSnapshots().get(key)) {
@@ -54,12 +60,14 @@ export default class SessionStore {
 				}
 				if (messages.length > 0) {
 					const data = JSON.stringify(messages, null, 2);
-					let name = snapshotStore.getSnapshots().getFileName(key);
-					if (name === undefined) {
-						name = date;
+					let tabName = snapshotStore.getSnapshots().getFileName(key);
+					if (tabName === undefined) {
+						tabName = date;
 					}
-					const fileName = dir + '/' + name;
-					await apFileSystem.writeFile(fileName, data);
+					const subDir = dir + '/tab' + i++;
+					await apFileSystem.mkdir(subDir);
+					await apFileSystem.writeFile(subDir + '/tabName.txt', tabName);
+					await apFileSystem.writeFile(subDir + '/data.txt', data);
 				}
 			}
 			messageQueueStore.setFreeze(false);
@@ -69,20 +77,29 @@ export default class SessionStore {
 
 	public async restoreSession(index: number): Promise<number> {
 		return new Promise<number>(async (resolve) => {
-			const dirName = this.sessionFileNameList[index];
-			const dir = 'sessions/' + dirName;
+			const sessionDir = this.sessionFileNameList[index];
+			const dir = 'sessions/' + sessionDir;
 			let sessionName = '';
 			const exists = await apFileSystem.exists(dir + '/sessionName.txt');
 			if (exists) {
 				sessionName = await apFileSystem.readFile(dir + '/sessionName.txt');
 			}
-			for (let fileName of await apFileSystem.readDir(dir)) {
-				if (fileName === 'sessionName.txt') continue;
-				const data = await apFileSystem.readFile(dir + '/' + fileName);
-				if (fileName === dirName && sessionName.length > 0) {
-					fileName = sessionName;
+			for (let dirEntry of await apFileSystem.readDir(dir)) {
+				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry.startsWith('tab')) {
+					let tabName = await apFileSystem.readFile(dir + '/' + dirEntry + '/tabName.txt');
+					if (tabName === sessionDir && sessionName.length > 0) {
+						tabName = sessionName;
+					}
+					const data = await apFileSystem.readFile(dir + '/' + dirEntry + '/data.txt');
+					snapshotStore.importSnapshot(tabName, data);
+				} else { // backwards compatibility
+					const data = await apFileSystem.readFile(dir + '/' + dirEntry);
+					if (dirEntry === sessionDir && sessionName.length > 0) {
+						dirEntry = sessionName;
+					}
+					snapshotStore.importSnapshot(dirEntry, data);
 				}
-				snapshotStore.importSnapshot(fileName, data);
 			}
 			resolve(0);
 		});
