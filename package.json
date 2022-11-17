@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.21.7",
+  "version": "3.21.8",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",

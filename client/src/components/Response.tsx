@@ -20,7 +20,7 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 	getResponseBody(message)
 		.then((rb) => setResponseBody(rb));
 	return (
-		<div style={{ marginTop: '.5rem' }}>
+		<div>
 			<React.Fragment>
 				<button className="btn btn-sm btn-primary" style={{ marginRight: '.5rem' }} onClick={onClose} title="Close response panel">Close</button>
 				<button className="btn btn-sm btn-success" onClick={onSync} title="Sync request and response panels">Sync</button>
