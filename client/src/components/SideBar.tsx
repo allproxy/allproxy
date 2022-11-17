@@ -183,24 +183,26 @@ const SideBar = observer(() => {
 
 			<hr className="side-bar-divider"></hr>
 
-			{filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => (
-				<div key={iconClass}>
-					<div className="side-bar-item">
-						<div className="side-bar-checkbox-icon">
-							<div style={{ display: 'flex' }}>
-								<Checkbox className="side-bar-checkbox"
-									size="small"
-									defaultChecked
-									value={filterStore.isSideBarProtocolChecked(iconClass)}
-									onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
-								<div className={`${iconClass} side-bar-icon`} />
-								<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
+			{filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => {
+				return getIconClassCountByIconClass(iconClass) > 0 ?
+					<div key={iconClass}>
+						<div className="side-bar-item">
+							<div className="side-bar-checkbox-icon">
+								<div style={{ display: 'flex' }}>
+									<Checkbox className="side-bar-checkbox"
+										size="small"
+										defaultChecked
+										value={filterStore.isSideBarProtocolChecked(iconClass)}
+										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
+									<div className={`${iconClass} side-bar-icon`} />
+									<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			)
-			)}
+					:
+					null
+			})}
 
 			<hr className="side-bar-divider"></hr>
 
