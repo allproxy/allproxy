@@ -714,6 +714,7 @@ td input {
 
 .response__loading,
 .response__container {
+	margin-top: .5rem;
 	padding-left: 1rem;
 	height: calc(100vh - 8rem - 3rem);
 	overflow-y: auto;

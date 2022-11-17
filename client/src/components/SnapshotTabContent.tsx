@@ -142,9 +142,16 @@ const SnapshotTabContent = observer(({
 							/>
 							:
 							<Fade in={true}>
-								<div className="center">
-									{filterStore.getFilter().length > 0 ? 'Request is filtered' : 'Select request from left column'}
-								</div>
+								<>
+									<button className="btn btn-sm btn-primary" style={{ marginRight: '.5rem' }}
+										onClick={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
+										title="Close response panel">
+										Close
+									</button>
+									<div className="center">
+										{filterStore.getFilter().length > 0 ? 'Request is filtered' : 'Select request from left column'}
+									</div>
+								</>
 							</Fade>
 						}
 					</div>
@@ -166,7 +173,7 @@ const SnapshotTabContent = observer(({
 					/>
 				}
 			</div >
-		</div>
+		</div >
 	);
 
 	function handleResend(message: Message) {
