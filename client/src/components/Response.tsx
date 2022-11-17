@@ -1,10 +1,12 @@
 import React, { ReactElement } from 'react';
 import Message from '../common/Message';
-import { Accordion, AccordionSummary, AccordionDetails, CircularProgress } from '@material-ui/core';
+import { Accordion, AccordionSummary, AccordionDetails, CircularProgress, IconButton } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
 import MessageStore from '../store/MessageStore';
 import { colorScheme } from '../App';
+import CloseIcon from "@material-ui/icons/Close";
+
 
 type Props = {
 	message: Message,
@@ -22,7 +24,9 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 	return (
 		<div>
 			<React.Fragment>
-				<button className="btn btn-sm btn-primary" style={{ marginRight: '.5rem' }} onClick={onClose} title="Close response panel">Close</button>
+				<IconButton style={{ marginRight: '.5rem' }} onClick={onClose} title="Close response panel">
+					<CloseIcon />
+				</IconButton>
 				<button className="btn btn-sm btn-success" onClick={onSync} title="Sync request and response panels">Sync</button>
 				{store.getMessage().protocol !== 'log:' &&
 					<div className={message.status < 400 ? '' : 'error'}>

@@ -9,9 +9,10 @@ import ResendStore from '../store/ResendStore';
 import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
-import { Fade } from '@material-ui/core';
+import { Fade, IconButton } from '@material-ui/core';
 import JSONFieldButtons, { JSONFieldButtonsHeight } from './JSONFieldButtons';
 import { snapshotStore } from '../store/SnapshotStore';
+import CloseIcon from "@material-ui/icons/Close";
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -143,11 +144,9 @@ const SnapshotTabContent = observer(({
 							:
 							<Fade in={true}>
 								<>
-									<button className="btn btn-sm btn-primary" style={{ marginRight: '.5rem' }}
-										onClick={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
-										title="Close response panel">
-										Close
-									</button>
+									<IconButton style={{ marginRight: '.5rem' }} onClick={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)} title="Close response panel">
+										<CloseIcon />
+									</IconButton>
 									<div className="center">
 										{filterStore.getFilter().length > 0 ? 'Request is filtered' : 'Select request from left column'}
 									</div>
