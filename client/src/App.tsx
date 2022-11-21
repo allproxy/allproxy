@@ -1,7 +1,7 @@
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'bootstrap-css-only/css/bootstrap.css';
-import Snapshots from './components/SnapshotTabs';
+import SnapshotTabs from './components/SnapshotTabs';
 import Header from './components/Header';
 import { filterStore } from './store/FilterStore';
 import { socketStore } from './store/SocketStore';
@@ -70,7 +70,7 @@ function App() {
             <SideBar />
           </div>
           <div>
-            <Snapshots
+            <SnapshotTabs
               messageQueueStore={messageQueueStore}
               snapshotStore={snapshotStore}
             />

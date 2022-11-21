@@ -7,12 +7,12 @@ import SessionModal from './SessionModal';
 import { sessionStore } from '../store/SessionStore';
 import ExportDialog from "./ExportDialog";
 import React from "react";
+import MessageStore from "../store/MessageStore";
 
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
 	const [disableSaveSession, setDisableSession] = React.useState(false);
-
 
 	const areAllDomainsSelected = (): boolean => {
 		const allDomains = filterStore.getSideBarDomains();
@@ -62,9 +62,18 @@ const SideBar = observer(() => {
 
 	let countsByIconClassMap: Map<string, number> = new Map();
 	let countsByStatusMap: Map<number, number> = new Map();
+	let noteMessages: MessageStore[] = [];
+	let visitedMessages: MessageStore[] = [];
 
 	function getCounts() {
 		messageQueueStore.getMessages().forEach((messageStore) => {
+			if (messageStore.hasNote()) {
+				noteMessages.push(messageStore);
+			}
+			if (messageStore.getVisited()) {
+				visitedMessages.push(messageStore);
+			}
+
 			const iconClass = messageStore.getIconClass();
 			let count = countsByIconClassMap.get(iconClass);
 			if (count) {
@@ -181,28 +190,65 @@ const SideBar = observer(() => {
 				</div>
 			</div>
 
-			<hr className="side-bar-divider"></hr>
-
-			{filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => {
-				return getIconClassCountByIconClass(iconClass) > 0 ?
-					<div key={iconClass}>
-						<div className="side-bar-item">
-							<div className="side-bar-checkbox-icon">
-								<div style={{ display: 'flex' }}>
-									<Checkbox className="side-bar-checkbox"
-										size="small"
-										defaultChecked
-										value={filterStore.isSideBarProtocolChecked(iconClass)}
-										onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
-									<div className={`${iconClass} side-bar-icon`} />
-									<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
-								</div>
-							</div>
-						</div>
+			{visitedMessages.length > 0 && (
+				<><hr className="side-bar-divider"></hr><div>
+					<div className="side-bar-item">
+						<Select className="side-bar-select"
+							value={visitedMessages}
+							renderValue={() => "Visited"}
+						>
+							{visitedMessages.map((message) => (
+								<MenuItem onClick={() => messageQueueStore.setScrollToSeqNum(message.getMessage().sequenceNumber)}>
+									{getRequestLine(message)}
+								</MenuItem>
+							))}
+						</Select>
 					</div>
-					:
-					null
-			})}
+				</div></>
+			)}
+
+			{noteMessages.length > 0 && (
+				<div className="side-bar-item">
+					<Select className="side-bar-select"
+						value={noteMessages}
+						renderValue={() => "Notes"}
+					>
+						{noteMessages.map((message) => (
+							<MenuItem onClick={() => messageQueueStore.setScrollToSeqNum(message.getMessage().sequenceNumber)}>
+								{message.getNote()}
+							</MenuItem>
+						))}
+					</Select>
+				</div>
+			)}
+
+			{filterStore.getSideBarProtocolIconClasses().length > 0 && (
+				<>
+					<hr className="side-bar-divider"></hr>
+					{
+						filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => {
+							return getIconClassCountByIconClass(iconClass) > 0 ?
+								<div key={iconClass}>
+									<div className="side-bar-item">
+										<div className="side-bar-checkbox-icon">
+											<div style={{ display: 'flex' }}>
+												<Checkbox className="side-bar-checkbox"
+													size="small"
+													defaultChecked
+													value={filterStore.isSideBarProtocolChecked(iconClass)}
+													onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
+												<div className={`${iconClass} side-bar-icon`} />
+												<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								:
+								null
+						})
+					}
+				</>
+			)}
 
 			<hr className="side-bar-divider"></hr>
 
@@ -316,5 +362,24 @@ const SideBar = observer(() => {
 		</>
 	)
 });
+
+function getRequestLine(store: MessageStore) {
+	const message = store.getMessage();
+	return (
+		<div className={`request__msg`}>
+			{store.isHttpOrHttps() &&
+				<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}>
+					{message.status}
+				</div>}
+			<div className="request__msg-request-line">
+				{message.method && message.method.length > 0 &&
+					<div className="request__msg-method">
+						{message.method}
+					</div>}
+				<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
+			</div>
+		</div>
+	);
+}
 
 export default SideBar;

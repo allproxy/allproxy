@@ -32,7 +32,11 @@ const SnapshotTabContent = observer(({
 
 	const requestContainerRef = React.useRef<HTMLDivElement>(null);
 
-	React.useEffect(() => {
+	// React.useEffect(() => {
+	// 	updateScroll();
+	// });
+
+	function updateScroll() {
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
@@ -41,7 +45,17 @@ const SnapshotTabContent = observer(({
 		} else {
 			restoreScrollTop();
 		}
-	});
+	}
+	function checkForScrollTo() {
+		if (messageQueueStore.getScrollToSeqNum() !== null) {
+			const seqNum = messageQueueStore.getScrollToSeqNum();
+			messageQueueStore.setScrollToSeqNum(null);
+			if (seqNum !== null) {
+				setScrollTo(seqNum, 1000);
+				messageQueueStore.setHightlightSeqNum(seqNum);
+			}
+		}
+	}
 
 	const shouldShowTimeBar = (message: Message) => {
 		if (message.protocol === 'log:') {
@@ -108,6 +122,7 @@ const SnapshotTabContent = observer(({
 										store={messageStore}
 										key={seqNum}
 										isActive={isActiveRequest}
+										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
 										timeBarPercent={timeBarPercent + '%'}
 										onClick={handleClick.bind(null, seqNum)}
 										onResend={() => handleResend(message)}
@@ -120,6 +135,8 @@ const SnapshotTabContent = observer(({
 								No matching request or response found.  Adjust your filter criteria.
 							</div>
 						)}
+						{updateScroll()}
+						{checkForScrollTo()}
 					</div>
 				}
 				{messageQueueStore.getMessages().length === 0 &&
