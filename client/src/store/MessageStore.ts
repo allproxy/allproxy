@@ -12,6 +12,7 @@ export default class MessageStore {
     private colorObj: { color: string, iconClass: string };
     private iconClass = '';
     private tooltip = '';
+    private note = '';
 
     public constructor(message: Message) {
         this.message = message;
@@ -31,7 +32,20 @@ export default class MessageStore {
         }
         this.iconClass += ' ' + this.colorObj.iconClass;
         this.tooltip = message.method ? 'Click to resend request' : '';
+        this.note = message.note;
         makeAutoObservable(this);
+    }
+
+    public hasNote() {
+        return this.getNote() !== undefined && this.getNote().length > 0;
+    }
+
+    public getNote(): string {
+        return this.note;
+    }
+    @action setNote(note: string) {
+        this.note = note;
+        this.message.note = note;
     }
 
     public getMessage(): Message {

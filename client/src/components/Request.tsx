@@ -6,10 +6,12 @@ import ReactJson from "react-json-view";
 import { colorScheme } from "../App";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
+import NoteDialog from "./NoteDialog";
 
 
 type Props = {
 	isActive: boolean,
+	highlight: boolean,
 	onClick: () => void,
 	onResend: () => void,
 	store: MessageStore,
@@ -18,8 +20,9 @@ type Props = {
 	maxMethodSize: number,
 	maxEndpointSize: number,
 };
-const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize }: Props) => {
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLButtonElement | null>(null);
+	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => { onClick(); store.setVisited(true); }
 	const message = store.getMessage();
@@ -33,7 +36,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 	}
 
 	return (
-		<div>
+		<><div>
 			<div className="request__msg-container">
 				<div className="request__msg-header">
 					<div className="request__msg-time-ms">
@@ -43,13 +46,16 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 							<div className="request__msg-log-level"
 								style={{ color: levelColor(level) }}>
 								{level}
-							</div>
-						}
+							</div>}
 					</div>
 					<div className="request__msg-time-bar-container">
 						<div style={{ width: `calc(100% - ${percent})` }} />
 						<div className={'request__msg-time-bar' + (store.isNoResponse() ? ' no-response' : '')}
 							style={{ width: percent }} />
+					</div>
+					<div className="request__msg-icon fa fa-sticky-note"
+						title={store.getNote()}
+						style={{ visibility: (!store.hasNote() ? 'hidden' : 'visible'), fontSize: '.75rem', color: '#E8A317' }}>
 					</div>
 					<div className={`${store.getIconClass()} request__msg-icon`}
 						style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px' }}
@@ -57,10 +63,10 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
 					>
 					</div>
-					<button className={`request__msg-resend-btn ${isActive && canResend() ? 'active' : ''} btn btn-xs btn-success`}
+					<button className={`request__msg-resend-btn ${isActive ? 'active' : ''} btn btn-xs btn-success`}
 						onClick={(e) => setMoreMenuIcon(e.currentTarget)}
 					>
-						<div className="fa fa-bars"></div>
+						<div className="fa fa-ellipsis-v" style={{ padding: '0px .5rem' }} title="Click to open menu"></div>
 					</button>
 					<Menu
 						anchorEl={moreMenuIcon}
@@ -68,6 +74,20 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 						onClose={() => setMoreMenuIcon(null)}
 					>
 						<MenuItem>
+							<div className="fa fa-sticky-note"
+								onClick={() => {
+									if (store.hasNote()) {
+										store.setNote('');
+									} else {
+										setOpenNoteDialog(true);
+										setMoreMenuIcon(null);
+									}
+								}}
+							>
+								&nbsp;{store.hasNote() ? 'Delete Note' : 'Add Note'}
+							</div>
+						</MenuItem>
+						<MenuItem hidden={!canResend()}>
 							<div className="fa fa-paper-plane"
 								onClick={() => {
 									onResend();
@@ -77,7 +97,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 								&nbsp;Resend Request
 							</div>
 						</MenuItem>
-						<MenuItem>
+						<MenuItem hidden={!canResend()}>
 							<div className="fa fa-copy"
 								onClick={() => {
 									copyToClipboard();
@@ -100,6 +120,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
+						${highlight ? ' highlight' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
 						title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
@@ -109,8 +130,7 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 						{store.isHttpOrHttps() &&
 							<div className={(store.isError() ? 'error' : '') + ' request__msg-status'} style={{ width: maxStatusSize + 'ch' }}>
 								{message.status}
-							</div>
-						}
+							</div>}
 						<div className={`
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
 						`}>
@@ -135,11 +155,16 @@ const Request = observer(({ isActive, onClick, store, onResend, timeBarPercent, 
 						src={message.requestBody as object}
 						name={false}
 						displayDataTypes={false}
-						quotesOnKeys={false}
-					/>
-				}
+						quotesOnKeys={false} />}
 			</div>
 		</div>
+			<NoteDialog
+				message={store}
+				open={openNoteDialog}
+				onClose={() => {
+					setOpenNoteDialog(false);
+				}} />
+		</>
 	)
 
 	function canResend() {

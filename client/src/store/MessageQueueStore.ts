@@ -22,8 +22,27 @@ export default class MessageQueueStore {
 	private showTooltip = false;
 	private showUserAgent = false;
 
+	private scrollToSeqNum: number | null = null;
+	private highlightSeqNum: number | null = null;
+
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public getScrollToSeqNum() {
+		return this.scrollToSeqNum;
+	}
+	@action public setScrollToSeqNum(seqNum: number | null) {
+		this.scrollToSeqNum = seqNum;
+		if (seqNum !== null) {
+			this.forceRerender();
+		}
+	}
+	public getHighlightSeqNum() {
+		return this.highlightSeqNum;
+	}
+	@action public setHightlightSeqNum(seqNum: number | null) {
+		this.highlightSeqNum = seqNum;
 	}
 
 	public getShowAPI() {
@@ -233,6 +252,13 @@ export default class MessageQueueStore {
 		}
 
 		return m;
+	}
+
+	@action public forceRerender() {
+		const activeSnapshot = snapshotStore.getActiveSnapshot();
+		const copyMessages = activeSnapshot.slice(); // shallow copy
+		activeSnapshot.splice(0, activeSnapshot.length);
+		Array.prototype.push.apply(activeSnapshot, copyMessages);
 	}
 
 	@action public insertBatch(messages: Message[]) {

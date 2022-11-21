@@ -94,7 +94,8 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
                 "hostReachable": true,
                 "comment": ""
             },
-            jsonTruncated: false
+            jsonTruncated: false,
+            note: '',
         };
         message.url = makeRequestTitle(message, []);
         return message;
