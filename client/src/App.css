@@ -16,7 +16,7 @@ body {
 	.MuiTabs-scroller,
 	.MuiPaper-root {
 		color: rgba(232, 230, 227) !important;
-		background-color: #111111 !important;
+		background-color: #333333 !important;
 	}
 
 	.btn-default,
@@ -24,8 +24,8 @@ body {
 	textarea,
 	select {
 		color: rgba(232, 230, 227) !important;
-		background-color: #333333 !important;
-		border-color: #333333 !important;
+		background-color: #444444 !important;
+		border-color: #444444 !important;
 	}
 
 	.MuiTab-textColorPrimary.Mui-selected,
@@ -834,7 +834,7 @@ td input {
 .metrics-modal,
 .reachable-modal,
 .settings-modal {
-	background-color: rgb(24, 26, 27);
+	background-color: #333333;
 	width: 99vw;
 	padding: 1rem 1rem;
 }

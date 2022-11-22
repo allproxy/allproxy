@@ -389,6 +389,7 @@ export default class FilterStore {
             }
         }
         if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
+        if (messageStore.hasNote() && this.isMatch(needle, messageStore.getNote())) return false;
         return true;
     }
 
