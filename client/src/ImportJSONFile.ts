@@ -106,11 +106,14 @@ export function formatJSONPrimaryFields(json: { [key: string]: string }, primary
     let title = '';
     primaryJsonFields.forEach((field) => {
         if (json[field]) {
-            if (title.length > 0) title += ' ';
-            const style = pickButtonStyle(field);
-            title += `<span style="color:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
-                + field +
-                '</span> ' + json[field];
+            if (field !== 'PREFIX') {
+                if (title.length > 0) title += ' ';
+                const style = pickButtonStyle(field);
+                title += `<span style="color:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
+                    + field +
+                    '</span> ';
+            }
+            title += json[field];
         }
     })
     return title.length ? title : '';
