@@ -8,13 +8,13 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 
 ### Install
 
-> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.23.0-x64.dmg)**
+> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy-3.23.0-x64.dmg)**
 
-> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.23.0-1.x86_64.rpm)**
+> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy-3.23.0-1.x86_64.rpm)**
 
-> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy_3.23.0_amd64.deb)**
+> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy_3.23.0_amd64.deb)**
 
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.20.0/allproxy-3.23.0.Setup.exe)**
+> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy-3.23.0.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
@@ -133,7 +133,6 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 <img width="1187" alt="image" src="https://user-images.githubusercontent.com/10223382/170111493-a6593aa1-8d92-46d7-8b6b-624d0e73d87c.png">
 
 **AllProxy Application**
-![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
