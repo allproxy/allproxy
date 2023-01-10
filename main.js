@@ -9,6 +9,11 @@ const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;
 const dataDir = `${home + path.sep}.allproxy`;
 process.env.ALLPROXY_DATA_DIR = dataDir;
 
+let headless = process.env.HEADLESS
+if (headless) {
+  console.log("Running headless: open http://localhost:8888 in browser")
+}
+
 const mkDir = (dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -81,14 +86,16 @@ const createWindow = () => {
 
 startServer();
 
-app.whenReady().then(() => {
-  createWindow();
+if (!headless) {
+  app.whenReady().then(() => {
+    createWindow();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
   });
-});
 
-app.on('window-all-closed', () => {
+  app.on('window-all-closed', () => {
   /*if (process.platform !== 'darwin')*/ app.quit();
-});
+  });
+}
