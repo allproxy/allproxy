@@ -19,7 +19,7 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
 > 2. Clone repo and run: **npm install && npm run build && npm start**
-> 3. Clone repo and run headless: **npm install && npm run build && npm start-headless**
+> 3. Clone repo and run headless: **npm install && npm run build && npm run start-headless**
 >    * http://localhost:8888/allproxy in browser.
 
 ### Features
