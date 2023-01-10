@@ -1,0 +1,20 @@
+{
+  "browsers": [
+    {
+      "regex": {},
+      "profile": "/Users/davechristenson/allproxy-code/allproxy/chrome-108.0.5359.124",
+      "type": "chrome",
+      "name": "chrome",
+      "command": "/Applications/Google Chrome.app",
+      "version": "108.0.5359.124"
+    },
+    {
+      "regex": {},
+      "profile": true,
+      "type": "firefox",
+      "name": "firefox",
+      "command": "/Applications/Firefox.app",
+      "version": "108.0.2"
+    }
+  ]
+}

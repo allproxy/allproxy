@@ -19,6 +19,8 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
 > 2. Clone repo and run: **npm install && npm run build && npm start**
+> 3. Clone repo and run headless: **npm install && npm run build && npm start-headless**
+>    * http://localhost:8888/allproxy in browser.
 
 ### Features
 <details>
@@ -133,6 +135,7 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 <img width="1187" alt="image" src="https://user-images.githubusercontent.com/10223382/170111493-a6593aa1-8d92-46d7-8b6b-624d0e73d87c.png">
 
 **AllProxy Application**
+![image](https://user-images.githubusercontent.com/10223382/169716564-833d926d-b011-4d6c-a108-7bf6e898de4b.png)
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
@@ -145,7 +148,6 @@ Capture MySQL, gRPC, MongoDB, Redis, Memcached, TCP, and log messages.
 * [Quick Start](#quick-start)
   * [Node Version](#node-version)
   * [Install AllProxy](#install-allproxy)
-  * [Start AllProxy](#start-allproxy)
   * [Install and Trust CA Certificate](#install-and-trust-ca-certificate)
   * [Open Application in Browser](#open-application-in-browser)
   * [Configure Proxy](#configure-proxy)
@@ -179,12 +181,6 @@ Version 12 or higher is required.  Use nvm to install the appropriate node versi
 ### Install AllProxy
 The AllProxy may be installed from [Releases](https://github.com/allproxy/allproxy/releases), [NPM](https://www.npmjs.com/package/allproxy), or cloning the repo.
 
-#### Install From NPM
-```sh
-$ npm install -g allproxy
-$ npm run build
-```
-
 #### Install From GitHub Project
 ```sh
 $ cd ~/git/allproxy
@@ -192,20 +188,23 @@ $ allproxy$ npm install
 $ npm run build
 ```
 
-### Start AllProxy
-#### Start NPM Package
-  ```sh
-  $ allproxy
+**Run Headless**
+```sh
+$ npm run start-headless
+```
+http://localhost:8888/allproxy in browser.
 
-    Listening on http:  8888
-  ```
+**Launch Electron Application**
+```sh
+$ npm start
+```
 
-#### Start GitHub Project
-   ```sh
-   allproxy$ npm start
-
-    Listening on http:  8888
-   ```
+#### Install From NPM
+```sh
+$ npm install -g allproxy
+$ npm run build
+$ allproxy # start AllProxy application
+```
 ### Install and Trust CA Certificate
 
 After starting AllProxy, run **~/.allproxy/bin/trustCert.sh enable** from your terminal to install and trust the CA certificate.
