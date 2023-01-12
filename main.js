@@ -1,4 +1,3 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
@@ -8,6 +7,8 @@ const dirName = __dirname;
 const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;
 const dataDir = `${home + path.sep}.allproxy`;
 process.env.ALLPROXY_DATA_DIR = dataDir;
+
+console.log(`Data directory: ${dataDir}`)
 
 let headless = process.env.HEADLESS
 if (headless) {
@@ -32,61 +33,63 @@ const startServer = () => {
   require('./app.js');
 };
 
-const createWindow = () => {
-  const win = new BrowserWindow(
-    {
-      icon: path.join(__dirname, "icons/icon.png"),
-      width: 1024,
-      height: 768,
-      autoHideMenuBar: true,
-      show: false,
-      backgroundColor: 'black',
-      webPreferences: {
-        preload: path.join(__dirname, "preload.js")
-      }
-    }
-  );
-
-  require('@electron/remote/main').initialize()
-  require("@electron/remote/main").enable(win.webContents)
-
-  //win.maximize();
-  setTimeout(() => {
-    win.loadURL('http://localhost:8888/allproxy')
-      .then(() => {
-        console.log('main.js: AllProxy page loaded');
-        win.show()
-
-        // ctl-f - send on-find event to preload.js to open find dialog
-        win.on('focus', () => {
-          globalShortcut.register('CommandOrControl+F', () => {
-            // send event to preload.js to
-            win.webContents.send('on-find');
-          });
-        });
-        win.on('blur', () => {
-          globalShortcut.unregister('CommandOrControl+F');
-        });
-
-        ipcMain.handle('dark-mode:toggle', () => {
-          if (nativeTheme.shouldUseDarkColors) {
-            nativeTheme.themeSource = 'light'
-          } else {
-            nativeTheme.themeSource = 'dark'
-          }
-          return nativeTheme.shouldUseDarkColors
-        })
-
-        ipcMain.handle('dark-mode:system', () => {
-          nativeTheme.themeSource = 'system'
-        })
-      })
-  }, 2000);
-};
-
 startServer();
 
 if (!headless) {
+  const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');
+
+  const createWindow = () => {
+    const win = new BrowserWindow(
+      {
+        icon: path.join(__dirname, "icons/icon.png"),
+        width: 1024,
+        height: 768,
+        autoHideMenuBar: true,
+        show: false,
+        backgroundColor: 'black',
+        webPreferences: {
+          preload: path.join(__dirname, "preload.js")
+        }
+      }
+    );
+
+    require('@electron/remote/main').initialize()
+    require("@electron/remote/main").enable(win.webContents)
+
+    //win.maximize();
+    setTimeout(() => {
+      win.loadURL('http://localhost:8888/allproxy')
+        .then(() => {
+          console.log('main.js: AllProxy page loaded');
+          win.show()
+
+          // ctl-f - send on-find event to preload.js to open find dialog
+          win.on('focus', () => {
+            globalShortcut.register('CommandOrControl+F', () => {
+              // send event to preload.js to
+              win.webContents.send('on-find');
+            });
+          });
+          win.on('blur', () => {
+            globalShortcut.unregister('CommandOrControl+F');
+          });
+
+          ipcMain.handle('dark-mode:toggle', () => {
+            if (nativeTheme.shouldUseDarkColors) {
+              nativeTheme.themeSource = 'light'
+            } else {
+              nativeTheme.themeSource = 'dark'
+            }
+            return nativeTheme.shouldUseDarkColors
+          })
+
+          ipcMain.handle('dark-mode:system', () => {
+            nativeTheme.themeSource = 'system'
+          })
+        })
+    }, 2000);
+  };
+
   app.whenReady().then(() => {
     createWindow();
 
