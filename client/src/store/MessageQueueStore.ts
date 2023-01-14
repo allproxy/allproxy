@@ -18,7 +18,7 @@ export default class MessageQueueStore {
 	private sortOrder: "desc" | "asc" = 'asc';
 	private sortByField: string | undefined;
 
-	private showAPI = false;
+	private showAPI = true;
 	private showTooltip = false;
 	private showUserAgent = false;
 

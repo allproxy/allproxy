@@ -1,4 +1,3 @@
-import { dialog } from "electron";
 import ConsoleLog from "./ConsoleLog";
 
 export default async function listen(
@@ -30,7 +29,10 @@ export default async function listen(
         setTimeout(() => _listen(), backOff *= 2);
       } else {
         console.error(`${serverName} listen error on port ${port}`, err);
-        dialog.showErrorBox(`AllProxy Port Error`, `${err}`);
+        const electron = require("electron");
+        if (electron) {
+          electron.dialog.showErrorBox(`AllProxy Port Error`, `${err}`);
+        }
       }
     }
   });
