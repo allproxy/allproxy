@@ -15,6 +15,7 @@ import ConsoleLog from './ConsoleLog';
 import BrowserLauncher from './BrowserLauncher';
 import Launcher from '@httptoolkit/browser-launcher';
 import APFileSystem from './APFileSystem';
+import { setOsBinaries } from '../../app';
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -151,6 +152,10 @@ export default class SocketIoManager {
     socket.emit('port config', Global.portConfig); // send port config to browser
 
     socket.emit('proxy config', config); // send config to browser
+
+    socket.on('ostype', (os: string) => {
+      setOsBinaries(os);
+    })
 
     socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
       ConsoleLog.info(`${Paths.configJson()}:\n`, proxyConfigs);

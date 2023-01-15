@@ -36,6 +36,15 @@ export default class SocketStore {
 			this.setSocketConnected(true);
 			if (this.socket) {
 				apFileSystem.setSocket(this.socket);
+
+				var os = '';
+				if (navigator.userAgent.indexOf('Win') !== -1) os = 'win32';
+				else if (navigator.userAgent.indexOf('Mac') !== -1) os = 'darwin';
+				else if (navigator.userAgent.indexOf('Linux') !== -1) os = 'linux';
+
+				if (os.length > 0) {
+					this.socket.emit('ostype', os);
+				}
 			}
 		});
 
