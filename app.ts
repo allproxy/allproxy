@@ -105,27 +105,7 @@ process.on('exit', () => BrowserLauncher.shutdown());
 Paths.makeCaPemSymLink();
 Paths.setupInterceptDir();
 
-const dirName = __dirname + path.sep + '..';
-const dataDir = process.env.ALLPROXY_DATA_DIR;
-if (dataDir) {
-  const binPath = ':/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
-  switch (process.platform) {
-    case 'darwin':
-      fs.copyFileSync(`${dirName + path.sep}/bin/macos/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
-      fs.copyFileSync(`${dirName + path.sep}/bin/macos/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
-      process.env.PATH += binPath;
-      break;
-    case 'win32':
-      fs.copyFileSync(`${dirName + path.sep}bin\\windows\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
-      fs.copyFileSync(`${dirName + path.sep}bin\\windows\\systemProxy.bat`, `${dataDir}\\bin\\systemProxy.bat`);
-      break;
-    case 'linux':
-      fs.copyFileSync(`${dirName + path.sep}/bin/linux/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
-      fs.copyFileSync(`${dirName + path.sep}/bin/linux/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
-      process.env.PATH += binPath;
-      break;
-  }
-}
+setOsBinaries(process.platform)
 
 Global.portConfig = new PortConfig();
 Global.socketIoManager = new SocketIoManager();
@@ -162,6 +142,30 @@ async function startServers() {
         GrpcProxy.forwardProxy(port, true);
         console.log(`Listening on secure gRPC ${host || ''} ${port}`);
         Global.portConfig.grpcSecurePort = port;
+        break;
+    }
+  }
+}
+
+export function setOsBinaries(os: string) {
+  const dirName = __dirname + path.sep + '..';
+  const dataDir = process.env.ALLPROXY_DATA_DIR;
+  if (dataDir) {
+    const binPath = ':/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
+    switch (os) {
+      case 'darwin':
+        fs.copyFileSync(`${dirName + path.sep}/bin/macos/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/macos/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
+        process.env.PATH += binPath;
+        break;
+      case 'win32':
+        fs.copyFileSync(`${dirName + path.sep}bin\\windows\\trustCert.bat`, `${dataDir}\\bin\\trustCert.bat`);
+        fs.copyFileSync(`${dirName + path.sep}bin\\windows\\systemProxy.bat`, `${dataDir}\\bin\\systemProxy.bat`);
+        break;
+      case 'linux':
+        fs.copyFileSync(`${dirName + path.sep}/bin/linux/trustCert.sh`, `${dataDir}/bin/trustCert.sh`);
+        fs.copyFileSync(`${dirName + path.sep}/bin/linux/systemProxy.sh`, `${dataDir}/bin/systemProxy.sh`);
+        process.env.PATH += binPath;
         break;
     }
   }
