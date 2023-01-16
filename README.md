@@ -23,7 +23,7 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 >    * http://localhost:8888/allproxy in browser
 > 3. Docker container:
 >    * docker build -t allproxy .
->    * docker run -i -t -v ~/.allproxy:/root/.allproxy —expose 8888 -p 9999:8888  allproxy
+>    * docker run --name allproxy -i -t -v ~/.allproxy:/root/.allproxy —expose 8888 -p 9999:8888  allproxy
 >    * http://localhost:8888/allproxy in browser
 
 ### Features
