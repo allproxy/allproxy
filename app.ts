@@ -72,6 +72,9 @@ for (let i = 2; i < process.argv.length; ++i) {
     case '--info':
       ConsoleLog.enableInfo = true;
       break;
+    case '--inDockerContainer':
+      Global.inDockerContainer = true
+      break;
     default:
       usage();
       console.error('\nInvalid option: ' + process.argv[i]);

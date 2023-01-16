@@ -191,14 +191,19 @@ export default class SocketIoManager {
     })
 
     socket.on('detect browsers', (callback: any) => {
-      BrowserLauncher.detect()
-        .then((browsers) => {
-          callback(browsers)
-        })
-        .catch(e => {
-          console.log('Error detecting browsers:', e)
-          callback([]);
-        });
+      // Running in docker container
+      if (Global.inDockerContainer) {
+        callback([]);
+      } else {
+        BrowserLauncher.detect()
+          .then((browsers) => {
+            callback(browsers)
+          })
+          .catch(e => {
+            console.log('Error detecting browsers:', e)
+            callback([]);
+          });
+      }
     })
 
     socket.on('launch browser', (browser: Launcher.Browser) => {
