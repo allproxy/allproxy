@@ -169,6 +169,7 @@ const SideBar = observer(() => {
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
+							checked={messageQueueStore.getShowAPI()}
 							value={messageQueueStore.getShowAPI()}
 							onChange={() => messageQueueStore.toggleShowAPI()} />
 						API

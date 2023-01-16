@@ -8,6 +8,7 @@ export default class Global {
   static portConfig: PortConfig;
   static prevNow: number = 0;
   static dupCount: number = 0;
+  static inDockerContainer: boolean = false;
 
   static nextSequenceNumber(): number {
     const now = Date.now();

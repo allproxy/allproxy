@@ -31,4 +31,4 @@ COPY client/package.json /allproxy/client/package.json
 COPY scripts /allproxy/scripts
 
 EXPOSE 8888
-CMD ["yarn", "start-headless", "--listen", "8888"]
+CMD ["yarn", "start-headless", "--listen", "8888", "--inDockerContainer"]
