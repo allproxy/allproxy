@@ -30,11 +30,11 @@ export default class Paths {
     return Paths.platform(`${Paths.sslCaDir()}/keys/`);
   }
 
-  public static makeCaPemSymLink() {
-    const target = Paths.platform(Paths.platform('.http-mitm-proxy/certs/ca.pem'));
-    const path = Paths.platform(Paths.dataDir + 'ca.pem');
+  public static copyCaPemToRoot() {
+    const src = Paths.platform(Paths.platform(Paths.dataDir + '.http-mitm-proxy/certs/ca.pem'));
+    const dst = Paths.platform(Paths.dataDir + 'ca.pem');
     try {
-      fs.symlinkSync(target, path);
+      fs.copyFileSync(src, dst);
     } catch (e) { } // Already exists
   }
 

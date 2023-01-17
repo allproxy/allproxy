@@ -134,6 +134,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						>
 							<div className="fa fa-copy" />
 						</button>
+						<br></br>(If "permission denied", run chmod +x {(trustCertCmd().split(" ")[0])})
 						<p></p>
 						This will import the AllProxy CA certificate into your certificate store
 						and mark it as trusted.
@@ -158,6 +159,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 								>
 									<div className="fa fa-copy" />
 								</button>
+								<br></br>(If "permission denied", run chmod +x {systemProxyCmd().split(" ")[0]})
 								<p></p>
 								Some browsers (eg, Firefox) do not use the system proxy settings.
 								<p></p>

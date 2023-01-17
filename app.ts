@@ -105,7 +105,6 @@ process.on('uncaughtException', (err) => {
 
 process.on('exit', () => BrowserLauncher.shutdown());
 
-Paths.makeCaPemSymLink();
 Paths.setupInterceptDir();
 
 setOsBinaries(process.platform)
@@ -122,6 +121,8 @@ startServers();
 async function startServers() {
   console.log('startServers')
   await createCertificateAuthority();
+
+  Paths.copyCaPemToRoot();
 
   BrowserLauncher.init();
 

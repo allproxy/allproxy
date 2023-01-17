@@ -1,1 +1,1 @@
-runas /user:administrator "certutil -addstore -f ROOT %USERPROFILE%\.allproxy\ca.pem"
+runas /user:administrator "certutil -addstore -f ROOT %USERPROFILE%\.allproxy\.http-mitm-proxy\certs\ca.pem"
