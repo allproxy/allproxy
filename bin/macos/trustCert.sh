@@ -13,7 +13,7 @@ command() {
 }
 
 if [ "$1" == enable ]; then
-    command security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $HOME/.allproxy/ca.pem
+    command security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $HOME/.allproxy/.http-mitm-proxy/certs/ca.pem
 else
     command security remove-trusted-cert -d $HOME/.allproxy/ca.pem
 fi

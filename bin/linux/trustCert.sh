@@ -17,7 +17,7 @@ if [ "$1" != enable && "$1" != disable]; then
 fi
 
 if [ "$1" == enable ]; then
-    command cp $HOME/.allproxy/ca.pem /usr/local/share/ca-certificates/allproxyca.pem
+    command cp $HOME/.allproxy/.http-mitm-proxy/certs/ca.pem /usr/local/share/ca-certificates/allproxyca.pem
 else
     command rm /usr/local/share/ca-certificates/allproxyca.pem
 fi
