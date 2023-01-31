@@ -198,7 +198,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 	}
 })
 
-function formatTimestamp(timestamp: number) {
+export function formatTimestamp(timestamp: number) {
 	// return json.sequenceNumber; // used for testing only
 	const date = new Date(timestamp);
 	const hours = date.getHours().toString().padStart(2, '0');
