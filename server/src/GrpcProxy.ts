@@ -107,6 +107,12 @@ export default class GrpcProxy {
         proxyClient.on('error', async (err) => {
           const requestBody = await requestBodyPromise;
           httpMessage.emitMessageToBrowser(requestBody, 404, {}, { err, 'allproxy-config': proxyConfig });
+          clientRes.writeHead(404)
+          if (typeof err === 'object') {
+            err = JSON.stringify(err)
+          }
+          clientRes.write(err)
+          clientRes.end()
         });
 
         const chunks: Buffer[] = [];
