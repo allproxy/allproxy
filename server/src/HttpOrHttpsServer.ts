@@ -244,6 +244,9 @@ export default class HttpOrHttpsServer {
           console.error('Proxy connect error', JSON.stringify(error, null, 2), 'config:', proxyConfig);
           const requestBody = await requestBodyPromise;
           httpMessage.emitMessageToBrowser(requestBody, 404, {}, { error, 'allproxy-config': proxyConfig });
+          clientRes.writeHead(404)
+          clientRes.write(JSON.stringify(error))
+          clientRes.end()
         }
       });
 
