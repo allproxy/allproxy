@@ -14,7 +14,7 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 
 > Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy_3.23.9_amd64.deb)**
 
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy-3.23.9.Setup.exe)**
+> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.22.0/allproxy-3.23.10.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**
