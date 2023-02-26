@@ -153,6 +153,10 @@ export default class SocketIoManager {
 
     socket.emit('proxy config', config); // send config to browser
 
+    socket.on('ping', (pingReply: () => void) => {
+      pingReply()
+    })
+
     socket.on('ostype', (os: string) => {
       setOsBinaries(os);
     })
@@ -217,6 +221,8 @@ export default class SocketIoManager {
 
     socket.on('error', (e: any) => {
       console.error('error', e);
+      this.closeAnyServersWithSocket(socket.id);
+      this.socketIoMap.delete(socket.id);
     });
 
     const apFileSystem = new APFileSystem(socket);
