@@ -29,6 +29,7 @@ export default class SocketStore {
 	}
 
 	@action private connect() {
+		//console.log('Connect to AllProxy server')
 		this.socket = io();
 
 		this.socket.on('connect', () => {
@@ -45,6 +46,25 @@ export default class SocketStore {
 				if (os.length > 0) {
 					this.socket.emit('ostype', os);
 				}
+
+				// keep socket active
+				const pingLoop = async () => {
+					for (; ;) {
+						const ping = (): Promise<void> => {
+							return new Promise<void>((resolve) => {
+								setTimeout(() => {
+									//console.log('ping')
+									this.socket?.emit('ping', () => {
+										//console.log('ping reply')
+										resolve()
+									});
+								}, 60 * 1000);
+							})
+						}
+						await ping();
+					}
+				}
+				pingLoop();
 			}
 		});
 
@@ -66,6 +86,7 @@ export default class SocketStore {
 
 		this.socket.on('error', (e: any) => {
 			console.log('socket error', e);
+			this.setSocketConnected(false);
 		});
 
 		this.socket.on('breakpoint', (message: Message, callback: any) => {
