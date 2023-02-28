@@ -29,7 +29,7 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 					<CloseIcon />
 				</IconButton>
 				<button className="btn btn-sm btn-success" onClick={onSync} title="Sync request and response panels">Sync</button>
-				<div><b>Time:&nbsp;</b>{formatTimestamp(message.timestamp)}</div>
+				{message.protocol !== 'log:' && <div><b>Time:&nbsp;</b>{formatTimestamp(message.timestamp)}</div>}
 				{store.getMessage().protocol !== 'log:' &&
 					<div className={message.status < 400 ? '' : 'error'}>
 						<b>Status:&nbsp;</b>{message.status}
