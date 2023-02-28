@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
+import { importJSONFile } from "../ImportJSONFile";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 
@@ -192,7 +193,19 @@ export default class SnapshotStore {
 		for (const messageStore of this.getSelectedMessages()) {
 			messages.push(messageStore.getMessage());
 		}
-		const file = new Blob([JSON.stringify(messages, null, 2)], { type: 'text/plain' });
+		let data = ""
+		if (messages[0].protocol === 'log:') {
+			for (const message of messages) {
+				let json = message.responseBody as { [key: string]: any };
+				delete json['PREFIX'];
+				// message.path is any non-json data before JSON object.  It is called the PREFIX.
+				const line = message.path + JSON.stringify(message.responseBody);
+				data += line + '\n';
+			}
+		} else {
+			data = JSON.stringify(messages, null, 2)
+		}
+		const file = new Blob([data], { type: 'text/plain' });
 		element.href = URL.createObjectURL(file);
 		element.download = fileName + '.allproxy';
 		document.body.appendChild(element); // Required for this to work in FireFox
@@ -200,13 +213,18 @@ export default class SnapshotStore {
 	}
 
 	public importSnapshot(fileName: string, snapshot: string | Message[]) {
-		const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
-		const messageStores: MessageStore[] = [];
-		for (const message of parsedBlob) {
-			const ms = new MessageStore(message);
-			messageStores.push(ms);
+		try {
+			const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
+			const messageStores: MessageStore[] = [];
+			for (const message of parsedBlob) {
+				const ms = new MessageStore(message);
+				messageStores.push(ms);
+			}
+			this.newSnapshot(fileName, messageStores);
+		} catch (e) {
+			const primaryJSONFields: string[] = []
+			snapshotStore.importSnapshot(fileName, importJSONFile(fileName, snapshot as string, primaryJSONFields));
 		}
-		this.newSnapshot(fileName, messageStores);
 	}
 
 	public getSelectedMessages(): MessageStore[] {
