@@ -160,8 +160,8 @@ export default class Https2Server {
 
     clientHttp2Session.on('error', async (err) => {
       const requestBody = await requestBodyPromise;
-      httpMessage.emitMessageToBrowser(requestBody, 404, {}, { err, 'allproxy-config': proxyConfig });
-      clientRes.writeHead(404)
+      httpMessage.emitMessageToBrowser(requestBody, 503, {}, { err, 'allproxy-config': proxyConfig });
+      clientRes.writeHead(503)
       if (typeof err == 'object') {
         err = JSON.stringify(err)
       }
