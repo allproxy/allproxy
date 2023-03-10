@@ -45,11 +45,21 @@ class SocketIoInfo {
   }
 };
 
+export let socketIoManager: SocketIoManager;
+
 export default class SocketIoManager {
   private socketIoMap = new Map<string, SocketIoInfo>();
 
   constructor() {
     this.activateConfig(this.getConfig());
+    socketIoManager = this;
+  }
+
+  public clientEndedSocket() {
+    for (const socketId in this.socketIoMap) {
+      this.closeAnyServersWithSocket(socketId);
+      this.socketIoMap.delete(socketId);
+    }
   }
 
   private defaultConfig(): ProxyConfig[] {

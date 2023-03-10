@@ -205,7 +205,7 @@ export function formatTimestamp(timestamp: number) {
 	const minutes = date.getMinutes().toString().padStart(2, '0');
 	const seconds = date.getSeconds().toString().padStart(2, '0');
 	const msecs = (date.getMilliseconds() / 1000).toFixed(3).toString().replace('0.', '');
-	return `${hours}:${minutes}:${seconds}.${msecs}`;
+	return `${date.toDateString()} ${hours}:${minutes}:${seconds}.${msecs}`;
 }
 
 export default Request;
