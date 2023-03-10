@@ -31,6 +31,11 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 				<button className="btn btn-sm btn-success" onClick={onSync} title="Sync request and response panels">Sync</button>
 				{message.protocol !== 'log:' && <div><b>Time:&nbsp;</b>{formatTimestamp(message.timestamp)}</div>}
 				{store.getMessage().protocol !== 'log:' &&
+					<div>
+						<b>Elapsed time:&nbsp;</b>{message.elapsedTime} ms
+					</div>
+				}
+				{store.getMessage().protocol !== 'log:' &&
 					<div className={message.status < 400 ? '' : 'error'}>
 						<b>Status:&nbsp;</b>{message.status}
 					</div>
@@ -46,9 +51,9 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 							</div>)}
 					</div>
 				)}
-				{store.getMessage().protocol !== 'log:' &&
+				{store.getMessage().url != undefined &&
 					<div>
-						<b>Elapsed time:&nbsp;</b>{message.elapsedTime} ms
+						<b>URL:&nbsp;</b><pre style={{ paddingTop: '.5rem', paddingBottom: '.5rem' }}>{message.url}</pre>
 					</div>
 				}
 				{Object.keys(message.requestHeaders).length > 0 ?

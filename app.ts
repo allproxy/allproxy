@@ -1,6 +1,6 @@
 import { exit } from 'process';
 import Global from './server/src/Global';
-import SocketIoManager from './server/src/SocketIoManager';
+import SocketIoManager, { socketIoManager } from './server/src/SocketIoManager';
 import Paths from './server/src/Paths';
 import GrpcProxy from './server/src/GrpcProxy';
 import PortConfig from './common/PortConfig';
@@ -100,6 +100,9 @@ function usage() {
 process.on('uncaughtException', (err) => {
   console.trace('uncaughtException:', err.stack);
   BrowserLauncher.shutdown();
+  if (err.stack?.indexOf('Error: This socket has been ended by the other party') !== -1) {
+    socketIoManager.clientEndedSocket();
+  }
   // process.exit()
 });
 
