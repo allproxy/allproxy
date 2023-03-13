@@ -50,8 +50,8 @@ export default class SessionStore {
 			messageQueueStore.setFreeze(true);
 			const date = new Date().toLocaleString().replaceAll('/', '-');
 			const dir = 'sessions/' + date;
-			apFileSystem.mkdir(dir);
-			apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
+			await apFileSystem.mkdir(dir);
+			await apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
 			let i = 1;
 			for (const key of snapshotStore.getSnapshotNames()) {
 				let messages: Message[] = [];

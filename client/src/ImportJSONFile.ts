@@ -1,6 +1,5 @@
 import Message, { MessageType } from "./common/Message";
 import { makeRequestTitle } from "./components/JSONFieldButtons";
-import { pickButtonStyle } from "./PickButtonStyle";
 import { untruncateJson } from "./UntruncateJSON";
 
 export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
@@ -97,24 +96,7 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             jsonTruncated: false,
             note: '',
         };
-        message.url = makeRequestTitle(message, []);
+        message.url = makeRequestTitle(message, [], []);
         return message;
     }
-}
-
-export function formatJSONPrimaryFields(json: { [key: string]: string }, primaryJsonFields: string[]): string {
-    let title = '';
-    primaryJsonFields.forEach((field) => {
-        if (json[field]) {
-            if (field !== 'PREFIX') {
-                if (title.length > 0) title += ' ';
-                const style = pickButtonStyle(field);
-                title += `<span style="color:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
-                    + field +
-                    '</span> ';
-            }
-            title += json[field];
-        }
-    })
-    return title.length ? title : '';
 }

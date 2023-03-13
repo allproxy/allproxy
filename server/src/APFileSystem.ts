@@ -42,6 +42,23 @@ export default class APFileSystem {
             ack();
         })
 
+        // deleteFile
+        this.socket.on('deleteFile', (path: string, ack: () => void) => {
+            const dir = this.dirPath(path);
+            ConsoleLog.debug('ApFileSystem.deleteFile', dir);
+            fs.rmSync(dir);
+            ack();
+        })
+
+        // renameFile
+        this.socket.on('renameFile', (oldPath: string, newPath: string, ack: () => void) => {
+            const oldFile = this.dirPath(oldPath);
+            const newFile = this.dirPath(newPath);
+            ConsoleLog.debug('ApFileSystem.renameFile', oldFile, newFile);
+            fs.renameSync(oldFile, newFile);
+            ack();
+        })
+
         // mkdir
         this.socket.on('exists', (path: string, callback: (exists: boolean) => void) => {
             const dir = this.dirPath(path);

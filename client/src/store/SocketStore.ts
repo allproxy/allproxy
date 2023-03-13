@@ -22,6 +22,7 @@ export default class SocketStore {
 	private queuedCount: number = 0;
 	private requestCount: number = 0;
 	private responseCount: number = 0;
+	private setTimeoutHandle: NodeJS.Timeout | null = null;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -63,16 +64,29 @@ export default class SocketStore {
 		this.socket.on('disconnect', () => {
 			//console.log('socket disconnected');
 			this.setSocketConnected(false);
-			this.socket?.close();
-			this.connect();
+			reconnect();
 		});
 
 		this.socket.on('error', (e: any) => {
 			console.log('socket error', e);
 			this.setSocketConnected(false);
-			this.socket?.close();
-			this.connect();
+			reconnect();
 		});
+
+		const reconnect = () => {
+			if (this.setTimeoutHandle === null && !this.isConnected()) {
+				// Reconnect in 60 seconds
+				this.setTimeoutHandle = setTimeout(() => {
+					this.setTimeoutHandle = null;
+					// Is not connected?
+					if (!this.isConnected()) {
+						console.log('reconnect to AllProxy server')
+						this.socket?.close();
+						this.connect();
+					}
+				}, 60 * 1000);
+			}
+		}
 
 		this.socket.on('breakpoint', (message: Message, callback: any) => {
 			const breakpoint = breakpointStore.findMatchingBreakpoint(message);

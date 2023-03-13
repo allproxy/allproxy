@@ -19,6 +19,8 @@ import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
+import JSONFieldsModal from './JSONFieldsModal';
+import { jsonFieldsStore } from '../store/JSONFieldsStore';
 
 let filterWasStopped = false;
 
@@ -42,6 +44,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
+	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 
 	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
 		multiple: false,
@@ -240,6 +243,17 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							</div>
 						</MenuItem>
 					}
+
+					<MenuItem>
+						<div className="header__import fa fa-file" title="Theme"
+							onClick={async () => {
+								await jsonFieldsStore.init();
+								setShowJSONFieldsModal(true);
+							}}
+						>
+							&nbsp;Highlight JSON Log Viewer Fields
+						</div>
+					</MenuItem>
 				</Menu>
 			</div>
 
@@ -297,6 +311,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)} />
+			<JSONFieldsModal
+				open={showJSONFieldsModal}
+				onClose={() => setShowJSONFieldsModal(false)}
+				store={jsonFieldsStore}
+			/>
 		</div >
 	)
 });

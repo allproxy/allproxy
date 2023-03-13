@@ -2,9 +2,9 @@ import { TableSortLabel } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import Message from '../common/Message';
-import { formatJSONPrimaryFields } from '../ImportJSONFile';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
+import { getEnabledJSONFields } from '../store/JSONFieldsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
@@ -76,7 +76,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 	)
 });
 
-export function updateRequestTitles(snapShotName: string, messages: MessageStore[]) {
+export async function updateRequestTitles(snapShotName: string, messages: MessageStore[]) {
 	const selectedFields = snapshotStore.getJsonFields(snapShotName);
 	const primaryFields: string[] = [];
 	for (const f of selectedFields) {
@@ -84,17 +84,19 @@ export function updateRequestTitles(snapShotName: string, messages: MessageStore
 			primaryFields.push(f.name);
 		}
 	}
+	// Custom JSON fields
+	const customJsonFields: string[] = await getEnabledJSONFields();
 	for (const messageStore of messages) {
 		const message = messageStore.getMessage();
 		if (message.protocol === 'log:' && typeof message.responseBody !== 'string') {
-			const title = makeRequestTitle(messageStore.getMessage(), primaryFields);
+			const title = makeRequestTitle(messageStore.getMessage(), primaryFields, customJsonFields);
 			messageStore.setUrl(title);
 		}
 	}
 }
 
-export function makeRequestTitle(message: Message, primaryFields: string[]): string {
-	let title = formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields);
+export function makeRequestTitle(message: Message, primaryFields: string[], customJsonFields: string[]): string {
+	let title = formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields, customJsonFields);
 	if (title.length === 0) {
 		// Look for embedded JSON object
 		let nonJson = message.path ? message.path + ' ' : '';
@@ -110,6 +112,36 @@ export function makeRequestTitle(message: Message, primaryFields: string[]): str
 
 function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
 	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
+}
+
+function formatJSONPrimaryFields(json: { [key: string]: string }, primaryJsonFields: string[], customJsonFields: string[]): string {
+	let title = '';
+	const fields = primaryJsonFields.concat(customJsonFields);
+	fields.forEach((field) => {
+		let value: string | number;
+		if (field.indexOf('.') !== -1) {
+			try {
+				value = eval('json.' + field);
+			} catch (e) {
+				return;
+			}
+			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
+		} else {
+			if (json[field] === undefined) return;
+			value = json[field];
+		}
+
+		if (field !== 'PREFIX') {
+			if (title.length > 0) title += ' ';
+			const style = pickButtonStyle(field);
+			title += `<span style="color: white; background:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
+				+ field +
+				'</span> ';
+		}
+		if (value === '') value = `""`
+		title += value;
+	})
+	return title.length ? title : '';
 }
 
 export default JSONFieldButtons;
