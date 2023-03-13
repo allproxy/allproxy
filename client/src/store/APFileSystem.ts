@@ -21,6 +21,9 @@ export default class APFileSystem {
 
     // writeFile
     public async writeFile(path: string, data: string): Promise<void> {
+        if (await this.exists(path)) {
+            await this.deleteFile(path);
+        }
         return new Promise<void>(async (resolve1) => {
             for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
                 await new Promise((resolve2) => {
@@ -34,6 +37,24 @@ export default class APFileSystem {
             }
             resolve1();
         })
+    }
+
+    // deleteFile
+    public async deleteFile(path: string): Promise<void> {
+        return new Promise<void>((resolve) => {
+            this.socket?.emit('deleteFile', path, () => {
+                resolve();
+            });
+        });
+    }
+
+    // renameFile
+    public async renameFile(oldPath: string, newPath: string): Promise<void> {
+        return new Promise<void>((resolve) => {
+            this.socket?.emit('renameFile', oldPath, newPath, () => {
+                resolve();
+            });
+        });
     }
 
     // exists
