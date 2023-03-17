@@ -182,7 +182,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title="Use regular expression" onClick={() => filterStore.toggleRegex()}>.*</div>
 				<div className={`header__filter-logical ${filterStore.logical() ? 'active' : ''}`}
 					title="Use (), &&, ||, !" onClick={() => filterStore.toggleLogical()}>&&</div>
-				<div className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
+				<div hidden className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div>
 			<div>
@@ -226,7 +226,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							&nbsp;Breakpoints
 						</div>
 					</MenuItem>
-					<MenuItem>
+					<MenuItem hidden>
 						<div className="fa fa-ban" title="No Capture List"
 							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); }}>
 							&nbsp;No Capture List
