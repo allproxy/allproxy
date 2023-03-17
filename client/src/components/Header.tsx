@@ -86,7 +86,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						onClick={() => messageQueueStore.toggleStopped()}
 						title={(messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording')}
 					/>
-					<div className={'header__auto-scroll fa-arrow-alt-circle-down '
+					<div hidden className={'header__auto-scroll fa-arrow-alt-circle-down '
 						+ (messageQueueStore.getAutoScroll() ? 'fas' : 'far')}
 						onClick={() => messageQueueStore.toggleAutoScroll()}
 						title={(messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll')}
