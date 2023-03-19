@@ -21,6 +21,7 @@ import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
 import { jsonFieldsStore } from '../store/JSONFieldsStore';
+import { updateRequestTitles } from './JSONFieldButtons';
 
 let filterWasStopped = false;
 
@@ -86,10 +87,9 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						onClick={() => messageQueueStore.toggleStopped()}
 						title={(messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording')}
 					/>
-					<div hidden className={'header__auto-scroll fa-arrow-alt-circle-down '
-						+ (messageQueueStore.getAutoScroll() ? 'fas' : 'far')}
-						onClick={() => messageQueueStore.toggleAutoScroll()}
-						title={(messageQueueStore.getAutoScroll() ? 'Stop auto scroll' : 'Start auto scroll')}
+					<div className={'header__auto-scroll fa-arrow-alt-circle-down far'}
+						onClick={() => messageQueueStore.setScrollToBottom(true)}
+						title={'Scroll to bottom'}
 					/>
 				</div>
 
@@ -226,7 +226,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							&nbsp;Breakpoints
 						</div>
 					</MenuItem>
-					<MenuItem hidden>
+					<MenuItem>
 						<div className="fa fa-ban" title="No Capture List"
 							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); }}>
 							&nbsp;No Capture List
@@ -313,7 +313,10 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)} />
 			<JSONFieldsModal
 				open={showJSONFieldsModal}
-				onClose={() => setShowJSONFieldsModal(false)}
+				onClose={() => {
+					setShowJSONFieldsModal(false);
+					updateRequestTitles(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+				}}
 				store={jsonFieldsStore}
 			/>
 		</div >

@@ -4,25 +4,11 @@ import { apFileSystem } from "./APFileSystem";
 const JSON_FIELDS_DIR = 'jsonFields/';
 
 export class JSONField {
-	private enabled = true;
 	private name = "";
 	private valid = true;
 
 	public constructor() {
 		makeAutoObservable(this);
-	}
-
-	public isEnabled() {
-		return this.enabled;
-	}
-
-	@action public setEnabled(enabled: boolean) {
-		this.enabled = enabled;
-	}
-
-	@action public async toggleEnabled() {
-		this.enabled = !this.enabled;
-		await apFileSystem.writeFile(JSON_FIELDS_DIR + this.name, this.enabled ? "true" : "false");
 	}
 
 	public getName() {
@@ -43,7 +29,7 @@ export class JSONField {
 					let obj: { [key: string]: string } = {}
 					obj[key] = "";
 				}
-				await apFileSystem.writeFile(JSON_FIELDS_DIR + name, this.enabled ? "true" : "false");
+				await apFileSystem.writeFile(JSON_FIELDS_DIR + name, name);
 			} catch (e) {
 				this.valid = false;
 			}
@@ -69,10 +55,7 @@ export default class JSONFieldsStore {
 		const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
 		for (const fileName of fileNames) {
 			const jsonField = new JSONField();
-			const enabled = await apFileSystem.readFile(JSON_FIELDS_DIR + fileName);
-			console.log('init', enabled, fileName);
 			jsonField.setName(fileName);
-			jsonField.setEnabled(enabled === "true");
 			this.jsonFields.push(jsonField);
 		}
 	}
@@ -91,17 +74,18 @@ export default class JSONFieldsStore {
 
 	@action public deleteEntry(index: number) {
 		const jsonField = this.jsonFields[index];
-		apFileSystem.rmdir(JSON_FIELDS_DIR + jsonField.getName());
+		if (jsonField.getName() != "") {
+			apFileSystem.deleteFile(JSON_FIELDS_DIR + jsonField.getName());
+		}
 		this.jsonFields.splice(index, 1);
 	}
 }
 
-export async function getEnabledJSONFields(): Promise<string[]> {
+export async function getJSONFields(): Promise<string[]> {
 	const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
 	const name: string[] = [];
 	for (const fileName of fileNames) {
-		const enabled = await apFileSystem.readFile(JSON_FIELDS_DIR + fileName);
-		if (enabled) name.push(fileName);
+		name.push(fileName);
 	}
 	return name;
 }

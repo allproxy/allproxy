@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Message from '../common/Message';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
-import { getEnabledJSONFields } from '../store/JSONFieldsStore';
+import { getJSONFields } from '../store/JSONFieldsStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
@@ -85,7 +85,7 @@ export async function updateRequestTitles(snapShotName: string, messages: Messag
 		}
 	}
 	// Custom JSON fields
-	const customJsonFields: string[] = await getEnabledJSONFields();
+	const customJsonFields: string[] = await getJSONFields();
 	for (const messageStore of messages) {
 		const message = messageStore.getMessage();
 		if (message.protocol === 'log:' && typeof message.responseBody !== 'string') {
@@ -114,21 +114,56 @@ function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
 	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
 }
 
+function getFieldCombos(field: string): string[] {
+	const combos: string[] = [field];
+	function doCombos(fields: string[], i: number) {
+		const field = fields[i];
+
+		// all lowercase
+		if (field !== fields[i].toLowerCase()) {
+			fields[i] = fields[i].toLowerCase();
+			combos.push(fields.join('.'))
+		}
+		if (i + 1 < fields.length) doCombos(fields, i + 1)
+
+		// uppercase first char
+		const camel = fields[i].substring(0, 1).toUpperCase() + fields[i].substring(1)
+		if (field !== camel) {
+			fields[i] = camel;
+			combos.push(fields.join('.'))
+		}
+		if (i + 1 < fields.length) doCombos(fields, i + 1)
+
+		// all uppercase
+		if (field !== fields[i].toUpperCase()) {
+			fields[i] = fields[i].toUpperCase()
+			combos.push(fields.join('.'))
+		}
+		if (i + 1 < fields.length) doCombos(fields, i + 1)
+	}
+	doCombos(field.split('.'), 0);
+	//console.log(combos);
+
+	return combos;
+}
+
 function formatJSONPrimaryFields(json: { [key: string]: string }, primaryJsonFields: string[], customJsonFields: string[]): string {
 	let title = '';
 	const fields = primaryJsonFields.concat(customJsonFields);
 	fields.forEach((field) => {
-		let value: string | number;
-		if (field.indexOf('.') !== -1) {
-			try {
-				value = eval('json.' + field);
-			} catch (e) {
-				return;
+		let value: string | number | undefined = undefined;
+		if (Object.keys(json).length > 0) {
+			const combos = getFieldCombos(field)
+			for (const combo of combos) {
+				try {
+					value = eval('json.' + combo);
+				} catch (e) {
+					continue;
+				}
+				if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
+				break;
 			}
-			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
-		} else {
-			if (json[field] === undefined) return;
-			value = json[field];
+			if (value == undefined) return;
 		}
 
 		if (field !== 'PREFIX') {
@@ -141,7 +176,8 @@ function formatJSONPrimaryFields(json: { [key: string]: string }, primaryJsonFie
 		if (value === '') value = `""`
 		title += value;
 	})
-	return title.length ? title : '';
+
+	return title;
 }
 
 export default JSONFieldButtons;
