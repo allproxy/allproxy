@@ -10,7 +10,7 @@ const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 export default class MessageQueueStore {
 	private limit: number = this._getLimit();
 	private stopped: boolean = false;
-	private autoScroll: boolean = false;
+	private scrollToBottom: boolean = false;
 	private sortByReq: boolean = true;
 	private freeze: boolean = false;
 	private freezeQ: Message[] = [];
@@ -125,17 +125,17 @@ export default class MessageQueueStore {
 		this.stopped = !this.stopped;
 	}
 
-	public getAutoScroll(): boolean {
-		return snapshotStore.isActiveSnapshotSelected() && this.autoScroll;
+	public getScrollToBottom(): boolean {
+		return snapshotStore.isActiveSnapshotSelected() && this.scrollToBottom;
 	}
 
-	@action public toggleAutoScroll() {
-		this.autoScroll = !this.autoScroll;
+	@action public setScrollToBottom(bottom: boolean) {
+		this.scrollToBottom = bottom;
 		// When toggling to auto-scroll, de-select the active request, if it is selected.
 		// This will expand the request panel to full screen mode, and start the auto
 		// scrolling.  If a request is selected, the auto scrolling is stopped until
 		// the request is de-selected (clicked again).
-		if (this.autoScroll) {
+		if (this.scrollToBottom) {
 			snapshotStore.getSelectedReqSeqNumbers()[0] = Number.MAX_SAFE_INTEGER;
 		}
 	}

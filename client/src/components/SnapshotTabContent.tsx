@@ -129,7 +129,7 @@ const SnapshotTabContent = observer(({
 									/>)
 							}
 						})}
-						{matchCount > 0 && messageQueueStore.getAutoScroll() && selectedReqSeqNum === Number.MAX_SAFE_INTEGER && setScrollTo(lastSeqNum, 0)}
+						{matchCount > 0 && messageQueueStore.getScrollToBottom() /*&& selectedReqSeqNum === Number.MAX_SAFE_INTEGER*/ && setScrollTo(lastSeqNum, 0) && messageQueueStore.setScrollToBottom(false)}
 						{matchCount === 0 && (
 							<div className="center">
 								No matching request or response found.  Adjust your filter criteria.
@@ -247,7 +247,7 @@ const SnapshotTabContent = observer(({
 		}
 	}
 
-	function setScrollTo(seqNum: number, delayMsecs: number) {
+	function setScrollTo(seqNum: number, delayMsecs: number): boolean {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
 			setTimeout(() => {
@@ -271,6 +271,7 @@ const SnapshotTabContent = observer(({
 				}
 			}, delayMsecs);
 		}
+		return true
 	}
 });
 
