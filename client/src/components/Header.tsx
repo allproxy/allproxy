@@ -21,7 +21,7 @@ import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
 import { jsonFieldsStore } from '../store/JSONFieldsStore';
-import { updateRequestTitles } from './JSONFieldButtons';
+import { updateJSONRequestLabels } from './JSONFieldButtons';
 
 let filterWasStopped = false;
 
@@ -208,9 +208,9 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="fa fa-network-wired"
 							onClick={() => {
+								setSettingsMenuIcon(null);
 								settingsStore.toggleOpenSettingsModal();
 								settingsStore.reset();
-								setSettingsMenuIcon(null);
 								if (!messageQueueStore.getStopped()) {
 									messageQueueStore.setStopped(true);
 									filterWasStopped = true;
@@ -222,13 +222,21 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					</MenuItem>
 					<MenuItem>
 						<div className="fa fa-bug" title="Breakpoints"
-							onClick={() => { setShowBreakpointModal(true); breakpointStore.init(); setSettingsMenuIcon(null); }}>
+							onClick={() => {
+								setSettingsMenuIcon(null);
+								setShowBreakpointModal(true);
+								breakpointStore.init();
+							}}>
 							&nbsp;Breakpoints
 						</div>
 					</MenuItem>
 					<MenuItem>
 						<div className="fa fa-ban" title="No Capture List"
-							onClick={() => { setShowNoCaptureModal(true); noCaptureStore.init(); setSettingsMenuIcon(null); }}>
+							onClick={() => {
+								setSettingsMenuIcon(null);
+								setShowNoCaptureModal(true);
+								noCaptureStore.init();
+							}}>
 							&nbsp;No Capture List
 						</div>
 					</MenuItem>
@@ -236,6 +244,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						<MenuItem>
 							<div className="header__import fa fa-image" title="Theme"
 								onClick={() => {
+									setSettingsMenuIcon(null);
 									setShowDarkModeDialog(true);
 								}}
 							>
@@ -247,6 +256,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="header__import fa fa-file" title="Theme"
 							onClick={async () => {
+								setSettingsMenuIcon(null);
 								await jsonFieldsStore.init();
 								setShowJSONFieldsModal(true);
 							}}
@@ -284,12 +294,16 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<BreakpointModal
 				open={showBreakpointModal}
-				onClose={() => setShowBreakpointModal(false)}
+				onClose={() => {
+					setShowBreakpointModal(false);
+				}}
 				store={breakpointStore}
 			/>
 			<NoCaptureModal
 				open={showNoCaptureModal}
-				onClose={() => setShowNoCaptureModal(false)}
+				onClose={() => {
+					setShowNoCaptureModal(false);
+				}}
 				store={noCaptureStore}
 			/>
 			<ExportDialog
@@ -310,12 +324,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				}}
 			/>
 			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
-			<DarkModeDialog open={showDarkModeDialog} onClose={() => setShowDarkModeDialog(false)} />
+			<DarkModeDialog open={showDarkModeDialog} onClose={() => {
+				setShowDarkModeDialog(false);
+			}} />
 			<JSONFieldsModal
 				open={showJSONFieldsModal}
 				onClose={() => {
 					setShowJSONFieldsModal(false);
-					updateRequestTitles(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+					updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
 				}}
 				store={jsonFieldsStore}
 			/>

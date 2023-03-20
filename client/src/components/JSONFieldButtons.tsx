@@ -59,7 +59,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 								{ margin: ".5rem .25rem" }}
 							onClick={() => {
 								jsonFields[i].selected = !jsonFields[i].selected;
-								updateRequestTitles(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+								updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
 								if (messageQueueStore.getSortByField() === field.name) {
 									messageQueueStore.setSortByField(undefined);
 									messageQueueStore.setSortOrder('asc');
@@ -76,7 +76,11 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 	)
 });
 
-export async function updateRequestTitles(snapShotName: string, messages: MessageStore[]) {
+function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
+	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
+}
+
+export async function updateJSONRequestLabels(snapShotName: string, messages: MessageStore[]) {
 	const selectedFields = snapshotStore.getJsonFields(snapShotName);
 	const primaryFields: string[] = [];
 	for (const f of selectedFields) {
@@ -89,14 +93,14 @@ export async function updateRequestTitles(snapShotName: string, messages: Messag
 	for (const messageStore of messages) {
 		const message = messageStore.getMessage();
 		if (message.protocol === 'log:' && typeof message.responseBody !== 'string') {
-			const title = makeRequestTitle(messageStore.getMessage(), primaryFields, customJsonFields);
+			const title = makeJSONRequestLabels(messageStore.getMessage(), primaryFields, customJsonFields);
 			messageStore.setUrl(title);
 		}
 	}
 }
 
-export function makeRequestTitle(message: Message, primaryFields: string[], customJsonFields: string[]): string {
-	let title = formatJSONPrimaryFields(message.responseBody as { [key: string]: string }, primaryFields, customJsonFields);
+export function makeJSONRequestLabels(message: Message, primaryFields: string[], customJsonFields: string[]): string {
+	let title = formatJSONRequestLabels(message.responseBody as { [key: string]: string }, primaryFields, customJsonFields);
 	if (title.length === 0) {
 		// Look for embedded JSON object
 		let nonJson = message.path ? message.path + ' ' : '';
@@ -110,11 +114,7 @@ export function makeRequestTitle(message: Message, primaryFields: string[], cust
 	return title;
 }
 
-function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
-	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
-}
-
-function formatJSONPrimaryFields(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
+function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
 	let title = '';
 	const fields = primaryJsonFields.concat(customJsonFields);
 	fields.forEach((field) => {
@@ -122,7 +122,8 @@ function formatJSONPrimaryFields(json: { [key: string]: any }, primaryJsonFields
 		if (Object.keys(json).length > 0) {
 			//const combos = getFieldCombos(field)
 			value = eval('json');
-			for (const key of field.split('.')) {
+			for (let key of field.split('.')) {
+				key = key.replaceAll('[period]', '.');
 				const keys: string[] = [key];
 				if (key === key.toLowerCase()) {
 					keys.push(key.substring(0, 1).toUpperCase() + key.substring(1).toLowerCase());
@@ -144,13 +145,14 @@ function formatJSONPrimaryFields(json: { [key: string]: any }, primaryJsonFields
 		}
 
 		if (field !== 'PREFIX') {
+			field = field.replaceAll('[period]', '.');
 			if (title.length > 0) title += ' ';
 			const style = pickButtonStyle(field);
 			title += `<span style="color: white; background:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
 				+ field +
 				'</span> ';
 		}
-		if (value === '') value = `""`
+		if (typeof value === 'string') value = `"${value}"`
 		title += value;
 	})
 

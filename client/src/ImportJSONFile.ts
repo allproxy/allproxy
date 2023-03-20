@@ -1,5 +1,5 @@
 import Message, { MessageType } from "./common/Message";
-import { makeRequestTitle } from "./components/JSONFieldButtons";
+import { makeJSONRequestLabels } from "./components/JSONFieldButtons";
 import { untruncateJson } from "./UntruncateJSON";
 
 export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
@@ -96,7 +96,7 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             jsonTruncated: false,
             note: '',
         };
-        message.url = makeRequestTitle(message, [], []);
+        message.url = makeJSONRequestLabels(message, [], []);
         return message;
     }
 }
