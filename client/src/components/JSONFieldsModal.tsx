@@ -63,7 +63,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 														? undefined
 														: 'lightCoral'
 												}}
-												placeholder="JSON field name (e.g., a.b.c)"
+												placeholder='Enter JSON field - eg, "a.b.c"'
 												value={jsonField.getName()}
 												onChange={(e) => jsonField.setName(e.currentTarget.value)}
 											/>

@@ -81,7 +81,7 @@ export default class BreakpointStore {
 	}
 
 	@action public extend() {
-		this.breakpointList.push(new FilterStore());
+		this.breakpointList.unshift(new FilterStore());
 	}
 
 	@action public deleteEntry(index: number) {

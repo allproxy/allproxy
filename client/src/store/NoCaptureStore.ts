@@ -11,7 +11,7 @@ export default class NoCaptureStore {
 		this.init();
 	}
 
-  @action public init() {
+	@action public init() {
 		const clientList = localStorage.getItem(LOCAL_STORAGE);
 		if (clientList) {
 			this.clientList = JSON.parse(clientList);
@@ -34,7 +34,7 @@ export default class NoCaptureStore {
 	}
 
 	public contains(message: Message): boolean {
-		for(const client of this.clientList) {
+		for (const client of this.clientList) {
 			if (this.isMatch(client, message.clientIp!)) return true;
 		}
 		return false;
@@ -45,7 +45,7 @@ export default class NoCaptureStore {
 	}
 
 	@action public extend() {
-		this.clientList.push('');
+		this.clientList.unshift('');
 	}
 
 	@action public deleteEntry(index: number) {

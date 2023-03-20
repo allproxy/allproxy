@@ -69,7 +69,7 @@ export default class JSONFieldsStore {
 	}
 
 	@action public extend() {
-		this.jsonFields.push(new JSONField());
+		this.jsonFields.unshift(new JSONField());
 	}
 
 	@action public deleteEntry(index: number) {

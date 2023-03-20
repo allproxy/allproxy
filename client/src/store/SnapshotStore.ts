@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
-import { updateRequestTitles } from "../components/JSONFieldButtons";
+import { updateJSONRequestLabels } from "../components/JSONFieldButtons";
 import { importJSONFile } from "../ImportJSONFile";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
@@ -228,7 +228,7 @@ export default class SnapshotStore {
 				messageStores.push(ms);
 			}
 			this.newSnapshot(fileName, messageStores);
-			updateRequestTitles(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+			updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
 		} catch (e) {
 			const primaryJSONFields: string[] = []
 			snapshotStore.importSnapshot(fileName, importJSONFile(fileName, snapshot as string, primaryJSONFields));
