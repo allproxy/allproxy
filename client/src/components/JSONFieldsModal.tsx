@@ -34,9 +34,18 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 					<h3>Highlight JSON Log Viewer Fields</h3>
 					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 						<div className="no-capture-modal__scroll-container">
-							<h5>
-								Define JSON fields that should be highlighted in the JSON log viewer
-							</h5>
+							<div style={{ fontSize: 'small' }}>
+								<pre>
+									Enter <b>a.b</b> to highlight multi-level JSON:
+									<br></br>
+									{JSON.stringify({ a: { b: "value" } }, null, "  ")}
+								</pre>
+								<pre>
+									Enter <b>x[period]y</b> to highlight JSON with period in name:
+									<br></br>
+									{JSON.stringify({ "x.y": "value" }, null, "  ")}
+								</pre>
+							</div>
 							<button className="btn btn-lg btn-primary"
 								onClick={handleAddJSONField}
 							>
@@ -63,7 +72,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 														? undefined
 														: 'lightCoral'
 												}}
-												placeholder='Enter JSON field - eg, "a.b.c"'
+												placeholder='Enter JSON field"'
 												value={jsonField.getName()}
 												onChange={(e) => jsonField.setName(e.currentTarget.value)}
 											/>
