@@ -16,9 +16,10 @@ export class JSONField {
 	}
 
 	@action public async setName(name: string) {
-		if (this.valid && this.name !== '') {
-			await apFileSystem.deleteFile(JSON_FIELDS_DIR + this.name);
-			this.name = '';
+		const oldName = this.name;
+		this.name = name;
+		if (this.valid && oldName !== '') {
+			await apFileSystem.deleteFile(JSON_FIELDS_DIR + oldName);
 		}
 
 		this.valid = true;
@@ -34,7 +35,6 @@ export class JSONField {
 				this.valid = false;
 			}
 		}
-		this.name = name;
 	}
 
 	public isValidName() {

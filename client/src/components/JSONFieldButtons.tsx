@@ -114,56 +114,33 @@ function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
 	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
 }
 
-function getFieldCombos(field: string): string[] {
-	const combos: string[] = [field];
-	function doCombos(fields: string[], i: number) {
-		const field = fields[i];
-
-		// all lowercase
-		if (field !== fields[i].toLowerCase()) {
-			fields[i] = fields[i].toLowerCase();
-			combos.push(fields.join('.'))
-		}
-		if (i + 1 < fields.length) doCombos(fields, i + 1)
-
-		// uppercase first char
-		const camel = fields[i].substring(0, 1).toUpperCase() + fields[i].substring(1)
-		if (field !== camel) {
-			fields[i] = camel;
-			combos.push(fields.join('.'))
-		}
-		if (i + 1 < fields.length) doCombos(fields, i + 1)
-
-		// all uppercase
-		if (field !== fields[i].toUpperCase()) {
-			fields[i] = fields[i].toUpperCase()
-			combos.push(fields.join('.'))
-		}
-		if (i + 1 < fields.length) doCombos(fields, i + 1)
-	}
-	doCombos(field.split('.'), 0);
-	//console.log(combos);
-
-	return combos;
-}
-
-function formatJSONPrimaryFields(json: { [key: string]: string }, primaryJsonFields: string[], customJsonFields: string[]): string {
+function formatJSONPrimaryFields(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
 	let title = '';
 	const fields = primaryJsonFields.concat(customJsonFields);
 	fields.forEach((field) => {
 		let value: string | number | undefined = undefined;
 		if (Object.keys(json).length > 0) {
-			const combos = getFieldCombos(field)
-			for (const combo of combos) {
-				try {
-					value = eval('json.' + combo);
-				} catch (e) {
-					continue;
+			//const combos = getFieldCombos(field)
+			value = eval('json');
+			for (const key of field.split('.')) {
+				const keys: string[] = [key];
+				if (key === key.toLowerCase()) {
+					keys.push(key.substring(0, 1).toUpperCase() + key.substring(1).toLowerCase());
+				} else {
+					keys.push(key.toLowerCase())
 				}
-				if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
-				break;
+				if (key !== key.toUpperCase()) {
+					keys.push(key.toUpperCase())
+				}
+
+				for (const key of keys) {
+					try {
+						value = eval(`value["${key}"]`);
+						break;
+					} catch (e) { }
+				}
 			}
-			if (value == undefined) return;
+			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
 		}
 
 		if (field !== 'PREFIX') {
