@@ -151,8 +151,8 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 			title += `<span style="color: white; background:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
 				+ field +
 				'</span> ';
+			if (typeof value === 'string') value = `"${value}"`
 		}
-		if (typeof value === 'string') value = `"${value}"`
 		title += value;
 	})
 
