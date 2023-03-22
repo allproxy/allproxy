@@ -166,11 +166,12 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				</Menu>
 
 				<div className="header__filter">
-					<input className="header__filter-input" type="text"
+					<input className="header__filter-input" type="search"
 						style={{
 							background: !filterStore.isInvalidFilterSyntax()
 								? (filterStore.getFilter().length > 0 ? 'lightGreen' : undefined)
-								: 'lightCoral'
+								: 'lightCoral',
+							color: filterStore.getFilter().length > 0 ? 'black' : undefined
 						}}
 						value={filterStore.getFilter()}
 						onChange={e => filterStore.setFilter(e.currentTarget.value)}

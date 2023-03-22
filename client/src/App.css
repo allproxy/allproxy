@@ -20,12 +20,12 @@ body {
 	}
 
 	.btn-default,
-	input,
+	.form-control,
 	textarea,
 	select {
-		color: rgba(232, 230, 227) !important;
-		background-color: #444444 !important;
-		border-color: #444444 !important;
+		color: rgba(232, 230, 227);
+		background-color: #444444;
+		border-color: #444444;
 	}
 
 	.MuiTab-textColorPrimary.Mui-selected,
@@ -81,8 +81,8 @@ body {
 .react-tagsinput input,
 .header__filter-input,
 .header__filter-input input {
-	color: rgba(232, 230, 227) !important;
-	background-color: #111111 !important;
+	color: rgba(232, 230, 227);
+	background-color: #444444;
 }
 
 .react-tagsinput {
@@ -108,6 +108,10 @@ pre {
 
 td input {
 	width: 100%;
+}
+
+.MuiTabs-scroller {
+	overflow: auto !important;
 }
 
 .MuiTab-root {
