@@ -110,6 +110,10 @@ td input {
 	width: 100%;
 }
 
+.MuiTabs-scroller {
+	overflow: auto !important;
+}
+
 .MuiTab-root {
 	min-width: 140px !important;
 }
