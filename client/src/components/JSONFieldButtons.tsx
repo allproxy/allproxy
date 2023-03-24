@@ -43,7 +43,8 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 							key={field.name}
 							style={{
 								margin: ".5rem 0", marginLeft: ".25rem", padding: "0",
-								background: messageQueueStore.getSortByField() === field.name ? pickButtonStyle(field.name).background : undefined
+								background: messageQueueStore.getSortByField() === field.name ? pickButtonStyle(field.name).background : undefined,
+								color: messageQueueStore.getSortByField() === field.name ? pickButtonStyle(field.name).color : undefined
 							}}
 							hidden={!field.selected}
 							onClick={() => sortOrderHandler(field.name)}
@@ -148,7 +149,7 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 			field = field.replaceAll('[period]', '.');
 			if (title.length > 0) title += ' ';
 			const style = pickButtonStyle(field);
-			title += `<span style="color: white; background:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
+			title += `<span style="color: ${style.color}; background:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
 				+ field +
 				'</span> ';
 			if (typeof value === 'string') value = `"${value}"`
