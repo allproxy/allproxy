@@ -163,6 +163,19 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							&nbsp;View JSON Log
 						</div>
 					</MenuItem>
+					<MenuItem style={{
+						opacity: !snapshotStore.isActiveSnapshotSelected() ? undefined : 0.3,
+						pointerEvents: !snapshotStore.isActiveSnapshotSelected() ? undefined : 'none'
+					}}>
+						<div className="header__export fa fa-copy" title="Copy to clipboard"
+							onClick={() => {
+								navigator.clipboard.writeText(snapshotStore.copySelectedSnapshot())
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;Copy to Clipboard
+						</div>
+					</MenuItem>
 				</Menu>
 
 				<div className="header__filter">
