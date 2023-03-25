@@ -188,8 +188,7 @@ export default class SnapshotStore {
 		this.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 	}
 
-	public exportSelectedSnapshot(fileName: string) {
-		const element = document.createElement("a");
+	public copySelectedSnapshot(): string {
 		let messages: Message[] = [];
 		for (const messageStore of this.getSelectedMessages()) {
 			messages.push(messageStore.getMessage());
@@ -212,7 +211,13 @@ export default class SnapshotStore {
 		} else {
 			data = JSON.stringify(messages, null, 2)
 		}
+		return data;
+	}
+
+	public exportSelectedSnapshot(fileName: string) {
+		const data = this.copySelectedSnapshot();
 		const file = new Blob([data], { type: 'text/plain' });
+		const element = document.createElement("a");
 		element.href = URL.createObjectURL(file);
 		element.download = fileName + '.allproxy';
 		document.body.appendChild(element); // Required for this to work in FireFox
