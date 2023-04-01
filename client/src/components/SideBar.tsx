@@ -174,7 +174,7 @@ const SideBar = observer(() => {
 							onChange={() => messageQueueStore.toggleShowAPI()} />
 						API
 					</div>
-					<div style={{ display: 'flex' }}>
+					<div hidden style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getShowTooltip()}

@@ -17,6 +17,11 @@ export default class SessionStore {
 		this.sessionList.splice(0, this.sessionList.length);
 
 		const fileNames = await apFileSystem.readDir('sessions/');
+		fileNames.sort((a, b) => {
+			a = a.split(' - ')[0];
+			b = b.split(' - ')[0];
+			return new Date(b).getTime() - new Date(a).getTime();
+		});
 		for (const fileName of fileNames) {
 			this.sessionFileNameList.push(fileName);
 			const exists = await apFileSystem.exists(`sessions/${fileName}/sessionName.txt`);
@@ -27,11 +32,6 @@ export default class SessionStore {
 			const sn = sessionName.length > 0 ? ' - ' + sessionName : '';
 			this.sessionList.push(fileName + sn);
 		}
-		this.sessionList.sort((a, b) => {
-			a = a.split(' - ')[0];
-			b = b.split(' - ')[0];
-			return new Date(a).getTime() - new Date(b).getTime();
-		});
 	}
 
 	public getSessionList() {
