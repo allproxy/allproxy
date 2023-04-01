@@ -2,6 +2,7 @@ import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
 import { updateJSONRequestLabels } from "../components/JSONFieldButtons";
 import { importJSONFile } from "../ImportJSONFile";
+import { filterStore } from "./FilterStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 
@@ -196,6 +197,7 @@ export default class SnapshotStore {
 		let data = ""
 		if (messages[0].protocol === 'log:') {
 			for (const message of messages) {
+				if (filterStore.isFiltered(new MessageStore(message))) continue;
 				let json = message.responseBody as { [key: string]: any };
 				const prefix = json['PREFIX'];
 				if (prefix) {
