@@ -31,6 +31,7 @@ const startServer = () => {
   mkDir(`${dataDir + path.sep}bin`);
   mkDir(`${dataDir + path.sep}sessions`);
   mkDir(`${dataDir + path.sep}jsonFields`);
+  mkDir(`${dataDir + path.sep}logCategories`);
   require('./app.js');
 };
 

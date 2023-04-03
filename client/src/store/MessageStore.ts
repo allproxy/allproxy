@@ -72,6 +72,10 @@ export default class MessageStore {
         return this.colorObj.color;
     }
 
+    public setColor(color: string) {
+        this.colorObj = { iconClass: '', color }
+    }
+
     public getIconClass(): string {
         return this.iconClass;
     }

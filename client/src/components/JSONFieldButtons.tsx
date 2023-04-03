@@ -1,10 +1,9 @@
 import { TableSortLabel } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import Message from '../common/Message';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
-import { getJSONFields } from '../store/JSONFieldsStore';
+import { getJSONFields, JSON_FIELDS_DIR, LOG_CATEGORY_DIR } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
@@ -90,26 +89,55 @@ export async function updateJSONRequestLabels(snapShotName: string, messages: Me
 		}
 	}
 	// Custom JSON fields
-	const customJsonFields: string[] = await getJSONFields();
+	const customJsonFields: string[] = await getJSONFields(JSON_FIELDS_DIR);
+	const categories: string[] = await getJSONFields(LOG_CATEGORY_DIR);
 	for (const messageStore of messages) {
 		const message = messageStore.getMessage();
-		if (message.protocol === 'log:' && typeof message.responseBody !== 'string') {
-			const title = makeJSONRequestLabels(messageStore.getMessage(), primaryFields, customJsonFields);
+		if (message.protocol === 'log:') {
+			const title = makeJSONRequestLabels(messageStore, primaryFields, customJsonFields, categories);
 			messageStore.setUrl(title);
 		}
 	}
 }
 
-export function makeJSONRequestLabels(message: Message, primaryFields: string[], customJsonFields: string[]): string {
+export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields: string[], customJsonFields: string[], categories: string[]): string {
+	let category: string | undefined;
+	let categoryStyle: { background: string, color: string } | undefined;
+	const message = messageStore.getMessage();
+	for (const cat of categories) {
+		if (message.path.indexOf(cat) !== -1) {
+			category = cat;
+			categoryStyle = pickButtonStyle(cat);
+			messageStore.setColor(categoryStyle.background);
+			break;
+		}
+	}
+
 	let title = formatJSONRequestLabels(message.responseBody as { [key: string]: string }, primaryFields, customJsonFields);
 	if (title.length === 0) {
 		// Look for embedded JSON object
 		let nonJson = message.path ? message.path + ' ' : '';
 
 		title = nonJson + JSON.stringify(message.responseBody);
+		if (category === undefined) {
+			for (const cat of categories) {
+				if (title.indexOf(cat) !== -1) {
+					category = cat;
+					categoryStyle = pickButtonStyle(cat);
+					messageStore.setColor(categoryStyle.background);
+					break;
+				}
+			}
+		}
 		// if (title.length > 200) {
 		// 	title = title.substring(0, 200) + '...';
 		// }
+	}
+
+	if (category && categoryStyle) {
+		title = `<span style="color: ${categoryStyle.color}; background:${categoryStyle.background};padding: 0 .25rem;border-radius: .25rem;border:${categoryStyle.background} thin solid">`
+			+ category +
+			'</span> ' + title;
 	}
 
 	return title;
