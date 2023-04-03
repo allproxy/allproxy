@@ -23,7 +23,7 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 	getResponseBody(message)
 		.then((rb) => setResponseBody(rb));
 	return (
-		<div>
+		<div style={{ paddingRight: '2rem' }}>
 			<React.Fragment>
 				<IconButton style={{ marginRight: '.5rem' }} onClick={onClose} title="Close response panel">
 					<CloseIcon />
@@ -51,9 +51,9 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 							</div>)}
 					</div>
 				)}
-				{store.getMessage().url != undefined &&
+				{store.getMessage().protocol !== 'log:' && store.getMessage().url != undefined &&
 					<div>
-						<b>URL:&nbsp;</b><pre style={{ paddingTop: '.5rem', paddingBottom: '.5rem' }}>{message.url}</pre>
+						<b>URL:&nbsp;</b><div style={{ paddingTop: '.5rem', paddingBottom: '.5rem' }}>{message.url}</div>
 					</div>
 				}
 				{Object.keys(message.requestHeaders).length > 0 ?
@@ -95,7 +95,7 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 
 				{store.getMessage().protocol === 'log:' ?
 					typeof responseBody === 'string'
-						? <pre>{responseBody}</pre>
+						? <div>{responseBody}</div>
 						: responseBody
 					:
 					<Accordion defaultExpanded={true}>

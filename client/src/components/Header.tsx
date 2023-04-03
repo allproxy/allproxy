@@ -20,7 +20,7 @@ import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
-import { jsonFieldsStore } from '../store/JSONFieldsStore';
+import { jsonFieldsStore } from '../store/JSONLogStore';
 import { updateJSONRequestLabels } from './JSONFieldButtons';
 
 let filterWasStopped = false;
@@ -275,7 +275,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 								setShowJSONFieldsModal(true);
 							}}
 						>
-							&nbsp;Highlight JSON Log Viewer Fields
+							&nbsp;Annotate JSON Log Viewer
 						</div>
 					</MenuItem>
 				</Menu>
