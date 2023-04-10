@@ -20,7 +20,7 @@ import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
-import { jsonFieldsStore } from '../store/JSONLogStore';
+import { jsonLogStore } from '../store/JSONLogStore';
 import { updateJSONRequestLabels } from './JSONFieldButtons';
 
 let filterWasStopped = false;
@@ -35,6 +35,7 @@ type Props = {
 	filterStore: FilterStore
 };
 const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props): JSX.Element => {
+	const [filter, setFilter] = React.useState('');
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
@@ -160,7 +161,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 								setMoreMenuIcon(null);
 							}}
 						>
-							&nbsp;View JSON Log
+							&nbsp;Import JSON Log
 						</div>
 					</MenuItem>
 					<MenuItem style={{
@@ -182,12 +183,17 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<input className="header__filter-input" type="search"
 						style={{
 							background: !filterStore.isInvalidFilterSyntax()
-								? (filterStore.getFilter().length > 0 ? 'lightGreen' : undefined)
+								? (filter.length > 0 ? 'lightGreen' : undefined)
 								: 'lightCoral',
-							color: filterStore.getFilter().length > 0 ? 'black' : undefined
+							color: filter.length > 0 ? 'black' : undefined
 						}}
-						value={filterStore.getFilter()}
-						onChange={e => filterStore.setFilter(e.currentTarget.value)}
+						value={filter}
+						onChange={e => setFilter(e.currentTarget.value)}
+						onKeyUp={(e) => {
+							if (e.keyCode === 13) {
+								filterStore.setFilterNoDebounce(filter);
+							}
+						}}
 						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
 				</div>
 				<div className={`header__filter-case ${filterStore.matchCase() ? 'active' : ''}`}
@@ -271,7 +277,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						<div className="header__import fa fa-file" title="Theme"
 							onClick={async () => {
 								setSettingsMenuIcon(null);
-								await jsonFieldsStore.init();
+								await jsonLogStore.init();
 								setShowJSONFieldsModal(true);
 							}}
 						>
@@ -337,7 +343,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					setOpenImportJSONFileDialog(false);
 				}}
 			/>
-			<HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
+			<HelpDialog open={showHelp} onClose={async () => {
+				setShowHelp(false);
+				await jsonLogStore.init();
+				jsonLogStore.updateScriptFunc();
+			}} />
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => {
 				setShowDarkModeDialog(false);
 			}} />
@@ -346,8 +356,9 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				onClose={() => {
 					setShowJSONFieldsModal(false);
 					updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+					for (const message of messageQueueStore.getMessages()) message.updateLogEntry();
 				}}
-				store={jsonFieldsStore}
+				store={jsonLogStore}
 			/>
 		</div >
 	)

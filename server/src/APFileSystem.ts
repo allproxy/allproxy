@@ -11,7 +11,7 @@ export default class APFileSystem {
         this.socket = socket;
     }
 
-    private dirPath(path: string) {
+    private toPlatformPath(path: string) {
         if (Paths.sep() === "\\") {
             path = path.replace(/:/g, '-');
         }
@@ -22,68 +22,92 @@ export default class APFileSystem {
         ConsoleLog.debug('APFileSystem.listen');
         // mkdir
         this.socket.on('mkdir', (path: string) => {
-            const dir = this.dirPath(path);
+            const dir = this.toPlatformPath(path);
             ConsoleLog.debug('ApFileSystem.mkdir', dir);
             fs.mkdirSync(dir)
         })
 
         // rmdir
         this.socket.on('rmdir', (path: string) => {
-            const dir = this.dirPath(path);
+            const dir = this.toPlatformPath(path);
             ConsoleLog.debug('ApFileSystem.rmdir', dir);
             rmdir(dir, () => { });
         })
 
         // writeFile
         this.socket.on('writeFile', (path: string, data: string, ack: () => void) => {
-            const dir = this.dirPath(path);
-            ConsoleLog.debug('ApFileSystem.writeFile', dir);
-            fs.writeFileSync(dir, data, { flag: 'a' });
+            try {
+                const file = this.toPlatformPath(path);
+                ConsoleLog.debug('ApFileSystem.writeFile', file);
+                fs.writeFileSync(file, data, { flag: 'a' });
+            } catch (e) {
+                console.log(e);
+            }
             ack();
         })
 
         // deleteFile
         this.socket.on('deleteFile', (path: string, ack: () => void) => {
-            const dir = this.dirPath(path);
-            ConsoleLog.debug('ApFileSystem.deleteFile', dir);
-            fs.rmSync(dir);
+            try {
+                const file = this.toPlatformPath(path);
+                ConsoleLog.debug('ApFileSystem.deleteFile', file);
+                fs.rmSync(file);
+            } catch (e) {
+                console.log(e);
+            }
             ack();
         })
 
         // renameFile
         this.socket.on('renameFile', (oldPath: string, newPath: string, ack: () => void) => {
-            const oldFile = this.dirPath(oldPath);
-            const newFile = this.dirPath(newPath);
-            ConsoleLog.debug('ApFileSystem.renameFile', oldFile, newFile);
-            fs.renameSync(oldFile, newFile);
+            try {
+                const oldFile = this.toPlatformPath(oldPath);
+                const newFile = this.toPlatformPath(newPath);
+                ConsoleLog.debug('ApFileSystem.renameFile', oldFile, newFile);
+                fs.renameSync(oldFile, newFile);
+            } catch (e) {
+                console.log(e);
+            }
             ack();
         })
 
-        // mkdir
+        // exists
         this.socket.on('exists', (path: string, callback: (exists: boolean) => void) => {
-            const dir = this.dirPath(path);
-            ConsoleLog.debug('ApFileSystem.exists', dir);
-            callback(fs.existsSync(dir));
+            try {
+                const dir = this.toPlatformPath(path);
+                ConsoleLog.debug('ApFileSystem.exists', dir);
+                callback(fs.existsSync(dir));
+            } catch (e) {
+                callback(false);
+            }
         })
 
         // readDir
         this.socket.on('readDir', (path: string, callback: (files: string[]) => void) => {
-            const dir = this.dirPath(path);
-            const files = fs.readdirSync(dir);
-            ConsoleLog.debug('ApFileSystem.readDir', dir, files);
-            callback(files);
+            try {
+                const dir = this.toPlatformPath(path);
+                const files = fs.readdirSync(dir);
+                ConsoleLog.debug('ApFileSystem.readDir', dir, files);
+                callback(files);
+            } catch (e) {
+                console.log(e);
+            }
         })
 
         // readFile
         this.socket.on('readFile', (path: string, offset: number, chunkSize: number, callback: (data: string, eof: boolean) => void) => {
-            const dir = this.dirPath(path);
-            const fd = fs.openSync(dir, 'r');
-            const data = Buffer.alloc(chunkSize);
-            const read = fs.readSync(fd, data, 0, chunkSize, offset);
-            const size = fs.statSync(dir).size;
-            const eof = offset + chunkSize >= size;
-            callback(data.subarray(0, read).toString(), eof);
-            ConsoleLog.debug('ApFileSystem.readFile', dir, offset, chunkSize, eof, data.toString());
+            try {
+                const file = this.toPlatformPath(path);
+                const fd = fs.openSync(file, 666);
+                const data = Buffer.alloc(chunkSize);
+                const read = fs.readSync(fd, data, 0, chunkSize, offset);
+                const size = fs.statSync(file).size;
+                const eof = offset + chunkSize >= size;
+                callback(data.subarray(0, read).toString(), eof);
+                ConsoleLog.debug('ApFileSystem.readFile', file, offset, chunkSize, eof, data.toString());
+            } catch (e) {
+                console.log(e);
+            }
         })
     }
 }

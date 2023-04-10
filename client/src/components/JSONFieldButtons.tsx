@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
-import { getJSONFields, JSON_FIELDS_DIR, LOG_CATEGORY_DIR } from '../store/JSONLogStore';
+import { jsonLogStore } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
@@ -89,29 +89,18 @@ export async function updateJSONRequestLabels(snapShotName: string, messages: Me
 		}
 	}
 	// Custom JSON fields
-	const customJsonFields: string[] = await getJSONFields(JSON_FIELDS_DIR);
-	const categories: string[] = await getJSONFields(LOG_CATEGORY_DIR);
+	const customJsonFields: string[] = jsonLogStore.getJSONLabelNames();
 	for (const messageStore of messages) {
 		const message = messageStore.getMessage();
 		if (message.protocol === 'log:') {
-			const title = makeJSONRequestLabels(messageStore, primaryFields, customJsonFields, categories);
+			const title = makeJSONRequestLabels(messageStore, primaryFields, customJsonFields);
 			messageStore.setUrl(title);
 		}
 	}
 }
 
-export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields: string[], customJsonFields: string[], categories: string[]): string {
-	let category: string | undefined;
-	let categoryStyle: { background: string, color: string } | undefined;
+export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields: string[], customJsonFields: string[]): string {
 	const message = messageStore.getMessage();
-	for (const cat of categories) {
-		if (message.path.indexOf(cat) !== -1) {
-			category = cat;
-			categoryStyle = pickButtonStyle(cat);
-			messageStore.setColor(categoryStyle.background);
-			break;
-		}
-	}
 
 	let title = formatJSONRequestLabels(message.responseBody as { [key: string]: string }, primaryFields, customJsonFields);
 	if (title.length === 0) {
@@ -119,28 +108,35 @@ export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields:
 		let nonJson = message.path ? message.path + ' ' : '';
 
 		title = nonJson + JSON.stringify(message.responseBody);
-		if (category === undefined) {
-			for (const cat of categories) {
-				if (title.indexOf(cat) !== -1) {
-					category = cat;
-					categoryStyle = pickButtonStyle(cat);
-					messageStore.setColor(categoryStyle.background);
-					break;
-				}
-			}
-		}
+
 		// if (title.length > 200) {
 		// 	title = title.substring(0, 200) + '...';
 		// }
 	}
 
-	if (category && categoryStyle) {
-		title = `<span style="color: ${categoryStyle.color}; background:${categoryStyle.background};padding: 0 .25rem;border-radius: .25rem;border:${categoryStyle.background} thin solid">`
-			+ category +
-			'</span> ' + title;
+	let messageText = messageStore.getLogEntry().message;
+	if (messageText !== '') {
+		title = `<span class="request__msg-highlight">${messageText}</span> ` + title;
+	}
+
+	let category = messageStore.getLogEntry().category;
+	if (category !== '') {
+		//messageStore.setColor(categoryStyle.background);
+		let labels = ''
+		for (const name of category.split(' ')) {
+			const categoryStyle = pickButtonStyle(name);
+			labels += makeLabel(name, categoryStyle.background, categoryStyle.color);
+		}
+		title = labels + title;
 	}
 
 	return title;
+}
+
+function makeLabel(name: string, background: string, color: string) {
+	return `<span style="color: ${color}; background:${background};padding: 0 .25rem;border-radius: .25rem;border:${background} thin solid">`
+		+ name +
+		'</span> ';
 }
 
 function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
@@ -177,9 +173,7 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 			field = field.replaceAll('[period]', '.');
 			if (title.length > 0) title += ' ';
 			const style = pickButtonStyle(field);
-			title += `<span style="color: ${style.color}; background:${style.background};padding: 0 .25rem;border-radius: .25rem;border:${style.background} thin solid">`
-				+ field +
-				'</span> ';
+			title += makeLabel(field, style.background, style.color);
 			if (typeof value === 'string') value = `"${value}"`
 		}
 		title += value;

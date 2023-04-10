@@ -6,6 +6,7 @@ import ReactJson from "react-json-view";
 import { colorScheme } from "../App";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
+import { snapshotStore } from "../store/SnapshotStore";
 import NoteDialog from "./NoteDialog";
 
 
@@ -28,7 +29,6 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 	const message = store.getMessage();
 	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
 	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime ? message.elapsedTime + ' ms' : '';
-	const level = typeof message.responseBody === 'object' ? message.responseBody['level'] : '';
 	const levelColor = function (level: string): string | undefined {
 		if (level === 'err' || level === 'error') return 'red';
 		if (level === 'warning' || level === 'warn') return 'rgb(203, 75, 22)';
@@ -43,9 +43,8 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 						{message.protocol !== 'log:' ?
 							responseTime
 							:
-							<div className="request__msg-log-level"
-								style={{ color: levelColor(level) }}>
-								{level}
+							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}>
+								{store.getLogEntry().date}
 							</div>}
 					</div>
 					<div className="request__msg-time-bar-container">
@@ -57,12 +56,18 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 						title={store.getNote()}
 						style={{ visibility: (!store.hasNote() ? 'hidden' : 'visible'), fontSize: '.75rem', color: '#E8A317' }}>
 					</div>
-					<div className={`${store.getIconClass()} request__msg-icon`}
-						style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px' }}
-						onClick={handleClick}
-						title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
-					>
-					</div>
+					{message.protocol === 'log:' ?
+						<div style={{ minWidth: '6ch', color: levelColor(store.getLogEntry().level) }}>
+							{store.getLogEntry().level}
+						</div>
+						:
+						<div className={`${store.getIconClass()} request__msg-icon`}
+							style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px' }}
+							onClick={handleClick}
+							title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
+						>
+						</div>
+					}
 					<button className={`request__msg-resend-btn ${isActive ? 'active' : ''} btn btn-xs btn-success`}
 						onClick={(e) => setMoreMenuIcon(e.currentTarget)}
 					>
@@ -114,6 +119,19 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 								}}
 							>
 								X &nbsp;Close Menu
+							</div>
+						</MenuItem>
+						<MenuItem style={{
+							opacity: message.protocol === 'log:' ? undefined : 0.3,
+							pointerEvents: message.protocol === 'log:' ? undefined : 'none'
+						}}>
+							<div className="header__export fa fa-copy" title="Copy to clipboard"
+								onClick={() => {
+									navigator.clipboard.writeText(snapshotStore.copyMessage(message))
+									setMoreMenuIcon(null);
+								}}
+							>
+								&nbsp;Copy to Clipboard
 							</div>
 						</MenuItem>
 					</Menu>

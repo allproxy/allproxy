@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
 import Message, { NO_RESPONSE } from '../common/Message';
-import { updateJSONRequestLabels } from "../components/JSONFieldButtons";
 import MessageStore from './MessageStore';
 import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
 
@@ -285,7 +284,6 @@ export default class MessageQueueStore {
 			const messageStore = new MessageStore(message);
 			if (messageStore.getMessage().protocol === 'log:') {
 				this.updateJSONFields(ACTIVE_SNAPSHOT_NAME, [messageStore]);
-				updateJSONRequestLabels(ACTIVE_SNAPSHOT_NAME, [messageStore]);
 			}
 			if (copyMessages.length === 0) {
 				copyMessages.push(messageStore);

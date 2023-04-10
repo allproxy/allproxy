@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
-import { updateJSONRequestLabels } from "../components/JSONFieldButtons";
 import { importJSONFile } from "../ImportJSONFile";
 import { filterStore } from "./FilterStore";
 import { messageQueueStore } from "./MessageQueueStore";
@@ -216,6 +215,21 @@ export default class SnapshotStore {
 		return data;
 	}
 
+	public copyMessage(message: Message): string {
+		let json = message.responseBody as { [key: string]: any };
+		const prefix = json['PREFIX'];
+		if (prefix) {
+			delete json['PREFIX'];
+		}
+		// message.path is any non-json data before JSON object.  It is called the PREFIX.
+		const line = message.path + JSON.stringify(message.responseBody);
+		const data = line + '\n';
+		if (prefix) {
+			json['PREFIX'] = prefix;
+		}
+		return data;
+	}
+
 	public exportSelectedSnapshot(fileName: string) {
 		const data = this.copySelectedSnapshot();
 		const file = new Blob([data], { type: 'text/plain' });
@@ -235,7 +249,6 @@ export default class SnapshotStore {
 				messageStores.push(ms);
 			}
 			this.newSnapshot(fileName, messageStores);
-			updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
 		} catch (e) {
 			const primaryJSONFields: string[] = []
 			snapshotStore.importSnapshot(fileName, importJSONFile(fileName, snapshot as string, primaryJSONFields));

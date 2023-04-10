@@ -97,7 +97,7 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             jsonTruncated: false,
             note: '',
         };
-        message.url = makeJSONRequestLabels(new MessageStore(message), [], [], []);
+        message.url = makeJSONRequestLabels(new MessageStore(message), [], []);
         return message;
     }
 }
