@@ -25,9 +25,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
 			}
 			jsonClear();
-		}
-
-		if (pastedJSON.length > 0) {
+		} else if (pastedJSON.length > 0) {
 			snapshotStore.importSnapshot(tabName, importJSONFile(tabName, pastedJSON, primaryJSONFields));
 			setPastedJSON('');
 		}

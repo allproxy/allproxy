@@ -44,7 +44,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 							responseTime
 							:
 							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}>
-								{store.getLogEntry().date}
+								{store.getLogEntry().date.split('.')[0]}
 							</div>}
 					</div>
 					<div className="request__msg-time-bar-container">
