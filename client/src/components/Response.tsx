@@ -94,9 +94,7 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 					: null}
 
 				{store.getMessage().protocol === 'log:' ?
-					typeof responseBody === 'string'
-						? <div>{responseBody}</div>
-						: responseBody
+					renderLogEntry()
 					:
 					<Accordion defaultExpanded={true}>
 						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -124,6 +122,22 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 			</React.Fragment>
 		</div>
 	);
+
+	function renderLogEntry() {
+		if (typeof responseBody === 'string') {
+			if (Object.keys(store.getLogEntry().additionalJSON)) {
+				return (
+					<>
+						<div>{responseBody}</div>
+					</>
+				);
+			} else {
+				return <div>{responseBody}</div>
+			}
+		} else {
+			return responseBody;
+		}
+	}
 
 	async function getResponseBody(message: Message): Promise<string | ReactElement<any, any>> {
 		return new Promise((resolve) => {

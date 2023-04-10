@@ -182,15 +182,16 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				<div className="header__filter">
 					<input className="header__filter-input" type="search"
 						style={{
-							background: !filterStore.isInvalidFilterSyntax()
-								? (filter.length > 0 ? 'lightGreen' : undefined)
-								: 'lightCoral',
+							background: filter !== filterStore.getFilter() ? '#fffac8' :
+								!filterStore.isInvalidFilterSyntax()
+									? (filter.length > 0 ? 'lightGreen' : undefined)
+									: 'lightCoral',
 							color: filter.length > 0 ? 'black' : undefined
 						}}
 						value={filter}
 						onChange={e => setFilter(e.currentTarget.value)}
 						onKeyUp={(e) => {
-							if (e.keyCode === 13) {
+							if (e.keyCode === 13 || filter === '') {
 								filterStore.setFilterNoDebounce(filter);
 							}
 						}}

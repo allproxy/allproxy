@@ -66,7 +66,7 @@ const defaultScript =
 // @param jsonData: {} - JSON log data
 // @returns {level: "error | warn | info", category: "category...",n message: "message..."}
 function(nonJson, jsonData) {
-	let date = '';
+    let date = '';
     let level = jsonData && jsonData.level ? jsonData.level : 'info';
     let category = '';
     let message = '';
@@ -82,16 +82,18 @@ function(nonJson, jsonData) {
         return podParts.join('-');
     }
 
-    if (jsonData.pod) {
-        category = parsePod(jsonData.pod);
-    } else if (jsonData._file) {
+    if (jsonData._file) {
+        let d;
         if (jsonData.msg_timestamp) {
-            date = new Date(jsonData.msg_timestamp).toString().split(' ')[4];
+            d = new Date(jsonData.msg_timestamp);
         } else if (jsonData._ts) {
-            date = new Date(jsonData._ts).toString().split(' ')[4];
+            d = new Date(jsonData._ts);
         }
+        date = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0') + '.' + d.getMilliseconds();
 
-        if (jsonData._file) {
+        if (jsonData.pod) {
+            category = parsePod(jsonData.pod);
+        } else if (jsonData._file) {
             if (jsonData._host) {
                 category = jsonData._host + ' ';
             }
@@ -113,7 +115,23 @@ function(nonJson, jsonData) {
             category += parsePod(pod);
         }
     }
-    return { date, level, category, message };
+
+    const additionalJSON = {};
+
+    if (Object.keys(jsonData).length === 0) {
+        const i = nonJson.indexOf('verb=');
+        if (i !== -1) {
+            const keyValues = nonJson.substring(i).split(' ');
+            for (const kv of keyValues) {
+                const parts = kv.split('=');
+                if (parts.length === 2) {
+                    additionalJSON[parts[0]] = parts[1];
+                }
+            }
+        }
+    }
+
+    return { date, level, category, message, additionalJSON };
 }
 `
 
@@ -121,13 +139,14 @@ export type LogEntry = {
 	date: string,
 	level: string,
 	category: string,
-	message: string
+	message: string,
+	additionalJSON: {}
 };
 
 export default class JSONLogStore {
 	private script = defaultScript;
 
-	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: '', level: '', category: '', message: '' }; };
+	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: '', level: '', category: '', message: '', additionalJSON: {} }; };
 	private labels: JSONLogLabel[] = [];
 
 	public constructor() {
@@ -151,7 +170,7 @@ export default class JSONLogStore {
 		this.scriptFunc = this.evalScript(this.script);
 	}
 	public callScriptFunc(nonJson: string, jsonData: object): LogEntry {
-		let logEntry: LogEntry = { date: '', level: '', category: '', message: '' };
+		let logEntry: LogEntry = { date: '', level: '', category: '', message: '', additionalJSON: {} };
 		try {
 			logEntry = this.scriptFunc(nonJson, jsonData);
 		} catch (e) {

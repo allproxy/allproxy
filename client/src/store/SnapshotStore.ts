@@ -1,6 +1,5 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
-import { importJSONFile } from "../ImportJSONFile";
 import { filterStore } from "./FilterStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
@@ -241,18 +240,24 @@ export default class SnapshotStore {
 	}
 
 	public importSnapshot(fileName: string, snapshot: string | Message[]) {
-		try {
-			const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
-			const messageStores: MessageStore[] = [];
-			for (const message of parsedBlob) {
-				const ms = new MessageStore(message);
-				messageStores.push(ms);
-			}
-			this.newSnapshot(fileName, messageStores);
-		} catch (e) {
-			const primaryJSONFields: string[] = []
-			snapshotStore.importSnapshot(fileName, importJSONFile(fileName, snapshot as string, primaryJSONFields));
+		const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
+		const messageStores: MessageStore[] = [];
+		let doDateSort = true;
+		for (const message of parsedBlob) {
+			const ms = new MessageStore(message);
+			if (ms.getMessage().protocol !== 'log:' || ms.getLogEntry().date === '') doDateSort = false;
+			messageStores.push(ms);
 		}
+		if (doDateSort) {
+			console.log('sorting by date')
+			messageStores.sort((a, b) => a.getLogEntry().date.localeCompare(b.getLogEntry().date));
+			messageStores.map((m, i) => {
+				const message = m.getMessage();
+				message.sequenceNumberRes = message.sequenceNumberRes;
+				message.sequenceNumber = i;
+			});
+		}
+		this.newSnapshot(fileName, messageStores);
 	}
 
 	public getSelectedMessages(): MessageStore[] {

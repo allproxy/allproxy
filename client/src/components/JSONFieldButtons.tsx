@@ -102,7 +102,13 @@ export async function updateJSONRequestLabels(snapShotName: string, messages: Me
 export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields: string[], customJsonFields: string[]): string {
 	const message = messageStore.getMessage();
 
-	let title = formatJSONRequestLabels(message.responseBody as { [key: string]: string }, primaryFields, customJsonFields);
+	let json: { [key: string]: string } = {};
+	if (typeof message.responseBody === 'string') {
+		json = messageStore.getLogEntry().additionalJSON;
+	} else {
+		json = message.responseBody;
+	}
+	let title = formatJSONRequestLabels(json, primaryFields, customJsonFields);
 	if (title.length === 0) {
 		// Look for embedded JSON object
 		let nonJson = message.path ? message.path + ' ' : '';
@@ -167,16 +173,16 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 				}
 			}
 			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
-		}
 
-		if (field !== 'PREFIX') {
-			field = field.replaceAll('[period]', '.');
-			if (title.length > 0) title += ' ';
-			const style = pickButtonStyle(field);
-			title += makeLabel(field, style.background, style.color);
-			if (typeof value === 'string') value = `"${value}"`
+			if (field !== 'PREFIX') {
+				field = field.replaceAll('[period]', '.');
+				if (title.length > 0) title += ' ';
+				const style = pickButtonStyle(field);
+				title += makeLabel(field, style.background, style.color);
+				if (typeof value === 'string') value = `"${value}"`
+			}
+			title += value;
 		}
-		title += value;
 	})
 
 	return title;
