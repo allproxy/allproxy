@@ -1,8 +1,10 @@
 import { makeAutoObservable, action } from "mobx"
 import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
+import { makeJSONRequestLabels } from "../components/JSONFieldButtons";
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
+import { LogEntry, jsonLogStore } from "./JSONLogStore";
 
 export default class MessageStore {
     private message: Message = new Message();
@@ -13,6 +15,7 @@ export default class MessageStore {
     private iconClass = '';
     private tooltip = '';
     private note = '';
+    private logEntry: LogEntry = { date: '', level: '', category: '', message: '' };
 
     public constructor(message: Message) {
         this.message = message;
@@ -33,7 +36,26 @@ export default class MessageStore {
         this.iconClass += ' ' + this.colorObj.iconClass;
         this.tooltip = message.method ? 'Click to resend request' : '';
         this.note = message.note;
+        this.updateLogEntry();
         makeAutoObservable(this);
+    }
+
+    public async updateLogEntry() {
+        const message = this.message;
+        if (message.protocol === 'log:') {
+            const responseBody = message.responseBody;
+            if (typeof responseBody === 'string') {
+                this.logEntry = jsonLogStore.callScriptFunc(responseBody, {});
+            } else {
+                this.logEntry = jsonLogStore.callScriptFunc(message.path, responseBody);
+            }
+            const title = makeJSONRequestLabels(this, [], jsonLogStore.getJSONLabelNames());
+            this.setUrl(title);
+        }
+    }
+
+    public getLogEntry() {
+        return this.logEntry;
     }
 
     public hasNote() {

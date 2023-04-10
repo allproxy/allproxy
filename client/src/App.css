@@ -836,6 +836,7 @@ td input {
 }
 
 .breakpoint-modal,
+.json-log-modal,
 .no-capture-modal,
 .metrics-modal,
 .reachable-modal,
@@ -848,6 +849,7 @@ td input {
 @media screen and (prefers-color-scheme: light) {
 
 	.breakpoint-modal,
+	.json-log-modal,
 	.no-capture-modal,
 	.metrics-modal,
 	.reachable-modal,
@@ -858,6 +860,10 @@ td input {
 
 .breakpoint-modal {
 	max-width: 90vw;
+}
+
+.json-log-modal {
+	max-width: 800px;
 }
 
 .no-capture-modal {

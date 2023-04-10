@@ -61,12 +61,12 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					placeholder="Comma Separated List"
 				/> */}
 
-				<div className="primary-text-color">Read File or Paste Text:</div>
+				<div className="primary-text-color">Import File or Paste Text:</div>
 				<div style={{ display: "flex", alignItems: "center", margin: ".5rem 0 1rem 0" }}>
 					<button className={'btn btn-primary btn-lg'} style={{ whiteSpace: 'nowrap' }}
 						onClick={() => { openJSONFileSelector(); }}
 					>
-						Read File
+						Import File
 					</button>
 					<div style={{ width: "1rem" }}></div>
 					<textarea
