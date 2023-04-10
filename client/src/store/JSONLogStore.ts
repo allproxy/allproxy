@@ -34,7 +34,12 @@ export class JSONLogLabel {
 					let obj: { [key: string]: string } = {}
 					obj[key] = "";
 				}
-				await apFileSystem.writeFile(this.dir + '/' + name, name);
+				const dup = await apFileSystem.exists(this.dir + '/' + name);
+				if (!dup) {
+					await apFileSystem.writeFile(this.dir + '/' + name, name);
+				} else {
+					this.valid = false;
+				}
 			} catch (e) {
 				this.valid = false;
 			}
