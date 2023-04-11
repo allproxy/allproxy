@@ -1,5 +1,5 @@
 function sample(nonJson, jsonData) {
-    let date = '';
+    let date = new Date();
     let level = jsonData && jsonData.level ? jsonData.level : 'info';
     let category = '';
     let message = '';
@@ -33,7 +33,7 @@ function sample(nonJson, jsonData) {
     } else {
         const tokens = nonJson.split(' ', 5);
         if (tokens.length >= 3) {
-            date = tokens.slice(0, 3).join(' ');
+            date = new Date(tokens.slice(0, 3).join(' '));
         }
         if (tokens.length >= 4) {
             let pod = tokens[3];
