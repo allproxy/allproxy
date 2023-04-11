@@ -383,6 +383,8 @@ export default class FilterStore {
             if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
             if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
             if (this.isMatch(needle, messageStore.getRequestBody())) return false;
+        } else {
+            if (this.isMatch(needle, messageStore.getLogEntry().date.toISOString())) return false;
         }
         if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
         if (messageStore.hasNote() && this.isMatch(needle, messageStore.getNote())) return false;
@@ -408,6 +410,8 @@ export default class FilterStore {
             if (this.isExcluded(JSON.stringify(message.requestHeaders))) return true;
             if (this.isExcluded(JSON.stringify(message.responseHeaders))) return true;
             if (this.isExcluded(messageStore.getRequestBody())) return true;
+        } else {
+            if (this.isExcluded(messageStore.getLogEntry().date.toISOString())) return false;
         }
         if (message.responseBody && this.isExcluded(this.stringify(message.responseBody))) return true;
         return false;

@@ -44,7 +44,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 							responseTime
 							:
 							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}>
-								{store.getLogEntry().date.split('.')[0]}
+								{dateToHHMMSS(store.getLogEntry().date)}
 							</div>}
 					</div>
 					<div className="request__msg-time-bar-container">
@@ -224,6 +224,10 @@ export function formatTimestamp(timestamp: number) {
 	const seconds = date.getSeconds().toString().padStart(2, '0');
 	const msecs = (date.getMilliseconds() / 1000).toFixed(3).toString().replace('0.', '');
 	return `${date.toDateString()} ${hours}:${minutes}:${seconds}.${msecs}`;
+}
+
+function dateToHHMMSS(d: Date) {
+	return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
 }
 
 export default Request;
