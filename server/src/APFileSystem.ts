@@ -98,7 +98,8 @@ export default class APFileSystem {
         this.socket.on('readFile', (path: string, offset: number, chunkSize: number, callback: (data: string, eof: boolean) => void) => {
             try {
                 const file = this.toPlatformPath(path);
-                const fd = fs.openSync(file, 666);
+                const mode = process.platform === 'darwin' ? 666 : 444
+                const fd = fs.openSync(file, mode);
                 const data = Buffer.alloc(chunkSize);
                 const read = fs.readSync(fd, data, 0, chunkSize, offset);
                 const size = fs.statSync(file).size;
