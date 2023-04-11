@@ -192,7 +192,7 @@ export default class JSONLogStore {
 			this.labels.push(jsonField);
 		}
 
-		for (const fileName of await getFiles(SCRIPTS_DIR)) {
+		for (const fileName of await apFileSystem.readDir(SCRIPTS_DIR)) {
 			const script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + fileName)
 			switch (fileName) {
 				case jsonLogScriptFileName:
@@ -223,15 +223,6 @@ export default class JSONLogStore {
 		}
 		this.labels.splice(index, 1);
 	}
-}
-
-async function getFiles(dir: string): Promise<string[]> {
-	const fileNames = await apFileSystem.readDir(dir);
-	const names: string[] = [];
-	for (const fileName of fileNames) {
-		names.push(fileName);
-	}
-	return names;
 }
 
 export const jsonLogStore = new JSONLogStore();
