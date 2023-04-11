@@ -83,13 +83,11 @@ function(nonJson, jsonData) {
     }
 
     if (jsonData._file) {
-        let d;
         if (jsonData.msg_timestamp) {
-            d = new Date(jsonData.msg_timestamp);
+            date = new Date(jsonData.msg_timestamp);
         } else if (jsonData._ts) {
-            d = new Date(jsonData._ts);
+            date = new Date(jsonData._ts);
         }
-        date = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0') + '.' + d.getMilliseconds();
 
         if (jsonData.pod) {
             category = parsePod(jsonData.pod);
@@ -102,7 +100,7 @@ function(nonJson, jsonData) {
     } else {
         const tokens = nonJson.split(' ', 5);
         if (tokens.length >= 3) {
-            date = tokens[2];
+            date = tokens.slice(0, 3).join(' ');
         }
         if (tokens.length >= 4) {
             let pod = tokens[3];
@@ -136,7 +134,7 @@ function(nonJson, jsonData) {
 `
 
 export type LogEntry = {
-	date: string,
+	date: Date,
 	level: string,
 	category: string,
 	message: string,
@@ -146,7 +144,7 @@ export type LogEntry = {
 export default class JSONLogStore {
 	private script = defaultScript;
 
-	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: '', level: '', category: '', message: '', additionalJSON: {} }; };
+	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', category: '', message: '', additionalJSON: {} }; };
 	private labels: JSONLogLabel[] = [];
 
 	public constructor() {
@@ -170,7 +168,7 @@ export default class JSONLogStore {
 		this.scriptFunc = this.evalScript(this.script);
 	}
 	public callScriptFunc(nonJson: string, jsonData: object): LogEntry {
-		let logEntry: LogEntry = { date: '', level: '', category: '', message: '', additionalJSON: {} };
+		let logEntry: LogEntry = { date: new Date(), level: '', category: '', message: '', additionalJSON: {} };
 		try {
 			logEntry = this.scriptFunc(nonJson, jsonData);
 		} catch (e) {

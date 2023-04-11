@@ -245,12 +245,12 @@ export default class SnapshotStore {
 		let doDateSort = true;
 		for (const message of parsedBlob) {
 			const ms = new MessageStore(message);
-			if (ms.getMessage().protocol !== 'log:' || ms.getLogEntry().date === '') doDateSort = false;
+			if (ms.getMessage().protocol !== 'log:') doDateSort = false;
 			messageStores.push(ms);
 		}
 		if (doDateSort) {
 			console.log('sorting by date')
-			messageStores.sort((a, b) => a.getLogEntry().date.localeCompare(b.getLogEntry().date));
+			messageStores.sort((a, b) => a.getLogEntry().date.toISOString().localeCompare(b.getLogEntry().date.toISOString()));
 			messageStores.map((m, i) => {
 				const message = m.getMessage();
 				message.sequenceNumberRes = message.sequenceNumberRes;
