@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
+import { importJSONFile } from "../ImportJSONFile";
 import { filterStore } from "./FilterStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
@@ -83,10 +84,18 @@ export default class SnapshotStore {
 	private selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
 	private snapshots: Snapshots = new Snapshots();
 	private count = 0;
+	private updating = false;
 
 	public constructor() {
 		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, [], undefined, undefined, undefined);
 		makeAutoObservable(this);
+	}
+
+	public isUpdating() {
+		return this.updating;
+	}
+	@action setUpdating(updating: boolean) {
+		this.updating = updating;
 	}
 
 	public getSnapshots() {
@@ -240,7 +249,16 @@ export default class SnapshotStore {
 	}
 
 	public importSnapshot(fileName: string, snapshot: string | Message[]) {
-		const parsedBlob = typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
+		let parsedBlob: any;
+		if (typeof snapshot === 'string') {
+			try {
+				JSON.parse(snapshot);
+			} catch (e) {
+				parsedBlob = importJSONFile(fileName, snapshot, []);
+			}
+		} else {
+			parsedBlob = snapshot;
+		}
 		const messageStores: MessageStore[] = [];
 		let doDateSort = true;
 		for (const message of parsedBlob) {

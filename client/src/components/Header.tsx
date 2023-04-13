@@ -54,8 +54,10 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	});
 
 	if (!!snapshotContent.length && snapshotContent[0].content) {
+		snapshotStore.setUpdating(true);
 		snapshotStore.importSnapshot(snapshotContent[0].name, snapshotContent[0].content);
 		snapshotClear();
+		snapshotStore.setUpdating(false);
 	}
 
 	const statusClassName = 'fa ' + (socketStore.isConnected()
