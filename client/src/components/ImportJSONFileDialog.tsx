@@ -10,7 +10,6 @@ type Props = {
 	onClose: () => void,
 };
 const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
-	const [primaryJSONFields] = React.useState<string[]>([]);
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
 	const [submit, setSubmit] = React.useState(false);
@@ -20,18 +19,22 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	});
 
 	if (submit) {
-		if (!!jsonContent.length) {
-			for (const fileContent of jsonContent) {
-				snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, primaryJSONFields));
-			}
-			jsonClear();
-		} else if (pastedJSON.length > 0) {
-			snapshotStore.importSnapshot(tabName, importJSONFile(tabName, pastedJSON, primaryJSONFields));
-			setPastedJSON('');
-		}
-		setTabName('');
+		snapshotStore.setUpdating(true);
 		setSubmit(false);
 		onClose();
+		setTimeout(() => {
+			if (!!jsonContent.length) {
+				for (const fileContent of jsonContent) {
+					snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, []));
+				}
+				jsonClear();
+			} else if (pastedJSON.length > 0) {
+				snapshotStore.importSnapshot(tabName, importJSONFile(tabName, pastedJSON, []));
+				setPastedJSON('');
+			}
+			setTabName('');
+			snapshotStore.setUpdating(false);
+		}, 1000);
 	}
 
 	return (

@@ -89,7 +89,7 @@ const SnapshotTabContent = observer(({
 	};
 
 	return (
-		<div>
+		<div style={{ visibility: snapshotStore.isUpdating() ? 'hidden' : undefined }}>
 			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
 			</div>

@@ -410,8 +410,6 @@ export default class FilterStore {
             if (this.isExcluded(JSON.stringify(message.requestHeaders))) return true;
             if (this.isExcluded(JSON.stringify(message.responseHeaders))) return true;
             if (this.isExcluded(messageStore.getRequestBody())) return true;
-        } else {
-            if (this.isExcluded(messageStore.getLogEntry().date.toISOString())) return false;
         }
         if (message.responseBody && this.isExcluded(this.stringify(message.responseBody))) return true;
         return false;

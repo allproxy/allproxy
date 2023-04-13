@@ -12,6 +12,8 @@ import { breakpointStore } from './store/BreakpointStore';
 import { createTheme, PaletteType, ThemeProvider } from '@material-ui/core';
 import React from 'react';
 import SideBar from './components/SideBar';
+import StatusBox from './components/StatusBox';
+import { observer } from 'mobx-react-lite';
 
 const theme = localStorage.getItem('allproxy-theme');
 let defaultTheme: 'dark' | 'light' = 'dark'
@@ -65,6 +67,7 @@ function App() {
           messageQueueStore={messageQueueStore}
           snapshotStore={snapshotStore}
         />
+        <Updating />
         <div className="side-bar-snapshots">
           <div>
             <SideBar />
@@ -84,5 +87,9 @@ function App() {
     </ThemeProvider>
   );
 }
+
+const Updating = observer(() => {
+  return <StatusBox show={snapshotStore.isUpdating()}>Updating...</StatusBox>
+})
 
 export default App;

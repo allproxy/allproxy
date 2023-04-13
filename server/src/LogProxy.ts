@@ -19,7 +19,9 @@ export default class LogProxy {
     this.proxyConfig = proxyConfig;
     this.command = proxyConfig.path;
     this.boolFilter = new BoolFilter(proxyConfig.hostname);
-    this.start();
+    if (this.command.length > 0) {
+      this.start();
+    }
   }
 
   static destructor(proxyConfig: ProxyConfig) {
@@ -69,7 +71,7 @@ export default class LogProxy {
       return;
     }
 
-    const proc = exec(this.command);
+    let proc = exec(this.command);
 
     this.proxyConfig.logProxyProcess = proc; // save so we can kill process
     const startTime = Date.now();
