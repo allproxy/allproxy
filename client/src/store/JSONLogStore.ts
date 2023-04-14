@@ -63,8 +63,8 @@ const defaultScript =
 	`
 // Sample function used to extract level category and message from log entry
 // @param nonJson: string - non-JSON string
-// @param jsonData: {} - JSON log data
-// @returns {level: "error | warn | info", category: "category...",n message: "message..."}
+// @param jsonData: {} - JSON data
+// @returns {date: <Date>, level: "error | warn | info", category: "category...",n message: "message...", additionalJSON: {}}
 function(nonJson, jsonData) {
     let date = new Date();
     let level = jsonData && jsonData.level ? jsonData.level : 'info';
