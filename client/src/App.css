@@ -842,7 +842,7 @@ td input {
 .reachable-modal,
 .settings-modal {
 	background-color: #333333;
-	width: 99vw;
+	width: 90vw;
 	padding: 1rem 1rem;
 }
 
@@ -887,6 +887,11 @@ td input {
 .settings-modal__scroll-container {
 	overflow-y: auto;
 	height: calc(100vh - 400px);
+}
+
+.json-fields-modal__scroll-container {
+	overflow-y: auto;
+	height: calc(100vh - 300px);
 }
 
 .no-capture-modal__scroll-container,

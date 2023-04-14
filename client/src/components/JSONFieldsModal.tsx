@@ -12,7 +12,7 @@ type Props = {
 	store: JSONLogStore,
 }
 const TAB_NAMES: { [key: string]: string } = {}
-TAB_NAMES[JSON_FIELDS_DIR] = 'Highlight JSON Keys';
+TAB_NAMES[JSON_FIELDS_DIR] = 'Highlight JSON Fields';
 TAB_NAMES[SCRIPTS_DIR] = 'Script';
 
 const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
@@ -53,109 +53,120 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 		>
 			<div className="json-log-modal" role="dialog">
 				<div>
-					<h3>Annotate JSON Log Viewer</h3>
-					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
-						<TabContext value={tabValue}>
-							<Tabs
-								value={tabValue}
-								onChange={handleTabChange}
-								indicatorColor="primary"
-								textColor="primary"
-								aria-label="Annotate JSON Log">
-								{TAB_VALUES.map(value => (
-									<Tab value={value}
-										label={
-											<div>
-												<span style={{ marginLeft: '.25rem', color: 'black' }}>{TAB_NAMES[value]}</span>
-											</div>
-										}>
-									</Tab>
-								))}
-							</Tabs>
-							{TAB_VALUES.map(tabValue => (
-								<TabPanel value={tabValue} key={tabValue}>
-									<div className="no-capture-modal__scroll-container">
-										{tabValue === JSON_FIELDS_DIR &&
+					<span style={{ fontSize: '1.75rem' }}>Annotate JSON Log Viewer</span>
+					<div hidden style={{ float: 'right' }}>
+						<button className="btn btn-primary"
+							onClick={() => store.resetScriptToDefault()}
+						>
+							Export
+						</button>
+						<button className="btn btn-success" style={{ marginLeft: '.5rem' }}
+							onClick={() => store.resetScriptToDefault()}
+						>
+							Import
+						</button>
+					</div>
+
+					<TabContext value={tabValue}>
+						<Tabs
+							value={tabValue}
+							onChange={handleTabChange}
+							indicatorColor="primary"
+							textColor="primary"
+							aria-label="Annotate JSON Log">
+							{TAB_VALUES.map(value => (
+								<Tab value={value}
+									label={
+										<div>
+											<span style={{ marginLeft: '.25rem', color: 'black' }}>{TAB_NAMES[value]}</span>
+										</div>
+									}>
+								</Tab>
+							))}
+						</Tabs>
+						{TAB_VALUES.map(tabValue => (
+							<TabPanel value={tabValue} key={tabValue}>
+								<div className="json-fields-modal__scroll-container">
+									{tabValue === JSON_FIELDS_DIR &&
+										<div style={{ fontSize: 'small' }}>
+											<pre>
+												Enter <b>a.b</b> to highlight multi-level JSON:
+												<br></br>
+												{JSON.stringify({ a: { b: "value" } }, null, "  ")}
+											</pre>
+											<pre>
+												Enter <b>x[period]y</b> to highlight JSON with period in name:
+												<br></br>
+												{JSON.stringify({ "x.y": "value" }, null, "  ")}
+											</pre>
+										</div>
+									}
+									{tabValue === SCRIPTS_DIR ?
+										<>
 											<div style={{ fontSize: 'small' }}>
-												<pre>
-													Enter <b>a.b</b> to highlight multi-level JSON:
-													<br></br>
-													{JSON.stringify({ a: { b: "value" } }, null, "  ")}
-												</pre>
-												<pre>
-													Enter <b>x[period]y</b> to highlight JSON with period in name:
-													<br></br>
-													{JSON.stringify({ "x.y": "value" }, null, "  ")}
-												</pre>
+												Define Javascript function to return date, level, category, message and additional JSON data.
 											</div>
-										}
-										{tabValue === SCRIPTS_DIR ?
-											<>
-												<div style={{ fontSize: 'small' }}>
-													Define Javascript function to extract date, level, category and message.
-												</div>
-												{error !== '' &&
-													<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
-												}
-												<div>
-													<button className="btn btn-sm btn-primary"
-														onClick={() => store.resetScriptToDefault()}
-													>
-														Reset to default
-													</button>
-													<div style={{ marginTop: '.25rem' }}>
-														<textarea
-															rows={29} cols={80}
-															value={store.getScript()}
-															onChange={(e) => {
-																store.setScript(e.target.value);
-																setError('');
-															}}
-														/>
-													</div>
-												</div>
-											</>
-											:
-											<>
-												<button className="btn btn-lg btn-primary"
-													onClick={handleAddEntry}
+											{error !== '' &&
+												<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
+											}
+											<div>
+												<button className="btn btn-sm btn-primary"
+													onClick={() => store.resetScriptToDefault()}
 												>
-													+ New JSON Key
+													Reset to default
 												</button>
-												<List>
-													{store.getJSONLabels().map((jsonField, i) => (
-														<ListItem key={i}
+												<div style={{ marginTop: '.25rem' }}>
+													<textarea
+														rows={29} cols={80}
+														value={store.getScript()}
+														onChange={(e) => {
+															store.setScript(e.target.value);
+															setError('');
+														}}
+													/>
+												</div>
+											</div>
+										</>
+										:
+										<>
+											<button className="btn btn-lg btn-primary"
+												onClick={handleAddEntry}
+											>
+												+ New JSON Key
+											</button>
+											<List>
+												{store.getJSONLabels().map((jsonField, i) => (
+													<ListItem key={i}
+														style={{
+															display: 'flex', alignItems: 'center',
+														}}>
+														<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
+															<CloseIcon style={{ color: 'red' }} />
+														</IconButton>
+														<div
 															style={{
 																display: 'flex', alignItems: 'center',
-															}}>
-															<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
-																<CloseIcon style={{ color: 'red' }} />
-															</IconButton>
-															<div
+																width: '100%',
+															}}
+														>
+															<input className="form-control"
 																style={{
-																	display: 'flex', alignItems: 'center',
-																	width: '100%',
+																	background: jsonField.isValidName()
+																		? undefined
+																		: 'lightCoral'
 																}}
-															>
-																<input className="form-control"
-																	style={{
-																		background: jsonField.isValidName()
-																			? undefined
-																			: 'lightCoral'
-																	}}
-																	value={jsonField.getName()}
-																	onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
-															</div>
-														</ListItem>
-													))}
-												</List>
-											</>
-										}
-									</div>
-								</TabPanel>
-							))}
-						</TabContext>
-					</div>
+																value={jsonField.getName()}
+																onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
+														</div>
+													</ListItem>
+												))}
+											</List>
+										</>
+									}
+								</div>
+							</TabPanel>
+						))}
+					</TabContext>
 					<div className="modal-footer">
 						<button type="button" className="settings-modal__cancel btn btn-success"
 							onClick={close}
