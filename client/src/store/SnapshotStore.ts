@@ -252,7 +252,7 @@ export default class SnapshotStore {
 		let parsedBlob: any;
 		if (typeof snapshot === 'string') {
 			try {
-				JSON.parse(snapshot);
+				parsedBlob = JSON.parse(snapshot);
 			} catch (e) {
 				parsedBlob = importJSONFile(fileName, snapshot, []);
 			}
