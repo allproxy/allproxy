@@ -268,7 +268,21 @@ export default class SnapshotStore {
 		}
 		if (doDateSort) {
 			console.log('sorting by date')
-			messageStores.sort((a, b) => a.getLogEntry().date.toISOString().localeCompare(b.getLogEntry().date.toISOString()));
+			messageStores.sort((a, b) => {
+				let dateA: Date = a.getLogEntry().date;
+				let dateB: Date = b.getLogEntry().date;
+				try {
+					dateA.toISOString();
+				} catch (e) {
+					dateA = new Date(0);
+				}
+				try {
+					dateB.toISOString();
+				} catch (e) {
+					dateB = new Date(0);
+				}
+				return dateA.toISOString().localeCompare(dateB.toISOString());
+			});
 			messageStores.map((m, i) => {
 				const message = m.getMessage();
 				message.sequenceNumberRes = message.sequenceNumberRes;
