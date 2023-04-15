@@ -1,4 +1,4 @@
-import { IconButton, List, ListItem, Modal, Tab, Tabs } from '@material-ui/core'
+import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core'
 import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
@@ -19,6 +19,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 	const TAB_VALUES = [JSON_FIELDS_DIR, SCRIPTS_DIR];
 	const [tabValue, setTabValue] = React.useState(JSON_FIELDS_DIR);
 	const [error, setError] = React.useState('');
+	const [radioValue, setRadioValue] = React.useState('table');
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: 'Categories' | 'JSON Fields') {
 		setTabValue(tabValue);
@@ -53,20 +54,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 		>
 			<div className="json-log-modal" role="dialog">
 				<div>
-					<span style={{ fontSize: '1.75rem' }}>Annotate JSON Log Viewer</span>
-					<div hidden style={{ float: 'right' }}>
-						<button className="btn btn-primary"
-							onClick={() => store.resetScriptToDefault()}
-						>
-							Export
-						</button>
-						<button className="btn btn-success" style={{ marginLeft: '.5rem' }}
-							onClick={() => store.resetScriptToDefault()}
-						>
-							Import
-						</button>
-					</div>
-
+					<h3>Annotate JSON Log Viewer</h3>
 					<TabContext value={tabValue}>
 						<Tabs
 							value={tabValue}
@@ -129,38 +117,65 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 										</>
 										:
 										<>
-											<button className="btn btn-lg btn-primary"
-												onClick={handleAddEntry}
+											<RadioGroup
+												row
+												aria-labelledby="json-fields-radio-buttons"
+												defaultValue="table"
+												name="json-fields-radio-buttons"
+												value={radioValue}
+												onChange={(e) => setRadioValue(e.target.value)}
 											>
-												+ New JSON Key
-											</button>
-											<List>
-												{store.getJSONLabels().map((jsonField, i) => (
-													<ListItem key={i}
-														style={{
-															display: 'flex', alignItems: 'center',
-														}}>
-														<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
-															<CloseIcon style={{ color: 'red' }} />
-														</IconButton>
-														<div
-															style={{
-																display: 'flex', alignItems: 'center',
-																width: '100%',
+												<FormControlLabel value="table" control={<Radio />} label="Table" />
+												<FormControlLabel value="copypaste" control={<Radio />} label="Copy/Paste" />
+											</RadioGroup>
+											{radioValue === 'copypaste' ?
+												<>
+													<div>One JSON field name per line:</div>
+													<div style={{ marginTop: '.25rem' }} >
+														<textarea
+															rows={29} cols={80}
+															value={store.getJSONFieldNames().join('\n')}
+															onChange={(e) => {
+																store.setJSONFieldNames(e.target.value)
 															}}
-														>
-															<input className="form-control"
+														/>
+													</div>
+												</>
+												:
+												<>
+													<button className="btn btn-lg btn-primary"
+														onClick={handleAddEntry}
+													>
+														+ New JSON Key
+													</button>
+													<List>
+														{store.getJSONFields().map((jsonField, i) => (
+															<ListItem key={i}
 																style={{
-																	background: jsonField.isValidName()
-																		? undefined
-																		: 'lightCoral'
-																}}
-																value={jsonField.getName()}
-																onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
-														</div>
-													</ListItem>
-												))}
-											</List>
+																	display: 'flex', alignItems: 'center',
+																}}>
+																<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
+																	<CloseIcon style={{ color: 'red' }} />
+																</IconButton>
+																<div
+																	style={{
+																		display: 'flex', alignItems: 'center',
+																		width: '100%',
+																	}}
+																>
+																	<input className="form-control"
+																		style={{
+																			background: jsonField.isValidName()
+																				? undefined
+																				: 'lightCoral'
+																		}}
+																		value={jsonField.getName()}
+																		onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
+																</div>
+															</ListItem>
+														))}
+													</List>
+												</>}
 										</>
 									}
 								</div>

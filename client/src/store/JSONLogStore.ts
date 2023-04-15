@@ -5,7 +5,7 @@ export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
 const jsonLogScriptFileName = 'jsonLogScript';
 
-export class JSONLogLabel {
+export class JSONLogField {
 	private dir = "";
 	private name = "";
 	private valid = true;
@@ -145,7 +145,8 @@ export default class JSONLogStore {
 	private script = defaultScript;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', category: '', message: '', additionalJSON: {} }; };
-	private labels: JSONLogLabel[] = [];
+
+	private fields: JSONLogField[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -185,11 +186,11 @@ export default class JSONLogStore {
 
 	public async init() {
 		const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
-		this.labels = [];
+		this.fields = [];
 		for (const fileName of fileNames) {
-			const jsonField = new JSONLogLabel(JSON_FIELDS_DIR);
+			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
 			jsonField.setName(fileName);
-			this.labels.push(jsonField);
+			this.fields.push(jsonField);
 		}
 
 		for (const fileName of await apFileSystem.readDir(SCRIPTS_DIR)) {
@@ -202,26 +203,39 @@ export default class JSONLogStore {
 		}
 	}
 
-	public getJSONLabels() {
-		return this.labels;
+	public getJSONFields() {
+		return this.fields;
 	}
 
-	public getJSONLabelNames(): string[] {
+	@action public setJSONFieldNames(fields: string) {
+		for (; this.fields.length > 0;) {
+			const field = this.fields.pop();
+			if (field) field.setNameAndValidate(''); // Delete
+		}
+		this.fields.splice(0, this.fields.length);
+		for (const field of fields.split('\n')) {
+			const newField = new JSONLogField(JSON_FIELDS_DIR);
+			newField.setNameAndValidate(field); // Create
+			this.fields.push(newField);
+		}
+	}
+
+	public getJSONFieldNames(): string[] {
 		const fields: string[] = [];
-		for (const label of this.labels) fields.push(label.getName());
+		for (const field of this.fields) fields.push(field.getName());
 		return fields;
 	}
 
 	@action public extend() {
-		this.labels.unshift(new JSONLogLabel(JSON_FIELDS_DIR));
+		this.fields.unshift(new JSONLogField(JSON_FIELDS_DIR));
 	}
 
 	@action public deleteEntry(index: number) {
-		const jsonField = this.labels[index];
+		const jsonField = this.fields[index];
 		if (jsonField.getName() != "") {
 			apFileSystem.deleteFile(jsonField.getDir() + '/' + jsonField.getName());
 		}
-		this.labels.splice(index, 1);
+		this.fields.splice(index, 1);
 	}
 }
 

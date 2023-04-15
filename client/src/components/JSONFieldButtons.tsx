@@ -89,7 +89,7 @@ export async function updateJSONRequestLabels(snapShotName: string, messages: Me
 		}
 	}
 	// Custom JSON fields
-	const customJsonFields: string[] = jsonLogStore.getJSONLabelNames();
+	const customJsonFields: string[] = jsonLogStore.getJSONFieldNames();
 	for (const messageStore of messages) {
 		const message = messageStore.getMessage();
 		if (message.protocol === 'log:') {
@@ -172,7 +172,7 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 					} catch (e) { }
 				}
 			}
-			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number')) return;
+			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return;
 
 			if (field !== 'PREFIX') {
 				field = field.replaceAll('[period]', '.');
