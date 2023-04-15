@@ -49,7 +49,7 @@ export default class MessageStore {
             } else {
                 this.logEntry = jsonLogStore.callScriptFunc(message.path, responseBody);
             }
-            const title = makeJSONRequestLabels(this, [], jsonLogStore.getJSONLabelNames());
+            const title = makeJSONRequestLabels(this, [], jsonLogStore.getJSONFieldNames());
             this.setUrl(title);
         }
     }
