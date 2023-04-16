@@ -512,14 +512,14 @@ td input {
 	margin-left: .5rem;
 	color: whitesmoke;
 	cursor: pointer;
-	width: 2.2ch;
+	width: 2rem;
 	text-align: center;
 }
 
 .header__filter-case.active,
 .header__filter-regex.active,
 .header__filter-logical.active {
-	border: red solid;
+	border: red solid thin;
 	border-radius: .5rem;
 }
 
