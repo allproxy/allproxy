@@ -352,7 +352,9 @@ const SideBar = observer(() => {
 				name={''}
 				onClose={async (fileName) => {
 					setOpenSaveSessionDialog(false);
-					await sessionStore.saveSession(fileName);
+					if (fileName.length > 0) {
+						await sessionStore.saveSession(fileName);
+					}
 					setDisableSession(false);
 				}} />
 			<SessionModal
