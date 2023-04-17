@@ -192,11 +192,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						value={filter}
 						onChange={e => setFilter(e.currentTarget.value)}
 						onKeyUp={(e) => {
-							if (e.keyCode === 13 || filter === '') {
+							if (e.keyCode === 13) {
 								filterStore.setFilterNoDebounce(filter);
 							}
 						}}
-						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
+						placeholder={filter !== filterStore.getFilter() ? "Press enter to apply filter..." : "Boolean/Regex Filter: (a || b.*) && !c"} />
 				</div>
 				<div className={`header__filter-case ${filterStore.matchCase() ? 'active' : ''}`}
 					title="Match case" onClick={() => filterStore.toggleMatchCase()}>Aa</div>
