@@ -46,6 +46,9 @@ function sample(nonJson, jsonData) {
             category += parsePod(pod);
         }
     }
+    if (jsonData.Worker !== undefined) {
+        category += ' worker' + jsonData.Worker;
+    }
 
     const additionalJSON = {};
 

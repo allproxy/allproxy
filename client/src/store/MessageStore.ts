@@ -1,10 +1,9 @@
 import { makeAutoObservable, action } from "mobx"
 import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
-import { makeJSONRequestLabels } from "../components/JSONFieldButtons";
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
-import { LogEntry, jsonLogStore } from "./JSONLogStore";
+import { LogEntry, jsonLogStore, makeJSONRequestLabels } from "./JSONLogStore";
 
 export default class MessageStore {
     private message: Message = new Message();
