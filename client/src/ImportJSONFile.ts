@@ -1,5 +1,5 @@
 import Message, { MessageType } from "./common/Message";
-import { makeJSONRequestLabels } from "./components/JSONFieldButtons";
+import { makeJSONRequestLabels } from "./store/JSONLogStore";
 import MessageStore from "./store/MessageStore";
 import { untruncateJson } from "./UntruncateJSON";
 

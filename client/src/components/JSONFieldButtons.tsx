@@ -3,9 +3,8 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { pickButtonStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
-import { jsonLogStore } from '../store/JSONLogStore';
+import { updateJSONRequestLabels } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
-import MessageStore from '../store/MessageStore';
 import { snapshotStore } from '../store/SnapshotStore';
 import { sortOrderHandler } from './SortBy';
 
@@ -78,114 +77,6 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 
 function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
 	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
-}
-
-export async function updateJSONRequestLabels(snapShotName: string, messages: MessageStore[]) {
-	const selectedFields = snapshotStore.getJsonFields(snapShotName);
-	const primaryFields: string[] = [];
-	for (const f of selectedFields) {
-		if (f.selected) {
-			primaryFields.push(f.name);
-		}
-	}
-	// Custom JSON fields
-	const customJsonFields: string[] = jsonLogStore.getJSONFieldNames();
-	for (const messageStore of messages) {
-		const message = messageStore.getMessage();
-		if (message.protocol === 'log:') {
-			const title = makeJSONRequestLabels(messageStore, primaryFields, customJsonFields);
-			messageStore.setUrl(title);
-		}
-	}
-}
-
-export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields: string[], customJsonFields: string[]): string {
-	const message = messageStore.getMessage();
-
-	let json: { [key: string]: string } = {};
-	if (typeof message.responseBody === 'string') {
-		json = messageStore.getLogEntry().additionalJSON;
-	} else {
-		json = message.responseBody;
-	}
-	let title = formatJSONRequestLabels(json, primaryFields, customJsonFields);
-	if (title.length === 0) {
-		// Look for embedded JSON object
-		let nonJson = message.path ? message.path + ' ' : '';
-
-		title = nonJson + JSON.stringify(message.responseBody);
-
-		// if (title.length > 200) {
-		// 	title = title.substring(0, 200) + '...';
-		// }
-	}
-
-	let messageText = messageStore.getLogEntry().message;
-	if (messageText !== '') {
-		title = `<span class="request__msg-highlight">${messageText}</span> ` + title;
-	}
-
-	let category = messageStore.getLogEntry().category;
-	if (category !== '') {
-		//messageStore.setColor(categoryStyle.background);
-		let labels = ''
-		for (const name of category.split(' ')) {
-			const categoryStyle = pickButtonStyle(name);
-			labels += makeLabel(name, categoryStyle.background, categoryStyle.color);
-		}
-		title = labels + title;
-	}
-
-	return title;
-}
-
-function makeLabel(name: string, background: string, color: string) {
-	return `<span style="color: ${color}; background:${background};padding: 0 .25rem;border-radius: .25rem;border:${background} thin solid">`
-		+ name +
-		'</span> ';
-}
-
-function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
-	let title = '';
-	const fields = primaryJsonFields.concat(customJsonFields);
-	fields.forEach((field) => {
-		let value: string | number | undefined = undefined;
-		if (Object.keys(json).length > 0) {
-			//const combos = getFieldCombos(field)
-			value = eval('json');
-			for (let key of field.split('.')) {
-				key = key.replaceAll('[period]', '.');
-				const keys: string[] = [key];
-				if (key === key.toLowerCase()) {
-					keys.push(key.substring(0, 1).toUpperCase() + key.substring(1).toLowerCase());
-				} else {
-					keys.push(key.toLowerCase())
-				}
-				if (key !== key.toUpperCase()) {
-					keys.push(key.toUpperCase())
-				}
-
-				for (const key of keys) {
-					try {
-						value = eval(`value["${key}"]`);
-						break;
-					} catch (e) { }
-				}
-			}
-			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return;
-
-			if (field !== 'PREFIX') {
-				field = field.replaceAll('[period]', '.');
-				if (title.length > 0) title += ' ';
-				const style = pickButtonStyle(field);
-				title += makeLabel(field, style.background, style.color);
-				if (typeof value === 'string') value = `"${value}"`
-			}
-			title += value;
-		}
-	})
-
-	return title;
 }
 
 export default JSONFieldButtons;

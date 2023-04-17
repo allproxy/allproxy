@@ -20,8 +20,7 @@ import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
-import { jsonLogStore } from '../store/JSONLogStore';
-import { updateJSONRequestLabels } from './JSONFieldButtons';
+import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 
 let filterWasStopped = false;
 
