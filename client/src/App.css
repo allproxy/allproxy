@@ -640,7 +640,7 @@ td input {
 	padding-right: .5rem;
 	overflow: auto;
 	width: calc(50vw - 4rem);
-	resize: horizontal;
+	resize: none;
 	border-right: solid grey;
 	display: flex;
 	flex-direction: column;
