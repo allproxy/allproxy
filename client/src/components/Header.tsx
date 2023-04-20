@@ -178,6 +178,17 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							&nbsp;Copy to Clipboard
 						</div>
 					</MenuItem>
+					<MenuItem>
+						<div className="header__import fa fa-image" title="Layout"
+							onClick={() => {
+								snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.toggleVertical()
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;{snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.isVertical() ?
+								'Set Horizontal Layout' : 'Set Vertical Layout'}
+						</div>
+					</MenuItem>
 				</Menu>
 
 				<div className="header__filter">

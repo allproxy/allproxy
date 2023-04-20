@@ -639,7 +639,6 @@ td input {
 .request__container {
 	padding-right: .5rem;
 	overflow: auto;
-	width: calc(50vw - 4rem);
 	resize: none;
 	border-right: solid grey;
 	display: flex;
@@ -721,16 +720,12 @@ td input {
 	font-family: 'Courier New', Courier, monospace;
 }
 
-.response__loading,
 .response__container {
 	margin-top: .5rem;
 	padding-left: 1rem;
 	padding-right: 1rem;
-	height: calc(100vh - 8rem - 3rem);
 	overflow-y: auto;
 	overflow-x: auto;
-	-webkit-flex: 100%;
-	flex: 1;
 	overflow-wrap: anywhere;
 }
 

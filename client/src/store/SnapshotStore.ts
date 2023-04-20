@@ -2,6 +2,7 @@ import { makeAutoObservable, action } from "mobx"
 import Message from '../common/Message';
 import { importJSONFile } from "../ImportJSONFile";
 import { filterStore } from "./FilterStore";
+import LayoutStore from "./LayoutStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 
@@ -14,6 +15,7 @@ class Snapshots {
 	private scrollTop: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
 	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
+	private layoutMap: Map<string, LayoutStore> = new Map();
 
 	constructor() {
 		makeAutoObservable(this);
@@ -29,7 +31,8 @@ class Snapshots {
 		fileName?: string,
 		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
 		scrollTop = 0,
-		jsonFields: { name: string, count: number, selected: boolean }[] = []
+		jsonFields: { name: string, count: number, selected: boolean }[] = [],
+		layout: LayoutStore = new LayoutStore(),
 	) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
@@ -39,6 +42,7 @@ class Snapshots {
 			this.fileNameMap.set(key, fileName);
 		}
 		this.jsonPrimaryFieldsMap.set(key, jsonFields)
+		this.layoutMap.set(key, layout);
 	}
 
 	public delete(key: string) {
@@ -49,6 +53,7 @@ class Snapshots {
 		this.scrollTop.splice(index, 1);
 		this.fileNameMap.delete(key);
 		this.jsonPrimaryFieldsMap.delete(key);
+		this.layoutMap.delete(key);
 	}
 
 	public count() {
@@ -77,6 +82,10 @@ class Snapshots {
 
 	public setJsonFields(key: string, jsonPrimaryFields: { name: string, count: number, selected: boolean }[]) {
 		this.jsonPrimaryFieldsMap.set(key, jsonPrimaryFields);
+	}
+
+	public getLayout(key: string) {
+		return this.layoutMap.get(key);
 	}
 }
 
@@ -140,6 +149,10 @@ export default class SnapshotStore {
 		return this.snapshots.setJsonFields(name, fields);
 	}
 
+	public getLayout(name: string) {
+		return this.snapshots.getLayout(name);
+	}
+
 	public getSnapshotCount() {
 		return this.snapshots.count();
 	}
@@ -164,7 +177,9 @@ export default class SnapshotStore {
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
 		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds()) + ' ' + this.count++;
 		if (snapshot) {
-			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0);
+			const layoutStore = new LayoutStore();
+			layoutStore.setVertical(snapshot.length === 0 || snapshot[0].getMessage().protocol !== 'log:');
+			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0, [], layoutStore);
 		} else {
 			this.snapshots.set(
 				name,
@@ -172,7 +187,8 @@ export default class SnapshotStore {
 				fileName,
 				this.getSelectedReqSeqNumbers()[0],
 				this.getScrollTop()[0],
-				this.getJsonFields(ACTIVE_SNAPSHOT_NAME)
+				this.getJsonFields(ACTIVE_SNAPSHOT_NAME),
+				this.getLayout(ACTIVE_SNAPSHOT_NAME),
 			);
 			activeSnapshot.splice(0, activeSnapshot.length);
 		}
