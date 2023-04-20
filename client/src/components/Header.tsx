@@ -178,6 +178,17 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							&nbsp;Copy to Clipboard
 						</div>
 					</MenuItem>
+					<MenuItem>
+						<div className="header__import fa fa-image" title="Layout"
+							onClick={() => {
+								snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.toggleVertical()
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;{snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.isVertical() ?
+								'Set Horizontal Layout' : 'Set Vertical Layout'}
+						</div>
+					</MenuItem>
 				</Menu>
 
 				<div className="header__filter">
@@ -192,11 +203,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						value={filter}
 						onChange={e => setFilter(e.currentTarget.value)}
 						onKeyUp={(e) => {
-							if (e.keyCode === 13 || filter === '') {
+							if (e.keyCode === 13) {
 								filterStore.setFilterNoDebounce(filter);
 							}
 						}}
-						placeholder="Boolean/Regex Filter: (a || b.*) && !c" />
+						placeholder={filter !== filterStore.getFilter() ? "Press enter to apply filter..." : "Boolean/Regex Filter: (a || b.*) && !c"} />
 				</div>
 				<div className={`header__filter-case ${filterStore.matchCase() ? 'active' : ''}`}
 					title="Match case" onClick={() => filterStore.toggleMatchCase()}>Aa</div>

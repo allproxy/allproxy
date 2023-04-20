@@ -317,24 +317,26 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 		let value: string | number | undefined = undefined;
 		if (Object.keys(json).length > 0) {
 			//const combos = getFieldCombos(field)
-			value = eval('json');
-			for (let key of field.split('.')) {
-				key = key.replaceAll('[period]', '.');
-				const keys: string[] = [key];
-				if (key === key.toLowerCase()) {
-					keys.push(key.substring(0, 1).toUpperCase() + key.substring(1).toLowerCase());
-				} else {
-					keys.push(key.toLowerCase())
-				}
-				if (key !== key.toUpperCase()) {
-					keys.push(key.toUpperCase())
-				}
+			const jsonEval = eval('json');
+			if (jsonEval !== undefined) {
+				for (let key of field.split('.')) {
+					key = key.replaceAll('[period]', '.');
+					const keys: string[] = [key];
+					if (key === key.toLowerCase()) {
+						keys.push(key.substring(0, 1).toUpperCase() + key.substring(1).toLowerCase());
+					} else {
+						keys.push(key.toLowerCase())
+					}
+					if (key !== key.toUpperCase()) {
+						keys.push(key.toUpperCase())
+					}
 
-				for (const key of keys) {
-					try {
-						value = eval(`value["${key}"]`);
-						break;
-					} catch (e) { }
+					for (const key of keys) {
+						try {
+							value = eval(`jsonEval["${key}"]`);
+							if (value !== undefined) break;
+						} catch (e) { }
+					}
 				}
 			}
 			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return;

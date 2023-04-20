@@ -10,9 +10,10 @@ import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import { Fade, IconButton } from '@material-ui/core';
-import JSONFieldButtons, { JSONFieldButtonsHeight } from './JSONFieldButtons';
+import JSONFieldButtons from './JSONFieldButtons';
 import { snapshotStore } from '../store/SnapshotStore';
 import CloseIcon from "@material-ui/icons/Close";
+import LayoutStore from '../store/LayoutStore';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -82,28 +83,29 @@ const SnapshotTabContent = observer(({
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	let matchCount = 0;
-
-	const calcHeight = () => {
-		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0px';
-		return `calc(100vh - 9rem - ${jsonFieldButtonsHeight})`
-	};
-
+	let layout = snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName());
+	if (!layout) layout = new LayoutStore();
+	const requestContainerLayout = layout.requestContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
+	const responseContainerLayout = layout.responseContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 	return (
 		<div style={{ opacity: snapshotStore.isUpdating() ? '.3' : undefined }}>
 			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
 			</div>
-			<div className="request-response__container">
-				{messageQueueStore.getMessages().length > 0 &&
+			<div className="request-response__container"
+				style={{ flexDirection: layout.flexDirection() }}
+			>
+				{
+					messageQueueStore.getMessages().length > 0 &&
 					<div className={'request__container '
 						+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
-						style={{ height: calcHeight() }}
+						style={{ width: requestContainerLayout.width, height: requestContainerLayout.height }}
 						ref={requestContainerRef} onScroll={handleScroll}>
 						{messageQueueStore.getMessages().map((messageStore, index) => {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
-							if (filterStore.isFiltered(messageStore)) {
+							if (!snapshotStore.isUpdating() && filterStore.isFiltered(messageStore)) {
 								return null;
 							} else {
 								lastSeqNum = seqNum;
@@ -140,7 +142,9 @@ const SnapshotTabContent = observer(({
 					</div>
 				}
 				{messageQueueStore.getMessages().length === 0 &&
-					<div className="request__container unselected" style={{ height: calcHeight() }}>
+					<div className="request__container unselected"
+						style={{ width: responseContainerLayout.width, height: responseContainerLayout.height }}
+					>
 						<div className="center fas fa-exchange-alt"
 							style={{ fontSize: '8rem', color: '#007bff' }}>
 						</div>
@@ -149,7 +153,7 @@ const SnapshotTabContent = observer(({
 				{
 					messageQueueStore.getMessages().length > 0 &&
 					<div className="response__container"
-						style={{ height: calcHeight() }}
+						style={{ width: responseContainerLayout.width, height: responseContainerLayout.height }}
 					>
 						{activeRequestIndex < messageQueueStore.getMessages().length ?
 							<Response
@@ -259,6 +263,7 @@ const SnapshotTabContent = observer(({
 						if (msg.sequenceNumber === seqNum) {
 							break;
 						}
+						if (filterStore.isFiltered(messageQueueStore.getMessages()[i])) continue;
 						const element = (children[i] as Element);
 						if (element) {
 							offset += element.clientHeight;

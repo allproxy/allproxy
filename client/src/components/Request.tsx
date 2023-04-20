@@ -112,15 +112,6 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 								&nbsp;Copy as curl
 							</div>
 						</MenuItem>
-						<MenuItem>
-							<div
-								onClick={() => {
-									setMoreMenuIcon(null);
-								}}
-							>
-								X &nbsp;Close Menu
-							</div>
-						</MenuItem>
 						<MenuItem style={{
 							opacity: message.protocol === 'log:' ? undefined : 0.3,
 							pointerEvents: message.protocol === 'log:' ? undefined : 'none'
@@ -132,6 +123,15 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 								}}
 							>
 								&nbsp;Copy to Clipboard
+							</div>
+						</MenuItem>
+						<MenuItem>
+							<div
+								onClick={() => {
+									setMoreMenuIcon(null);
+								}}
+							>
+								X &nbsp;Close Menu
 							</div>
 						</MenuItem>
 					</Menu>
@@ -165,7 +165,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 					</div>
 				</div>
 			</div>
-			<div className="request__body" hidden={!isActive}>
+			<div className="request__body" hidden={!isActive || store.getMessage().protocol === 'log:'}>
 				{!store.isRequestBodyJson()
 					? store.getRequestBody()
 					: <ReactJson
