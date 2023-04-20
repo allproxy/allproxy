@@ -143,7 +143,7 @@ const SnapshotTabContent = observer(({
 				}
 				{messageQueueStore.getMessages().length === 0 &&
 					<div className="request__container unselected"
-						style={{ width: responseContainerLayout.width, height: responseContainerLayout.height }}
+						style={{ width: layout.calcMaxWidth(), height: layout.calcMaxHeight() }}
 					>
 						<div className="center fas fa-exchange-alt"
 							style={{ fontSize: '8rem', color: '#007bff' }}>
@@ -159,6 +159,7 @@ const SnapshotTabContent = observer(({
 							<Response
 								store={messageQueueStore.getMessages()[activeRequestIndex]}
 								message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
+								vertical={layout.isVertical()}
 								onSync={() => setScrollTo(selectedReqSeqNum, 0)}
 								onClose={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
 							/>

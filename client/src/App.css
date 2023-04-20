@@ -573,7 +573,7 @@ td input {
 	margin-bottom: 2rem;
 }
 
-.snapshot__container .MuiTabs-root {
+.snapshot__container>.MuiTabs-root {
 	z-index: 99;
 	position: fixed;
 	top: 3rem;
@@ -584,13 +584,9 @@ td input {
 
 @media screen and (prefers-color-scheme: light) {
 
-	.snapshot__container .MuiTabs-root {
+	.snapshot__container>.MuiTabs-root {
 		background-color: rgb(228, 227, 227) !important;
 	}
-}
-
-.snapshot__container .Mui-selected {
-	/* background-color: whitesmoke */
 }
 
 .snapshot__container .MuiTabPanel-root {

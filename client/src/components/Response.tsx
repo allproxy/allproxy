@@ -1,23 +1,34 @@
 import React, { ReactElement } from 'react';
 import Message from '../common/Message';
-import { Accordion, AccordionSummary, AccordionDetails, CircularProgress, IconButton } from '@material-ui/core';
+import { Accordion, AccordionSummary, AccordionDetails, CircularProgress, IconButton, Tabs, Tab } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
 import MessageStore from '../store/MessageStore';
 import { colorScheme } from '../App';
 import CloseIcon from "@material-ui/icons/Close";
 import { formatTimestamp } from './Request';
+import { TabContext, TabPanel } from '@material-ui/lab';
 
 
 type Props = {
 	message: Message,
 	store: MessageStore,
+	vertical: boolean,
 	onSync: () => void,
 	onClose: () => void,
 };
-const Response = ({ message, store, onSync, onClose }: Props) => {
+const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 	const LOADING = 'Loading...';
 	const [responseBody, setResponseBody] = React.useState<string | ReactElement<any, any>>(LOADING);
+	const [tabValue, setTabValue] = React.useState('Response Data');
+
+	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
+		setTabValue(value);
+	}
+
+	if (message.protocol === 'log:') {
+		vertical = false;
+	}
 
 	const queryParams = getQueryParams(message);
 	getResponseBody(message)
@@ -56,59 +67,131 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 						<b>URL:&nbsp;</b><div style={{ paddingTop: '.5rem', paddingBottom: '.5rem' }}>{message.url}</div>
 					</div>
 				}
-				{Object.keys(message.requestHeaders).length > 0 ?
-					< Accordion >
-						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-							<b>Request Headers:</b>
-						</AccordionSummary>
-						<AccordionDetails>
-							<pre>
-								{JSON.stringify(message.requestHeaders, null, 2)}
-							</pre>
-						</AccordionDetails>
-					</Accordion>
-					: null}
-				{Object.keys(message.responseHeaders).length > 0 ?
-					<Accordion>
-						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-							<b>Response Headers:</b>
-						</AccordionSummary>
-						<AccordionDetails>
-							<pre>
-								{JSON.stringify(message.responseHeaders, null, 2)}
-							</pre>
-						</AccordionDetails>
-					</Accordion>
-					: null}
-				{queryParams ?
-					<Accordion>
-						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-							<b>Query Parameters:</b>
-						</AccordionSummary>
-						<AccordionDetails>
-							<pre>
-								{JSON.stringify(queryParams, null, 2)}
-							</pre>
-						</AccordionDetails>
-					</Accordion>
-					: null}
 
-				{store.getMessage().protocol === 'log:' ?
-					renderLogEntry()
-					:
-					<Accordion defaultExpanded={true}>
-						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-							<b>Response Data:</b>
-						</AccordionSummary>
-						<AccordionDetails>
-							{typeof responseBody === 'string'
-								? <pre>{responseBody}</pre>
-								: responseBody
-							}
-						</AccordionDetails>
-					</Accordion>
+				{!vertical &&
+					<div>
+						<TabContext value={tabValue}>
+							<Tabs
+								value={tabValue}
+								onChange={handleTabChange}
+								indicatorColor="primary"
+								textColor="primary"
+								aria-label="Response table">
+								{Object.keys(message.requestHeaders).length > 0 &&
+									<Tab value={'Request Headers'} label={
+										<div>
+											<span style={{ marginLeft: '.25rem', color: 'black' }}>Request Headers</span>
+										</div>
+									} />}
+								{Object.keys(message.responseHeaders).length > 0 &&
+									<Tab value={'Response Headers'} label={
+										<div>
+											<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Headers</span>
+										</div>
+									} />}
+								{queryParams !== undefined &&
+									< Tab value={'Query Parameters'} label={
+										<div>
+											<span style={{ marginLeft: '.25rem', color: 'black' }}>Query Parameters</span>
+										</div>
+									} />}
+								<Tab value={'Response Data'} label={
+									<div>
+										<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Data</span>
+									</div>
+								} />
+							</Tabs>
+							{Object.keys(message.requestHeaders).length > 0 &&
+								< TabPanel value={'Request Headers'}>
+									<pre>
+										{JSON.stringify(message.requestHeaders, null, 2)}
+									</pre>
+								</TabPanel>}
+							{Object.keys(message.responseHeaders).length > 0 &&
+								< TabPanel value={'Response Headers'}>
+									<pre>
+										{JSON.stringify(message.responseHeaders, null, 2)}
+									</pre>
+								</TabPanel>}
+							{queryParams !== undefined &&
+								<TabPanel value={'Query Parameters'}>
+									<pre>
+										{JSON.stringify(queryParams, null, 2)}
+									</pre>
+								</TabPanel>}
+							<TabPanel value={'Response Data'}>
+								{typeof responseBody === 'string'
+									? <pre>{responseBody}</pre>
+									: responseBody
+								}
+							</TabPanel>
+						</TabContext>
+					</div>
 				}
-				{responseBody === LOADING &&
+
+				{
+					vertical && Object.keys(message.requestHeaders).length > 0 ?
+						< Accordion >
+							<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+								<b>Request Headers:</b>
+							</AccordionSummary>
+							<AccordionDetails>
+								<pre>
+									{JSON.stringify(message.requestHeaders, null, 2)}
+								</pre>
+							</AccordionDetails>
+						</Accordion>
+						: null
+				}
+				{
+					vertical && Object.keys(message.responseHeaders).length > 0 ?
+						<Accordion>
+							<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+								<b>Response Headers:</b>
+							</AccordionSummary>
+							<AccordionDetails>
+								<pre>
+									{JSON.stringify(message.responseHeaders, null, 2)}
+								</pre>
+							</AccordionDetails>
+						</Accordion>
+						: null
+				}
+				{
+					vertical && queryParams ?
+						<Accordion>
+							<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+								<b>Query Parameters:</b>
+							</AccordionSummary>
+							<AccordionDetails>
+								<pre>
+									{JSON.stringify(queryParams, null, 2)}
+								</pre>
+							</AccordionDetails>
+						</Accordion>
+						: null
+				}
+
+				{
+					vertical &&
+					(store.getMessage().protocol === 'log:' ?
+						renderLogEntry()
+						:
+						<Accordion defaultExpanded={true}>
+							<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+								<b>Response Data:</b>
+							</AccordionSummary>
+							<AccordionDetails>
+								{typeof responseBody === 'string'
+									? <pre>{responseBody}</pre>
+									: responseBody
+								}
+							</AccordionDetails>
+						</Accordion>
+					)
+				}
+				{
+					responseBody === LOADING &&
 					<div style={{
 						width: '100%',
 						marginTop: '1rem',
@@ -119,8 +202,9 @@ const Response = ({ message, store, onSync, onClose }: Props) => {
 						<CircularProgress />
 					</div>
 				}
-			</React.Fragment>
-		</div>
+
+			</React.Fragment >
+		</div >
 	);
 
 	function renderLogEntry() {
