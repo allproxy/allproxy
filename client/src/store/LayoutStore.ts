@@ -36,6 +36,14 @@ export default class LayoutStore {
 		return { width, height };
 	}
 
+	public calcMaxHeight() {
+		return `calc(${this.maxHeight()})`;
+	}
+
+	public calcMaxWidth() {
+		return `calc(${this.maxWidth()})`;
+	}
+
 	private maxHeight = () => {
 		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0px';
 		return `100vh - 9rem - ${jsonFieldButtonsHeight}`
