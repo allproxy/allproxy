@@ -27,7 +27,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 	}
 
 	if (message.protocol === 'log:') {
-		vertical = false;
+		vertical = true;
 	}
 
 	const queryParams = getQueryParams(message);
@@ -89,7 +89,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 											<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Headers</span>
 										</div>
 									} />}
-								{queryParams !== undefined &&
+								{queryParams !== null &&
 									< Tab value={'Query Parameters'} label={
 										<div>
 											<span style={{ marginLeft: '.25rem', color: 'black' }}>Query Parameters</span>
@@ -113,7 +113,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 										{JSON.stringify(message.responseHeaders, null, 2)}
 									</pre>
 								</TabPanel>}
-							{queryParams !== undefined &&
+							{queryParams !== null &&
 								<TabPanel value={'Query Parameters'}>
 									<pre>
 										{JSON.stringify(queryParams, null, 2)}
