@@ -20,8 +20,9 @@ type Props = {
 	maxStatusSize: number,
 	maxMethodSize: number,
 	maxEndpointSize: number,
+	vertical: boolean,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize, vertical }: Props) => {
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLButtonElement | null>(null);
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
@@ -165,7 +166,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 					</div>
 				</div>
 			</div>
-			<div className="request__body" hidden={!isActive || store.getMessage().protocol === 'log:'}>
+			<div className="request__body" hidden={!vertical || !isActive || store.getMessage().protocol === 'log:'}>
 				{!store.isRequestBodyJson()
 					? store.getRequestBody()
 					: <ReactJson
