@@ -20,10 +20,16 @@ type Props = {
 const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 	const LOADING = 'Loading...';
 	const [responseBody, setResponseBody] = React.useState<string | ReactElement<any, any>>(LOADING);
-	const [tabValue, setTabValue] = React.useState('Response Data');
+	const [tabRequestValue, setTabRequestValue] = React.useState('Request Body');
+	const [tabResponseValue, setTabResponseValue] = React.useState('Response Body');
 
-	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
-		setTabValue(value);
+
+	function handleTabRequestChange(_e: React.ChangeEvent<{}>, value: string) {
+		setTabRequestValue(value);
+	}
+
+	function handleTabResponseChange(_e: React.ChangeEvent<{}>, value: string) {
+		setTabResponseValue(value);
 	}
 
 	if (message.protocol === 'log:') {
@@ -36,6 +42,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 	return (
 		<div style={{ paddingRight: '2rem' }}>
 			<React.Fragment>
+				{!vertical && <div style={{ background: '#007bff', height: '0.1rem', marginRight: '4rem' }}></div>}
 				<IconButton style={{ marginRight: '.5rem' }} onClick={onClose} title="Close response panel">
 					<CloseIcon />
 				</IconButton>
@@ -69,63 +76,83 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 				}
 
 				{!vertical &&
-					<div>
-						<TabContext value={tabValue}>
-							<Tabs
-								value={tabValue}
-								onChange={handleTabChange}
-								indicatorColor="primary"
-								textColor="primary"
-								aria-label="Response table">
-								{Object.keys(message.requestHeaders).length > 0 &&
-									<Tab value={'Request Headers'} label={
-										<div>
-											<span style={{ marginLeft: '.25rem', color: 'black' }}>Request Headers</span>
-										</div>
-									} />}
-								{Object.keys(message.responseHeaders).length > 0 &&
-									<Tab value={'Response Headers'} label={
-										<div>
-											<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Headers</span>
-										</div>
-									} />}
-								{queryParams !== null &&
-									< Tab value={'Query Parameters'} label={
-										<div>
-											<span style={{ marginLeft: '.25rem', color: 'black' }}>Query Parameters</span>
-										</div>
-									} />}
-								<Tab value={'Response Data'} label={
-									<div>
-										<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Data</span>
-									</div>
-								} />
-							</Tabs>
-							{Object.keys(message.requestHeaders).length > 0 &&
-								< TabPanel value={'Request Headers'}>
-									<pre>
-										{JSON.stringify(message.requestHeaders, null, 2)}
-									</pre>
-								</TabPanel>}
-							{Object.keys(message.responseHeaders).length > 0 &&
-								< TabPanel value={'Response Headers'}>
-									<pre>
-										{JSON.stringify(message.responseHeaders, null, 2)}
-									</pre>
-								</TabPanel>}
-							{queryParams !== null &&
-								<TabPanel value={'Query Parameters'}>
-									<pre>
-										{JSON.stringify(queryParams, null, 2)}
-									</pre>
-								</TabPanel>}
-							<TabPanel value={'Response Data'}>
-								{typeof responseBody === 'string'
-									? <pre>{responseBody}</pre>
-									: responseBody
-								}
-							</TabPanel>
-						</TabContext>
+					<div style={{ paddingRight: '4rem' }}>
+						<div style={{ background: '#007bff', height: '0.1rem' }}></div>
+						<div style={{ display: 'flex' }}>
+							<div style={{ width: '50%', padding: '.5rem .5rem 0 0' }}>
+								<TabContext value={tabRequestValue}>
+									<Tabs
+										value={tabRequestValue}
+										onChange={handleTabRequestChange}
+										indicatorColor="primary"
+										textColor="primary"
+										aria-label="Response table">
+										{Object.keys(message.requestHeaders).length > 0 &&
+											<Tab value={'Request Headers'} label={<div>
+												<span style={{ marginLeft: '.25rem', color: 'black' }}>Request Headers</span>
+											</div>} />}
+										<Tab value={'Request Body'} label={<div>
+											<span style={{ marginLeft: '.25rem', color: 'black' }}>Request Body</span>
+										</div>} />
+										{queryParams !== null &&
+											<Tab value={'Query Parameters'} label={<div>
+												<span style={{ marginLeft: '.25rem', color: 'black' }}>Query Parameters</span>
+											</div>} />}
+									</Tabs>
+									{Object.keys(message.requestHeaders).length > 0 &&
+										<TabPanel value={'Request Headers'}>
+											<pre>
+												{JSON.stringify(message.requestHeaders, null, 2)}
+											</pre>
+										</TabPanel>}
+									<TabPanel value={'Request Body'}>
+										{!store.isRequestBodyJson()
+											? store.getRequestBody()
+											: <ReactJson
+												theme={colorScheme === 'dark' ? 'google' : undefined}
+												src={message.requestBody as object}
+												name={false}
+												displayDataTypes={false}
+												quotesOnKeys={false} />}
+									</TabPanel>
+									{queryParams !== null &&
+										<TabPanel value={'Query Parameters'}>
+											<pre>
+												{JSON.stringify(queryParams, null, 2)}
+											</pre>
+										</TabPanel>}
+								</TabContext>
+							</div>
+							<div style={{ width: '50%', padding: '.5rem 0 0 .5rem', borderLeft: 'solid 0.1rem #007bff' }}>
+								<TabContext value={tabResponseValue}>
+									<Tabs
+										value={tabResponseValue}
+										onChange={handleTabResponseChange}
+										indicatorColor="primary"
+										textColor="primary"
+										aria-label="Response table">
+										{Object.keys(message.responseHeaders).length > 0 &&
+											<Tab value={'Response Headers'} label={<div>
+												<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Headers</span>
+											</div>} />}
+										<Tab value={'Response Body'} label={<div>
+											<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Body</span>
+										</div>} />
+									</Tabs>
+									{Object.keys(message.responseHeaders).length > 0 &&
+										<TabPanel value={'Response Headers'}>
+											<pre>
+												{JSON.stringify(message.responseHeaders, null, 2)}
+											</pre>
+										</TabPanel>}
+									<TabPanel value={'Response Body'}>
+										{typeof responseBody === 'string'
+											? <pre>{responseBody}</pre>
+											: responseBody}
+									</TabPanel>
+								</TabContext>
+							</div>
+						</div>
 					</div>
 				}
 
@@ -179,7 +206,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 						:
 						<Accordion defaultExpanded={true}>
 							<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-								<b>Response Data:</b>
+								<b>Response Body:</b>
 							</AccordionSummary>
 							<AccordionDetails>
 								{typeof responseBody === 'string'

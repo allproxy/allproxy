@@ -128,6 +128,7 @@ const SnapshotTabContent = observer(({
 										timeBarPercent={timeBarPercent + '%'}
 										onClick={handleClick.bind(null, seqNum)}
 										onResend={() => handleResend(message)}
+										vertical={layout ? layout.isVertical() : false}
 									/>)
 							}
 						})}
