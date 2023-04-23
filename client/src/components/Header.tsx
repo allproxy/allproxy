@@ -370,8 +370,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					setShowJSONFieldsModal(false);
 					snapshotStore.setUpdating(true);
 					setTimeout(() => {
-						updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
-						for (const message of messageQueueStore.getMessages()) message.updateLogEntry();
+						updateJSONRequestLabels();
 						snapshotStore.setUpdating(false);
 					})
 				}}

@@ -1,4 +1,3 @@
-import { TableSortLabel } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { pickButtonStyle } from '../PickButtonStyle';
@@ -6,7 +5,6 @@ import pickIcon from '../PickIcon';
 import { updateJSONRequestLabels } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import { snapshotStore } from '../store/SnapshotStore';
-import { sortOrderHandler } from './SortBy';
 
 export const JSONFieldButtonsHeight = 40;
 
@@ -37,20 +35,6 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 			{
 				jsonFields.map((field, i) => (
 					<span style={{ whiteSpace: "nowrap" }}>
-						<button className={"btn btn-sm " + (messageQueueStore.getSortByField() === field.name ? "" : "btn-secondary")}
-							key={field.name}
-							style={{
-								margin: ".5rem 0", marginLeft: ".25rem", padding: "0",
-								background: messageQueueStore.getSortByField() === field.name ? pickButtonStyle(field.name).background : undefined,
-								color: messageQueueStore.getSortByField() === field.name ? pickButtonStyle(field.name).color : undefined
-							}}
-							hidden={!field.selected}
-							onClick={() => sortOrderHandler(field.name)}
-							title={`Sort by ${field.name}`}
-						>
-							<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
-								direction={messageQueueStore.getSortOrder()}></TableSortLabel>
-						</button>
 						<button className={"btn btn-sm " + (field.selected ? "" : "btn-secondary")}
 							key={field.name}
 							style={field.selected ?
@@ -58,12 +42,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 								{ margin: ".5rem .25rem" }}
 							onClick={() => {
 								jsonFields[i].selected = !jsonFields[i].selected;
-								updateJSONRequestLabels(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
-								if (messageQueueStore.getSortByField() === field.name) {
-									messageQueueStore.setSortByField(undefined);
-									messageQueueStore.setSortOrder('asc');
-									messageQueueStore.sortOrderChanged();
-								}
+								updateJSONRequestLabels();
 							}}
 						>
 							{field.name}

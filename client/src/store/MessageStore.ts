@@ -35,22 +35,22 @@ export default class MessageStore {
         this.iconClass += ' ' + this.colorObj.iconClass;
         this.tooltip = message.method ? 'Click to resend request' : '';
         this.note = message.note;
-        this.updateLogEntry();
+        if (message.protocol === 'log:') {
+            this.updateJsonLog();
+        }
         makeAutoObservable(this);
     }
 
-    public async updateLogEntry() {
+    public async updateJsonLog() {
         const message = this.message;
-        if (message.protocol === 'log:') {
-            const responseBody = message.responseBody;
-            if (typeof responseBody === 'string') {
-                this.logEntry = jsonLogStore.callScriptFunc(responseBody, {});
-            } else {
-                this.logEntry = jsonLogStore.callScriptFunc(message.path, responseBody);
-            }
-            const title = makeJSONRequestLabels(this, [], jsonLogStore.getJSONFieldNames());
-            this.setUrl(title);
+
+        const responseBody = message.responseBody;
+        if (typeof responseBody === 'string') {
+            this.logEntry = jsonLogStore.callScriptFunc(responseBody, {});
+        } else {
+            this.logEntry = jsonLogStore.callScriptFunc(message.path, responseBody);
         }
+        this.setUrl(makeJSONRequestLabels(this));
     }
 
     public getLogEntry() {

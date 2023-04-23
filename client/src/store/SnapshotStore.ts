@@ -15,6 +15,7 @@ class Snapshots {
 	private scrollTop: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
 	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
+	private jsonPrimaryFieldNames: Map<string, string[]> = new Map();
 	private layoutMap: Map<string, LayoutStore> = new Map();
 
 	constructor() {
@@ -82,6 +83,17 @@ class Snapshots {
 
 	public setJsonFields(key: string, jsonPrimaryFields: { name: string, count: number, selected: boolean }[]) {
 		this.jsonPrimaryFieldsMap.set(key, jsonPrimaryFields);
+		const names: string[] = [];
+		for (const field of jsonPrimaryFields) {
+			if (field.selected) {
+				names.push(field.name);
+			}
+			this.jsonPrimaryFieldNames.set(key, names);
+		}
+	}
+
+	public getJsonPrimaryFieldNames(key: string) {
+		return this.jsonPrimaryFieldNames.get(key);
 	}
 
 	public getLayout(key: string) {
@@ -146,7 +158,12 @@ export default class SnapshotStore {
 	}
 
 	public setJsonFields(name: string, fields: { name: string, count: number, selected: boolean }[]) {
-		return this.snapshots.setJsonFields(name, fields);
+		this.snapshots.setJsonFields(name, fields);
+	}
+
+	public getJsonFieldNames(name: string) {
+		const names = this.snapshots.getJsonPrimaryFieldNames(name);
+		return names ? names : [];
 	}
 
 	public getLayout(name: string) {
