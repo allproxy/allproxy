@@ -84,9 +84,11 @@ const SnapshotTabContent = observer(({
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
 	let matchCount = 0;
 	let layout = snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName());
-	if (!layout) layout = new LayoutStore();
+	if (layout === undefined) layout = new LayoutStore();
+	const vertical = layout.isVertical();
 	const requestContainerLayout = layout.requestContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 	const responseContainerLayout = layout.responseContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
+	let renderedCount = 0;
 	return (
 		<div style={{ opacity: snapshotStore.isUpdating() ? '.3' : undefined }}>
 			<div className="jsonfieldbuttons">
@@ -108,6 +110,8 @@ const SnapshotTabContent = observer(({
 							if (!snapshotStore.isUpdating() && filterStore.isFiltered(messageStore)) {
 								return null;
 							} else {
+								if (false && stopRendering(renderedCount)) return null;
+								++renderedCount;
 								lastSeqNum = seqNum;
 								if (isActiveRequest) {
 									activeRequestIndex = index;
@@ -126,7 +130,7 @@ const SnapshotTabContent = observer(({
 										isActive={isActiveRequest}
 										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
 										timeBarPercent={timeBarPercent + '%'}
-										onClick={handleClick.bind(null, seqNum)}
+										onClick={handleClick.bind(null, seqNum, vertical)}
 										onResend={() => handleResend(message)}
 										vertical={layout ? layout.isVertical() : false}
 									/>)
@@ -212,11 +216,12 @@ const SnapshotTabContent = observer(({
 		breakpointStore.closeBreakpointResponseModal();
 	}
 
-	function handleClick(seqNum: number) {
+	function handleClick(seqNum: number, vertical: boolean) {
 		const curSeqNum = selectedReqSeqNum;
 		setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		if (seqNum !== curSeqNum) {
 			setSelectedReqSeqNum(seqNum);
+			if (!vertical) setScrollTo(seqNum, 1000);
 		}
 	}
 
@@ -274,11 +279,28 @@ const SnapshotTabContent = observer(({
 					// if (offset > 0) {
 					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
 					// }
-					parent.scrollTop = offset;
+					if (offset < parent.scrollTop || offset > parent.scrollTop + parent.clientHeight) {
+						parent.scrollTop = offset;
+					}
 				}
 			}, delayMsecs);
 		}
 		return true
+	}
+
+	function stopRendering(renderedCount: number): boolean {
+		const parent = (requestContainerRef.current as Element);
+		if (parent) {
+			const scrollBottom = parent.scrollTop + (parent.scrollHeight);
+			if (parent && parent.childNodes.length > 0) {
+				const children = parent.childNodes;
+				const element = (children[0] as Element);
+				if (element) {
+					return element.clientHeight * renderedCount > scrollBottom;
+				}
+			}
+		}
+		return false;
 	}
 });
 

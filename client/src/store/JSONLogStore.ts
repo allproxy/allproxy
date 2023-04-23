@@ -1,6 +1,7 @@
 import { makeAutoObservable, action } from "mobx"
 import { pickButtonStyle } from "../PickButtonStyle";
 import { apFileSystem } from "./APFileSystem";
+import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from "./MessageStore";
 import { snapshotStore } from "./SnapshotStore";
 
@@ -153,6 +154,7 @@ export default class JSONLogStore {
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', category: '', message: '', additionalJSON: {} }; };
 
 	private fields: JSONLogField[] = [];
+	private fieldNames: string[] = []
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -170,6 +172,9 @@ export default class JSONLogStore {
 	}
 	public saveScript() {
 		apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
+		const fields: string[] = [];
+		for (const field of this.fields) fields.push(field.getName());
+		this.fieldNames = fields;
 	}
 	public updateScriptFunc() {
 		this.scriptFunc = this.evalScript(this.script);
@@ -193,10 +198,12 @@ export default class JSONLogStore {
 	public async init() {
 		const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
 		this.fields = [];
+		this.fieldNames = [];
 		for (const fileName of fileNames) {
 			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
 			jsonField.setName(fileName);
 			this.fields.push(jsonField);
+			this.fieldNames.push(fileName);
 		}
 
 		for (const fileName of await apFileSystem.readDir(SCRIPTS_DIR)) {
@@ -227,9 +234,7 @@ export default class JSONLogStore {
 	}
 
 	public getJSONFieldNames(): string[] {
-		const fields: string[] = [];
-		for (const field of this.fields) fields.push(field.getName());
-		return fields;
+		return this.fieldNames;
 	}
 
 	@action public extend() {
@@ -245,26 +250,13 @@ export default class JSONLogStore {
 	}
 }
 
-export async function updateJSONRequestLabels(snapShotName: string, messages: MessageStore[]) {
-	const selectedFields = snapshotStore.getJsonFields(snapShotName);
-	const primaryFields: string[] = [];
-	for (const f of selectedFields) {
-		if (f.selected) {
-			primaryFields.push(f.name);
-		}
-	}
-	// Custom JSON fields
-	const customJsonFields: string[] = jsonLogStore.getJSONFieldNames();
-	for (const messageStore of messages) {
-		const message = messageStore.getMessage();
-		if (message.protocol === 'log:') {
-			const title = makeJSONRequestLabels(messageStore, primaryFields, customJsonFields);
-			messageStore.setUrl(title);
-		}
-	}
+export async function updateJSONRequestLabels() {
+	const selectedFields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName());
+	snapshotStore.setJsonFields(snapshotStore.getSelectedSnapshotName(), selectedFields);
+	for (const message of messageQueueStore.getMessages()) message.updateJsonLog();
 }
 
-export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields: string[], customJsonFields: string[]): string {
+export function makeJSONRequestLabels(messageStore: MessageStore): string {
 	const message = messageStore.getMessage();
 
 	let json: { [key: string]: string } = {};
@@ -273,7 +265,7 @@ export function makeJSONRequestLabels(messageStore: MessageStore, primaryFields:
 	} else {
 		json = message.responseBody;
 	}
-	let title = formatJSONRequestLabels(json, primaryFields, customJsonFields);
+	let title = formatJSONRequestLabels(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
 	if (title.length === 0) {
 		// Look for embedded JSON object
 		let nonJson = message.path ? message.path + ' ' : '';
@@ -319,16 +311,21 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 			//const combos = getFieldCombos(field)
 			const jsonEval = eval('json');
 			if (jsonEval !== undefined) {
-				for (let key of field.split('.')) {
+				const parts = field.split('.');
+				for (let key of parts) {
 					key = key.replaceAll('[period]', '.');
 					const keys: string[] = [key];
-					if (key === key.toLowerCase()) {
-						keys.push(key.substring(0, 1).toUpperCase() + key.substring(1).toLowerCase());
-					} else {
-						keys.push(key.toLowerCase())
-					}
-					if (key !== key.toUpperCase()) {
-						keys.push(key.toUpperCase())
+					if (parts.length === 1) {
+						const keyLowercase = key.toLowerCase();
+						const keyUppercase = key.toUpperCase();
+						if (key === keyLowercase) {
+							keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
+						} else {
+							keys.push(keyLowercase)
+						}
+						if (key !== keyUppercase) {
+							keys.push(keyUppercase)
+						}
 					}
 
 					for (const key of keys) {
