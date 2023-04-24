@@ -95,7 +95,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					/>
 				</div>
 
-				<div className={'header__sort-req-res fa-solid fa-arrow-down fas'}
+				<div hidden className={'header__sort-req-res fa-solid fa-arrow-down fas'}
 					onClick={() => messageQueueStore.toggleSortBy()}
 					title={(messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request')}
 				>

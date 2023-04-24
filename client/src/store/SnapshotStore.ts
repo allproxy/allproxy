@@ -282,10 +282,12 @@ export default class SnapshotStore {
 	}
 
 	public importSnapshot(fileName: string, snapshot: string | Message[]) {
+		let doDateSort = true;
 		let parsedBlob: any;
 		if (typeof snapshot === 'string') {
 			try {
 				parsedBlob = JSON.parse(snapshot);
+				doDateSort = false; // no need to re-sort
 			} catch (e) {
 				parsedBlob = importJSONFile(fileName, snapshot, []);
 			}
@@ -293,14 +295,12 @@ export default class SnapshotStore {
 			parsedBlob = snapshot;
 		}
 		const messageStores: MessageStore[] = [];
-		let doDateSort = true;
 		for (const message of parsedBlob) {
 			const ms = new MessageStore(message);
 			if (ms.getMessage().protocol !== 'log:') doDateSort = false;
 			messageStores.push(ms);
 		}
 		if (doDateSort) {
-			console.log('sorting by date')
 			messageStores.sort((a, b) => {
 				let dateA: Date = a.getLogEntry().date;
 				let dateB: Date = b.getLogEntry().date;
