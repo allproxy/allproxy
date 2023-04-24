@@ -15,6 +15,9 @@ import { snapshotStore } from '../store/SnapshotStore';
 import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
 
+let entryHeight = 26;
+const defaultRenderCount = 100;
+
 type Props = {
 	messageQueueStore: MessageQueueStore,
 	selectedReqSeqNum: number,
@@ -26,6 +29,7 @@ const SnapshotTabContent = observer(({
 	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
+	const [renderCount, setRenderCount] = React.useState(defaultRenderCount);
 
 	const messageStore = breakpointStore.getMessageStore();
 
@@ -89,6 +93,7 @@ const SnapshotTabContent = observer(({
 	const requestContainerLayout = layout.requestContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 	const responseContainerLayout = layout.responseContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 	let renderedCount = 0;
+	calcRenderCount().then((count) => setRenderCount(count));
 	return (
 		<div style={{ opacity: snapshotStore.isUpdating() ? '.3' : undefined }}>
 			<div className="jsonfieldbuttons">
@@ -110,7 +115,9 @@ const SnapshotTabContent = observer(({
 							if (!snapshotStore.isUpdating() && filterStore.isFiltered(messageStore)) {
 								return null;
 							} else {
-								if (false && stopRendering(renderedCount)) return null;
+								if (renderedCount >= renderCount && (selectedReqSeqNum === Number.MAX_SAFE_INTEGER || seqNum > selectedReqSeqNum)) {
+									return null;
+								}
 								++renderedCount;
 								lastSeqNum = seqNum;
 								if (isActiveRequest) {
@@ -132,7 +139,7 @@ const SnapshotTabContent = observer(({
 										timeBarPercent={timeBarPercent + '%'}
 										onClick={handleClick.bind(null, seqNum, vertical)}
 										onResend={() => handleResend(message)}
-										vertical={layout ? layout.isVertical() : false}
+										vertical={vertical}
 									/>)
 							}
 						})}
@@ -288,19 +295,28 @@ const SnapshotTabContent = observer(({
 		return true
 	}
 
-	function stopRendering(renderedCount: number): boolean {
-		const parent = (requestContainerRef.current as Element);
-		if (parent) {
-			const scrollBottom = parent.scrollTop + (parent.scrollHeight);
-			if (parent && parent.childNodes.length > 0) {
-				const children = parent.childNodes;
-				const element = (children[0] as Element);
-				if (element) {
-					return element.clientHeight * renderedCount > scrollBottom;
+	async function calcRenderCount(): Promise<number> {
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				let renderCount = defaultRenderCount;
+				const parent = (requestContainerRef.current as Element);
+				if (parent) {
+					const scrollBottom = parent.scrollTop + (parent.clientHeight * 2);
+
+					if (parent && parent.childNodes.length > 0) {
+						const children = parent.childNodes;
+						const element = (children[0] as Element);
+						if (element) {
+							entryHeight = element.clientHeight;
+						}
+					}
+					renderCount = scrollBottom / entryHeight;
 				}
-			}
-		}
-		return false;
+				renderCount = Math.floor(renderCount);
+				//console.log('calcRenderCount', entryHeight, renderCount);
+				resolve(renderCount);
+			});
+		});
 	}
 });
 
