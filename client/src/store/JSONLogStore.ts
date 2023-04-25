@@ -311,7 +311,7 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 			//const combos = getFieldCombos(field)
 			value = eval('json');
 			if (value !== undefined) {
-				const parts = field.split('.');
+				const parts = field.replaceAll('[.]', '[period]').split('.');
 				for (let key of parts) {
 					key = key.replaceAll('[period]', '.');
 					const keys: string[] = [key];
@@ -338,7 +338,7 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return;
 
 			if (field !== 'PREFIX') {
-				field = field.replaceAll('[period]', '.');
+				field = field.replaceAll('[.]', '.');
 				if (title.length > 0) title += ' ';
 				const style = pickButtonStyle(field);
 				title += makeLabel(field, style.background, style.color);
