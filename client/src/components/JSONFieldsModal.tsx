@@ -83,7 +83,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 												{JSON.stringify({ a: { b: "value" } }, null, "  ")}
 											</pre>
 											<pre>
-												Enter <b>x[period]y</b> to highlight JSON with period in name:
+												Enter <b>x[.]y</b> to highlight JSON with period in name:
 												<br></br>
 												{JSON.stringify({ "x.y": "value" }, null, "  ")}
 											</pre>
