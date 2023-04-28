@@ -2,8 +2,9 @@ import { Accordion, AccordionDetails, AccordionSummary, TableSortLabel } from '@
 import { observer } from 'mobx-react-lite';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { snapshotStore } from '../store/SnapshotStore';
 
-const fields = [
+const httpFields = [
 	{
 		name: 'timestamp',
 		displayName: 'Time'
@@ -30,7 +31,27 @@ const fields = [
 	},
 ]
 
+const logFields = [
+	{
+		name: 'date',
+		displayName: 'Date'
+	},
+	{
+		name: 'level',
+		displayName: 'Level'
+	},
+	{
+		name: 'category',
+		displayName: 'Category'
+	},
+	{
+		name: 'message',
+		displayName: 'Message'
+	},
+]
+
 const SortBy = observer((): JSX.Element => {
+	const fields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? logFields : httpFields;
 	return (
 		< Accordion >
 			<AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: 'whitesmoke' }} />} style={{ backgroundColor: '#333', color: 'whitesmoke' }}>
@@ -43,7 +64,7 @@ const SortBy = observer((): JSX.Element => {
 							<div className="side-bar-item">
 								<button className={"btn btn-xs " + (messageQueueStore.getSortByField() === field.name ? "btn-primary" : "btn-secondary")}
 									style={{ width: "7rem", marginLeft: "1rem", textAlign: "left" }}
-									key={field.name}
+									key={field.displayName}
 									onClick={() => sortOrderHandler(field.name)}
 								>
 									<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
@@ -62,7 +83,7 @@ const SortBy = observer((): JSX.Element => {
 });
 
 export function sortOrderHandler(fieldName: string) {
-	if (messageQueueStore.getSortByField && messageQueueStore.getSortByField() !== fieldName) {
+	if (messageQueueStore.getSortByField() && messageQueueStore.getSortByField() !== fieldName) {
 		messageQueueStore.setSortByField(undefined);
 		messageQueueStore.setSortOrder('asc');
 	}

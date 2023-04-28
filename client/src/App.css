@@ -148,6 +148,10 @@ td input {
 	padding-bottom: 0 !important;
 }
 
+.json-label {
+	cursor: pointer;
+}
+
 .center {
 	text-align: center;
 	vertical-align: middle;

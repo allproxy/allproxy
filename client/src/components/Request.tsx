@@ -26,7 +26,28 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLButtonElement | null>(null);
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
-	const handleClick = () => { onClick(); store.setVisited(true); }
+	const handleClick = (e: any) => {
+		const span = e.target.closest("SPAN") as HTMLSpanElement;
+		if (span && span.className === 'json-label' && e.currentTarget.contains(span)) {
+			const field = span.childNodes[0];
+			if (field !== null) {
+				const element = field.parentElement;
+				if (element !== null) {
+					const name = element.attributes.getNamedItem('name');
+					if (name != null) {
+						const text = name.textContent;
+						if (text !== null) {
+							// This feature is disabled
+							//jsonLogStore.toggleDisabledFieldName(text);
+							//return;
+						}
+					}
+				}
+			}
+		}
+		onClick();
+		store.setVisited(true);
+	}
 	const message = store.getMessage();
 	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
 	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime ? message.elapsedTime + ' ms' : '';
