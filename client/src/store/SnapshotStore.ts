@@ -304,17 +304,17 @@ export default class SnapshotStore {
 			messageStores.sort((a, b) => {
 				let dateA: Date = a.getLogEntry().date;
 				let dateB: Date = b.getLogEntry().date;
+				let timestampA = '0';
+				let timestampB = '0'
 				try {
-					dateA.toISOString();
+					timestampA = dateA.toTimeString();
 				} catch (e) {
-					dateA = new Date(0);
 				}
 				try {
-					dateB.toISOString();
+					timestampB = dateB.toTimeString();
 				} catch (e) {
-					dateB = new Date(0);
 				}
-				return dateA.toISOString().localeCompare(dateB.toISOString());
+				return timestampA.localeCompare(timestampB);
 			});
 			messageStores.map((m, i) => {
 				const message = m.getMessage();

@@ -183,7 +183,8 @@ export default class MessageQueueStore {
 	}
 
 	private sortCopy(copyMessages: MessageStore[]) {
-		const getField = (message: Message): string | number | undefined => {
+		const getField = (messageStore: MessageStore): string | number | undefined => {
+			const message = messageStore.getMessage();
 			let field;
 			if (message.protocol === 'log:' && this.sortByField === 'url') return undefined;
 			const obj = message as { [key: string]: any };
@@ -196,14 +197,34 @@ export default class MessageQueueStore {
 						field = body[this.sortByField];
 					}
 				}
+				if (message.protocol === 'log:' && field === undefined) {
+					switch (this.sortByField) {
+						case 'date':
+							try {
+								field = messageStore.getLogEntry().date.toTimeString();
+							} catch (e) {
+								field = '0';
+							}
+							break;
+						case 'level':
+							field = messageStore.getLogEntry().level;
+							break;
+						case 'category':
+							field = messageStore.getLogEntry().category;
+							break;
+						case 'message':
+							field = messageStore.getLogEntry().message;
+							break;
+					}
+				}
 			}
 			return field;
 		}
 
 		if (this.sortByField) {
 			copyMessages.sort((a, b) => {
-				let aField = getField(a.getMessage());
-				let bField = getField(b.getMessage());
+				let aField = getField(a);
+				let bField = getField(b);
 				if (aField === undefined) {
 					if (bField === undefined) {
 						aField = bField = 0;

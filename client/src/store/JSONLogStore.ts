@@ -155,6 +155,7 @@ export default class JSONLogStore {
 
 	private fields: JSONLogField[] = [];
 	private fieldNames: string[] = []
+	private disabledFieldNames: string[] = []
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -237,6 +238,25 @@ export default class JSONLogStore {
 		return this.fieldNames;
 	}
 
+	public isFieldDisabled(name: string) {
+		return this.disabledFieldNames.indexOf(name) !== -1;
+	}
+
+	@action public toggleDisabledFieldName(name: string) {
+		snapshotStore.setUpdating(true);
+		const i = this.disabledFieldNames.indexOf(name);
+		if (i === -1) {
+			this.disabledFieldNames.push(name);
+		} else {
+			this.disabledFieldNames.splice(i, 1);
+		}
+
+		setTimeout(() => {
+			for (const message of messageQueueStore.getMessages()) message.setUrl(makeJSONRequestLabels(message));
+			snapshotStore.setUpdating(false);
+		})
+	}
+
 	@action public extend() {
 		this.fields.unshift(new JSONLogField(JSON_FIELDS_DIR));
 	}
@@ -296,10 +316,17 @@ export function makeJSONRequestLabels(messageStore: MessageStore): string {
 	return title;
 }
 
-function makeLabel(name: string, background: string, color: string) {
-	return `<span style="color: ${color}; background:${background};padding: 0 .25rem;border-radius: .25rem;border:${background} thin solid">`
-		+ name +
-		'</span> ';
+function makeLabel(name: string, background: string, color: string, value: any = undefined) {
+	const style = `style="color: ${color}; background:${background};padding: 0 .25rem;border-radius: .25rem;border:${background} thin solid"`;
+	const disabled = jsonLogStore.isFieldDisabled(name);
+	const text = disabled ? '>' : name;
+	const v = disabled || value === undefined ? '' : typeof value === 'string' ? `"${value}"` : value;
+
+	const className = value !== undefined ? 'json-label' : '';
+	const tooltip = disabled ? name + ': ' + value : undefined;
+
+	return `<span class="${className}" name="${name}" title="${tooltip}" ${style}>` + text + '</span> ' + v;
+
 }
 
 function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
@@ -315,15 +342,17 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 				for (let key of parts) {
 					key = key.replaceAll('[period]', '.');
 					const keys: string[] = [key];
-					const keyLowercase = key.toLowerCase();
-					const keyUppercase = key.toUpperCase();
-					if (key === keyLowercase) {
-						keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
-					} else {
-						keys.push(keyLowercase)
-					}
-					if (key !== keyUppercase) {
-						keys.push(keyUppercase)
+					if (parts.length === 1) {
+						const keyLowercase = key.toLowerCase();
+						const keyUppercase = key.toUpperCase();
+						if (key === keyLowercase) {
+							keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
+						} else {
+							keys.push(keyLowercase)
+						}
+						if (key !== keyUppercase) {
+							keys.push(keyUppercase)
+						}
 					}
 
 					for (const key of keys) {
@@ -341,10 +370,8 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 				field = field.replaceAll('[.]', '.');
 				if (title.length > 0) title += ' ';
 				const style = pickButtonStyle(field);
-				title += makeLabel(field, style.background, style.color);
-				if (typeof value === 'string') value = `"${value}"`
+				title += makeLabel(field, style.background, style.color, value);
 			}
-			title += value;
 		}
 	})
 

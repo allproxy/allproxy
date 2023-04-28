@@ -30,6 +30,7 @@ const SnapshotTabContent = observer(({
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
 	const [renderCount, setRenderCount] = React.useState(defaultRenderCount);
+	const [unselectedReqSeqNum, setUnselectedReqSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 
 	const messageStore = breakpointStore.getMessageStore();
 
@@ -115,7 +116,10 @@ const SnapshotTabContent = observer(({
 							if (!snapshotStore.isUpdating() && filterStore.isFiltered(messageStore)) {
 								return null;
 							} else {
-								if (renderedCount >= renderCount && (selectedReqSeqNum === Number.MAX_SAFE_INTEGER || seqNum > selectedReqSeqNum)) {
+								if (renderedCount >= renderCount &&
+									(selectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === selectedReqSeqNum) &&
+									(unselectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === unselectedReqSeqNum)
+								) {
 									return null;
 								}
 								++renderedCount;
@@ -172,13 +176,18 @@ const SnapshotTabContent = observer(({
 								store={messageQueueStore.getMessages()[activeRequestIndex]}
 								message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
 								vertical={layout.isVertical()}
-								onSync={() => setScrollTo(selectedReqSeqNum, 0)}
-								onClose={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)}
+								onSync={() => messageQueueStore.setScrollToSeqNum(selectedReqSeqNum)}
+								onClose={() => {
+									handleClick(selectedReqSeqNum, vertical);
+								}}
 							/>
 							:
 							<Fade in={true}>
 								<>
-									<IconButton style={{ marginRight: '.5rem' }} onClick={() => setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER)} title="Close response panel">
+									<IconButton style={{ marginRight: '.5rem' }} onClick={() => {
+										setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+										setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+									}} title="Close response panel">
 										<CloseIcon />
 									</IconButton>
 									<div className="center">
@@ -226,13 +235,21 @@ const SnapshotTabContent = observer(({
 	function handleClick(seqNum: number, vertical: boolean) {
 		const curSeqNum = selectedReqSeqNum;
 		setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+		setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		if (seqNum !== curSeqNum) {
 			setSelectedReqSeqNum(seqNum);
-			if (!vertical) setScrollTo(seqNum, 1000);
+			messageQueueStore.setHightlightSeqNum(seqNum);
+			if (!vertical) messageQueueStore.setScrollToSeqNum(seqNum);
+		} else {
+			if (!vertical) {
+				setUnselectedReqSeqNum(seqNum);
+				messageQueueStore.setScrollToSeqNum(seqNum);
+			}
 		}
 	}
 
 	function handleScroll() {
+		setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			setScrollTop(parent.scrollTop);
@@ -286,7 +303,7 @@ const SnapshotTabContent = observer(({
 					// if (offset > 0) {
 					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
 					// }
-					if (offset < parent.scrollTop || offset > parent.scrollTop + parent.clientHeight) {
+					if ((offset < parent.scrollTop || offset > parent.scrollTop + parent.clientHeight)) {
 						parent.scrollTop = offset;
 					}
 				}
