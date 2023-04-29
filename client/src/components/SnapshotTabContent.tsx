@@ -57,7 +57,7 @@ const SnapshotTabContent = observer(({
 			const seqNum = messageQueueStore.getScrollToSeqNum();
 			messageQueueStore.setScrollToSeqNum(null);
 			if (seqNum !== null) {
-				setScrollTo(seqNum, 1000);
+				setScrollTo(seqNum, 3000);
 				messageQueueStore.setHightlightSeqNum(seqNum);
 			}
 		}

@@ -41,8 +41,12 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 								{ margin: ".5rem 0", marginRight: ".25rem", background: pickButtonStyle(field.name).background, color: pickButtonStyle(field.name).color } :
 								{ margin: ".5rem .25rem" }}
 							onClick={() => {
+								snapshotStore.setUpdating(true);
 								jsonFields[i].selected = !jsonFields[i].selected;
-								updateJSONRequestLabels();
+								setTimeout(() => {
+									updateJSONRequestLabels();
+									snapshotStore.setUpdating(false);
+								})
 							}}
 						>
 							{field.name}

@@ -357,8 +357,11 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 
 					for (const key of keys) {
 						try {
-							value = eval(`value["${key}"]`);
-							if (value !== undefined) break;
+							const v = eval(`value["${key}"]`);
+							if (v !== undefined) {
+								value = v;
+								break;
+							}
 						} catch (e) { }
 					}
 					if (value === undefined) break;
