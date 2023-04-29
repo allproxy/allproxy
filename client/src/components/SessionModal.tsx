@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
 import { snapshotStore } from '../store/SnapshotStore';
+import React from 'react';
 
 type Props = {
 	open: boolean,
@@ -10,6 +11,7 @@ type Props = {
 	store: SessionStore,
 };
 const SessionModal = observer(({ open, onClose, store }: Props) => {
+	const [filterValue, setFilterValue] = React.useState('');
 
 	function close() {
 		onClose();
@@ -39,7 +41,10 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 					<h3>Sessions</h3>
 					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 						<div className="no-capture-modal__scroll-container">
-
+							<input type="search" className="form-control" style={{ marginTop: '1rem' }}
+								placeholder="Filter..."
+								onChange={(e) => setFilterValue(e.target.value)}
+								value={filterValue} />
 							<List>
 								{store.getSessionList().length === 0 &&
 									<div className="center"
@@ -48,6 +53,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 									</div>
 								}
 								{store.getSessionList().map((sessionName, i) => (
+									sessionName.indexOf(filterValue) !== -1 &&
 									<ListItem key={i}
 										style={{
 											display: 'flex', alignItems: 'center',

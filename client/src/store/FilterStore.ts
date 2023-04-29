@@ -2,6 +2,7 @@ import { makeAutoObservable, action } from "mobx"
 import MessageStore from './MessageStore';
 import _ from 'lodash';
 import { messageQueueStore } from "./MessageQueueStore";
+import { dateToHHMMSS } from "../components/Request";
 
 export default class FilterStore {
     private enabled = true;
@@ -385,7 +386,7 @@ export default class FilterStore {
             if (this.isMatch(needle, messageStore.getRequestBody())) return false;
         } else {
             try {
-                if (this.isMatch(needle, messageStore.getLogEntry().date.toISOString())) return false;
+                if (this.isMatch(needle, dateToHHMMSS(messageStore.getLogEntry().date))) return false;
             } catch (e) { }
         }
         if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
