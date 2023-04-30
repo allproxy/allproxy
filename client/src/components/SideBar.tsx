@@ -170,7 +170,7 @@ const SideBar = observer(() => {
 			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
 				<div>
-					<div hidden={!isJsonLogViewer()} style={{ display: 'flex' }}>
+					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							checked={messageQueueStore.getFullPageSearch()}
