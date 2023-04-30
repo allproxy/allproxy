@@ -298,6 +298,9 @@ const SnapshotTabContent = observer(({
 						const element = (children[i] as Element);
 						if (element) {
 							offset += element.clientHeight;
+							entryHeight = element.clientHeight;
+						} else {
+							offset += entryHeight;
 						}
 					}
 					// if (offset > 0) {
@@ -305,6 +308,7 @@ const SnapshotTabContent = observer(({
 					// }
 					if ((offset < parent.scrollTop || offset > parent.scrollTop + parent.clientHeight)) {
 						parent.scrollTop = offset;
+						setScrollTop(offset);
 					}
 				}
 			}, delayMsecs);
