@@ -117,6 +117,7 @@ const SnapshotTabContent = observer(({
 								return null;
 							} else {
 								if (renderedCount >= renderCount &&
+									!messageQueueStore.getFullPageSearch() &&
 									(selectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === selectedReqSeqNum) &&
 									(unselectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === unselectedReqSeqNum)
 								) {

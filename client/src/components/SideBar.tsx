@@ -8,11 +8,16 @@ import { sessionStore } from '../store/SessionStore';
 import ExportDialog from "./ExportDialog";
 import React from "react";
 import MessageStore from "../store/MessageStore";
+import { snapshotStore } from "../store/SnapshotStore";
 
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
 	const [disableSaveSession, setDisableSession] = React.useState(false);
+
+	const isJsonLogViewer = () => {
+		return snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0;
+	}
 
 	const areAllDomainsSelected = (): boolean => {
 		const allDomains = filterStore.getSideBarDomains();
@@ -165,28 +170,35 @@ const SideBar = observer(() => {
 			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
 				<div>
-					<div style={{ whiteSpace: 'nowrap' }}>Show:</div>
-					<div style={{ display: 'flex' }}>
+					<div hidden={!isJsonLogViewer()} style={{ display: 'flex' }}>
+						<Checkbox className="side-bar-checkbox"
+							size="small"
+							checked={messageQueueStore.getFullPageSearch()}
+							value={messageQueueStore.getFullPageSearch()}
+							onChange={() => messageQueueStore.toggleFullPageSearch()} />
+						Full Page Search
+					</div>
+					<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							checked={messageQueueStore.getShowAPI()}
 							value={messageQueueStore.getShowAPI()}
 							onChange={() => messageQueueStore.toggleShowAPI()} />
-						API
+						Show API
 					</div>
 					<div hidden style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getShowTooltip()}
 							onChange={() => messageQueueStore.toggleShowTooltip()} />
-						Tooltip
+						Show Tooltip
 					</div>
-					<div style={{ display: 'flex' }}>
+					<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							value={messageQueueStore.getShowUserAgent()}
 							onChange={() => messageQueueStore.toggleShowRequestUA()} />
-						User Agent
+						Show User Agent
 					</div>
 				</div>
 			</div>
@@ -285,7 +297,7 @@ const SideBar = observer(() => {
 						</Select>
 					</div>
 				</div>}
-			{filterStore.getSideBarUserAgents().length > 0 &&
+			{!isJsonLogViewer() && filterStore.getSideBarUserAgents().length > 0 &&
 				<div>
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
