@@ -1,13 +1,13 @@
 import { makeAutoObservable, action } from "mobx"
-import { pickButtonStyle } from "../PickButtonStyle";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
-import MessageStore from "./MessageStore";
 import { snapshotStore } from "./SnapshotStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
 const jsonLogScriptFileName = 'jsonLogScript';
+
+export type JsonField = { name: string; value: string | number }
 
 export class JSONLogField {
 	private dir = "";
@@ -155,7 +155,6 @@ export default class JSONLogStore {
 
 	private fields: JSONLogField[] = [];
 	private fieldNames: string[] = []
-	private disabledFieldNames: string[] = []
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -238,25 +237,6 @@ export default class JSONLogStore {
 		return this.fieldNames;
 	}
 
-	public isFieldDisabled(name: string) {
-		return this.disabledFieldNames.indexOf(name) !== -1;
-	}
-
-	@action public toggleDisabledFieldName(name: string) {
-		snapshotStore.setUpdating(true);
-		const i = this.disabledFieldNames.indexOf(name);
-		if (i === -1) {
-			this.disabledFieldNames.push(name);
-		} else {
-			this.disabledFieldNames.splice(i, 1);
-		}
-
-		setTimeout(() => {
-			for (const message of messageQueueStore.getMessages()) message.setUrl(makeJSONRequestLabels(message));
-			snapshotStore.setUpdating(false);
-		})
-	}
-
 	@action public extend() {
 		this.fields.unshift(new JSONLogField(JSON_FIELDS_DIR));
 	}
@@ -276,61 +256,8 @@ export async function updateJSONRequestLabels() {
 	for (const message of messageQueueStore.getMessages()) message.updateJsonLog();
 }
 
-export function makeJSONRequestLabels(messageStore: MessageStore): string {
-	const message = messageStore.getMessage();
-
-	let json: { [key: string]: string } = {};
-	if (typeof message.responseBody === 'string') {
-		json = messageStore.getLogEntry().additionalJSON;
-	} else {
-		json = message.responseBody;
-	}
-	let title = formatJSONRequestLabels(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
-	if (title.length === 0) {
-		// Look for embedded JSON object
-		let nonJson = message.path ? message.path + ' ' : '';
-
-		title = nonJson + JSON.stringify(message.responseBody);
-
-		// if (title.length > 200) {
-		// 	title = title.substring(0, 200) + '...';
-		// }
-	}
-
-	let messageText = messageStore.getLogEntry().message;
-	if (messageText !== '') {
-		title = `<span class="request__msg-highlight">${messageText}</span> ` + title;
-	}
-
-	let category = messageStore.getLogEntry().category;
-	if (category !== '') {
-		//messageStore.setColor(categoryStyle.background);
-		let labels = ''
-		for (const name of category.split(' ')) {
-			const categoryStyle = pickButtonStyle(name);
-			labels += makeLabel(name, categoryStyle.background, categoryStyle.color);
-		}
-		title = labels + title;
-	}
-
-	return title;
-}
-
-function makeLabel(name: string, background: string, color: string, value: any = undefined) {
-	const style = `style="color: ${color}; background:${background};padding: 0 .25rem;border-radius: .25rem;border:${background} thin solid"`;
-	const disabled = jsonLogStore.isFieldDisabled(name);
-	const text = disabled ? '>' : name;
-	const v = disabled || value === undefined ? '' : typeof value === 'string' ? `"${value}"` : value;
-
-	const className = value !== undefined ? 'json-label' : '';
-	const tooltip = disabled ? name + ': ' + value : undefined;
-
-	return `<span class="${className}" name="${name}" title="${tooltip}" ${style}>` + text + '</span> ' + v;
-
-}
-
-function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): string {
-	let title = '';
+export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): JsonField[] {
+	const jsonFields: JsonField[] = [];
 	const fields = primaryJsonFields.concat(customJsonFields);
 	fields.forEach((field) => {
 		let value: string | number | undefined = undefined;
@@ -355,14 +282,15 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 						}
 					}
 
-					for (const key of keys) {
+					for (const k of keys) {
+						let value2;
 						try {
-							const v = eval(`value["${key}"]`);
-							if (v !== undefined) {
-								value = v;
-								break;
-							}
+							value2 = eval(`value["${k}"]`);
 						} catch (e) { }
+						if (value2 !== undefined) {
+							value = value2;
+							break;
+						}
 					}
 					if (value === undefined) break;
 				}
@@ -371,14 +299,30 @@ function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields
 
 			if (field !== 'PREFIX') {
 				field = field.replaceAll('[.]', '.');
-				if (title.length > 0) title += ' ';
-				const style = pickButtonStyle(field);
-				title += makeLabel(field, style.background, style.color, value);
+				if (typeof value === 'string') {
+					value = formatValue(field, value);
+				}
+				jsonFields.push({ name: field, value: value });
 			}
 		}
 	})
 
-	return title;
+	return jsonFields;
+}
+
+function formatValue(name: string, value: string): string {
+	const lname = name.toLowerCase();
+	if (lname.indexOf('useragent') !== -1) {
+		return value.split(' ')[0].split('/')[0];
+	} else if (lname.indexOf('uri') !== -1 || lname.indexOf('url') !== -1) {
+		const tokens = value.split('?')[0].split('/');
+		let value2 = tokens.pop() as string;
+		if (tokens.length > 0) {
+			value2 = value2 + '/' + tokens.pop();
+		}
+		return value2 as string;
+	}
+	return value;
 }
 
 export const jsonLogStore = new JSONLogStore();
