@@ -1,3 +1,5 @@
+import { add } from "lodash";
+
 function sample(nonJson, jsonData) {
     let date = new Date();
     let level = jsonData && jsonData.level ? jsonData.level : 'info';
@@ -50,7 +52,7 @@ function sample(nonJson, jsonData) {
         category += ' worker' + jsonData.Worker;
     }
 
-    const additionalJSON = {};
+    let additionalJSON = {};
 
     if (Object.keys(jsonData).length === 0) {
         const i = nonJson.indexOf('verb=');
@@ -58,10 +60,14 @@ function sample(nonJson, jsonData) {
             const keyValues = nonJson.substring(i).split(' ');
             for (const kv of keyValues) {
                 const parts = kv.split('=');
-                if (parts.length === 2) {
-                    additionalJSON[parts[0]] = parts[1];
-                }
+                additionalJSON[parts[0]] = parts[1];
             }
+        }
+    } else if (category.indexOf('sys.journal') !== -1 && jsonData.message !== undefined) {
+        additionalJSON = JSON.parse(jsonData.message);
+        if (additionalJSON.msg !== undefined) {
+            jsonData.message = additionalJSON.msg;
+            if (additionalJSON.msg !== undefined) message = additionalJSON.msg;
         }
     }
 

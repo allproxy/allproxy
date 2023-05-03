@@ -121,7 +121,7 @@ function(nonJson, jsonData) {
         category += ' worker' + jsonData.Worker;
     }
 
-    const additionalJSON = {};
+    let additionalJSON = {};
 
     if (Object.keys(jsonData).length === 0) {
         const i = nonJson.indexOf('verb=');
@@ -129,11 +129,12 @@ function(nonJson, jsonData) {
             const keyValues = nonJson.substring(i).split(' ');
             for (const kv of keyValues) {
                 const parts = kv.split('=');
-                if (parts.length === 2) {
-                    additionalJSON[parts[0]] = parts[1];
-                }
+                additionalJSON[parts[0]] = parts[1];
             }
         }
+    } else if (category.indexOf('sys.journal') !== -1 && jsonData.message !== undefined) {
+        additionalJSON = JSON.parse(jsonData.message);
+		if (additionalJSON.msg !== undefined) message = additionalJSON.msg;
     }
 
     return { date, level, category, message, additionalJSON };
@@ -321,6 +322,10 @@ function formatValue(name: string, value: string): string {
 			value2 = value2 + '/' + tokens.pop();
 		}
 		return value2 as string;
+	}
+	// Remove double quotes
+	if (value.charAt(0) === '"' && value.charAt(value.length) === '"') {
+		return value.substring(1, value.length - 1);
 	}
 	return value;
 }

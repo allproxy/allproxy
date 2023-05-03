@@ -57,7 +57,10 @@ export default class MessageStore {
         if (typeof message.responseBody === 'string') {
             json = this.getLogEntry().additionalJSON;
         } else {
-            json = message.responseBody;
+            json = {
+                ...this.getLogEntry().additionalJSON,
+                ...message.responseBody
+            }
         }
         const jsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
 
