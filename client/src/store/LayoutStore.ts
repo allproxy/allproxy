@@ -26,13 +26,15 @@ export default class LayoutStore {
 
 	public requestContainer(unselected: boolean) {
 		const width = this.verticalLayout && !unselected ? `calc((${this.maxWidth()})/2)` : `calc(${this.maxWidth()})`;
-		const height = this.verticalLayout ? `calc(${this.maxHeight()})` : unselected ? `calc(${this.maxWidth()})` : `calc((${this.maxHeight()})/2)`;
+		const height = this.verticalLayout ? `calc(${this.maxHeight()})`
+			: unselected ? `calc(${this.maxHeight()})` : `calc((${this.maxHeight()})/2)`;
 		return { width, height };
 	}
 
 	public responseContainer(unselected: boolean) {
 		const width = unselected ? '0px' : this.verticalLayout ? `calc((${this.maxWidth()})/2)` : `calc(${this.maxWidth()})`;
-		const height = this.verticalLayout ? `calc(${this.maxHeight()})` : unselected ? '0px' : `calc((${this.maxHeight()})/2)`;
+		const height = this.verticalLayout ? `calc(${this.maxHeight()})`
+			: unselected ? `0px` : `calc((${this.maxHeight()})/2)`;
 		return { width, height };
 	}
 
@@ -46,10 +48,10 @@ export default class LayoutStore {
 
 	private maxHeight = () => {
 		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0px';
-		return `100vh - 9rem - ${jsonFieldButtonsHeight}`
+		return `100vh - 4rem - ${jsonFieldButtonsHeight}`
 	};
 
 	private maxWidth = () => {
-		return `100vw - 4rem`;
+		return `100vw - 11rem`;
 	}
 }

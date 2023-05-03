@@ -3,7 +3,8 @@ import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
-import { LogEntry, jsonLogStore, makeJSONRequestLabels } from "./JSONLogStore";
+import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatchingJsonFields } from "./JSONLogStore";
+import { snapshotStore } from "./SnapshotStore";
 
 export default class MessageStore {
     private message: Message = new Message();
@@ -15,6 +16,7 @@ export default class MessageStore {
     private tooltip = '';
     private note = '';
     private logEntry: LogEntry = { date: new Date(), level: '', category: '', message: '', additionalJSON: {} };
+    private jsonFields: JsonField[] = [];
 
     public constructor(message: Message) {
         this.message = message;
@@ -50,11 +52,30 @@ export default class MessageStore {
         } else {
             this.logEntry = jsonLogStore.callScriptFunc(message.path, responseBody);
         }
-        this.setUrl(makeJSONRequestLabels(this));
+
+        let json: { [key: string]: string } = {};
+        if (typeof message.responseBody === 'string') {
+            json = this.getLogEntry().additionalJSON;
+        } else {
+            json = {
+                ...this.getLogEntry().additionalJSON,
+                ...message.responseBody
+            }
+        }
+        const jsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
+
+        this.setJsonFields(jsonFields);
     }
 
     public getLogEntry() {
         return this.logEntry;
+    }
+
+    public getJsonFields() {
+        return this.jsonFields;
+    }
+    @action setJsonFields(jsonFields: JsonField[]) {
+        this.jsonFields = jsonFields;
     }
 
     public hasNote() {

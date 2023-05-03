@@ -17,6 +17,7 @@ export default class MessageQueueStore {
 	private sortOrder: "desc" | "asc" = 'asc';
 	private sortByField: string | undefined;
 
+	private fullPageSearch = false;
 	private showAPI = true;
 	private showTooltip = false;
 	private showUserAgent = false;
@@ -42,6 +43,13 @@ export default class MessageQueueStore {
 	}
 	@action public setHightlightSeqNum(seqNum: number | null) {
 		this.highlightSeqNum = seqNum;
+	}
+
+	public getFullPageSearch() {
+		return this.fullPageSearch;
+	}
+	@action public toggleFullPageSearch() {
+		this.fullPageSearch = !this.fullPageSearch;
 	}
 
 	public getShowAPI() {

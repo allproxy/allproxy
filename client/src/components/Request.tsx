@@ -7,6 +7,7 @@ import { colorScheme } from "../App";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from "../store/SnapshotStore";
+import JsonLogViewerLabels from "./JsonLogViewerLabels";
 import NoteDialog from "./NoteDialog";
 
 
@@ -26,25 +27,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLButtonElement | null>(null);
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
-	const handleClick = (e: any) => {
-		const span = e.target.closest("SPAN") as HTMLSpanElement;
-		if (span && span.className === 'json-label' && e.currentTarget.contains(span)) {
-			const field = span.childNodes[0];
-			if (field !== null) {
-				const element = field.parentElement;
-				if (element !== null) {
-					const name = element.attributes.getNamedItem('name');
-					if (name != null) {
-						const text = name.textContent;
-						if (text !== null) {
-							// This feature is disabled
-							//jsonLogStore.toggleDisabledFieldName(text);
-							//return;
-						}
-					}
-				}
-			}
-		}
+	const handleClick = () => {
 		onClick();
 		store.setVisited(true);
 	}
@@ -182,7 +165,11 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 								{message.endpoint}
 							</div>}
 							{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
-							<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
+							{message.protocol === 'log:' ?
+								<JsonLogViewerLabels message={store} />
+								:
+								<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
+							}
 						</div>
 					</div>
 				</div>

@@ -117,6 +117,7 @@ const SnapshotTabContent = observer(({
 								return null;
 							} else {
 								if (renderedCount >= renderCount &&
+									!messageQueueStore.getFullPageSearch() &&
 									(selectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === selectedReqSeqNum) &&
 									(unselectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === unselectedReqSeqNum)
 								) {
@@ -298,6 +299,9 @@ const SnapshotTabContent = observer(({
 						const element = (children[i] as Element);
 						if (element) {
 							offset += element.clientHeight;
+							entryHeight = element.clientHeight;
+						} else {
+							offset += entryHeight;
 						}
 					}
 					// if (offset > 0) {
@@ -305,6 +309,7 @@ const SnapshotTabContent = observer(({
 					// }
 					if ((offset < parent.scrollTop || offset > parent.scrollTop + parent.clientHeight)) {
 						parent.scrollTop = offset;
+						setScrollTop(offset);
 					}
 				}
 			}, delayMsecs);
