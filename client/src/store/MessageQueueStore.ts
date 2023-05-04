@@ -41,7 +41,7 @@ export default class MessageQueueStore {
 	public getHighlightSeqNum() {
 		return this.highlightSeqNum;
 	}
-	@action public setHightlightSeqNum(seqNum: number | null) {
+	@action public setHighlightSeqNum(seqNum: number | null) {
 		this.highlightSeqNum = seqNum;
 	}
 
