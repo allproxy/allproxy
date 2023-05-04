@@ -24,9 +24,12 @@ type Props = {
 	setSelectedReqSeqNum: (seqNum: number) => void,
 	scrollTop: number,
 	setScrollTop: (scrollTop: number) => void,
+	highlightSeqNum: number,
+	setHighlightSeqNum: (seqNum: number) => void,
 }
 const SnapshotTabContent = observer(({
-	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop
+	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop,
+	highlightSeqNum, setHighlightSeqNum
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
 	const [renderCount, setRenderCount] = React.useState(defaultRenderCount);
@@ -38,9 +41,9 @@ const SnapshotTabContent = observer(({
 
 	const requestContainerRef = React.useRef<HTMLDivElement>(null);
 
-	// React.useEffect(() => {
-	// 	updateScroll();
-	// });
+	React.useLayoutEffect(() => {
+		messageQueueStore.setHighlightSeqNum(highlightSeqNum);
+	});
 
 	function updateScroll() {
 		if (filterStore.shouldResetScroll()) {
@@ -58,7 +61,8 @@ const SnapshotTabContent = observer(({
 			messageQueueStore.setScrollToSeqNum(null);
 			if (seqNum !== null) {
 				setScrollTo(seqNum, 3000);
-				messageQueueStore.setHightlightSeqNum(seqNum);
+				messageQueueStore.setHighlightSeqNum(seqNum);
+				setHighlightSeqNum(seqNum);
 			}
 		}
 	}
@@ -239,7 +243,7 @@ const SnapshotTabContent = observer(({
 		setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		if (seqNum !== curSeqNum) {
 			setSelectedReqSeqNum(seqNum);
-			messageQueueStore.setHightlightSeqNum(seqNum);
+			messageQueueStore.setHighlightSeqNum(seqNum);
 			if (!vertical) messageQueueStore.setScrollToSeqNum(seqNum);
 		} else {
 			if (!vertical) {

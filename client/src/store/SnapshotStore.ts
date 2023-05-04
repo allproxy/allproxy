@@ -13,6 +13,7 @@ class Snapshots {
 	private names: string[] = [];
 	private selectedReqSeqNumbers: number[] = [];
 	private scrollTop: number[] = [];
+	private highlightSeqNum: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
 	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
 	private jsonPrimaryFieldNames: Map<string, string[]> = new Map();
@@ -34,11 +35,13 @@ class Snapshots {
 		scrollTop = 0,
 		jsonFields: { name: string, count: number, selected: boolean }[] = [],
 		layout: LayoutStore = new LayoutStore(),
+		highlightSeqNum = Number.MAX_SAFE_INTEGER,
 	) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
 		this.selectedReqSeqNumbers.push(selectedReqSeqNumber);
 		this.scrollTop.push(scrollTop);
+		this.highlightSeqNum.push(highlightSeqNum);
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
@@ -52,6 +55,7 @@ class Snapshots {
 		this.names.splice(index, 1);
 		this.selectedReqSeqNumbers.splice(index, 1);
 		this.scrollTop.splice(index, 1);
+		this.highlightSeqNum.splice(index, 1);
 		this.fileNameMap.delete(key);
 		this.jsonPrimaryFieldsMap.delete(key);
 		this.layoutMap.delete(key);
@@ -71,6 +75,10 @@ class Snapshots {
 
 	public getScrollTop(): number[] {
 		return this.scrollTop;
+	}
+
+	public getHighlightSeqNum(): number[] {
+		return this.highlightSeqNum;
 	}
 
 	public getFileName(key: string): string | undefined {
@@ -143,6 +151,10 @@ export default class SnapshotStore {
 		return this.snapshots.getScrollTop();
 	}
 
+	public getHightlightSeqNum(): number[] {
+		return this.snapshots.getHighlightSeqNum();
+	}
+
 	public getSnapshotName(name: string): string {
 		const fileName = this.snapshots.getFileName(name);
 		if (fileName) {
@@ -206,6 +218,7 @@ export default class SnapshotStore {
 				this.getScrollTop()[0],
 				this.getJsonFields(ACTIVE_SNAPSHOT_NAME),
 				this.getLayout(ACTIVE_SNAPSHOT_NAME),
+				this.getHightlightSeqNum()[0],
 			);
 			activeSnapshot.splice(0, activeSnapshot.length);
 		}
