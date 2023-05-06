@@ -21,6 +21,7 @@ import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
+import FilterBar from './FilterBar';
 
 let filterWasStopped = false;
 
@@ -34,7 +35,6 @@ type Props = {
 	filterStore: FilterStore
 };
 const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props): JSX.Element => {
-	const [filter, setFilter] = React.useState('');
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
@@ -192,22 +192,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				</Menu>
 
 				<div className="header__filter">
-					<input className="header__filter-input" type="search"
-						style={{
-							background: filter !== filterStore.getFilter() ? '#fffac8' :
-								!filterStore.isInvalidFilterSyntax()
-									? (filter.length > 0 ? 'lightGreen' : undefined)
-									: 'lightCoral',
-							color: filter.length > 0 ? 'black' : undefined
-						}}
-						value={filter}
-						onChange={e => setFilter(e.currentTarget.value)}
-						onKeyUp={(e) => {
-							if (e.keyCode === 13) {
-								filterStore.setFilterNoDebounce(filter);
-							}
-						}}
-						placeholder={filter !== filterStore.getFilter() ? "Press enter to apply filter..." : "Boolean/Regex Filter: (a || b.*) && !c"} />
+					<FilterBar />
 				</div>
 				<div className={`header__filter-case ${filterStore.matchCase() ? 'active' : ''}`}
 					title="Match case" onClick={() => filterStore.toggleMatchCase()}>Aa</div>
@@ -217,7 +202,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title="Use (), &&, ||, !" onClick={() => filterStore.toggleLogical()}>&&</div>
 				<div hidden className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
-			</div>
+			</div >
 			<div>
 				<div className="header__settings fa fa-question" title="Help"
 					onClick={() => { setShowHelp(true); }}>

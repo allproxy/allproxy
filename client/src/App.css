@@ -314,7 +314,7 @@ td input {
 }
 
 .header__container {
-	z-index: 99;
+	z-index: 9999999;
 	position: fixed;
 	top: 0;
 	background-color: #333333;
@@ -502,12 +502,20 @@ td input {
 }
 
 .react-tagsinput,
-.header__filter-input {
+.header__filter-input,
+.header__filter-input-queries {
 	width: calc(100vw - 700px) !important;
 }
 
 .header__filter-input.active {
 	background-color: lightyellow;
+}
+
+.header__filter-input-queries {
+	position: absolute;
+	z-index: 99999999;
+	background: whitesmoke;
+	margin: 0 0 0 1rem;
 }
 
 .header__filter-case,
