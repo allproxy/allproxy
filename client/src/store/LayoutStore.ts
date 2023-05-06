@@ -33,8 +33,9 @@ export default class LayoutStore {
 
 	public responseContainer(unselected: boolean) {
 		const width = unselected ? '0px' : this.verticalLayout ? `calc((${this.maxWidth()})/2)` : `calc(${this.maxWidth()})`;
-		const height = this.verticalLayout ? `calc(${this.maxHeight()})`
-			: unselected ? `0px` : `calc((${this.maxHeight()})/2)`;
+		const deltaHeight = this.verticalLayout ? '6rem' : '11rem';
+		const height = this.verticalLayout ? `calc(${this.maxHeight()} - ${deltaHeight})`
+			: unselected ? `0px` : `calc((${this.maxHeight()} - ${deltaHeight})/2)`;
 		return { width, height };
 	}
 
