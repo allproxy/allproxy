@@ -48,7 +48,8 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 						{message.protocol !== 'log:' ?
 							responseTime
 							:
-							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}>
+							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
+								title={store.getLogEntry().date.toLocaleDateString()}>
 								{dateToHHMMSS(store.getLogEntry().date)}
 							</div>}
 					</div>
