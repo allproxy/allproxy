@@ -314,7 +314,7 @@ td input {
 }
 
 .header__container {
-	z-index: 9999999;
+	z-index: 100;
 	position: fixed;
 	top: 0;
 	background-color: #333333;
@@ -513,7 +513,6 @@ td input {
 
 .header__filter-input-queries {
 	position: absolute;
-	z-index: 99999999;
 	background: whitesmoke;
 	margin: 0 0 0 1rem;
 }
