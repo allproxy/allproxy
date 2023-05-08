@@ -58,7 +58,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										style={{
 											display: 'flex', alignItems: 'center',
 										}}>
-										<IconButton onClick={() => handleDeleteSession(i)} title="Delete breakpoint">
+										<IconButton onClick={() => handleDeleteSession(i)} title="Delete session">
 											<CloseIcon style={{ color: 'red' }} />
 										</IconButton>
 										<button className={`btn btn-success`}
