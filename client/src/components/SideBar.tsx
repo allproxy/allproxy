@@ -173,6 +173,14 @@ const SideBar = observer(() => {
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
+							checked={messageQueueStore.getSaveQueriesFeature()}
+							value={messageQueueStore.getSaveQueriesFeature()}
+							onChange={() => messageQueueStore.toggleSaveQueriesFeature()} />
+						Save Queries
+					</div>
+					<div style={{ display: 'flex' }}>
+						<Checkbox className="side-bar-checkbox"
+							size="small"
 							checked={messageQueueStore.getFullPageSearch()}
 							value={messageQueueStore.getFullPageSearch()}
 							onChange={() => messageQueueStore.toggleFullPageSearch()} />
