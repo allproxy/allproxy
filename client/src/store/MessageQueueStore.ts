@@ -17,6 +17,7 @@ export default class MessageQueueStore {
 	private sortOrder: "desc" | "asc" = 'asc';
 	private sortByField: string | undefined;
 
+	private savaQueries = false;
 	private fullPageSearch = false;
 	private showAPI = true;
 	private showTooltip = false;
@@ -43,6 +44,13 @@ export default class MessageQueueStore {
 	}
 	@action public setHighlightSeqNum(seqNum: number | null) {
 		this.highlightSeqNum = seqNum;
+	}
+
+	public getSaveQueriesFeature() {
+		return this.savaQueries;
+	}
+	@action public toggleSaveQueriesFeature() {
+		this.savaQueries = !this.savaQueries;
 	}
 
 	public getFullPageSearch() {

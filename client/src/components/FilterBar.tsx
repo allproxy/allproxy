@@ -4,6 +4,7 @@ import React from 'react';
 import { filterStore } from '../store/FilterStore';
 import { queryStore } from '../store/QueryStore';
 import CloseIcon from "@material-ui/icons/Close";
+import { messageQueueStore } from '../store/MessageQueueStore';
 
 type Props = {
 };
@@ -66,7 +67,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 				<div className="header__filter-input-queries">
 					<MenuItem
 						key="show-saved-queries"
-						hidden={!showQueries}
+						hidden={!showQueries || !messageQueueStore.getSaveQueriesFeature()}
 						style={{ background: 'rgb(51, 51, 51)', color: 'whitesmoke' }}
 					>
 						<button className="btn btn-sm btn-secondary"
@@ -96,6 +97,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 								}}
 							>
 								<button className="btn btn-sm btn-success"
+									hidden={!messageQueueStore.getSaveQueriesFeature()}
 									style={{ marginRight: '.5rem' }}
 									disabled={queryStore.getQueries().indexOf(query) !== -1}
 									onClick={() => queryStore.addAndSaveQuery(query)}
