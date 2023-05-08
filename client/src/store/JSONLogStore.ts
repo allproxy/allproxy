@@ -283,6 +283,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 						}
 					}
 
+					let found = false;
 					for (const k of keys) {
 						let value2;
 						try {
@@ -290,10 +291,14 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 						} catch (e) { }
 						if (value2 !== undefined) {
 							value = value2;
+							found = true;
 							break;
 						}
 					}
-					if (value === undefined) break;
+					if (!found) {
+						value = undefined;
+						break;
+					}
 				}
 			}
 			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return;
