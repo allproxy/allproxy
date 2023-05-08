@@ -27,10 +27,12 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 		setShowQueries(false);
 		setFilter(query)
 		filterStore.setFilterNoDebounce(query);
-		const i = queries.indexOf(query);
-		if (i !== -1)
-			queries.splice(i, 1);
-		queries.unshift(query);
+		if (query.length > 0) {
+			const i = queries.indexOf(query);
+			if (i !== -1)
+				queries.splice(i, 1);
+			queries.unshift(query);
+		}
 	}
 
 	return (
