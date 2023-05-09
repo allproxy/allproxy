@@ -33,6 +33,11 @@ export default class QueryStore {
 		return this.queries;
 	}
 
+	public async getQueriesAsync() {
+		await this.init();
+		return this.queries;
+	}
+
 	@action public extend() {
 		this.queries.unshift('');
 		this.queryFileNames.unshift(new Date().toLocaleString().replaceAll('/', '-'));
@@ -47,8 +52,8 @@ export default class QueryStore {
 
 	public async addAndSaveQuery(query: string): Promise<void> {
 		return new Promise<void>(async (resolve) => {
-			this.queries.unshift(query);
-			this.queryFileNames.unshift(new Date().toLocaleString().replaceAll('/', '-'));
+			this.queries.push(query);
+			this.queryFileNames.push(new Date().toLocaleString().replaceAll('/', '-'));
 			this.saveQuery(this.queries.length - 1, query);
 			resolve();
 		})
@@ -60,7 +65,9 @@ export default class QueryStore {
 			const subDir = this.queryFileNames[index];
 			const dir = QUERIES_DIR + '/' + subDir;
 			const path = dir + '/' + QUERY_FILE;
-			await apFileSystem.mkdir(dir);
+			if (!await apFileSystem.exists(dir)) {
+				await apFileSystem.mkdir(dir);
+			}
 			if (await apFileSystem.exists(path)) {
 				await apFileSystem.deleteFile(path);
 			}

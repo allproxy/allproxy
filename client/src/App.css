@@ -517,6 +517,10 @@ td input {
 	margin: 0 0 0 1rem;
 }
 
+.header__filter-input-queries {
+	border: rgba(128, 128, 128, 0.801) solid thistle;
+}
+
 .header__filter-case,
 .header__filter-regex,
 .header__filter-logical {

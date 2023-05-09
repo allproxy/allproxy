@@ -29,9 +29,9 @@ export default class APFileSystem {
 
         // rmdir
         this.socket.on('rmdir', (path: string) => {
-            const dir = this.toPlatformPath(path);
-            ConsoleLog.debug('ApFileSystem.rmdir', dir);
-            rmdir(dir, () => { });
+            const platformPath = this.toPlatformPath(path);
+            ConsoleLog.debug('ApFileSystem.rmdir', platformPath);
+            rmdir(platformPath, () => { });
         })
 
         // writeFile
@@ -74,9 +74,9 @@ export default class APFileSystem {
         // exists
         this.socket.on('exists', (path: string, callback: (exists: boolean) => void) => {
             try {
-                const dir = this.toPlatformPath(path);
-                ConsoleLog.debug('ApFileSystem.exists', dir);
-                callback(fs.existsSync(dir));
+                const platformPath = this.toPlatformPath(path);
+                ConsoleLog.debug('ApFileSystem.exists', platformPath);
+                callback(fs.existsSync(platformPath));
             } catch (e) {
                 callback(false);
             }
@@ -85,9 +85,9 @@ export default class APFileSystem {
         // readDir
         this.socket.on('readDir', (path: string, callback: (files: string[]) => void) => {
             try {
-                const dir = this.toPlatformPath(path);
-                const files = fs.readdirSync(dir);
-                ConsoleLog.debug('ApFileSystem.readDir', dir, files);
+                const platformPath = this.toPlatformPath(path);
+                const files = fs.readdirSync(platformPath);
+                ConsoleLog.debug('ApFileSystem.readDir', platformPath, files);
                 callback(files);
             } catch (e) {
                 console.log(e);

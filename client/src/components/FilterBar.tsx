@@ -5,6 +5,8 @@ import { filterStore } from '../store/FilterStore';
 import { queryStore } from '../store/QueryStore';
 import CloseIcon from "@material-ui/icons/Close";
 import { messageQueueStore } from '../store/MessageQueueStore';
+import AddIcon from '@material-ui/icons/Add';
+import _ from 'lodash';
 
 type Props = {
 };
@@ -20,11 +22,15 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 		queryStore.extend();
 	}
 
-	function handleDeleteQuery(i: number) {
-		queryStore.deleteEntry(i);
+	function handleDeleteQuery(query: string) {
+		console.log('handleDeleteQuery ' + query)
+		let i = queryStore.getQueries().indexOf(query);
+		if (i !== -1) queryStore.deleteEntry(i);
+		i = queries.indexOf(query)
+		if (i !== -1) queries.splice(i, 1);
 	}
 
-	async function doFilter(query: string) {
+	async function applyFilter(query: string) {
 		setShowQueries(false);
 		setFilter(query)
 		filterStore.setFilterNoDebounce(query);
@@ -59,7 +65,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 				}}
 				onKeyUp={(e) => {
 					if (e.keyCode === 13) {
-						doFilter(filter);
+						applyFilter(filter);
 					}
 				}}
 				placeholder={filter !== filterStore.getFilter() ? "Press enter to apply filter..." : "Boolean/Regex Filter: (a || b.*) && !c"} />
@@ -88,23 +94,28 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 						</button>
 					</MenuItem>
 					{!showSavedQueries ?
-						queries.map((query) => (
+						_.uniq(queries.concat(queryStore.getQueries())).map((query) => (
 							<MenuItem
 								key={query}
+								style={{ paddingLeft: 0 }}
 								hidden={query.indexOf(filter) === -1 || !showQueries}
-								onClick={() => {
-									doFilter(query);
-								}}
 							>
-								<button className="btn btn-sm btn-success"
-									hidden={!messageQueueStore.getSaveQueriesFeature()}
-									style={{ marginRight: '.5rem' }}
+								<IconButton onClick={() => handleDeleteQuery(query)}
+									title="Delete query">
+									<CloseIcon style={{ color: 'red' }} />
+								</IconButton>
+								<IconButton onClick={() => queryStore.addAndSaveQuery(query)}
+									title="Save query"
 									disabled={queryStore.getQueries().indexOf(query) !== -1}
-									onClick={() => queryStore.addAndSaveQuery(query)}
 								>
-									Save
-								</button>
-								{query}
+									<AddIcon style={{ color: queryStore.getQueries().indexOf(query) === -1 ? 'green' : undefined }} />
+								</IconButton>
+								<span onClick={() => {
+									applyFilter(query);
+								}}
+								>
+									{query}
+								</span>
 							</MenuItem>
 						)) : (
 							<>
@@ -115,11 +126,11 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 										style={{
 											display: 'flex', alignItems: 'center',
 										}}>
-										<IconButton onClick={() => handleDeleteQuery(i)} title="Delete query">
+										<IconButton onClick={() => handleDeleteQuery(query)} title="Delete query">
 											<CloseIcon style={{ color: 'red' }} />
 										</IconButton>
 										<button className="btn btn-sm btn-success"
-											onClick={() => doFilter(query)}
+											onClick={() => applyFilter(query)}
 										>
 											Run
 										</button>
