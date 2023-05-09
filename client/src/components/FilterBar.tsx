@@ -23,7 +23,6 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	}
 
 	function handleDeleteQuery(query: string) {
-		console.log('handleDeleteQuery ' + query)
 		let i = queryStore.getQueries().indexOf(query);
 		if (i !== -1) queryStore.deleteEntry(i);
 		i = queries.indexOf(query)
@@ -110,9 +109,11 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 								>
 									<AddIcon style={{ color: queryStore.getQueries().indexOf(query) === -1 ? 'green' : undefined }} />
 								</IconButton>
-								<span onClick={() => {
-									applyFilter(query);
-								}}
+								<span
+									style={{ width: '100%', height: '100%' }}
+									onClick={() => {
+										applyFilter(query);
+									}}
 								>
 									{query}
 								</span>
