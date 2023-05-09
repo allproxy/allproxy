@@ -518,7 +518,9 @@ td input {
 }
 
 .header__filter-input-queries {
-	border: rgba(128, 128, 128, 0.801) solid thistle;
+	border-left: rgba(128, 128, 128, 0.801) solid thin;
+	border-right: rgba(128, 128, 128, 0.801) solid thin;
+	border-bottom: rgba(128, 128, 128, 0.801) solid thin;
 }
 
 .header__filter-case,
