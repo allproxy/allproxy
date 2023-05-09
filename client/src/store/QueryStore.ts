@@ -59,9 +59,11 @@ export default class QueryStore {
 
 	@action public deleteEntry(query: string) {
 		const index = this.queriesIndexOf(query);
-		const dirName = this.queries[index].dirName;
-		apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
-		this.queries.splice(index, 1);
+		if (index !== -1) {
+			const dirName = this.queries[index].dirName;
+			apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
+			this.queries.splice(index, 1);
+		}
 	}
 
 	public async addAndSaveQuery(query: string): Promise<void> {
