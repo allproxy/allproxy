@@ -23,9 +23,8 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	}
 
 	function handleDeleteQuery(query: string) {
-		let i = queryStore.getQueries().indexOf(query);
-		if (i !== -1) queryStore.deleteEntry(i);
-		i = queries.indexOf(query)
+		queryStore.deleteEntry(query);
+		const i = queries.indexOf(query)
 		if (i !== -1) queries.splice(i, 1);
 	}
 
