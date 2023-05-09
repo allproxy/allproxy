@@ -12,7 +12,7 @@ type Props = {
 };
 const FilterBar = observer(({ }: Props): JSX.Element => {
 	const [filter, setFilter] = React.useState('');
-	const [queries] = React.useState<string[]>([]);
+	const [queries, setQueries] = React.useState<string[]>([]);
 	const [showQueries, setShowQueries] = React.useState(false);
 	const [showSavedQueries, setShowSavedQueries] = React.useState(false);
 
@@ -23,9 +23,10 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	}
 
 	function handleDeleteQuery(query: string) {
-		queryStore.deleteEntry(query);
 		const i = queries.indexOf(query)
 		if (i !== -1) queries.splice(i, 1);
+		setQueries(queries.slice());
+		queryStore.deleteEntry(query);
 	}
 
 	async function applyFilter(query: string) {
