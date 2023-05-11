@@ -114,10 +114,19 @@ export default class SnapshotStore {
 	private snapshots: Snapshots = new Snapshots();
 	private count = 0;
 	private updating = false;
+	private notes = '';
 
 	public constructor() {
 		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, [], undefined, undefined, undefined);
 		makeAutoObservable(this);
+	}
+
+	public getNotes() {
+		return this.notes;
+	}
+
+	@action public setNotes(notes: string) {
+		this.notes = notes;
 	}
 
 	public isUpdating() {
@@ -197,6 +206,14 @@ export default class SnapshotStore {
 	@action public setSelectedSnapshotName(name: string) {
 		this.selectedSnapshotName = name;
 		messageQueueStore.resort();
+	}
+
+	public getSelectedSnapshotIndex(): number {
+		for (let i = 0; i < this.snapshots.getNames().length; ++i) {
+			const name = this.snapshots.getNames()[i];
+			if (name === this.selectedSnapshotName) return i;
+		}
+		return 0;
 	}
 
 	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
