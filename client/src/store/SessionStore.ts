@@ -71,6 +71,8 @@ export default class SessionStore {
 				}
 			}
 			messageQueueStore.setFreeze(false);
+
+			await apFileSystem.writeFile(dir + '/notes.txt', snapshotStore.getNotes());
 			resolve();
 		})
 	}
@@ -86,6 +88,7 @@ export default class SessionStore {
 			}
 			for (let dirEntry of await apFileSystem.readDir(dir)) {
 				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry === 'notes.txt') continue;
 				if (dirEntry.startsWith('tab')) {
 					let tabName = await apFileSystem.readFile(dir + '/' + dirEntry + '/tabName.txt');
 					if (tabName === sessionDir && sessionName.length > 0) {
@@ -100,6 +103,10 @@ export default class SessionStore {
 					}
 					snapshotStore.importSnapshot(dirEntry, data);
 				}
+			}
+			if (await apFileSystem.exists(dir + '/notes.txt')) {
+				const notes = await apFileSystem.readFile(dir + '/notes.txt');
+				snapshotStore.setNotes(notes);
 			}
 			resolve(0);
 		});

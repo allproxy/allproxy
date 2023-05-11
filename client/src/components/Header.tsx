@@ -22,6 +22,7 @@ import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal from './JSONFieldsModal';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
+import NotesModal from './NotesModal';
 
 let filterWasStopped = false;
 
@@ -46,6 +47,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
+	const [showNotesModal, setShowNotesModal] = React.useState(false);;
 
 	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
 		multiple: false,
@@ -89,7 +91,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						onClick={() => messageQueueStore.toggleStopped()}
 						title={(messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording')}
 					/>
-					<div className={'header__auto-scroll fa-arrow-alt-circle-down far'}
+					<div hidden className={'header__auto-scroll fa-arrow-alt-circle-down far'}
 						onClick={() => messageQueueStore.setScrollToBottom(true)}
 						title={'Scroll to bottom'}
 					/>
@@ -106,6 +108,14 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					+ (filterStore.getShowErrors() ? 'active' : '')}
 					onClick={() => filterStore.toggleShowErrors()}
 					title={'Toggle show only errors'}
+				/>
+
+				<div className={'header__auto-scroll fa fa-sticky-note'}
+					style={{ color: '#E8A317' }}
+					onClick={() => {
+						setShowNotesModal(true);
+					}}
+					title={'Add notes'}
 				/>
 
 				<div className={'header__more-menu fa fa-ellipsis-v'}
@@ -360,6 +370,12 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					})
 				}}
 				store={jsonLogStore}
+			/>
+			<NotesModal
+				open={showNotesModal}
+				onClose={() => {
+					setShowNotesModal(false);
+				}}
 			/>
 		</div >
 	)
