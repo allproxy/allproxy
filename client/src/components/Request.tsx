@@ -1,5 +1,4 @@
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
+import IconButton from "@material-ui/core/IconButton";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactJson from "react-json-view";
@@ -24,7 +23,6 @@ type Props = {
 	vertical: boolean,
 };
 const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize, vertical }: Props) => {
-	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLButtonElement | null>(null);
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => {
@@ -74,73 +72,37 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 						>
 						</div>
 					}
-					<button className={`request__msg-resend-btn ${isActive ? 'active' : ''} btn btn-xs btn-success`}
-						onClick={(e) => setMoreMenuIcon(e.currentTarget)}
-					>
-						<div className="fa fa-ellipsis-v" style={{ padding: '0px .5rem' }} title="Click to open menu"></div>
-					</button>
-					<Menu
-						anchorEl={moreMenuIcon}
-						open={Boolean(moreMenuIcon)}
-						onClose={() => setMoreMenuIcon(null)}
-					>
-						<MenuItem>
-							<div className="fa fa-sticky-note"
-								onClick={() => {
-									if (store.hasNote()) {
-										store.setNote('');
-									} else {
-										setOpenNoteDialog(true);
-										setMoreMenuIcon(null);
-									}
-								}}
-							>
-								&nbsp;{store.hasNote() ? 'Delete Note' : 'Add Note'}
-							</div>
-						</MenuItem>
-						<MenuItem hidden={!canResend()}>
-							<div className="fa fa-paper-plane"
-								onClick={() => {
-									onResend();
-									setMoreMenuIcon(null);
-								}}
-							>
-								&nbsp;Resend Request
-							</div>
-						</MenuItem>
-						<MenuItem hidden={!canResend()}>
-							<div className="fa fa-copy"
-								onClick={() => {
-									copyToClipboard();
-									setMoreMenuIcon(null);
-								}}
-							>
-								&nbsp;Copy as curl
-							</div>
-						</MenuItem>
-						<MenuItem style={{
-							opacity: message.protocol === 'log:' ? undefined : 0.3,
-							pointerEvents: message.protocol === 'log:' ? undefined : 'none'
-						}}>
+					<div hidden={!isActive} style={{ display: 'flex' }}>
+						<IconButton size="small">
 							<div className="header__export fa fa-copy" title="Copy to clipboard"
+								style={{ marginRight: '0rem' }}
 								onClick={() => {
 									navigator.clipboard.writeText(snapshotStore.copyMessage(message))
-									setMoreMenuIcon(null);
 								}}
 							>
-								&nbsp;Copy to Clipboard
 							</div>
-						</MenuItem>
-						<MenuItem>
-							<div
+						</IconButton>
+						<IconButton size="small">
+							<div className="fa fa-sticky-note"
+								title="Add note"
+								style={{ marginRight: '0rem', color: '#E8A317' }}
 								onClick={() => {
-									setMoreMenuIcon(null);
+									setOpenNoteDialog(true);
 								}}
 							>
-								X &nbsp;Close Menu
 							</div>
-						</MenuItem>
-					</Menu>
+						</IconButton>
+						<IconButton size="small" hidden={!canResend()}>
+							<div className="fa fa-paper-plane"
+								title="Resend HTTP request"
+								style={{ marginRight: '.25rem' }}
+								onClick={() => {
+									onResend();
+								}}
+							>
+							</div>
+						</IconButton>
+					</div>
 
 					<div className={`request__msg
 						${isActive ? ' active' : ''}
@@ -205,25 +167,25 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 				message.method === 'PATCH');
 	}
 
-	function copyToClipboard() {
-		const method = store.getMessage().method;
-		const url = `"${store.getMessage().url?.split('"').join('\\"')}"`;
-		let requestBody = store.getMessage().requestBody;
-		if (typeof requestBody !== 'string') {
-			requestBody = JSON.stringify(requestBody, null, 2);
-			requestBody = requestBody.split('\n').join(' \\\n');
-			requestBody = requestBody.split('"').join('\\"');
-		}
-		const body = requestBody.length > 0 ? '-d "' + requestBody + '"\\\n' : '';
-		let headers = '';
-		for (const key in store.getMessage().requestHeaders) {
-			const value = store.getMessage().requestHeaders[key].split('"').join('\\"');
-			headers += `-H "${key}: ${value}" \\\n`;
-		}
-		headers = headers.substring(0, headers.length - ' \\\n'.length);
-		const curl = `curl -X ${method} ${url} ${body} ${headers}`
-		navigator.clipboard.writeText(curl);
-	}
+	// function copyToClipboard() {
+	// 	const method = store.getMessage().method;
+	// 	const url = `"${store.getMessage().url?.split('"').join('\\"')}"`;
+	// 	let requestBody = store.getMessage().requestBody;
+	// 	if (typeof requestBody !== 'string') {
+	// 		requestBody = JSON.stringify(requestBody, null, 2);
+	// 		requestBody = requestBody.split('\n').join(' \\\n');
+	// 		requestBody = requestBody.split('"').join('\\"');
+	// 	}
+	// 	const body = requestBody.length > 0 ? '-d "' + requestBody + '"\\\n' : '';
+	// 	let headers = '';
+	// 	for (const key in store.getMessage().requestHeaders) {
+	// 		const value = store.getMessage().requestHeaders[key].split('"').join('\\"');
+	// 		headers += `-H "${key}: ${value}" \\\n`;
+	// 	}
+	// 	headers = headers.substring(0, headers.length - ' \\\n'.length);
+	// 	const curl = `curl -X ${method} ${url} ${body} ${headers}`
+	// 	navigator.clipboard.writeText(curl);
+	// }
 })
 
 export function formatTimestamp(timestamp: number) {
