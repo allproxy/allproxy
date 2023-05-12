@@ -71,7 +71,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						width="24" height="24" />
 				</div>
 				<div className="header__title" onClick={() => window.location.reload()}>
-					<span style={{ color: '#f50057' }}>All</span>Proxy
+					<b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
