@@ -22,12 +22,22 @@ const NoteDialog = observer(({ open, message, onClose }: Props) => {
 			<input className={'export__input-file-name form-control'}
 				value={note}
 				onChange={(value) => setNote(value.target.value)} />
-			<button className={'btn btn-success'}
-				disabled={note.length === 0}
-				onClick={handleClose}
-			>
-				Add
-			</button>
+			<div style={{ display: 'flex', marginBottom: '.5rem' }}>
+				<button type="button" className="settings-modal__cancel btn btn-secondary"
+					style={{ margin: '0 .5rem' }}
+					onClick={() => {
+						setNote('');
+					}}
+				>
+					Clear
+				</button>
+				<button className={'btn btn-success'}
+					disabled={note.length === 0}
+					onClick={handleClose}
+				>
+					Add
+				</button>
+			</div>
 		</Dialog>
 	);
 });
