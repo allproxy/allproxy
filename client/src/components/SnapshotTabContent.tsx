@@ -310,7 +310,9 @@ const SnapshotTabContent = observer(({
 					// if (offset > 0) {
 					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
 					// }
-					if ((offset < parent.scrollTop || offset > parent.scrollTop + parent.clientHeight)) {
+					if ((offset < parent.scrollTop || // above
+						offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
+					) {
 						parent.scrollTop = offset;
 						setScrollTop(offset);
 					}
