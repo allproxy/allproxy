@@ -27,6 +27,7 @@ type Props = {
 	highlightSeqNum: number,
 	setHighlightSeqNum: (seqNum: number) => void,
 }
+
 const SnapshotTabContent = observer(({
 	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop,
 	highlightSeqNum, setHighlightSeqNum
@@ -183,7 +184,7 @@ const SnapshotTabContent = observer(({
 								vertical={layout.isVertical()}
 								onSync={() => messageQueueStore.setScrollToSeqNum(selectedReqSeqNum)}
 								onClose={() => {
-									handleClick(selectedReqSeqNum, vertical);
+									handleClick(selectedReqSeqNum);
 								}}
 							/>
 							:
@@ -237,19 +238,17 @@ const SnapshotTabContent = observer(({
 		breakpointStore.closeBreakpointResponseModal();
 	}
 
-	function handleClick(seqNum: number, vertical: boolean) {
+	function handleClick(seqNum: number) {
 		const curSeqNum = selectedReqSeqNum;
 		setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		if (seqNum !== curSeqNum) {
 			setSelectedReqSeqNum(seqNum);
 			messageQueueStore.setHighlightSeqNum(seqNum);
-			if (!vertical) messageQueueStore.setScrollToSeqNum(seqNum);
+			messageQueueStore.setScrollToSeqNum(seqNum);
 		} else {
-			if (!vertical) {
-				setUnselectedReqSeqNum(seqNum);
-				messageQueueStore.setScrollToSeqNum(seqNum);
-			}
+			setUnselectedReqSeqNum(seqNum);
+			messageQueueStore.setScrollToSeqNum(seqNum);
 		}
 	}
 
