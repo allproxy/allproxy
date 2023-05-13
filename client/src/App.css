@@ -713,10 +713,10 @@ td input {
 	display: flex;
 }
 
-.request__msg.active {
+/* .request__msg.active {
 	border: red solid thin;
 	border-radius: .2rem;
-}
+} */
 
 .request__msg.highlight {
 	background-color: yellow;
