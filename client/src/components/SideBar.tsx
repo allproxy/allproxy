@@ -68,16 +68,16 @@ const SideBar = observer(() => {
 	let countsByIconClassMap: Map<string, number> = new Map();
 	let countsByStatusMap: Map<number, number> = new Map();
 	let noteMessages: MessageStore[] = [];
-	let visitedMessages: MessageStore[] = [];
+	// let visitedMessages: MessageStore[] = [];
 
 	function getCounts() {
 		messageQueueStore.getMessages().forEach((messageStore) => {
 			if (messageStore.hasNote()) {
 				noteMessages.push(messageStore);
 			}
-			if (messageStore.getVisited()) {
-				visitedMessages.push(messageStore);
-			}
+			// if (messageStore.getVisited()) {
+			// 	visitedMessages.push(messageStore);
+			// }
 
 			const iconClass = messageStore.getIconClass();
 			let count = countsByIconClassMap.get(iconClass);
@@ -211,7 +211,7 @@ const SideBar = observer(() => {
 				</div>
 			</div>
 
-			{visitedMessages.length > 0 && (
+			{/* {visitedMessages.length > 0 && (
 				<><hr className="side-bar-divider"></hr><div>
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
@@ -226,7 +226,7 @@ const SideBar = observer(() => {
 						</Select>
 					</div>
 				</div></>
-			)}
+			)} */}
 
 			{noteMessages.length > 0 && (
 				<div className="side-bar-item">
@@ -386,23 +386,23 @@ const SideBar = observer(() => {
 	)
 });
 
-function getRequestLine(store: MessageStore) {
-	const message = store.getMessage();
-	return (
-		<div className={`request__msg`}>
-			{store.isHttpOrHttps() &&
-				<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}>
-					{message.status}
-				</div>}
-			<div className="request__msg-request-line">
-				{message.method && message.method.length > 0 &&
-					<div className="request__msg-method">
-						{message.method}
-					</div>}
-				<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
-			</div>
-		</div>
-	);
-}
+// function getRequestLine(store: MessageStore) {
+// 	const message = store.getMessage();
+// 	return (
+// 		<div className={`request__msg`}>
+// 			{store.isHttpOrHttps() &&
+// 				<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}>
+// 					{message.status}
+// 				</div>}
+// 			<div className="request__msg-request-line">
+// 				{message.method && message.method.length > 0 &&
+// 					<div className="request__msg-method">
+// 						{message.method}
+// 					</div>}
+// 				<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
+// 			</div>
+// 		</div>
+// 	);
+// }
 
 export default SideBar;
