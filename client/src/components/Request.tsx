@@ -6,7 +6,7 @@ import { colorScheme } from "../App";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from "../store/SnapshotStore";
-import JsonLogViewerLabels from "./JsonLogViewerLabels";
+import JsonLogAnnotator from "./JsonLogAnnotator";
 import NoteDialog from "./NoteDialog";
 
 
@@ -129,7 +129,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 							</div>}
 							{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
 							{message.protocol === 'log:' ?
-								<JsonLogViewerLabels message={store} />
+								<JsonLogAnnotator message={store} />
 								:
 								<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
 							}

@@ -35,6 +35,7 @@ const SnapshotTabContent = observer(({
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
 	const [renderCount, setRenderCount] = React.useState(defaultRenderCount);
 	const [unselectedReqSeqNum, setUnselectedReqSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
+	const [clickPendingSeqNum, setClickPendingSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 
 	const messageStore = breakpointStore.getMessageStore();
 
@@ -45,6 +46,13 @@ const SnapshotTabContent = observer(({
 	React.useLayoutEffect(() => {
 		messageQueueStore.setHighlightSeqNum(highlightSeqNum);
 	});
+
+	React.useEffect(() => {
+		if (clickPendingSeqNum !== Number.MAX_SAFE_INTEGER) {
+			handleClick(clickPendingSeqNum);
+			setClickPendingSeqNum(Number.MAX_SAFE_INTEGER);
+		}
+	})
 
 	function updateScroll() {
 		if (filterStore.shouldResetScroll()) {
@@ -101,7 +109,9 @@ const SnapshotTabContent = observer(({
 	let renderedCount = 0;
 	calcRenderCount().then((count) => setRenderCount(count));
 	return (
-		<div style={{ opacity: snapshotStore.isUpdating() ? '.3' : undefined }}>
+		<div style={{
+			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
+		}}>
 			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
 			</div>
@@ -147,7 +157,11 @@ const SnapshotTabContent = observer(({
 										isActive={isActiveRequest}
 										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
 										timeBarPercent={timeBarPercent + '%'}
-										onClick={handleClick.bind(null, seqNum, vertical)}
+										onClick={() => messageQueueStore.getMessages().length > 1000 ?
+											setClickPendingSeqNum(seqNum)
+											:
+											handleClick(seqNum)
+										}
 										onResend={() => handleResend(message)}
 										vertical={vertical}
 									/>)

@@ -5,7 +5,7 @@ import MessageStore from '../store/MessageStore';
 type Props = {
 	message: MessageStore,
 };
-const JsonLogViewerLabels = observer(({ message }: Props) => {
+const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	return (
 		<div>
@@ -23,7 +23,7 @@ const JsonLogViewerLabels = observer(({ message }: Props) => {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
-			elements.push(<span>{nonJson + JSON.stringify(message.responseBody)}</span>);
+			elements.push(<span> {nonJson + JSON.stringify(message.responseBody)}</span>);
 		}
 
 		let messageText = messageStore.getLogEntry().message;
@@ -71,4 +71,4 @@ const JsonLogViewerLabels = observer(({ message }: Props) => {
 	}
 });
 
-export default JsonLogViewerLabels;
+export default JsonLogAnnotator;
