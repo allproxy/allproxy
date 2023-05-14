@@ -110,6 +110,14 @@ td input {
 	width: 100%;
 }
 
+.filter-bar__menu-item .filter-bar__menu-item-links {
+	visibility: hidden;
+}
+
+.filter-bar__menu-item:hover .filter-bar__menu-item-links {
+	visibility: visible;
+}
+
 .MuiTabs-scroller {
 	overflow: auto !important;
 }

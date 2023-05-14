@@ -1,11 +1,10 @@
-import { ClickAwayListener, IconButton, MenuItem } from '@material-ui/core';
+import { ClickAwayListener, IconButton, Link, MenuItem } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { filterStore } from '../store/FilterStore';
 import { queryStore } from '../store/QueryStore';
 import CloseIcon from "@material-ui/icons/Close";
 import { messageQueueStore } from '../store/MessageQueueStore';
-import AddIcon from '@material-ui/icons/Add';
 import _ from 'lodash';
 
 type Props = {
@@ -95,28 +94,31 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 					{!showSavedQueries ?
 						_.uniq(queries.concat(queryStore.getQueries())).map((query) => (
 							<MenuItem
+								className="filter-bar__menu-item"
 								key={query}
 								style={{ paddingLeft: 0 }}
 								hidden={query.indexOf(filter) === -1 || !showQueries}
 							>
-								<IconButton onClick={() => handleDeleteQuery(query)}
-									title="Delete query">
-									<CloseIcon style={{ color: 'red' }} />
-								</IconButton>
-								<IconButton onClick={() => queryStore.addAndSaveQuery(query)}
-									title="Save query"
-									disabled={queryStore.getQueries().indexOf(query) !== -1}
-								>
-									<AddIcon style={{ color: queryStore.getQueries().indexOf(query) === -1 ? 'green' : undefined }} />
-								</IconButton>
-								<span
-									style={{ width: '100%', height: '100%' }}
+								<div
+									style={{ width: '100%', height: '100%', marginLeft: '.5rem' }}
 									onClick={() => {
 										applyFilter(query);
 									}}
 								>
 									{query}
-								</span>
+								</div>
+								<div className="filter-bar__menu-item-links">
+									<Link href="#"
+										onClick={() => queryStore.addAndSaveQuery(query)}
+										hidden={queryStore.getQueries().indexOf(query) !== -1}
+										style={{ marginRight: ".5rem" }}>
+										Save
+									</Link>
+									<Link href="#"
+										onClick={() => handleDeleteQuery(query)}>
+										Delete
+									</Link>
+								</div>
 							</MenuItem>
 						)) : (
 							<>
