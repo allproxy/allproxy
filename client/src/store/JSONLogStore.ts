@@ -155,7 +155,6 @@ export default class JSONLogStore {
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', category: '', message: '', additionalJSON: {} }; };
 
 	private fields: JSONLogField[] = [];
-	private fieldNames: string[] = []
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -173,9 +172,6 @@ export default class JSONLogStore {
 	}
 	public saveScript() {
 		apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
-		const fields: string[] = [];
-		for (const field of this.fields) fields.push(field.getName());
-		this.fieldNames = fields;
 	}
 	public updateScriptFunc() {
 		this.scriptFunc = this.evalScript(this.script);
@@ -199,12 +195,11 @@ export default class JSONLogStore {
 	public async init() {
 		const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
 		this.fields = [];
-		this.fieldNames = [];
 		for (const fileName of fileNames) {
 			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
 			jsonField.setName(fileName);
 			this.fields.push(jsonField);
-			this.fieldNames.push(fileName);
+			this.fields.sort((a, b) => a.getName().localeCompare(b.getName()));
 		}
 
 		for (const fileName of await apFileSystem.readDir(SCRIPTS_DIR)) {
@@ -235,7 +230,7 @@ export default class JSONLogStore {
 	}
 
 	public getJSONFieldNames(): string[] {
-		return this.fieldNames;
+		return this.fields.map(field => field.getName())
 	}
 
 	@action public extend() {
@@ -287,7 +282,12 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 					for (const k of keys) {
 						let value2;
 						try {
-							value2 = eval(`value["${k}"]`);
+							// Array?
+							if (k.endsWith(']')) {
+								value2 = eval(`value.${k}`);
+							} else {
+								value2 = eval(`value["${k}"]`);
+							}
 						} catch (e) { }
 						if (value2 !== undefined) {
 							value = value2;
