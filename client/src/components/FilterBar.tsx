@@ -111,7 +111,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 									<Link href="#"
 										onClick={() => queryStore.addAndSaveQuery(query)}
 										hidden={queryStore.getQueries().indexOf(query) !== -1}
-										style={{ marginRight: ".5rem" }}>
+										style={{ marginRight: "1rem" }}>
 										Save
 									</Link>
 									<Link href="#"
