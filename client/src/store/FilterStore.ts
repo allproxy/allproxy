@@ -385,11 +385,11 @@ export default class FilterStore {
             if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
             if (this.isMatch(needle, messageStore.getRequestBody())) return false;
         } else {
-            if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
             try {
                 if (this.isMatch(needle, dateToHHMMSS(messageStore.getLogEntry().date))) return false;
             } catch (e) { }
         }
+        if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
         if (messageStore.hasNote() && this.isMatch(needle, messageStore.getNote())) return false;
         return true;
     }
