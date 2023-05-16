@@ -66,7 +66,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 								<Tab value={value}
 									label={
 										<div>
-											<span style={{ marginLeft: '.25rem', color: 'black' }}>{TAB_NAMES[value]}</span>
+											<span style={{ marginLeft: '.25rem' }}>{TAB_NAMES[value]}</span>
 										</div>
 									}>
 								</Tab>

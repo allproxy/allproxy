@@ -3,9 +3,11 @@ body {
 }
 
 @media screen and (prefers-color-scheme: dark) {
+
+	.header__filter-input-queries,
 	body {
 		color: rgba(232, 230, 227) !important;
-		background-color: #111111 !important;
+		background-color: #222222 !important;
 	}
 
 	.settings-modal__proxy-row {
@@ -41,6 +43,8 @@ body {
 }
 
 @media screen and (prefers-color-scheme: light) {
+
+	.header__filter-input-queries,
 	body {
 		background-color: whitesmoke !important;
 		color: black !important;
@@ -522,7 +526,6 @@ td input {
 
 .header__filter-input-queries {
 	position: absolute;
-	background: whitesmoke;
 	margin: 0 0 0 1rem;
 }
 
