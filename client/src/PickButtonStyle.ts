@@ -1,3 +1,4 @@
+import { colorScheme } from "./App";
 
 const colorStyles = [
     { background: "#4589ff", color: "white" }, // blue
@@ -12,11 +13,11 @@ const colorStyles = [
     { background: '#f032e6', color: "white" },
     { background: '#a9a9a9', color: "black" },
 
-    { background: '#800000', color: "white" },
+    { background: '#ff0000', color: "white" }, // dark red
     { background: '#9A6324', color: "white" },
     { background: '#808000', color: "white" },
     { background: '#469990', color: "white" },
-    { background: '#000075', color: "white" },
+    { background: '#1f45fc', color: "white" }, // dark blue
     //{ background: '#000000', color: "white" },
 
     { background: '#fabed4', color: "black" },
@@ -39,6 +40,9 @@ export function pickButtonStyle(name: string): { background: string, color: stri
         styleMap[name] = style;
         ++index;
         if (index === colorStyles.length) index = 0;
+    }
+    if (colorScheme == 'dark' && style.background) {
+        style.color = 'black';
     }
     return style;
 }
