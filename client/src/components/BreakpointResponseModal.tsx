@@ -2,8 +2,8 @@ import { observer } from 'mobx-react-lite';
 import { Modal } from '@material-ui/core'
 import MessageStore from '../store/MessageStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
-import { colorScheme } from '../App';
 import React from 'react';
+import { themeStore } from '../store/ThemeStore';
 
 type Props = {
 	open: boolean,
@@ -52,7 +52,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 							<div className="resend-modal__body-container">
 								{responseBody && typeof responseBody === 'object' ?
 									<ReactJson
-										theme={colorScheme === 'dark' ? 'google' : undefined}
+										theme={themeStore.getTheme() === 'dark' ? 'google' : undefined}
 										src={responseBody}
 										name={false}
 										displayDataTypes={false}

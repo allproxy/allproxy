@@ -1,4 +1,4 @@
-import { colorScheme } from "./App";
+import { themeStore } from "./store/ThemeStore";
 
 const colorStyles = [
     { background: "#4589ff", color: "white" }, // blue
@@ -30,19 +30,20 @@ const colorStyles = [
 ];
 
 let index = 0;
-const styleMap: { [key: string]: { background: string, color: string } } = {}
+const styleMap: { [key: string]: { background: string, color: string, lightColor: string } } = {}
 
-export function pickButtonStyle(name: string): { background: string, color: string } {
+export function pickLabelStyle(name: string): { background: string, color: string } {
     let style = styleMap[name];
     if (style === undefined) {
         //console.log(index, name)
-        style = colorStyles[index];
+        style = { background: '', color: '', lightColor: '' }
+        const s = colorStyles[index];
+        style.background = s.background;
+        style.lightColor = s.color;
         styleMap[name] = style;
         ++index;
         if (index === colorStyles.length) index = 0;
     }
-    if (colorScheme == 'dark' && style.background) {
-        style.color = 'black';
-    }
+    style.color = themeStore.getTheme() === 'dark' ? 'black' : style.lightColor;
     return style;
 }

@@ -14,20 +14,20 @@ import React from 'react';
 import SideBar from './components/SideBar';
 import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
+import { themeStore } from './store/ThemeStore';
 
 const theme = localStorage.getItem('allproxy-theme');
 let defaultTheme: 'dark' | 'light' = 'dark'
 if (theme === 'dark' || theme === 'light') {
   defaultTheme = theme;
 }
-export let colorScheme = theme;
 
 let colorSchemeQueryList: MediaQueryList | undefined = window.matchMedia('(prefers-color-scheme: dark)');
 
 function initTheme() {
   const theme = localStorage.getItem('allproxy-theme');
   if (theme) {
-    if (theme !== 'system' && theme !== colorScheme) {
+    if (theme !== 'system' && theme !== themeStore.getTheme()) {
       window.darkMode.toggle();
     }
   }
@@ -54,7 +54,7 @@ function App() {
 
   function setTheme(e: any) {
     const cs = e.matches ? "dark" : "light";
-    colorScheme = cs;
+    themeStore.setTheme(cs);
     setPaletteType(cs);
   }
 
