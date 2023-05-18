@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { pickButtonStyle } from '../PickButtonStyle';
+import { pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
 
 type Props = {
@@ -36,7 +36,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			//messageStore.setColor(categoryStyle.background);
 			let labels: JSX.Element[] = [];
 			for (const name of category.split(' ')) {
-				const categoryStyle = pickButtonStyle(name);
+				const categoryStyle = pickLabelStyle(name);
 				labels = labels.concat(makeLabel(name, categoryStyle.background, categoryStyle.color));
 			}
 			elements = labels.concat(elements);
@@ -48,7 +48,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	function formatJSONRequestLabels(messageStore: MessageStore): JSX.Element[] {
 		let elements: JSX.Element[] = [];
 		for (const field of messageStore.getJsonFields()) {
-			const style = pickButtonStyle(field.name);
+			const style = pickLabelStyle(field.name);
 			elements = elements.concat(makeLabel(field.name, style.background, style.color, field.value));
 		}
 

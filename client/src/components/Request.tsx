@@ -2,12 +2,12 @@ import IconButton from "@material-ui/core/IconButton";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactJson from "react-json-view";
-import { colorScheme } from "../App";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
 import { snapshotStore } from "../store/SnapshotStore";
 import JsonLogAnnotator from "./JsonLogAnnotator";
 import NoteDialog from "./NoteDialog";
+import { themeStore } from "../store/ThemeStore";
 
 
 type Props = {
@@ -141,7 +141,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 				{!store.isRequestBodyJson()
 					? store.getRequestBody()
 					: <ReactJson
-						theme={colorScheme === 'dark' ? 'google' : undefined}
+						theme={themeStore.getTheme() === 'dark' ? 'google' : undefined}
 						src={message.requestBody as object}
 						name={false}
 						displayDataTypes={false}

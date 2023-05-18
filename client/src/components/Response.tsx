@@ -4,10 +4,10 @@ import { Accordion, AccordionSummary, AccordionDetails, CircularProgress, IconBu
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ReactJson from 'react-json-view';
 import MessageStore from '../store/MessageStore';
-import { colorScheme } from '../App';
 import CloseIcon from "@material-ui/icons/Close";
 import { formatTimestamp } from './Request';
 import { TabContext, TabPanel } from '@material-ui/lab';
+import { themeStore } from '../store/ThemeStore';
 
 
 type Props = {
@@ -105,7 +105,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 										{!store.isRequestBodyJson()
 											? store.getRequestBody()
 											: <ReactJson
-												theme={colorScheme === 'dark' ? 'google' : undefined}
+												theme={themeStore.getTheme() === 'dark' ? 'google' : undefined}
 												src={message.requestBody as object}
 												name={false}
 												displayDataTypes={false}
@@ -251,7 +251,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 			let response: string | ReactElement<any, any>;
 			if (typeof message.responseBody === 'object') {
 				response = <ReactJson
-					theme={colorScheme === 'dark' ? 'google' : undefined}
+					theme={themeStore.getTheme() === 'dark' ? 'google' : undefined}
 					src={message.responseBody}
 					name={false}
 					displayDataTypes={false}

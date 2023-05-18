@@ -1,14 +1,14 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
-import { colorScheme } from '../App';
+import { themeStore } from '../store/ThemeStore';
 
 let once = false;
 
 declare global {
-    interface Window {
+	interface Window {
 		darkMode: any;
-	 }
+	}
 }
 
 type Props = {
@@ -29,14 +29,16 @@ const DarkModeDialog = observer(({ open, onClose }: Props) => {
 	}
 
 	function handleDark() {
-		if (theme === 'light' || colorScheme === 'light') {
+		if (theme === 'light' || themeStore.getTheme() === 'light') {
 			window.darkMode.toggle();
+			themeStore.setTheme('dark');
 		}
 		setTheme('dark');
 	}
 	function handleLight() {
-		if (theme === 'dark' || colorScheme === 'dark') {
+		if (theme === 'dark' || themeStore.getTheme() === 'dark') {
 			window.darkMode.toggle();
+			themeStore.setTheme('light');
 		}
 		setTheme('light');
 	}
@@ -47,14 +49,14 @@ const DarkModeDialog = observer(({ open, onClose }: Props) => {
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-			<FormControl  style={{padding: '1rem'}}>
+			<FormControl style={{ padding: '1rem' }}>
 				<FormLabel id="theme-radio-button">Appearance</FormLabel>
 				<RadioGroup
 					aria-labelledby="theme-radio-button"
 					defaultValue={theme}
 					name="radio-buttons-group"
 				>
-					<FormControlLabel value="dark" control={<Radio />} label="Dark" onClick={handleDark}/>
+					<FormControlLabel value="dark" control={<Radio />} label="Dark" onClick={handleDark} />
 					<FormControlLabel value="light" control={<Radio />} label="Light" onClick={handleLight} />
 					<FormControlLabel value="system" control={<Radio />} label="System" onClick={handleSystem} />
 				</RadioGroup>

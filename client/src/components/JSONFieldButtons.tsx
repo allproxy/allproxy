@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { pickButtonStyle } from '../PickButtonStyle';
+import { pickLabelStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
 import { updateJSONRequestLabels } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
@@ -38,7 +38,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 						<button className={"btn btn-sm " + (field.selected ? "" : "btn-secondary")}
 							key={field.name}
 							style={field.selected ?
-								{ margin: ".5rem 0", marginRight: ".25rem", background: pickButtonStyle(field.name).background, color: pickButtonStyle(field.name).color } :
+								{ margin: ".5rem 0", marginRight: ".25rem", background: pickLabelStyle(field.name).background, color: pickLabelStyle(field.name).color } :
 								{ margin: ".5rem .25rem" }}
 							onClick={() => {
 								snapshotStore.setUpdating(true);

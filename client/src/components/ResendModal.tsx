@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { List, ListItem, Modal } from '@material-ui/core'
 import ResendStore from '../store/ResendStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
-import { colorScheme } from '../App';
+import { themeStore } from '../store/ThemeStore';
 
 type Props = {
 	open: boolean,
@@ -100,7 +100,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 								<div className="resend-modal__body-container">
 									{message.requestBody && typeof message.requestBody === 'object' ?
 										<ReactJson
-											theme={colorScheme === 'dark' ? 'google' : undefined}
+											theme={themeStore.getTheme() === 'dark' ? 'google' : undefined}
 											src={message.requestBody}
 											name={false}
 											displayDataTypes={false}
