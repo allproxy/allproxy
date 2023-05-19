@@ -324,7 +324,7 @@ function formatValue(name: string, value: string): string {
 		const tokens = value.split('?')[0].split('/');
 		let value2 = tokens.pop() as string;
 		if (tokens.length > 0) {
-			value2 = value2 + '/' + tokens.pop();
+			value2 = tokens.pop() + '/' + value2;
 		}
 		return value2 as string;
 	}
