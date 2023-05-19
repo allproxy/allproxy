@@ -329,8 +329,11 @@ function formatValue(name: string, value: string): string {
 		return value2 as string;
 	}
 	// Remove double quotes
-	if (value.charAt(0) === '"' && value.charAt(value.length) === '"') {
-		return value.substring(1, value.length - 1);
+	if (value.charAt(0) === '"') {
+		return value.substring(1);
+	}
+	if (value.charAt(value.length - 1) === '"') {
+		return value.substring(0, value.length - 2);
 	}
 	return value;
 }
