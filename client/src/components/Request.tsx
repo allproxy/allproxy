@@ -21,8 +21,9 @@ type Props = {
 	maxMethodSize: number,
 	maxEndpointSize: number,
 	vertical: boolean,
+	isFiltered: boolean,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize, vertical }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered }: Props) => {
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => {
@@ -119,7 +120,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 							</div>}
 						<div className={`
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
-						`}>
+						`} style={{ textDecoration: isFiltered ? "line-through" : undefined }}>
 							{message.method && message.method.length > 0 &&
 								<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
 									{message.method}

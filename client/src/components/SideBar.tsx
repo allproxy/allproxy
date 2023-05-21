@@ -170,7 +170,7 @@ const SideBar = observer(() => {
 			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
 				<div>
-					<div style={{ display: 'flex' }}>
+					<div hidden style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							checked={messageQueueStore.getSaveQueriesFeature()}
