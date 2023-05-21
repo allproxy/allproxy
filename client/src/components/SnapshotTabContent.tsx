@@ -128,7 +128,8 @@ const SnapshotTabContent = observer(({
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
-							if (!isActiveRequest && !snapshotStore.isUpdating() && filterStore.isFiltered(messageStore)) {
+							const isFiltered = filterStore.isFiltered(messageStore);
+							if (!isActiveRequest && !snapshotStore.isUpdating() && isFiltered) {
 								return null;
 							} else {
 								if (renderedCount >= renderCount &&
@@ -164,6 +165,7 @@ const SnapshotTabContent = observer(({
 										}
 										onResend={() => handleResend(message)}
 										vertical={vertical}
+										isFiltered={isFiltered}
 									/>)
 							}
 						})}
