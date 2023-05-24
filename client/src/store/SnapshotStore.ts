@@ -334,21 +334,17 @@ export default class SnapshotStore {
 			messageStores.sort((a, b) => {
 				let dateA: Date = a.getLogEntry().date;
 				let dateB: Date = b.getLogEntry().date;
-				let timestampA = '0';
-				let timestampB = '0'
-				try {
-					timestampA = dateA.toTimeString();
-				} catch (e) {
+				if (dateA < dateB) {
+					return -1;
+				} else if (dateA > dateB) {
+					return 1;
+				} else {
+					return 0;
 				}
-				try {
-					timestampB = dateB.toTimeString();
-				} catch (e) {
-				}
-				return timestampA.localeCompare(timestampB);
 			});
 			messageStores.map((m, i) => {
 				const message = m.getMessage();
-				message.sequenceNumberRes = message.sequenceNumberRes;
+				message.sequenceNumberRes = i;
 				message.sequenceNumber = i;
 			});
 		}
