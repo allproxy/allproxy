@@ -62,9 +62,21 @@ export default class MessageStore {
                 ...message.responseBody
             }
         }
-        const jsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
+        const newJsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
 
-        this.setJsonFields(jsonFields);
+        const oldJsonFields = this.getJsonFields();
+        let updateRequired = true;
+        if (oldJsonFields.length === newJsonFields.length) {
+            updateRequired = false;
+            for (let i = 0; i < oldJsonFields.length; ++i) {
+                if (oldJsonFields[i].name !== newJsonFields[i].name && oldJsonFields[i].name !== newJsonFields[i].name) {
+                    updateRequired = true;
+                    break;
+                }
+            }
+        }
+
+        if (updateRequired) this.setJsonFields(newJsonFields);
     }
 
     public getLogEntry() {
