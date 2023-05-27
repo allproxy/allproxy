@@ -39,6 +39,7 @@ const SnapshotTabContent = observer(({
 
 	const messageStore = breakpointStore.getMessageStore();
 
+	let firstSeqNum = 0;
 	let lastSeqNum = 0;
 
 	const requestContainerRef = React.useRef<HTMLDivElement>(null);
@@ -52,6 +53,17 @@ const SnapshotTabContent = observer(({
 			handleClick(clickPendingSeqNum);
 			setClickPendingSeqNum(Number.MAX_SAFE_INTEGER);
 		}
+		if (messageQueueStore.getScrollPending()) {
+			if (messageQueueStore.getScrollToTop()) {
+				if (matchCount > 0) messageQueueStore.setScrollToSeqNum(firstSeqNum);
+				messageQueueStore.setScrollToTop(false);
+			}
+			if (messageQueueStore.getScrollToBottom()) {
+				if (matchCount > 0) messageQueueStore.setScrollToSeqNum(lastSeqNum);
+				messageQueueStore.setScrollToBottom(false);
+			}
+			messageQueueStore.setScrollPending(false);
+		}
 	})
 
 	function updateScroll() {
@@ -64,6 +76,7 @@ const SnapshotTabContent = observer(({
 			restoreScrollTop();
 		}
 	}
+
 	function checkForScrollTo() {
 		if (messageQueueStore.getScrollToSeqNum() !== null) {
 			const seqNum = messageQueueStore.getScrollToSeqNum();
@@ -110,7 +123,7 @@ const SnapshotTabContent = observer(({
 	calcRenderCount().then((count) => setRenderCount(count));
 	return (
 		<div style={{
-			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
+			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollPending() ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
 		}}>
 			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
@@ -139,6 +152,7 @@ const SnapshotTabContent = observer(({
 								) {
 									return null;
 								}
+								if (renderCount === 0) firstSeqNum = seqNum;
 								++renderedCount;
 								lastSeqNum = seqNum;
 								if (isActiveRequest) {
@@ -169,7 +183,6 @@ const SnapshotTabContent = observer(({
 									/>)
 							}
 						})}
-						{matchCount > 0 && messageQueueStore.getScrollToBottom() /*&& selectedReqSeqNum === Number.MAX_SAFE_INTEGER*/ && setScrollTo(lastSeqNum, 0) && messageQueueStore.setScrollToBottom(false)}
 						{matchCount === 0 && (
 							<div className="center">
 								No matching request or response found.  Adjust your filter criteria.
