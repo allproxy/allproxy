@@ -91,10 +91,6 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						onClick={() => messageQueueStore.toggleStopped()}
 						title={(messageQueueStore.getStopped() ? 'Resume recording' : 'Pause recording')}
 					/>
-					<div hidden className={'header__auto-scroll fa-arrow-alt-circle-down far'}
-						onClick={() => messageQueueStore.setScrollToBottom(true)}
-						title={'Scroll to bottom'}
-					/>
 				</div>
 
 				<div hidden className={'header__sort-req-res fa-solid fa-arrow-down fas'}
@@ -116,6 +112,22 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						setShowNotesModal(true);
 					}}
 					title={'Add notes'}
+				/>
+
+				<div className={'header__auto-scroll fa fa-chevron-up'}
+					onClick={() => {
+						messageQueueStore.setScrollToTop(true);
+						messageQueueStore.setScrollPending(true);
+					}}
+					title={'Scroll to top'}
+				/>
+
+				<div className={'header__auto-scroll fa fa-chevron-down'}
+					onClick={() => {
+						messageQueueStore.setScrollToBottom(true);
+						messageQueueStore.setScrollPending(true);
+					}}
+					title={'Scroll to bottom'}
 				/>
 
 				<div className={'header__more-menu fa fa-ellipsis-v'}

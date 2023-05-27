@@ -9,6 +9,8 @@ const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 export default class MessageQueueStore {
 	private limit: number = this._getLimit();
 	private stopped: boolean = false;
+	private scrollPending: boolean = false;
+	private scrollToTop: boolean = false;
 	private scrollToBottom: boolean = false;
 	private sortByReq: boolean = true;
 	private freeze: boolean = false;
@@ -38,6 +40,7 @@ export default class MessageQueueStore {
 		if (seqNum !== null) {
 			this.forceRerender();
 		}
+		return seqNum;
 	}
 	public getHighlightSeqNum() {
 		return this.highlightSeqNum;
@@ -140,19 +143,30 @@ export default class MessageQueueStore {
 		this.stopped = !this.stopped;
 	}
 
-	public getScrollToBottom(): boolean {
-		return snapshotStore.isActiveSnapshotSelected() && this.scrollToBottom;
+	public getScrollPending(): boolean {
+		return this.scrollPending;
 	}
 
-	@action public setScrollToBottom(bottom: boolean) {
-		this.scrollToBottom = bottom;
-		// When toggling to auto-scroll, de-select the active request, if it is selected.
-		// This will expand the request panel to full screen mode, and start the auto
-		// scrolling.  If a request is selected, the auto scrolling is stopped until
-		// the request is de-selected (clicked again).
-		if (this.scrollToBottom) {
-			snapshotStore.getSelectedReqSeqNumbers()[0] = Number.MAX_SAFE_INTEGER;
-		}
+	@action public setScrollPending(scrollPending: boolean) {
+		this.scrollPending = scrollPending;
+	}
+
+	public getScrollToTop(): boolean {
+		return this.scrollToTop;
+	}
+
+	@action public setScrollToTop(top: boolean) {
+		this.scrollToTop = top;
+		if (this.scrollToBottom) this.fullPageSearch = true;
+	}
+
+	public getScrollToBottom(): boolean {
+		return this.scrollToBottom;
+	}
+
+	@action public setScrollToBottom(buttom: boolean) {
+		this.scrollToBottom = buttom;
+		if (this.scrollToBottom) this.fullPageSearch = true;
 	}
 
 	public getSortByReq(): boolean {
