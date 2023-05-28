@@ -114,7 +114,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title={'Add notes'}
 				/>
 
-				<div className={'header__auto-scroll fa fa-chevron-up'}
+				<div className={'header__auto-scroll fa fa-arrow-up'}
 					onClick={() => {
 						messageQueueStore.setScrollToTop(true);
 						messageQueueStore.setScrollPending(true);
@@ -122,7 +122,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title={'Scroll to top'}
 				/>
 
-				<div className={'header__auto-scroll fa fa-chevron-down'}
+				<div className={'header__auto-scroll fa fa-arrow-down'}
 					onClick={() => {
 						messageQueueStore.setScrollToBottom(true);
 						messageQueueStore.setScrollPending(true);
