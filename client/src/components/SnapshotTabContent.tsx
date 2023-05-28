@@ -55,11 +55,17 @@ const SnapshotTabContent = observer(({
 		}
 		if (messageQueueStore.getScrollPending()) {
 			if (messageQueueStore.getScrollToTop()) {
-				if (matchCount > 0) messageQueueStore.setScrollToSeqNum(firstSeqNum);
+				if (matchCount > 0) {
+					messageQueueStore.setScrollToSeqNum(firstSeqNum);
+					setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+				}
 				messageQueueStore.setScrollToTop(false);
 			}
 			if (messageQueueStore.getScrollToBottom()) {
-				if (matchCount > 0) messageQueueStore.setScrollToSeqNum(lastSeqNum);
+				if (matchCount > 0) {
+					messageQueueStore.setScrollToSeqNum(lastSeqNum);
+					setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+				}
 				messageQueueStore.setScrollToBottom(false);
 			}
 			messageQueueStore.setScrollPending(false);
