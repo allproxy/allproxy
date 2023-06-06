@@ -1,5 +1,5 @@
 import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core'
-import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR } from '../store/JSONLogStore';
+import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR, getJsonFieldValues } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import TabContext from '@material-ui/lab/TabContext';
@@ -11,17 +11,21 @@ type Props = {
 	onClose: () => void,
 	store: JSONLogStore,
 }
+const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values'
 const TAB_NAMES: { [key: string]: string } = {}
 TAB_NAMES[JSON_FIELDS_DIR] = 'Highlight JSON Fields';
 TAB_NAMES[SCRIPTS_DIR] = 'Script';
+TAB_NAMES[SHOW_JSON_FIELD_VALUES] = SHOW_JSON_FIELD_VALUES;
 
 const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
-	const TAB_VALUES = [JSON_FIELDS_DIR, SCRIPTS_DIR];
-	const [tabValue, setTabValue] = React.useState(JSON_FIELDS_DIR);
+	const TAB_VALUES = [SHOW_JSON_FIELD_VALUES, JSON_FIELDS_DIR, SCRIPTS_DIR];
+	const [tabValue, setTabValue] = React.useState(SHOW_JSON_FIELD_VALUES);
 	const [error, setError] = React.useState('');
 	const [radioValue, setRadioValue] = React.useState('table');
+	const [showJsonField, setShowJsonField] = React.useState('');
+	const [jsonFieldValues, setJsonFieldValues] = React.useState<string[]>([]);
 
-	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: 'Categories' | 'JSON Fields') {
+	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: string) {
 		setTabValue(tabValue);
 	}
 
@@ -115,68 +119,84 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 												</div>
 											</div>
 										</>
-										:
-										<>
-											<RadioGroup
-												row
-												aria-labelledby="json-fields-radio-buttons"
-												defaultValue="table"
-												name="json-fields-radio-buttons"
-												value={radioValue}
-												onChange={(e) => setRadioValue(e.target.value)}
-											>
-												<FormControlLabel value="table" control={<Radio />} label="Table" />
-												<FormControlLabel value="copypaste" control={<Radio />} label="Copy/Paste" />
-											</RadioGroup>
-											{radioValue === 'copypaste' ?
-												<>
-													<div>One JSON field name per line:</div>
-													<div style={{ marginTop: '.25rem' }} >
-														<textarea
-															rows={29} cols={80}
-															value={store.getJSONFieldNames().join('\n')}
-															onChange={(e) => {
-																store.setJSONFieldNames(e.target.value)
-															}}
-														/>
-													</div>
-												</>
-												:
-												<>
-													<button className="btn btn-lg btn-primary"
-														onClick={handleAddEntry}
-													>
-														+ New JSON Key
-													</button>
-													<List>
-														{store.getJSONFields().map((jsonField, i) => (
-															<ListItem key={i}
-																style={{
-																	display: 'flex', alignItems: 'center',
-																}}>
-																<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
-																	<CloseIcon style={{ color: 'red' }} />
-																</IconButton>
-																<div
+										: tabValue === SHOW_JSON_FIELD_VALUES ?
+											<>
+												<div>
+													Enter JSON field name:
+												</div>
+												<input className="form-control"
+													value={showJsonField}
+													onChange={(e) => setShowJsonField(e.currentTarget.value)} />
+												<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0' }}
+													onClick={() => setJsonFieldValues(getJsonFieldValues(showJsonField))}
+													disabled={showJsonField.length === 0}
+												>
+													Show Values
+												</button>
+												{jsonFieldValues.map(value => <div>{value}</div>)}
+											</>
+											:
+											<>
+												<RadioGroup
+													row
+													aria-labelledby="json-fields-radio-buttons"
+													defaultValue="table"
+													name="json-fields-radio-buttons"
+													value={radioValue}
+													onChange={(e) => setRadioValue(e.target.value)}
+												>
+													<FormControlLabel value="table" control={<Radio />} label="Table" />
+													<FormControlLabel value="copypaste" control={<Radio />} label="Copy/Paste" />
+												</RadioGroup>
+												{radioValue === 'copypaste' ?
+													<>
+														<div>One JSON field name per line:</div>
+														<div style={{ marginTop: '.25rem' }} >
+															<textarea
+																rows={29} cols={80}
+																value={store.getJSONFieldNames().join('\n')}
+																onChange={(e) => {
+																	store.setJSONFieldNames(e.target.value)
+																}}
+															/>
+														</div>
+													</>
+													:
+													<>
+														<button className="btn btn-lg btn-primary"
+															onClick={handleAddEntry}
+														>
+															+ New JSON Key
+														</button>
+														<List>
+															{store.getJSONFields().map((jsonField, i) => (
+																<ListItem key={i}
 																	style={{
 																		display: 'flex', alignItems: 'center',
-																		width: '100%',
-																	}}
-																>
-																	<input className="form-control"
+																	}}>
+																	<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
+																		<CloseIcon style={{ color: 'red' }} />
+																	</IconButton>
+																	<div
 																		style={{
-																			background: jsonField.isValidName()
-																				? undefined
-																				: 'lightCoral'
+																			display: 'flex', alignItems: 'center',
+																			width: '100%',
 																		}}
-																		value={jsonField.getName()}
-																		onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
-																</div>
-															</ListItem>
-														))}
-													</List>
-												</>}
-										</>
+																	>
+																		<input className="form-control"
+																			style={{
+																				background: jsonField.isValidName()
+																					? undefined
+																					: 'lightCoral'
+																			}}
+																			value={jsonField.getName()}
+																			onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
+																	</div>
+																</ListItem>
+															))}
+														</List>
+													</>}
+											</>
 									}
 								</div>
 							</TabPanel>

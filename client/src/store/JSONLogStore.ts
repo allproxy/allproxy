@@ -2,12 +2,13 @@ import { makeAutoObservable, action } from "mobx"
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { snapshotStore } from "./SnapshotStore";
+import { filterStore } from "./FilterStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
 const jsonLogScriptFileName = 'jsonLogScript';
 
-export type JsonField = { name: string; value: string | number }
+export type JsonField = { name: string; value: string | number | boolean }
 
 export class JSONLogField {
 	private dir = "";
@@ -256,52 +257,9 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 	const jsonFields: JsonField[] = [];
 	const fields = primaryJsonFields.concat(customJsonFields);
 	fields.forEach((field) => {
-		let value: string | number | undefined = undefined;
 		if (Object.keys(json).length > 0) {
-			//const combos = getFieldCombos(field)
-			value = eval('json');
-			if (value !== undefined) {
-				const parts = field.replaceAll('[.]', '[period]').split('.');
-				for (let key of parts) {
-					key = key.replaceAll('[period]', '.');
-					const keys: string[] = [key];
-					if (parts.length === 1) {
-						const keyLowercase = key.toLowerCase();
-						const keyUppercase = key.toUpperCase();
-						if (key === keyLowercase) {
-							keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
-						} else {
-							keys.push(keyLowercase)
-						}
-						if (key !== keyUppercase) {
-							keys.push(keyUppercase)
-						}
-					}
-
-					let found = false;
-					for (const k of keys) {
-						let value2;
-						try {
-							// Array?
-							if (k.endsWith(']')) {
-								value2 = eval(`value.${k}`);
-							} else {
-								value2 = eval(`value["${k}"]`);
-							}
-						} catch (e) { }
-						if (value2 !== undefined) {
-							value = value2;
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						value = undefined;
-						break;
-					}
-				}
-			}
-			if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return;
+			let value = getValue(json, field);
+			if (value === undefined) return;
 
 			if (field !== 'PREFIX') {
 				field = field.replaceAll('[.]', '.');
@@ -314,6 +272,57 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 	})
 
 	return jsonFields;
+}
+
+function getValue(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
+	if (Object.keys(json).length > 0) {
+		let value: string | number | undefined = undefined;
+		value = eval('json');
+		if (value !== undefined) {
+			const parts = field.replaceAll('[.]', '[period]').split('.');
+			for (let key of parts) {
+				key = key.replaceAll('[period]', '.');
+				const keys: string[] = [key];
+				if (parts.length === 1) {
+					const keyLowercase = key.toLowerCase();
+					const keyUppercase = key.toUpperCase();
+					if (key === keyLowercase) {
+						keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
+					} else {
+						keys.push(keyLowercase)
+					}
+					if (key !== keyUppercase) {
+						keys.push(keyUppercase)
+					}
+				}
+
+				let found = false;
+				for (const k of keys) {
+					let value2;
+					try {
+						// Array?
+						if (k.endsWith(']')) {
+							value2 = eval(`value.${k}`);
+						} else {
+							value2 = eval(`value["${k}"]`);
+						}
+					} catch (e) { }
+					if (value2 !== undefined) {
+						value = value2;
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					value = undefined;
+					break;
+				}
+			}
+		}
+		if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return undefined;
+		else return value;
+	}
+	return undefined;
 }
 
 function formatValue(name: string, value: string): string {
@@ -336,6 +345,35 @@ function formatValue(name: string, value: string): string {
 		value = value.substring(0, value.length - 1);
 	}
 	return value;
+}
+
+export function getJsonFieldValues(field: string): string[] {
+	const valueMap: { [key: string]: boolean } = {};
+	for (const messageStore of messageQueueStore.getMessages()) {
+		if (filterStore.isFiltered(messageStore)) continue;
+		const message = messageStore.getMessage();
+		let json: { [key: string]: string } = {};
+		if (typeof message.responseBody === 'string') {
+			json = messageStore.getLogEntry().additionalJSON;
+		} else {
+			json = {
+				...messageStore.getLogEntry().additionalJSON,
+				...message.responseBody
+			}
+		}
+		let value = getValue(json, field);
+		if (value !== undefined) {
+			if (typeof value !== 'string') {
+				value = value + '';
+			}
+			valueMap[value] = true;
+		}
+	}
+	const values: string[] = Object.keys(valueMap);
+	if (values.length === 0) {
+		values.push('No matching JSON field found.');
+	}
+	return values;
 }
 
 export const jsonLogStore = new JSONLogStore();
