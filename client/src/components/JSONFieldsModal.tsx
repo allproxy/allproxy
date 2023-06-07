@@ -5,6 +5,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
+import _ from 'lodash';
 
 type Props = {
 	open: boolean,
@@ -127,12 +128,20 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 												<input className="form-control"
 													value={showJsonField}
 													onChange={(e) => setShowJsonField(e.currentTarget.value)} />
-												<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0' }}
-													onClick={() => setJsonFieldValues(getJsonFieldValues(showJsonField))}
-													disabled={showJsonField.length === 0}
-												>
-													Show Values
-												</button>
+												<div>
+													<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0' }}
+														onClick={() => setJsonFieldValues(getJsonFieldValues(showJsonField))}
+														disabled={showJsonField.length === 0}
+													>
+														Show Values
+													</button>
+													<button className="btn btn-sm btn-secondary" style={{ margin: '.5rem 0' }}
+														onClick={() => setJsonFieldValues(_.uniq(jsonFieldValues))}
+														disabled={jsonFieldValues.length === 0}
+													>
+														Remove Duplicates
+													</button>
+												</div>
 												{jsonFieldValues.map(value => <div>{value}</div>)}
 											</>
 											:

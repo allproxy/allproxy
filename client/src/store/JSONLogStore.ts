@@ -348,7 +348,7 @@ function formatValue(name: string, value: string): string {
 }
 
 export function getJsonFieldValues(field: string): string[] {
-	const valueMap: { [key: string]: boolean } = {};
+	const values: string[] = [];
 	for (const messageStore of messageQueueStore.getMessages()) {
 		if (filterStore.isFiltered(messageStore)) continue;
 		const message = messageStore.getMessage();
@@ -366,10 +366,9 @@ export function getJsonFieldValues(field: string): string[] {
 			if (typeof value !== 'string') {
 				value = value + '';
 			}
-			valueMap[value] = true;
+			values.push(value);
 		}
 	}
-	const values: string[] = Object.keys(valueMap);
 	if (values.length === 0) {
 		values.push('No matching JSON field found.');
 	}
