@@ -24,6 +24,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 	const [error, setError] = React.useState('');
 	const [radioValue, setRadioValue] = React.useState('table');
 	const [showJsonField, setShowJsonField] = React.useState('');
+	const [showTime, setShowTime] = React.useState(false);
 	const [jsonFieldValues, setJsonFieldValues] = React.useState<string[]>([]);
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: string) {
@@ -59,14 +60,14 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 		>
 			<div className="json-log-modal" role="dialog">
 				<div>
-					<h3>Annotate JSON Log Viewer</h3>
+					<h3>JSON Log Viewer Settings</h3>
 					<TabContext value={tabValue}>
 						<Tabs
 							value={tabValue}
 							onChange={handleTabChange}
 							indicatorColor="primary"
 							textColor="primary"
-							aria-label="Annotate JSON Log">
+							aria-label="JSON Log Viewer Settings">
 							{TAB_VALUES.map(value => (
 								<Tab value={value}
 									label={
@@ -123,17 +124,27 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 										: tabValue === SHOW_JSON_FIELD_VALUES ?
 											<>
 												<div>
-													Enter JSON field name:
+													Enter JSON field name(s):
 												</div>
 												<input className="form-control"
 													value={showJsonField}
 													onChange={(e) => setShowJsonField(e.currentTarget.value)} />
 												<div>
-													<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0' }}
-														onClick={() => setJsonFieldValues(getJsonFieldValues(showJsonField))}
+													<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0', marginRight: '.5rem' }}
+														onClick={() => setJsonFieldValues(getJsonFieldValues(showJsonField.split(' '), showTime))}
 														disabled={showJsonField.length === 0}
 													>
 														Show Values
+													</button>
+													<button className="btn btn-sm btn-success" style={{ margin: '.5rem 0', marginRight: '.5rem' }}
+														onClick={() => {
+															const timeRequired = !showTime;
+															setShowTime(timeRequired);
+															setJsonFieldValues(getJsonFieldValues(showJsonField.split(' '), timeRequired));
+														}}
+														disabled={jsonFieldValues.length === 0}
+													>
+														{showTime ? 'Remove Time' : 'Show Time'}
 													</button>
 													<button className="btn btn-sm btn-secondary" style={{ margin: '.5rem 0' }}
 														onClick={() => setJsonFieldValues(_.uniq(jsonFieldValues))}
@@ -142,7 +153,9 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 														Remove Duplicates
 													</button>
 												</div>
-												{jsonFieldValues.map(value => <div>{value}</div>)}
+												<pre>
+													{jsonFieldValues.map(value => <div style={{ fontFamily: "'Courier New', Courier, monospace" }}>{value}</div>)}
+												</pre>
 											</>
 											:
 											<>

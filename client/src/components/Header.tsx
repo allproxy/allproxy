@@ -301,7 +301,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 								setShowJSONFieldsModal(true);
 							}}
 						>
-							&nbsp;Annotate JSON Log Viewer
+							&nbsp;JSON Log Viewer Settings
 						</div>
 					</MenuItem>
 				</Menu>

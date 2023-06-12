@@ -347,8 +347,10 @@ function formatValue(name: string, value: string): string {
 	return value;
 }
 
-export function getJsonFieldValues(field: string): string[] {
-	const values: string[] = [];
+export function getJsonFieldValues(fields: string[], timeRequired = false): string[] {
+	const outputValues: string[] = [];
+	type Values = string[];
+	const valueArray: Values[] = [];
 	for (const messageStore of messageQueueStore.getMessages()) {
 		if (filterStore.isFiltered(messageStore)) continue;
 		const message = messageStore.getMessage();
@@ -361,18 +363,45 @@ export function getJsonFieldValues(field: string): string[] {
 				...message.responseBody
 			}
 		}
-		let value = getValue(json, field);
-		if (value !== undefined) {
-			if (typeof value !== 'string') {
-				value = value + '';
+
+		const values: Values = [];
+		for (const field of fields) {
+			let value = getValue(json, field);
+			if (value === undefined) {
+				values.push('');
+			} else {
+				values.push(value + '');
 			}
-			values.push(value);
+		}
+		if (values.join('').length > 0) {
+			if (timeRequired) values.unshift(messageStore.getLogEntry().date.toTimeString().split(' ')[0])
+			valueArray.push(values);
 		}
 	}
-	if (values.length === 0) {
-		values.push('No matching JSON field found.');
+	if (valueArray.length > 0) {
+		valueArray.unshift([...fields]);
+		if (timeRequired) valueArray[0].unshift('Time')
+		const lenOfFields: number[] = [];
+		for (let i = 0; i < fields.length; ++i)	lenOfFields[i] = 0;
+		for (const values of valueArray) {
+			for (let i = 0; i < values.length; ++i) {
+				lenOfFields[i] = Math.max(lenOfFields[i], values[i].length);
+			}
+		}
+		for (const values of valueArray) {
+			let value = '';
+			for (let i = 0; i < values.length; ++i) {
+				if (i > 0) value += ' ';
+				value += values[i] + ' '.repeat(lenOfFields[i] - values[i].length + 1);
+			}
+			outputValues.push(value);
+		}
 	}
-	return values;
+
+	if (outputValues.length === 0) {
+		outputValues.push('No matching JSON field found.');
+	}
+	return outputValues;
 }
 
 export const jsonLogStore = new JSONLogStore();
