@@ -314,7 +314,7 @@ export default class FilterStore {
 
     public isFilteredNoCache(messageStore: MessageStore, isBreakpoint?: boolean): boolean {
         const doReturn = (filtered: boolean): boolean => {
-            messageStore.setFiltered(filtered);
+            if (!isBreakpoint) messageStore.setFiltered(filtered);
             return filtered;
         }
 
