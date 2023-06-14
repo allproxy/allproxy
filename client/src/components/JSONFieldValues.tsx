@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-import { pickLabelStyle } from '../PickButtonStyle';
 import React from 'react';
 import _ from 'lodash';
 import { getJsonFieldValues } from '../store/JSONLogStore';
@@ -19,11 +18,9 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 			}}>
 				{jsonFields.map((field) => (
 					<span style={{ whiteSpace: "nowrap" }}>
-						<button className={"btn btn-sm " + (field.selected ? "" : "btn-secondary")}
+						<button className={"btn btn-sm " + (field.selected ? "btn-success" : "btn-secondary")}
 							key={field.name}
-							style={field.selected ?
-								{ margin: ".5rem 0", marginRight: ".25rem", background: pickLabelStyle(field.name).background, color: pickLabelStyle(field.name).color } :
-								{ margin: ".5rem .25rem" }}
+							style={{ margin: ".5rem .25rem" }}
 							onClick={() => {
 								field.selected = !field.selected;
 								const selectedFields = jsonFields.map(f => f.selected ? f.name : '').filter(f => f !== '');
