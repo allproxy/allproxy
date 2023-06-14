@@ -307,14 +307,24 @@ export default class FilterStore {
         return this.filter;
     }
 
-    public isFiltered(messageStore: MessageStore, isBreakpoint?: boolean) {
+    public isFiltered(messageStore: MessageStore, isBreakpoint?: boolean): boolean {
+        if (isBreakpoint) return this.isFilteredNoCache(messageStore, isBreakpoint);
+        return messageStore.isFiltered();
+    }
+
+    public isFilteredNoCache(messageStore: MessageStore, isBreakpoint?: boolean): boolean {
+        const doReturn = (filtered: boolean): boolean => {
+            messageStore.setFiltered(filtered);
+            return filtered;
+        }
+
         if (!isBreakpoint) {
             // Protocols filter
             const iconClass = messageStore.getIconClass();
             if (filterStore.getSideBarProtocolChecked(iconClass) === undefined) {
                 filterStore.setSideBarProtocolChecked(iconClass, true);
             }
-            if (this.isSideBarProtocolChecked(iconClass) === false) return true;
+            if (this.isSideBarProtocolChecked(iconClass) === false) return doReturn(true);
 
             // Status filter
             const status = messageStore.getMessage().status;
@@ -322,7 +332,7 @@ export default class FilterStore {
                 if (filterStore.getSideBarStatusChecked(status) === undefined) {
                     filterStore.setSideBarStatusChecked(status, true);
                 }
-                if (this.isSideBarStatusChecked(status) === false) return true;
+                if (this.isSideBarStatusChecked(status) === false) return doReturn(true);
             }
 
             // Domains filter
@@ -331,7 +341,7 @@ export default class FilterStore {
                 if (filterStore.getSideBarDomainChecked(domain) === undefined) {
                     filterStore.setSideBarDomainChecked(domain, true);
                 }
-                if (this.isSideBarDomainChecked(domain) === false) return true;
+                if (this.isSideBarDomainChecked(domain) === false) return doReturn(true);
             }
 
             // User Agents filter
@@ -340,16 +350,16 @@ export default class FilterStore {
                 if (filterStore.getSideBarUserAgentChecked(ua) === undefined) {
                     filterStore.setSideBarUserAgentChecked(ua, true);
                 }
-                if (this.isSideBarUserAgentChecked(ua) === false) return true;
+                if (this.isSideBarUserAgentChecked(ua) === false) return doReturn(true);
             }
         }
 
-        if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return true;
+        if (this.showErrors && !messageStore.isError() && !messageStore.isNoResponse()) return doReturn(true);
 
         // Check exclude tags
-        if (this.excludeTags.length > 0 && this.isMessageExcluded(messageStore)) return true;
+        if (this.excludeTags.length > 0 && this.isMessageExcluded(messageStore)) return doReturn(true);
 
-        if (this.searchFilter.length === 0) return false;
+        if (this.searchFilter.length === 0) return doReturn(false);
         if (this._logical && this.boolString.length > 0) {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
@@ -359,13 +369,13 @@ export default class FilterStore {
             //console.log(boolString);
             try {
                 // eslint-disable-next-line no-eval
-                return !eval(boolString);
+                return doReturn(!eval(boolString));
             } catch (e) {
-                return false;
+                return doReturn(false);
             }
         }
         else {
-            return this.isMessageFiltered(this.searchFilter, messageStore);
+            return doReturn(this.isMessageFiltered(this.searchFilter, messageStore));
         }
     }
 
