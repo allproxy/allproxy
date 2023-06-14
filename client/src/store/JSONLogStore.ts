@@ -347,7 +347,7 @@ function formatValue(name: string, value: string): string {
 	return value;
 }
 
-export function getJsonFieldValues(fields: string[], timeRequired = false): string[] {
+export function getJsonFieldValues(fields: string[]): string[] {
 	const outputValues: string[] = [];
 	type Values = string[];
 	const valueArray: Values[] = [];
@@ -366,21 +366,27 @@ export function getJsonFieldValues(fields: string[], timeRequired = false): stri
 
 		const values: Values = [];
 		for (const field of fields) {
-			let value = getValue(json, field);
-			if (value === undefined) {
-				values.push('');
+			if (field === 'Time') {
+				values.push(messageStore.getLogEntry().date.toTimeString().split(' ')[0])
+			} else if (field === 'Level') {
+				values.push(messageStore.getLogEntry().level)
+			} else if (field === 'Message') {
+				values.push(messageStore.getLogEntry().message)
 			} else {
-				values.push(value + '');
+				let value = getValue(json, field);
+				if (value === undefined) {
+					values.push('');
+				} else {
+					values.push(value + '');
+				}
 			}
 		}
 		if (values.join('').length > 0) {
-			if (timeRequired) values.unshift(messageStore.getLogEntry().date.toTimeString().split(' ')[0])
 			valueArray.push(values);
 		}
 	}
 	if (valueArray.length > 0) {
 		valueArray.unshift([...fields]);
-		if (timeRequired) valueArray[0].unshift('Time')
 		const lenOfFields: number[] = [];
 		for (let i = 0; i < fields.length; ++i)	lenOfFields[i] = 0;
 		for (const values of valueArray) {

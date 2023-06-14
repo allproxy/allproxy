@@ -1,16 +1,20 @@
 import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core'
-import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR, getJsonFieldValues } from '../store/JSONLogStore';
+import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
 import _ from 'lodash';
+import JSONFieldValues from './JSONFieldValues';
+import { messageQueueStore } from '../store/MessageQueueStore';
+import { filterStore } from '../store/FilterStore';
 
 type Props = {
 	open: boolean,
 	onClose: () => void,
 	store: JSONLogStore,
+	jsonFields: { name: string, count: number, selected: boolean }[]
 }
 const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values'
 const TAB_NAMES: { [key: string]: string } = {}
@@ -18,14 +22,11 @@ TAB_NAMES[JSON_FIELDS_DIR] = 'Highlight JSON Fields';
 TAB_NAMES[SCRIPTS_DIR] = 'Script';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = SHOW_JSON_FIELD_VALUES;
 
-const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
+const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) => {
 	const TAB_VALUES = [SHOW_JSON_FIELD_VALUES, JSON_FIELDS_DIR, SCRIPTS_DIR];
 	const [tabValue, setTabValue] = React.useState(SHOW_JSON_FIELD_VALUES);
 	const [error, setError] = React.useState('');
 	const [radioValue, setRadioValue] = React.useState('table');
-	const [showJsonField, setShowJsonField] = React.useState('');
-	const [showTime, setShowTime] = React.useState(false);
-	const [jsonFieldValues, setJsonFieldValues] = React.useState<string[]>([]);
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: string) {
 		setTabValue(tabValue);
@@ -122,41 +123,7 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 											</div>
 										</>
 										: tabValue === SHOW_JSON_FIELD_VALUES ?
-											<>
-												<div>
-													Enter JSON field name(s):
-												</div>
-												<input className="form-control"
-													value={showJsonField}
-													onChange={(e) => setShowJsonField(e.currentTarget.value)} />
-												<div>
-													<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0', marginRight: '.5rem' }}
-														onClick={() => setJsonFieldValues(getJsonFieldValues(showJsonField.split(' '), showTime))}
-														disabled={showJsonField.length === 0}
-													>
-														Show Values
-													</button>
-													<button className="btn btn-sm btn-success" style={{ margin: '.5rem 0', marginRight: '.5rem' }}
-														onClick={() => {
-															const timeRequired = !showTime;
-															setShowTime(timeRequired);
-															setJsonFieldValues(getJsonFieldValues(showJsonField.split(' '), timeRequired));
-														}}
-														disabled={jsonFieldValues.length === 0}
-													>
-														{showTime ? 'Remove Time' : 'Show Time'}
-													</button>
-													<button className="btn btn-sm btn-secondary" style={{ margin: '.5rem 0' }}
-														onClick={() => setJsonFieldValues(_.uniq(jsonFieldValues))}
-														disabled={jsonFieldValues.length === 0}
-													>
-														Remove Duplicates
-													</button>
-												</div>
-												<pre>
-													{jsonFieldValues.map(value => <div style={{ fontFamily: "'Courier New', Courier, monospace" }}>{value}</div>)}
-												</pre>
-											</>
+											<JSONFieldValues jsonFields={jsonFields} />
 											:
 											<>
 												<RadioGroup
@@ -236,5 +203,25 @@ const JSONFieldsModal = observer(({ open, onClose, store }: Props) => {
 		</Modal >
 	);
 });
+
+export function getJSONFields() {
+	const jsonFields: { name: string, count: number, selected: boolean }[] = [];
+	const jsonMap: { [key: string]: number } = { Time: 99999, Level: 99999, Message: 99999 };
+	for (const messageStore of messageQueueStore.getMessages()) {
+		if (filterStore.isFiltered(messageStore)) continue;
+		for (const field of messageStore.getJsonFields()) {
+			if (jsonMap[field.name]) {
+				jsonMap[field.name] = ++jsonMap[field.name];
+			} else {
+				jsonMap[field.name] = 1;
+			}
+		}
+	}
+	for (const key in jsonMap) {
+		jsonFields.push({ name: key, count: jsonMap[key], selected: false });
+	}
+	jsonFields.sort((a, b) => b.count - a.count);
+	return jsonFields;
+}
 
 export default JSONFieldsModal;

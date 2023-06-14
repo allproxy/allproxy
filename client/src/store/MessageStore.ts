@@ -17,6 +17,7 @@ export default class MessageStore {
     private note = '';
     private logEntry: LogEntry = { date: new Date(), level: '', category: '', message: '', additionalJSON: {} };
     private jsonFields: JsonField[] = [];
+    private filtered = false;
 
     public constructor(message: Message) {
         this.message = message;
@@ -41,6 +42,14 @@ export default class MessageStore {
             this.updateJsonLog();
         }
         makeAutoObservable(this);
+    }
+
+    public isFiltered() {
+        return this.filtered;
+    }
+
+    public setFiltered(filtered: boolean) {
+        this.filtered = filtered;
     }
 
     public async updateJsonLog() {

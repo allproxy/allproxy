@@ -147,7 +147,7 @@ const SnapshotTabContent = observer(({
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
-							const isFiltered = !snapshotStore.isUpdating() && filterStore.isFiltered(messageStore);
+							const isFiltered = !snapshotStore.isUpdating() && filterStore.isFilteredNoCache(messageStore);
 							if (!isActiveRequest && isFiltered) {
 								return null;
 							} else {

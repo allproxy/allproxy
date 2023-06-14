@@ -19,7 +19,7 @@ import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
-import JSONFieldsModal from './JSONFieldsModal';
+import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
@@ -47,7 +47,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
-	const [showNotesModal, setShowNotesModal] = React.useState(false);;
+	const [showNotesModal, setShowNotesModal] = React.useState(false);
+	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
 
 	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
 		multiple: false,
@@ -298,6 +299,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							onClick={async () => {
 								setSettingsMenuIcon(null);
 								await jsonLogStore.init();
+								setJsonFields(getJSONFields());
 								setShowJSONFieldsModal(true);
 							}}
 						>
@@ -382,6 +384,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					})
 				}}
 				store={jsonLogStore}
+				jsonFields={jsonFields}
 			/>
 			<NotesModal
 				open={showNotesModal}
