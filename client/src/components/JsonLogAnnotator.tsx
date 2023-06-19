@@ -37,7 +37,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			let labels: JSX.Element[] = [];
 			for (const name of category.split(' ')) {
 				const categoryStyle = pickLabelStyle(name);
-				labels = labels.concat(makeLabel(name, categoryStyle.background, categoryStyle.color));
+				labels = labels.concat(makeLabel(name, categoryStyle.background, categoryStyle.color, categoryStyle.filter));
 			}
 			elements = labels.concat(elements);
 		}
@@ -49,13 +49,13 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		let elements: JSX.Element[] = [];
 		for (const field of messageStore.getJsonFields()) {
 			const style = pickLabelStyle(field.name);
-			elements = elements.concat(makeLabel(field.name, style.background, style.color, field.value));
+			elements = elements.concat(makeLabel(field.name, style.background, style.color, style.filter, field.value));
 		}
 
 		return elements;
 	}
 
-	function makeLabel(name: string, background: string, color: string, value: any = undefined): JSX.Element[] {
+	function makeLabel(name: string, background: string, color: string, filter: string, value: any = undefined): JSX.Element[] {
 		const v = value === undefined ? '' : typeof value === 'string' ? `"${value}"` : value;
 
 		const className = value !== undefined ? 'json-label' : '';
@@ -63,7 +63,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const elements: JSX.Element[] = [];
 		elements.push(
 			<span className={className}
-				style={{ color: color, background: background, marginLeft: '.25rem', padding: '0 .25rem', borderRadius: '.25rem', border: `${background} thin solid` }}>{name}</span>);
+				style={{ color: color, background: background, filter: filter, marginLeft: '.25rem', padding: '0 .25rem', borderRadius: '.25rem', border: `${background} thin solid` }}>{name}</span>);
 		if (v !== undefined) {
 			elements.push(<span style={{ marginLeft: '.25rem' }}>{v}</span >);
 		}

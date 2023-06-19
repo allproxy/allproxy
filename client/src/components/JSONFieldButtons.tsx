@@ -38,7 +38,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 						<button className={"btn btn-sm " + (field.selected ? "" : "btn-secondary")}
 							key={field.name}
 							style={field.selected ?
-								{ margin: ".5rem 0", marginRight: ".25rem", background: pickLabelStyle(field.name).background, color: pickLabelStyle(field.name).color } :
+								{ margin: ".5rem 0", marginRight: ".25rem", background: pickLabelStyle(field.name).background, color: pickLabelStyle(field.name).color, filter: pickLabelStyle(field.name).color } :
 								{ margin: ".5rem .25rem" }}
 							onClick={() => {
 								snapshotStore.setUpdating(true);
