@@ -4,7 +4,7 @@ const colorStyles = [
     { background: "#4589ff", color: "white" }, // blue
     { background: "#198038", color: "white" }, // green
     { background: "#a2191f", color: "white" }, // red
-    { background: "#d2a106", color: "white" }, // yellow
+    { background: "#d2a106", color: "black" }, // yellow
     { background: "#8a3ffc", color: "white" }, // violet
 
     { background: '#f58231', color: "white" },
@@ -30,13 +30,13 @@ const colorStyles = [
 ];
 
 let index = 0;
-const styleMap: { [key: string]: { background: string, color: string, lightColor: string } } = {}
+const styleMap: { [key: string]: { background: string, color: string, lightColor: string, filter: string } } = {}
 
-export function pickLabelStyle(name: string): { background: string, color: string } {
+export function pickLabelStyle(name: string): { background: string, color: string, filter: string } {
     let style = styleMap[name];
     if (style === undefined) {
         //console.log(index, name)
-        style = { background: '', color: '', lightColor: '' }
+        style = { background: '', color: '', lightColor: '', filter: '' }
         const s = colorStyles[index];
         style.background = s.background;
         style.lightColor = s.color;
@@ -44,6 +44,12 @@ export function pickLabelStyle(name: string): { background: string, color: strin
         ++index;
         if (index === colorStyles.length) index = 0;
     }
-    style.color = themeStore.getTheme() === 'dark' ? 'black' : style.lightColor;
+    if (themeStore.getTheme() === 'dark') {
+        style.color = style.lightColor;
+        style.filter = 'grayscale(60%)';
+    } else {
+        style.color = style.lightColor;
+    }
+
     return style;
 }
