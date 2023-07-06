@@ -107,6 +107,11 @@ function(nonJson, jsonData) {
         if (tokens.length >= 3) {
             date = new Date(tokens.slice(0, 3).join(' '));
         }
+        if (jsonData.msg_timestamp) {
+            date = new Date(jsonData.msg_timestamp);
+        } else if (jsonData._ts) {
+            date = new Date(jsonData._ts);
+        }
         if (tokens.length >= 4) {
             let pod = tokens[3];
             if (pod.startsWith('mzone')) {
@@ -135,7 +140,7 @@ function(nonJson, jsonData) {
         }
     } else if (category.indexOf('sys.journal') !== -1 && jsonData.message !== undefined) {
         additionalJSON = JSON.parse(jsonData.message);
-		if (additionalJSON.msg !== undefined) message = additionalJSON.msg;
+        if (additionalJSON.msg !== undefined) message = additionalJSON.msg;
     }
 
     return { date, level, category, message, additionalJSON };
