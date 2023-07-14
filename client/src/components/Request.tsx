@@ -16,14 +16,13 @@ type Props = {
 	onClick: () => void,
 	onResend: () => void,
 	store: MessageStore,
-	timeBarPercent: string,
 	maxStatusSize: number,
 	maxMethodSize: number,
 	maxEndpointSize: number,
 	vertical: boolean,
 	isFiltered: boolean,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, timeBarPercent, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered }: Props) => {
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => {
@@ -31,8 +30,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 		store.setVisited(true);
 	}
 	const message = store.getMessage();
-	const percent = store.isNoResponse() ? '100%' : timeBarPercent;
-	const responseTime = store.isNoResponse() ? 'no response' : message.elapsedTime ? message.elapsedTime + ' ms' : '';
+	const messageDate = new Date(message.timestamp);
 	const levelColor = function (level: string): string | undefined {
 		if (level === 'err' || level === 'error') return 'red';
 		if (level === 'warning' || level === 'warn') return 'rgb(203, 75, 22)';
@@ -45,17 +43,18 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, timeB
 				<div className="request__msg-header">
 					<div className="request__msg-time-ms">
 						{message.protocol !== 'log:' ?
-							responseTime
+							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
+								title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
+								{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
+							</div>
 							:
 							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
 								title={store.getLogEntry().date.toLocaleDateString()}>
 								{dateToHHMMSS(store.getLogEntry().date)}
-							</div>}
+							</div>
+						}
 					</div>
 					<div className="request__msg-time-bar-container">
-						<div style={{ width: `calc(100% - ${percent})` }} />
-						<div className={'request__msg-time-bar' + (store.isNoResponse() ? ' no-response' : '')}
-							style={{ width: percent }} />
 					</div>
 					<div className="request__msg-icon fa fa-sticky-note"
 						title={store.getNote()}
@@ -200,7 +199,8 @@ export function formatTimestamp(timestamp: number) {
 }
 
 export function dateToHHMMSS(d: Date) {
-	return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
+	const monthDay = d.getMonth() + 1 + '/' + d.getDate();
+	return monthDay + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
 }
 
 export default Request;

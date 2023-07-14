@@ -95,27 +95,15 @@ const SnapshotTabContent = observer(({
 		}
 	}
 
-	const shouldShowTimeBar = (message: Message) => {
-		if (message.protocol === 'log:') {
-			const catFile = message.proxyConfig!.path && message.proxyConfig!.path.startsWith('cat ');
-			return catFile;
-		}
-		return true;
-	}
-
 	let maxStatusSize = 0;
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
-	let maxElapsedTime = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
 			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
 			const method = messageStore.getMessage().method;
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
 			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
-			if (!shouldShowTimeBar(messageStore.getMessage())) return;
-			const et = messageStore.getMessage().elapsedTime ? messageStore.getMessage().elapsedTime : 0;
-			maxElapsedTime = Math.max(maxElapsedTime, et);
 		});
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
@@ -165,9 +153,6 @@ const SnapshotTabContent = observer(({
 									activeRequestIndex = index;
 								}
 								matchCount++;
-								const timeBarPercent = maxElapsedTime > 0 && shouldShowTimeBar(message)
-									? (message.elapsedTime ? ((message.elapsedTime * 100) / maxElapsedTime) : 1)
-									: 0;
 								return (
 									<Request
 										maxStatusSize={maxStatusSize}
@@ -177,7 +162,6 @@ const SnapshotTabContent = observer(({
 										key={seqNum}
 										isActive={isActiveRequest}
 										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
-										timeBarPercent={timeBarPercent + '%'}
 										onClick={() => messageQueueStore.getMessages().length > 1000 ?
 											setClickPendingSeqNum(seqNum)
 											:
