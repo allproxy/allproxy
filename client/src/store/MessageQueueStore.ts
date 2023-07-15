@@ -202,6 +202,16 @@ export default class MessageQueueStore {
 		return count;
 	}
 
+	public getUnfilteredCount() {
+		let count = 0;
+		for (const message of this.getMessages()) {
+			if (!message.isFiltered()) {
+				++count;
+			}
+		}
+		return count;
+	}
+
 	@action private sort() {
 		const selectedMessages = snapshotStore.getSelectedMessages();
 		const copyMessages = selectedMessages.slice(); // shallow copy
