@@ -199,6 +199,9 @@ export function formatTimestamp(timestamp: number) {
 }
 
 export function dateToHHMMSS(d: Date) {
+	if (isNaN(d.getMonth()) || isNaN(d.getDate())) {
+		return "No date";
+	}
 	const monthDay = d.getMonth() + 1 + '/' + d.getDate();
 	return monthDay + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
 }
