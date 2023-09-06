@@ -17,13 +17,13 @@ const SideBar = observer(() => {
 
 	const isJsonLogViewer = () => {
 		return snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0;
-	}
+	};
 
 	const areAllDomainsSelected = (): boolean => {
 		const allDomains = filterStore.getSideBarDomains();
 		for (const domain of allDomains) if (!filterStore.isSideBarDomainChecked(domain)) return false;
 		return true;
-	}
+	};
 
 	const handleAllDomainChange = () => {
 		const allDomains = filterStore.getSideBarDomains();
@@ -38,7 +38,7 @@ const SideBar = observer(() => {
 		const allUserAgents = filterStore.getSideBarUserAgents();
 		for (const userAgent of allUserAgents) if (!filterStore.isSideBarUserAgentChecked(userAgent)) return false;
 		return true;
-	}
+	};
 
 	const handleAllUserAgentChange = () => {
 		const allUserAgents = filterStore.getSideBarUserAgents();
@@ -53,7 +53,7 @@ const SideBar = observer(() => {
 		const statuses = filterStore.getSideBarStatuses();
 		for (const status of statuses) if (!filterStore.isSideBarStatusChecked(status)) return false;
 		return true;
-	}
+	};
 
 	const handleAllStatusChange = () => {
 		const statuses = filterStore.getSideBarStatuses();
@@ -95,7 +95,7 @@ const SideBar = observer(() => {
 			} else {
 				countsByStatusMap.set(status, 1);
 			}
-		})
+		});
 	}
 
 	getCounts();
@@ -121,7 +121,7 @@ const SideBar = observer(() => {
 			} else {
 				countsByDomainMap.set(domain, 1);
 			}
-		})
+		});
 		return countsByDomainMap;
 	}
 
@@ -138,7 +138,7 @@ const SideBar = observer(() => {
 			} else {
 				countsByUserAgentMap.set(userAgent, 1);
 			}
-		})
+		});
 		return countsByUserAgentMap;
 	}
 
@@ -149,7 +149,7 @@ const SideBar = observer(() => {
 			<div className="side-bar-item">
 				<button className="btn btn-success"
 					disabled={disableSaveSession}
-					onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true) }}>
+					onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
 					<div style={{ width: '11.5ch' }}>
 						Save Session
 					</div>
@@ -265,7 +265,7 @@ const SideBar = observer(() => {
 									</div>
 								</div>
 								:
-								null
+								null;
 						})
 					}
 				</>
@@ -383,7 +383,7 @@ const SideBar = observer(() => {
 				store={sessionStore}
 			/>
 		</>
-	)
+	);
 });
 
 // function getRequestLine(store: MessageStore) {

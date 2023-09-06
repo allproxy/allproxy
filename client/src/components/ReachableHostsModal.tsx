@@ -1,4 +1,4 @@
-import { CircularProgress, Modal, Tab, Tabs } from '@material-ui/core'
+import { CircularProgress, Modal, Tab, Tabs } from '@material-ui/core';
 import SettingsStore, { HostStatus } from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
 import React from 'react';

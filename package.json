@@ -97,7 +97,7 @@
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
-    "ava": "^0.25.0",
+    "ava": "^5.3.1",
     "electron": "<=19.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",

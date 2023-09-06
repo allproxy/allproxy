@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import Message from "../common/Message";
 import FilterStore from "./FilterStore";
 import { messageQueueStore } from "./MessageQueueStore";
@@ -44,7 +44,7 @@ export default class BreakpointStore {
 				breakpoint.setMatchCase(!!entry._matchCase);
 				breakpoint.setLogical(!!entry._logical);
 				return breakpoint;
-			})
+			});
 		} else {
 			this.breakpointList = [];
 		}
@@ -77,7 +77,7 @@ export default class BreakpointStore {
 	}
 
 	public getBreakpointCount(): number {
-		return this.breakpointList.filter(b => b.isEnabled()).length
+		return this.breakpointList.filter(b => b.isEnabled()).length;
 	}
 
 	@action public extend() {

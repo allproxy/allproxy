@@ -30,13 +30,13 @@ const colorStyles = [
 ];
 
 let index = 0;
-const styleMap: { [key: string]: { background: string, color: string, lightColor: string, filter: string } } = {}
+const styleMap: { [key: string]: { background: string, color: string, lightColor: string, filter: string } } = {};
 
 export function pickLabelStyle(name: string): { background: string, color: string, filter: string } {
     let style = styleMap[name];
     if (style === undefined) {
         //console.log(index, name)
-        style = { background: '', color: '', lightColor: '', filter: '' }
+        style = { background: '', color: '', lightColor: '', filter: '' };
         const s = colorStyles[index];
         style.background = s.background;
         style.lightColor = s.color;

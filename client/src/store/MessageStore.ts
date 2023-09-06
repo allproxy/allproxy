@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
@@ -69,7 +69,7 @@ export default class MessageStore {
             json = {
                 ...this.getLogEntry().additionalJSON,
                 ...message.responseBody
-            }
+            };
         }
         const newJsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
 
@@ -136,7 +136,7 @@ export default class MessageStore {
     }
 
     public setColor(color: string) {
-        this.colorObj = { iconClass: '', color }
+        this.colorObj = { iconClass: '', color };
     }
 
     public getIconClass(): string {
@@ -172,7 +172,7 @@ export default class MessageStore {
 
             str = `${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;
         } else if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
-            str = this.getUrl()
+            str = this.getUrl();
         } else {
             str = `${this.message.serverHost} ${this.getUrl()}`;
         }

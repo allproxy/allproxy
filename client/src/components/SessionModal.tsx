@@ -1,4 +1,4 @@
-import { IconButton, List, ListItem, Modal } from '@material-ui/core'
+import { IconButton, List, ListItem, Modal } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
@@ -98,7 +98,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 				onClose={(doDelete: boolean) => {
 					setOpenDeleteDialog(false);
 					if (doDelete) {
-						console.log('delete', pendingDeleteIndex)
+						console.log('delete', pendingDeleteIndex);
 						store.deleteEntry(pendingDeleteIndex);
 					}
 					setPendingDeleteIndex(-1);

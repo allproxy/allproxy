@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { snapshotStore } from "./SnapshotStore";
@@ -36,7 +36,7 @@ export class JSONLogField {
 			try {
 				// Verify that each sub-name is a valid key for an object
 				for (const key of name.split('.')) {
-					let obj: { [key: string]: string } = {}
+					let obj: { [key: string]: string } = {};
 					obj[key] = "";
 				}
 				const dup = await apFileSystem.exists(this.dir + '/' + name);
@@ -145,7 +145,7 @@ function(nonJson, jsonData) {
 
     return { date, level, category, message, additionalJSON };
 }
-`
+`;
 
 export type LogEntry = {
 	date: Date,
@@ -209,7 +209,7 @@ export default class JSONLogStore {
 		}
 
 		for (const fileName of await apFileSystem.readDir(SCRIPTS_DIR)) {
-			const script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + fileName)
+			const script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + fileName);
 			switch (fileName) {
 				case jsonLogScriptFileName:
 					this.script = script;
@@ -236,7 +236,7 @@ export default class JSONLogStore {
 	}
 
 	public getJSONFieldNames(): string[] {
-		return this.fields.map(field => field.getName())
+		return this.fields.map(field => field.getName());
 	}
 
 	@action public extend() {
@@ -274,7 +274,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 				jsonFields.push({ name: field, value: value });
 			}
 		}
-	})
+	});
 
 	return jsonFields;
 }
@@ -294,10 +294,10 @@ function getValue(json: { [key: string]: any }, field: string): undefined | stri
 					if (key === keyLowercase) {
 						keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
 					} else {
-						keys.push(keyLowercase)
+						keys.push(keyLowercase);
 					}
 					if (key !== keyUppercase) {
-						keys.push(keyUppercase)
+						keys.push(keyUppercase);
 					}
 				}
 
@@ -366,17 +366,17 @@ export function getJsonFieldValues(fields: string[]): string[] {
 			json = {
 				...messageStore.getLogEntry().additionalJSON,
 				...message.responseBody
-			}
+			};
 		}
 
 		const values: Values = [];
 		for (const field of fields) {
 			if (field === 'Time') {
-				values.push(messageStore.getLogEntry().date.toTimeString().split(' ')[0])
+				values.push(messageStore.getLogEntry().date.toTimeString().split(' ')[0]);
 			} else if (field === 'Level') {
-				values.push(messageStore.getLogEntry().level)
+				values.push(messageStore.getLogEntry().level);
 			} else if (field === 'Message') {
-				values.push(messageStore.getLogEntry().message)
+				values.push(messageStore.getLogEntry().message);
 			} else {
 				let value = getValue(json, field);
 				if (value === undefined) {

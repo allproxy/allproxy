@@ -70,7 +70,7 @@ const SnapshotTabContent = observer(({
 			}
 			messageQueueStore.setScrollPending(false);
 		}
-	})
+	});
 
 	function updateScroll() {
 		if (filterStore.shouldResetScroll()) {
@@ -170,7 +170,7 @@ const SnapshotTabContent = observer(({
 										onResend={() => handleResend(message)}
 										vertical={vertical}
 										isFiltered={isFiltered}
-									/>)
+									/>);
 							}
 						})}
 						{matchCount === 0 && (
@@ -338,7 +338,7 @@ const SnapshotTabContent = observer(({
 				}
 			}, delayMsecs);
 		}
-		return true
+		return true;
 	}
 
 	async function calcRenderCount(): Promise<number> {

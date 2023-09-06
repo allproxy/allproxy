@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 
 const QUERIES_DIR = 'queries';
@@ -72,7 +72,7 @@ export default class QueryStore {
 			this.queries.push({ query, dirName });
 			this.saveQuery(this.queries.length - 1, query);
 			resolve();
-		})
+		});
 	}
 
 	public async saveQuery(index: number, query: string): Promise<void> {
@@ -89,7 +89,7 @@ export default class QueryStore {
 			}
 			await apFileSystem.writeFile(path, query);
 			resolve();
-		})
+		});
 	}
 }
 

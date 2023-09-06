@@ -6,7 +6,7 @@ export default class APFileSystem {
     private socket?: Socket = undefined;
 
     public setSocket(socket: Socket) {
-        this.socket = socket
+        this.socket = socket;
     }
 
     // mkdir
@@ -33,10 +33,10 @@ export default class APFileSystem {
                         chunk,
                         () => resolve2(0)
                     );
-                })
+                });
             }
             resolve1();
-        })
+        });
     }
 
     // deleteFile
@@ -77,7 +77,7 @@ export default class APFileSystem {
 
     // readFile
     public async readFile(path: string): Promise<string> {
-        const chunks: string[] = []
+        const chunks: string[] = [];
         return new Promise<string>(async (resolve1) => {
             let done = false;
             for (let offset = 0; !done; offset += CHUNKSIZE) {
@@ -88,12 +88,12 @@ export default class APFileSystem {
                         //console.log('readFile', offset, chunk.length, chunks.length, eof);
                         resolve2(0);
                     });
-                })
+                });
             }
             const data = chunks.join('');
             resolve1(data);
-        })
+        });
     }
 }
 
-export const apFileSystem = new APFileSystem()
+export const apFileSystem = new APFileSystem();

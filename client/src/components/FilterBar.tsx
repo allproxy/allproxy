@@ -22,7 +22,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	}
 
 	function handleDeleteQuery(query: string) {
-		const i = queries.indexOf(query)
+		const i = queries.indexOf(query);
 		if (i !== -1) queries.splice(i, 1);
 		setQueries(queries.slice());
 		queryStore.deleteEntry(query);
@@ -30,7 +30,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 
 	async function applyFilter(query: string) {
 		setShowQueries(false);
-		setFilter(query)
+		setFilter(query);
 		filterStore.setFilterNoDebounce(query);
 		if (query.length > 0) {
 			const i = queries.indexOf(query);
@@ -156,7 +156,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 				</div>
 			</ClickAwayListener >
 		</div >
-	)
+	);
 });
 
 export default FilterBar;

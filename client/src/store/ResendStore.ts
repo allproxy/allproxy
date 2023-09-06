@@ -1,8 +1,8 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import Message from '../common/Message';
 import { socketStore } from "./SocketStore";
 
-const LOCAL_STORAGE_HEADERS = 'anyproxy-resend-headers'
+const LOCAL_STORAGE_HEADERS = 'anyproxy-resend-headers';
 
 export default class ResendStore {
     private message: Message;
@@ -148,8 +148,8 @@ export default class ResendStore {
 
         const forwardProxy = url.startsWith('http:') || url.startsWith('https:');
         if (!forwardProxy) {
-            const protocolHost = document.location.protocol + '//' + document.location.host
-            url = protocolHost + url
+            const protocolHost = document.location.protocol + '//' + document.location.host;
+            url = protocolHost + url;
         }
 
         const body = typeof this.body === 'string' && this.body.length === 0

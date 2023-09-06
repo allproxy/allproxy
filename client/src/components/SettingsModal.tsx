@@ -1,4 +1,4 @@
-import { Modal } from '@material-ui/core'
+import { Modal } from '@material-ui/core';
 import SettingsTable from './SettingsTable';
 import SettingsStore, { ConfigCategory, ConfigCategoryGroups } from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';

@@ -1,4 +1,4 @@
-import { IconButton, List, ListItem, Modal } from '@material-ui/core'
+import { IconButton, List, ListItem, Modal } from '@material-ui/core';
 import NoCaptureStore from '../store/NoCaptureStore';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';

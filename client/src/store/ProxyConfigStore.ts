@@ -1,6 +1,6 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import ProxyConfig from '../common/ProxyConfig';
-import { socketStore } from './SocketStore'
+import { socketStore } from './SocketStore';
 
 class ProxyConfigStore {
 	private proxyConfigs: ProxyConfig[] = this.getFromLocalStorage();
@@ -24,7 +24,7 @@ class ProxyConfigStore {
 		return proxyConfigs;
 	}
 
-  // @deprecated
+	// @deprecated
 	@action public merge(proxyConfigs: ProxyConfig[]) {
 		const proxyDirectives = this.proxyConfigs;
 		for (let directive of proxyDirectives) {
@@ -53,11 +53,11 @@ class ProxyConfigStore {
 		const proxyDirectives: ProxyConfig[] = this.proxyConfigs;
 		proxyDirectives.forEach(proxyConfig => {
 			// backwards compatible with previously supported 'any:'
-			if(proxyConfig.protocol as string === 'any:' || proxyConfig.protocol as string === 'other:') {
+			if (proxyConfig.protocol as string === 'any:' || proxyConfig.protocol as string === 'other:') {
 				proxyConfig.protocol = 'tcp:';
 			}
 			// 'sql:' is deprecated and replaced with 'mysql:'
-			if(proxyConfig.protocol as string === 'sql:') {
+			if (proxyConfig.protocol as string === 'sql:') {
 				proxyConfig.protocol = 'mysql:';
 			}
 		});
@@ -66,18 +66,18 @@ class ProxyConfigStore {
 	}
 
 	public retrieveProxyConfigs(): Promise<ProxyConfig[]> {
-		const headers: {[key: string]: string} = {};
+		const headers: { [key: string]: string } = {};
 		headers['allproxy'] = 'config';
 		return new Promise((resolve) => {
 			const url = document.location.protocol + '//' + document.location.host
-			+ '/api/allproxy/config';
+				+ '/api/allproxy/config';
 			fetch(url, headers)
 				.then((response) => response.json())
 				.then(data => {
 					resolve(data);
 					this.setProxyConfigs(data);
 				});
-		})
+		});
 	}
 
 	public getProxyConfigs() {
@@ -99,9 +99,9 @@ class ProxyConfigStore {
 		proxyConfigs.sort((a, b) => {
 			let rc = a.protocol.localeCompare(b.protocol);
 			if (rc === 0) {
-					rc = a.hostname.localeCompare(b.hostname)
-					if (rc === 0) {
-						rc = a.path.localeCompare(b.path);
+				rc = a.hostname.localeCompare(b.hostname);
+				if (rc === 0) {
+					rc = a.path.localeCompare(b.path);
 				}
 			}
 			return rc;

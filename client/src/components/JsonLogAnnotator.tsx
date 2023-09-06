@@ -10,7 +10,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	return (
 		<div>
 			{makeJSONRequestLabels(message).map((element) => {
-				return element
+				return element;
 			})}
 		</div>
 	);

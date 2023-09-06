@@ -14,7 +14,7 @@ const NoteDialog = observer(({ open, message, onClose }: Props) => {
 	const handleClose = () => {
 		message.setNote(note);
 		onClose();
-	}
+	};
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>

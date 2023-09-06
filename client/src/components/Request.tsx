@@ -28,14 +28,14 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 	const handleClick = () => {
 		onClick();
 		store.setVisited(true);
-	}
+	};
 	const message = store.getMessage();
 	const messageDate = new Date(message.timestamp);
 	const levelColor = function (level: string): string | undefined {
 		if (level === 'err' || level === 'error') return 'red';
 		if (level === 'warning' || level === 'warn') return 'rgb(203, 75, 22)';
 		return undefined;
-	}
+	};
 
 	return (
 		<><div>
@@ -77,7 +77,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 							<div className="header__export fa fa-copy" title="Copy to clipboard"
 								style={{ marginRight: '0rem' }}
 								onClick={() => {
-									navigator.clipboard.writeText(snapshotStore.copyMessage(message))
+									navigator.clipboard.writeText(snapshotStore.copyMessage(message));
 								}}
 							>
 							</div>
@@ -155,7 +155,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 					setOpenNoteDialog(false);
 				}} />
 		</>
-	)
+	);
 
 	function canResend() {
 		return ((message.protocol === 'http:' || message.protocol === 'https:') && message.proxyConfig?.protocol !== 'grpc:')
@@ -186,7 +186,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 	// 	const curl = `curl -X ${method} ${url} ${body} ${headers}`
 	// 	navigator.clipboard.writeText(curl);
 	// }
-})
+});
 
 export function formatTimestamp(timestamp: number) {
 	// return json.sequenceNumber; // used for testing only

@@ -239,7 +239,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 					</>
 				);
 			} else {
-				return <div>{responseBody}</div>
+				return <div>{responseBody}</div>;
 			}
 		} else {
 			return responseBody;
@@ -263,7 +263,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 			setTimeout(() => resolve(response));
 		});
 	}
-}
+};
 
 function getQueryParams(message: Message): string[] | null {
 	// Format query parameters
@@ -274,7 +274,7 @@ function getQueryParams(message: Message): string[] | null {
 			var keyValue = param.split('=');
 			var value = keyValue.length > 1 ? unescape(keyValue[1]) : undefined;
 			queryParams.push(keyValue[0] + ' = ' + value);
-		})
+		});
 	}
 	return queryParams.length === 0 ? null : queryParams;
 }

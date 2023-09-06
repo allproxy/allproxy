@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import MessageStore from './MessageStore';
 import _ from 'lodash';
 import { messageQueueStore } from "./MessageQueueStore";
@@ -316,7 +316,7 @@ export default class FilterStore {
         const doReturn = (filtered: boolean): boolean => {
             if (!isBreakpoint) messageStore.setFiltered(filtered);
             return filtered;
-        }
+        };
 
         if (!isBreakpoint) {
             // Protocols filter

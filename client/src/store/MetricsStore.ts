@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import { ConfigProtocol } from "../common/ProxyConfig";
 import { ConfigProtocols } from "./SettingsStore";
 

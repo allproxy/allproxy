@@ -38,9 +38,9 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             }
         }
 
-        let json: { [key: string]: any } | undefined
+        let json: { [key: string]: any } | undefined;
         try {
-            json = JSON.parse(record)
+            json = JSON.parse(record);
         } catch (e) {
             try {
                 json = JSON.parse(untruncateJson(record));

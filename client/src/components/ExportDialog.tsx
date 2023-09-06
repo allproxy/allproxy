@@ -13,7 +13,7 @@ const ExportDialog = observer(({ open, heading: title, name, onClose }: Props) =
 
 	const handleClose = () => {
 		onClose(fileName);
-	}
+	};
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>
