@@ -29,7 +29,7 @@ const httpFields = [
 		name: 'url',
 		displayName: 'URL'
 	},
-]
+];
 
 const logFields = [
 	{
@@ -48,7 +48,7 @@ const logFields = [
 		name: 'message',
 		displayName: 'Message'
 	},
-]
+];
 
 const SortBy = observer((): JSX.Element => {
 	const fields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? logFields : httpFields;
@@ -79,7 +79,7 @@ const SortBy = observer((): JSX.Element => {
 				</div>
 			</AccordionDetails>
 		</Accordion>
-	)
+	);
 });
 
 export function sortOrderHandler(fieldName: string) {

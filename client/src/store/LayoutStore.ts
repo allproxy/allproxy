@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import { JSONFieldButtonsHeight } from "../components/JSONFieldButtons";
 import { snapshotStore } from "./SnapshotStore";
 
@@ -33,7 +33,7 @@ export default class LayoutStore {
 
 	public responseContainer(unselected: boolean) {
 		const width = unselected ? '0px' : this.verticalLayout ? `calc((${this.maxWidth()})/2)` : `calc(${this.maxWidth()})`;
-		const deltaHeight = this.verticalLayout ? '6rem' : '11rem';
+		const deltaHeight = '1rem'; //this.verticalLayout ? '6rem' : '11rem';
 		const height = this.verticalLayout ? `calc(${this.maxHeight()} - ${deltaHeight})`
 			: unselected ? `0px` : `calc((${this.maxHeight()} - ${deltaHeight})/2)`;
 		return { width, height };
@@ -49,7 +49,7 @@ export default class LayoutStore {
 
 	private maxHeight = () => {
 		const jsonFieldButtonsHeight = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0px';
-		return `100vh - 9rem - ${jsonFieldButtonsHeight}`
+		return `100vh - 9rem - ${jsonFieldButtonsHeight}`;
 	};
 
 	private maxWidth = () => {

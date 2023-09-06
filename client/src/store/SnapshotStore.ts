@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import Message from '../common/Message';
 import { importJSONFile } from "../ImportJSONFile";
 import { filterStore } from "./FilterStore";
@@ -45,7 +45,7 @@ class Snapshots {
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
-		this.jsonPrimaryFieldsMap.set(key, jsonFields)
+		this.jsonPrimaryFieldsMap.set(key, jsonFields);
 		this.layoutMap.set(key, layout);
 	}
 
@@ -264,7 +264,7 @@ export default class SnapshotStore {
 		for (const messageStore of this.getSelectedMessages()) {
 			messages.push(messageStore.getMessage());
 		}
-		let data = ""
+		let data = "";
 		if (messages[0].protocol === 'log:') {
 			for (const message of messages) {
 				if (filterStore.isFiltered(new MessageStore(message))) continue;
@@ -281,7 +281,7 @@ export default class SnapshotStore {
 				}
 			}
 		} else {
-			data = JSON.stringify(messages, null, 2)
+			data = JSON.stringify(messages, null, 2);
 		}
 		return data;
 	}

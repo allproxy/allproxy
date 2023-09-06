@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
 import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
@@ -259,7 +259,7 @@ export default class MessageQueueStore {
 				}
 			}
 			return field;
-		}
+		};
 
 		if (this.sortByField) {
 			copyMessages.sort((a, b) => {
@@ -281,13 +281,13 @@ export default class MessageQueueStore {
 					rc = (typeof bField === 'string' ? bField.localeCompare(aField as string) : bField - (aField as number));
 				}
 				return rc;
-			})
+			});
 		} else {
 			copyMessages.sort((a, b) => {
 				const aSeq = this.sortByReq ? a.getMessage().sequenceNumber : a.getMessage().sequenceNumberRes;
 				const bSeq = this.sortByReq ? b.getMessage().sequenceNumber : b.getMessage().sequenceNumberRes;
 				return aSeq - bSeq;
-			})
+			});
 		}
 	}
 
@@ -384,7 +384,7 @@ export default class MessageQueueStore {
 	public updateJSONFields(snapshotName: string, newMessages: MessageStore[]) {
 		const fieldsMap: { [key: string]: { count: number, selected: boolean } } = {};
 		for (const f of snapshotStore.getJsonFields(snapshotName)) {
-			fieldsMap[f.name] = { count: f.count, selected: f.selected }
+			fieldsMap[f.name] = { count: f.count, selected: f.selected };
 		}
 
 		let newFieldFound = false;
@@ -405,7 +405,7 @@ export default class MessageQueueStore {
 					if (typeof json[field] === 'string') {
 						const selected = message.getMessage().url?.indexOf('>' + field + '<') !== -1;
 						if (fieldsMap[field]) {
-							fieldsMap[field] = { count: fieldsMap[field].count + 1, selected: fieldsMap[field].selected }
+							fieldsMap[field] = { count: fieldsMap[field].count + 1, selected: fieldsMap[field].selected };
 						} else {
 							fieldsMap[field] = { count: 1, selected };
 							newFieldFound = true;
@@ -420,7 +420,7 @@ export default class MessageQueueStore {
 			for (const key of Object.keys(fieldsMap)) {
 				fields2.push({ name: key, selected: fieldsMap[key].selected, count: fieldsMap[key].count });
 			}
-			fields2.sort((a, b) => a.selected ? 1 : b.count - a.count)
+			fields2.sort((a, b) => a.selected ? 1 : b.count - a.count);
 			snapshotStore.setJsonFields(snapshotName, fields2);
 		}
 	}

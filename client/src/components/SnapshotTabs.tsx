@@ -1,4 +1,4 @@
-import { Tab, Tabs } from '@material-ui/core'
+import { Tab, Tabs } from '@material-ui/core';
 import MessageQueueStore from '../store/MessageQueueStore';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
@@ -37,7 +37,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 	function title(value: string, i: number) {
 		return (i === 0
 			? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
-			: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')'
+			: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')';
 	}
 
 	return (

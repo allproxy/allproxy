@@ -17,7 +17,7 @@ import { observer } from 'mobx-react-lite';
 import { themeStore } from './store/ThemeStore';
 
 const theme = localStorage.getItem('allproxy-theme');
-let defaultTheme: 'dark' | 'light' = 'dark'
+let defaultTheme: 'dark' | 'light' = 'dark';
 if (theme === 'dark' || theme === 'light') {
   defaultTheme = theme;
 }
@@ -89,7 +89,7 @@ function App() {
 }
 
 const Updating = observer(() => {
-  return <StatusBox show={snapshotStore.isUpdating()}>Updating...</StatusBox>
-})
+  return <StatusBox show={snapshotStore.isUpdating()}>Updating...</StatusBox>;
+});
 
 export default App;

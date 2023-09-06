@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { List, ListItem, Modal } from '@material-ui/core'
+import { List, ListItem, Modal } from '@material-ui/core';
 import ResendStore from '../store/ResendStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import { themeStore } from '../store/ThemeStore';
@@ -141,8 +141,8 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	function maxHeaderKeySize(): number {
 		let size = 0;
 		store.getHeaders().forEach((header) => {
-			size = Math.max(size, header.key.length)
-		})
+			size = Math.max(size, header.key.length);
+		});
 		return size;
 	}
 
@@ -188,6 +188,6 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 		store.setBody(props.updated_src);
 		return true;
 	}
-})
+});
 
 export default ResendModal;

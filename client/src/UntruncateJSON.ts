@@ -54,7 +54,7 @@ export function untruncateJson(json: string): string {
 
                     // Field doesn't start with expected "?
                     if (!field.startsWith('"')) {
-                        json += '"' + field + '": "..."'
+                        json += '"' + field + '": "..."';
                         //console.log("Doesn't start with quote")
                     } else {
                         // Colon is missing?

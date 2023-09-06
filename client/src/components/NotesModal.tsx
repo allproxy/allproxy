@@ -1,4 +1,4 @@
-import { Modal } from '@material-ui/core'
+import { Modal } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { snapshotStore } from '../store/SnapshotStore';
 

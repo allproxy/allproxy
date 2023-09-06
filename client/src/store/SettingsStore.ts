@@ -155,7 +155,7 @@ export default class SettingsStore {
 		this.tabCategory = cat;
 	}
 	public getTabProtocol() {
-		return this.tabProtocol
+		return this.tabProtocol;
 	}
 	@action public setTabProtocol(protocol: ConfigProtocol) {
 		this.tabProtocol = protocol;
@@ -183,8 +183,8 @@ export default class SettingsStore {
 						}
 					}
 					this.statusUpdating = false;
-				})
-			})
+				});
+			});
 	}
 
 	@action public async reset() {

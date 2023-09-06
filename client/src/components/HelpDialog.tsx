@@ -21,7 +21,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 
 	const handleClose = () => {
 		onClose();
-	}
+	};
 
 	const isMac = navigator.appVersion.indexOf('Mac') !== -1;
 	const key = isMac ? 'cmd' : 'ctl';
@@ -59,7 +59,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									{proto.name}
 								</button>
 							</span>
-						))
+						));
 					})
 				}
 			</div>

@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 
 export default class DarkModeStore {
 	private theme: 'dark' | 'light' = 'light';

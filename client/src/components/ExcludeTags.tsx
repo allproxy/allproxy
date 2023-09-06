@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import TagsInput from 'react-tagsinput'
+import TagsInput from 'react-tagsinput';
 import 'react-tagsinput/react-tagsinput.css';
 import { filterStore } from '../store/FilterStore';
 
@@ -15,6 +15,6 @@ export default function ExcludeTags() {
 		<TagsInput
 			value={tags}
 			onChange={handleChange}
-		 />
+		/>
 	);
 }

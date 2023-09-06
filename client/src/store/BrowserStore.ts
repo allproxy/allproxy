@@ -1,4 +1,4 @@
-import { action, makeAutoObservable } from "mobx"
+import { action, makeAutoObservable } from "mobx";
 import { socketStore } from "./SocketStore";
 
 export interface Browser {
@@ -20,7 +20,7 @@ export default class BrowserStore {
 		socketStore.emitDetectBrowsers()
 			.then((browsers) => {
 				this.browsers = browsers.filter(browser => browser.name !== 'safari' && browser.name !== 'ie');
-			})
+			});
 	}
 
 	public getBrowsers() {

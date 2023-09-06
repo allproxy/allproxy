@@ -18,7 +18,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 
 	useEffect(() => {
 		messageQueueStore.updateJSONFields(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
-	}, [messageQueueStore])
+	}, [messageQueueStore]);
 
 	if (snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length === 0 || messageQueueStore.getMessages().length === 0) return null;
 
@@ -46,7 +46,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 								setTimeout(() => {
 									updateJSONRequestLabels();
 									snapshotStore.setUpdating(false);
-								})
+								});
 							}}
 						>
 							{field.name}
@@ -55,11 +55,11 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 				))
 			}
 		</div >
-	)
+	);
 });
 
 function JSONFieldButtons(messageQueueStore: MessageQueueStore) {
-	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>
+	return <JSONFieldButtons2 messageQueueStore={messageQueueStore}></JSONFieldButtons2>;
 }
 
 export default JSONFieldButtons;

@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { Modal } from '@material-ui/core'
+import { Modal } from '@material-ui/core';
 import MessageStore from '../store/MessageStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import React from 'react';
@@ -136,6 +136,6 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 		setResponseBody(props.updated_src);
 		return true;
 	}
-})
+});
 
 export default BreakpointResponseModal;

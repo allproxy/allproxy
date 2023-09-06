@@ -20,7 +20,7 @@ const StatusBox = observer((props: PropsWithChildren<Props>) => {
 			}}>
 			{props.children}
 		</div >
-	)
+	);
 });
 
 export default StatusBox;

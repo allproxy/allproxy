@@ -194,7 +194,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					}}>
 						<div className="header__export fa fa-copy" title="Copy to clipboard"
 							onClick={() => {
-								navigator.clipboard.writeText(snapshotStore.copySelectedSnapshot())
+								navigator.clipboard.writeText(snapshotStore.copySelectedSnapshot());
 								setMoreMenuIcon(null);
 							}}
 						>
@@ -204,7 +204,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="header__import fa fa-image" title="Layout"
 							onClick={() => {
-								snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.toggleVertical()
+								snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.toggleVertical();
 								setMoreMenuIcon(null);
 							}}
 						>
@@ -381,7 +381,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					setTimeout(() => {
 						updateJSONRequestLabels();
 						snapshotStore.setUpdating(false);
-					})
+					});
 				}}
 				store={jsonLogStore}
 				jsonFields={jsonFields}
@@ -393,7 +393,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				}}
 			/>
 		</div >
-	)
+	);
 });
 
 export default Header;

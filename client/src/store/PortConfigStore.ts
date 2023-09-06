@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import PortConfig from '../common/PortConfig';
 
 

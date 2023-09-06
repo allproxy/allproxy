@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import Message from "../common/Message";
 
 const LOCAL_STORAGE = 'allproxy-no-capture';

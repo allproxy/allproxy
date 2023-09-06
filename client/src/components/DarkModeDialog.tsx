@@ -24,9 +24,9 @@ const DarkModeDialog = observer(({ open, onClose }: Props) => {
 	}
 
 	const handleClose = () => {
-		localStorage.setItem('allproxy-theme', theme)
+		localStorage.setItem('allproxy-theme', theme);
 		onClose(theme);
-	}
+	};
 
 	function handleDark() {
 		if (theme === 'light' || themeStore.getTheme() === 'light') {

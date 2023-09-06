@@ -24,7 +24,7 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 							onClick={() => {
 								field.selected = !field.selected;
 								const selectedFields = jsonFields.map(f => f.selected ? f.name : '').filter(f => f !== '');
-								setJsonFieldValues(getJsonFieldValues(selectedFields))
+								setJsonFieldValues(getJsonFieldValues(selectedFields));
 							}}
 						>
 							{field.name}
@@ -43,7 +43,7 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 				{jsonFieldValues.map(value => <div style={{ fontFamily: "'Courier New', Courier, monospace" }}>{value}</div>)}
 			</pre>
 		</>
-	)
+	);
 });
 
 export default JSONFieldValues;

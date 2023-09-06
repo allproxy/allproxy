@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import Message from "../common/Message";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
@@ -74,7 +74,7 @@ export default class SessionStore {
 
 			await apFileSystem.writeFile(dir + '/notes.txt', snapshotStore.getNotes());
 			resolve();
-		})
+		});
 	}
 
 	public async restoreSession(index: number): Promise<number> {

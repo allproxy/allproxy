@@ -1,4 +1,4 @@
-import { makeAutoObservable, action } from "mobx"
+import { makeAutoObservable, action } from "mobx";
 import io, { Socket } from "socket.io-client";
 import Message, { MessageType } from '../common/Message';
 import proxyConfigStore from './ProxyConfigStore';
@@ -83,7 +83,7 @@ export default class SocketStore {
 					this.connect();
 				}, 60 * 1000);
 			}
-		}
+		};
 
 		this.socket.on('breakpoint', (message: Message, callback: any) => {
 			const breakpoint = breakpointStore.findMatchingBreakpoint(message);
@@ -119,7 +119,7 @@ export default class SocketStore {
 			);
 
 			if (snapshotStore.getActiveSnapshot().length + filteredMessages.length > messageQueueStore.getLimit()) {
-				messageQueueStore.setFreeze(true)
+				messageQueueStore.setFreeze(true);
 			}
 			messageQueueStore.insertBatch(messages);
 
@@ -218,7 +218,7 @@ export default class SocketStore {
 			this.socket?.emit('detect browsers', (browsers: Browser[]) => {
 				resolve(browsers);
 			});
-		})
+		});
 	}
 
 	public emitLaunchBrowser(browser: Browser) {

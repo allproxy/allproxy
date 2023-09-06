@@ -1,4 +1,4 @@
-import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core'
+import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
 import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
@@ -16,8 +16,8 @@ type Props = {
 	store: JSONLogStore,
 	jsonFields: { name: string, count: number, selected: boolean }[]
 }
-const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values'
-const TAB_NAMES: { [key: string]: string } = {}
+const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values';
+const TAB_NAMES: { [key: string]: string } = {};
 TAB_NAMES[JSON_FIELDS_DIR] = 'Highlight JSON Fields';
 TAB_NAMES[SCRIPTS_DIR] = 'Script';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = SHOW_JSON_FIELD_VALUES;
@@ -48,7 +48,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) =
 	}
 
 	function handleDeleteEntry(i: number) {
-		store.deleteEntry(i)
+		store.deleteEntry(i);
 	}
 
 	return (
@@ -145,7 +145,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) =
 																rows={29} cols={80}
 																value={store.getJSONFieldNames().join('\n')}
 																onChange={(e) => {
-																	store.setJSONFieldNames(e.target.value)
+																	store.setJSONFieldNames(e.target.value);
 																}}
 															/>
 														</div>

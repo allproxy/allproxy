@@ -1,7 +1,7 @@
 import SettingsStore from '../store/SettingsStore';
 import { observer } from 'mobx-react-lite';
 import { ConfigProtocol } from '../common/ProxyConfig';
-import { Checkbox, Grid, IconButton } from '@material-ui/core'
+import { Checkbox, Grid, IconButton } from '@material-ui/core';
 import CloseIcon from "@material-ui/icons/Close";
 
 type Props = {

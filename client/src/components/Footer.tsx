@@ -33,7 +33,7 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 					title="Match case" onClick={() => filterStore.toggleExcludeMatchCase()}>Aa</div>
 			</div>
 		</div>
-	)
+	);
 });
 
 export default Footer;

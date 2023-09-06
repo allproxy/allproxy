@@ -1,4 +1,4 @@
-import { IconButton, List, ListItem, Modal } from '@material-ui/core'
+import { IconButton, List, ListItem, Modal } from '@material-ui/core';
 import BreakpointStore from '../store/BreakpointStore';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
@@ -13,7 +13,7 @@ type Props = {
 const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 	useEffect(() => {
 		store.editing(open);
-	})
+	});
 
 	function close() {
 		onClose();
