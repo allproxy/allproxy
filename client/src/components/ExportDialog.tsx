@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Dialog, DialogTitle } from '@material-ui/core';
+import { Dialog, DialogContent, DialogTitle } from '@material-ui/core';
 
 type Props = {
 	open: boolean,
@@ -18,13 +18,15 @@ const ExportDialog = observer(({ open, heading: title, name, onClose }: Props) =
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>
 			<DialogTitle id="simple-dialog-title">{title}</DialogTitle>
-			<input className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)} />
-			<button className={'btn btn-success'}
-				disabled={fileName.length === 0}
-				onClick={() => onClose(fileName)}
-			>
-				Export
-			</button>
+			<DialogContent>
+				<input className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)} />
+				<button className={'btn btn-success'}
+					disabled={fileName.length === 0}
+					onClick={() => onClose(fileName)}
+				>
+					Export
+				</button>
+			</DialogContent>
 		</Dialog>
 	);
 });
