@@ -85,8 +85,8 @@ body {
 .react-tagsinput input,
 .header__filter-input,
 .header__filter-input input {
-	color: rgba(232, 230, 227);
-	background-color: #444444;
+	color: rgba(232, 230, 227) !important;
+	background-color: #444444 !important;
 }
 
 .react-tagsinput {
@@ -594,7 +594,7 @@ td input {
 
 .export__input-file-name {
 	margin: 0 1rem 1rem 1rem;
-	width: 600px;
+	width: 600px !important;
 }
 
 .snapshot__container {
