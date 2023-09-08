@@ -81,10 +81,14 @@ body {
 	}
 }
 
-.react-tagsinput,
-.react-tagsinput input,
 .header__filter-input,
 .header__filter-input input {
+	color: rgba(232, 230, 227);
+	background-color: #444444;
+}
+
+.react-tagsinput,
+.react-tagsinput input {
 	color: rgba(232, 230, 227) !important;
 	background-color: #444444 !important;
 }
