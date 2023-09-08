@@ -60,6 +60,7 @@ export default class APFileSystem {
     // exists
     public async exists(path: string): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
+            setTimeout(() => resolve(false), 5000);
             this.socket?.emit('exists', path, (exists: boolean) => {
                 resolve(exists);
             });

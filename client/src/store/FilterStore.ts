@@ -379,8 +379,51 @@ export default class FilterStore {
         }
     }
 
+    private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
+        const lowerKey = key.toLowerCase();
+        const upperKey = key.toUpperCase();
+        let jsonValue = json[lowerKey];
+        if (jsonValue === undefined) jsonValue = json[upperKey];
+
+        if (jsonValue === undefined) return false;
+        if (typeof jsonValue === 'number') {
+            const float = parseFloat(value);
+            const int = parseInt(value);
+            if (!isNaN(float)) {
+                return eval(jsonValue + operator + float);
+            }
+            if (!isNaN(int)) {
+                return eval(jsonValue + operator + int);
+            }
+            return false;
+        }
+        return eval(jsonValue + operator + value);
+    }
+
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
         const message = messageStore.getMessage();
+
+        // Check for JSON key:value syntax
+        const i = needle.indexOf(':');
+        if (i !== -1 && needle.length > i + 1 && needle.substring(i + 1).indexOf(':') === -1) {
+            if (typeof message.responseBody === 'string') {
+                return true;
+            } else {
+                const key = needle.substring(0, i);
+                let value = needle.substring(i + 1);
+                let operator = '==';
+                if (value.startsWith('>') || value.startsWith('<')) {
+                    operator = value.substring(0, 1);
+                    value = value.substring(1);
+                    if (value.startsWith('=')) {
+                        operator += value.substring(0, 1);
+                        value = value.substring(1);
+                    }
+                }
+                return !this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any });
+            }
+        }
+
         if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
         if (this.isMatch(needle, message.protocol)) return false;
         if (message.protocol !== 'log:') {
