@@ -384,8 +384,8 @@ export default class FilterStore {
         const upperKey = key.toUpperCase();
         let jsonValue = json[lowerKey];
         if (jsonValue === undefined) jsonValue = json[upperKey];
-
         if (jsonValue === undefined) return false;
+
         if (typeof jsonValue === 'number') {
             const float = parseFloat(value);
             const int = parseInt(value);
@@ -397,7 +397,8 @@ export default class FilterStore {
             }
             return false;
         }
-        return eval(jsonValue + operator + value);
+        const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
+        return eval(evalString);
     }
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
