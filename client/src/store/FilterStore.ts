@@ -261,7 +261,8 @@ export default class FilterStore {
         if (filter.includes(' AND ') || filter.includes(' OR ')) {
             filter = filter.split(' AND ').join(' && ').split(' OR ').join(' || ');
         }
-        if (filter.includes('!')
+        if (filter.includes(' !') || filter.startsWith('!')
+            || filter.includes(' -') || filter.startsWith('-')
             || filter.includes('&&')
             || filter.includes('||')) {
             let operand = '';
@@ -269,8 +270,11 @@ export default class FilterStore {
                 let c1 = filter.substr(i, 1);
                 let c2 = i < filter.length - 1 ? filter.substr(i + 1, 1) : '';
                 let nonOperand = '';
-                if ((c1 === '!' && i === 0) || c1 === '(' || c1 === ')') nonOperand = c1;
-                if (c1 === ' ' && c2 === '!') {
+                if (((c1 === '!' || c1 === '-') && i === 0) || c1 === '(' || c1 === ')') {
+                    if (c1 === '-') c1 = '!';
+                    nonOperand = c1;
+                }
+                if (c1 === ' ' && (c2 === '!' || c2 === '-')) {
                     ++i;
                     nonOperand = '!';
                 }
@@ -289,7 +293,7 @@ export default class FilterStore {
                         this.boolOperands.push(operand);
                         operand = '';
                     }
-                    this.boolString += nonOperand.replace('-', '!');
+                    this.boolString += nonOperand;
                 }
                 else {
                     operand += c1;
