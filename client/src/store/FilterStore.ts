@@ -411,22 +411,24 @@ export default class FilterStore {
         // Check for JSON key:value syntax
         const i = needle.indexOf(':');
         if (i !== -1 && needle.length > i + 1 && needle.substring(i + 1).indexOf(':') === -1) {
-            if (typeof message.responseBody === 'string') {
-                return true;
-            } else {
-                const key = needle.substring(0, i);
-                let value = needle.substring(i + 1);
-                let operator = '==';
-                if (value.startsWith('>') || value.startsWith('<')) {
-                    operator = value.substring(0, 1);
+            const key = needle.substring(0, i);
+            let value = needle.substring(i + 1);
+            let operator = '==';
+            if (value.startsWith('>') || value.startsWith('<')) {
+                operator = value.substring(0, 1);
+                value = value.substring(1);
+                if (value.startsWith('=')) {
+                    operator += value.substring(0, 1);
                     value = value.substring(1);
-                    if (value.startsWith('=')) {
-                        operator += value.substring(0, 1);
-                        value = value.substring(1);
-                    }
                 }
-                return !this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any });
             }
+            if (typeof message.requestBody !== 'string') {
+                if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
+            }
+            if (typeof message.responseBody !== 'string') {
+                if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
+            }
+            return true;
         }
 
         if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
