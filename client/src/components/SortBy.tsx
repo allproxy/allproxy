@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { snapshotStore } from '../store/SnapshotStore';
+import { filterStore } from '../store/FilterStore';
 
 const httpFields = [
 	{
@@ -51,7 +52,13 @@ const logFields = [
 ];
 
 const SortBy = observer((): JSX.Element => {
-	const fields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? logFields : httpFields;
+	const fields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? logFields.slice() : httpFields.slice();
+	for (const key of filterStore.getSortByKeys()) {
+		fields.unshift({
+			name: key as string,
+			displayName: key as string
+		});
+	}
 	return (
 		< Accordion >
 			<AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: 'whitesmoke' }} />} style={{ backgroundColor: '#333', color: 'whitesmoke' }}>

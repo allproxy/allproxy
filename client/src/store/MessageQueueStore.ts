@@ -224,20 +224,36 @@ export default class MessageQueueStore {
 
 	private sortCopy(copyMessages: MessageStore[]) {
 		const getField = (messageStore: MessageStore): string | number | undefined => {
+			if (this.sortByField === undefined) return undefined;
 			const message = messageStore.getMessage();
 			let field;
 			if (message.protocol === 'log:' && this.sortByField === 'url') return undefined;
 			const obj = message as { [key: string]: any };
-			if (this.sortByField && obj[this.sortByField] !== undefined) {
+			if (obj[this.sortByField] !== undefined) {
 				field = obj[this.sortByField];
 			} else {
-				if (typeof message.responseBody === 'object') {
-					const body = message.responseBody as { [key: string]: any; };
-					if (this.sortByField && body[this.sortByField]) {
-						field = body[this.sortByField];
+				let body;
+				if (typeof message.requestBody === 'object') {
+					body = message.requestBody as { [key: string]: any; };
+					field = body[this.sortByField];
+					if (field === undefined) {
+						field = body[this.sortByField.toLowerCase()];
+					}
+					if (field === undefined) {
+						field = body[this.sortByField.toUpperCase()];
 					}
 				}
-				if (message.protocol === 'log:' && field === undefined) {
+				if (field === undefined && typeof message.responseBody === 'object') {
+					body = message.responseBody as { [key: string]: any; };
+					field = body[this.sortByField];
+					if (field === undefined) {
+						field = body[this.sortByField.toLowerCase()];
+					}
+					if (field === undefined) {
+						field = body[this.sortByField.toUpperCase()];
+					}
+				}
+				if (field === undefined && message.protocol === 'log:') {
 					switch (this.sortByField) {
 						case 'date':
 							try {
