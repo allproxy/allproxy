@@ -23,8 +23,14 @@ export default class FilterStore {
     private sideBarUserAgents: Map<string, boolean> = new Map();
     private sideBarStatuses: Map<number, boolean> = new Map();
 
+    private sortByKeys: string[] = [];
+
     public constructor() {
         makeAutoObservable(this);
+    }
+
+    public getSortByKeys() {
+        return this.sortByKeys;
     }
 
     public isEnabled() {
@@ -207,6 +213,7 @@ export default class FilterStore {
     }
 
     @action public setFilterNoDebounce(filter: string) {
+        this.sortByKeys = [];
         if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
             this.resetScroll = true;
         }
@@ -218,6 +225,7 @@ export default class FilterStore {
     }
 
     @action public setFilter(filter: string) {
+        this.sortByKeys = [];
         if (this.filter.length > 0 && filter.length === 0) {
             this.resetScroll = true;
         }
@@ -386,9 +394,13 @@ export default class FilterStore {
     private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
         const lowerKey = key.toLowerCase();
         const upperKey = key.toUpperCase();
-        let jsonValue = json[lowerKey];
+        let jsonValue = key;
+        if (jsonValue === undefined) jsonValue = json[lowerKey];
         if (jsonValue === undefined) jsonValue = json[upperKey];
         if (jsonValue === undefined) return false;
+        if (!this.sortByKeys.includes(key)) {
+            this.sortByKeys.push(key);
+        }
 
         if (typeof jsonValue === 'number') {
             const float = parseFloat(value);
