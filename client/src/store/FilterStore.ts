@@ -394,20 +394,22 @@ export default class FilterStore {
     private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
         const lowerKey = key.toLowerCase();
         const upperKey = key.toUpperCase();
-        let jsonValue = key;
+        let jsonValue;
+        if (jsonValue === undefined) jsonValue = json[key];
         if (jsonValue === undefined) jsonValue = json[lowerKey];
         if (jsonValue === undefined) jsonValue = json[upperKey];
         if (jsonValue === undefined) return false;
+
         if (!this.sortByKeys.includes(key)) {
             this.sortByKeys.push(key);
         }
 
         if (typeof jsonValue === 'number') {
             const float = parseFloat(value);
-            const int = parseInt(value);
             if (!isNaN(float)) {
                 return eval(jsonValue + operator + float);
             }
+            const int = parseInt(value);
             if (!isNaN(int)) {
                 return eval(jsonValue + operator + int);
             }
