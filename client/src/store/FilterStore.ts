@@ -415,8 +415,15 @@ export default class FilterStore {
             }
             return false;
         }
-        const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
-        return eval(evalString);
+        if (operator === '==') {
+            return jsonValue.toLowerCase().includes(value.toLowerCase());
+        } else if (operator === '===') {
+            console.log(jsonValue, value);
+            return jsonValue === value;
+        } else {
+            const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
+            return eval(evalString);
+        }
     }
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
@@ -427,7 +434,7 @@ export default class FilterStore {
         if (i !== -1 && needle.length > i + 1 && needle.substring(i + 1).indexOf(':') === -1) {
             const key = needle.substring(0, i);
             let value = needle.substring(i + 1);
-            let operator = '==';
+            let operator: string;
             if (value.startsWith('>') || value.startsWith('<')) {
                 operator = value.substring(0, 1);
                 value = value.substring(1);
@@ -435,6 +442,15 @@ export default class FilterStore {
                     operator += value.substring(0, 1);
                     value = value.substring(1);
                 }
+            } else if (value.startsWith('==')) {
+                operator = value.substring(0, 2);
+                value = value.substring(2);
+                if (value.startsWith('=')) {
+                    operator += value.substring(0, 1);
+                    value = value.substring(1);
+                }
+            } else {
+                operator = '==';
             }
             if (typeof message.requestBody !== 'string') {
                 if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
