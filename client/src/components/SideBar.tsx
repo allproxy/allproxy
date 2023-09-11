@@ -329,7 +329,7 @@ const SideBar = observer(() => {
 				<SortBy></SortBy>
 			</div>
 
-			{filterStore.getSideBarDomains().length > 0 &&
+			{!isJsonLogViewer() && filterStore.getSideBarDomains().length > 0 &&
 				<div>
 					<div className="side-bar-item">
 						<Select className="side-bar-select"
@@ -386,11 +386,11 @@ const SideBar = observer(() => {
 					</div>
 				</div>}
 
-			{(filterStore.getSideBarStatuses().length > 0) && (
+			{!isJsonLogViewer() && (filterStore.getSideBarStatuses().length > 0) && (
 				<hr className="side-bar-divider"></hr>
 			)}
 
-			{(filterStore.getSideBarStatuses().length > 0) && (
+			{!isJsonLogViewer() && (filterStore.getSideBarStatuses().length > 0) && (
 				<div className="side-bar-item">
 					<div>
 						<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
