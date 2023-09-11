@@ -1,4 +1,4 @@
-import { Checkbox, CircularProgress, ListItemText, MenuItem, Select } from "@material-ui/core";
+import { Checkbox, CircularProgress, ListItemText, Menu, MenuItem, Select } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
 import { filterStore } from "../store/FilterStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
@@ -9,11 +9,27 @@ import ExportDialog from "./ExportDialog";
 import React from "react";
 import MessageStore from "../store/MessageStore";
 import { snapshotStore } from "../store/SnapshotStore";
+import { useFilePicker } from "use-file-picker";
+import ImportJSONFileDialog from "./ImportJSONFileDialog";
 
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
 	const [disableSaveSession, setDisableSession] = React.useState(false);
+	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
+
+	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
+		multiple: false,
+		accept: ".allproxy"
+	});
+
+	if (!!snapshotContent.length && snapshotContent[0].content) {
+		snapshotStore.setUpdating(true);
+		snapshotStore.importSnapshot(snapshotContent[0].name, snapshotContent[0].content);
+		snapshotClear();
+		snapshotStore.setUpdating(false);
+	}
 
 	const isJsonLogViewer = () => {
 		return snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0;
@@ -166,6 +182,42 @@ const SideBar = observer(() => {
 					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
 					<div style={{ width: '11.5ch' }}>Restore Session</div>
 				</button>
+			</div>
+			<hr className="side-bar-divider"></hr>
+			<div className="side-bar-item">
+				<button className="btn btn-primary"
+					style={{ width: '142.29' }}
+					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+						setAnchorEl(event.currentTarget);
+					}}>
+					<div style={{ width: '11.5ch' }}>Import</div>
+				</button>
+				<Menu
+					anchorEl={anchorEl}
+					open={Boolean(anchorEl)}
+					onClose={() => { setAnchorEl(null); }}
+				>
+					<MenuItem>
+						<div className="header__import fa fa-file" title="Import JSON file"
+							onClick={() => {
+								setAnchorEl(null);
+								setOpenImportJSONFileDialog(true);
+							}}
+						>
+							&nbsp;Import JSON Log
+						</div>
+					</MenuItem>
+					<MenuItem>
+						<div className="header__import fa fa-upload" title="Import snapshot file"
+							onClick={() => {
+								setAnchorEl(null);
+								openSnapshotFileSelector();
+							}}
+						>
+							&nbsp;Import Snapshot
+						</div>
+					</MenuItem>
+				</Menu>
 			</div>
 			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
@@ -381,6 +433,12 @@ const SideBar = observer(() => {
 				open={showSessionModal}
 				onClose={() => setShowSessionModal(false)}
 				store={sessionStore}
+			/>
+			<ImportJSONFileDialog
+				open={openImportJSONFileDialog}
+				onClose={() => {
+					setOpenImportJSONFileDialog(false);
+				}}
 			/>
 		</>
 	);
