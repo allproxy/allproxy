@@ -263,7 +263,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 	const fields = primaryJsonFields.concat(customJsonFields);
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
-			let value = getValue(json, field);
+			let value = getJSONValue(json, field);
 			if (value === undefined) return;
 
 			if (field !== 'PREFIX') {
@@ -279,7 +279,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 	return jsonFields;
 }
 
-function getValue(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
+export function getJSONValue(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
 	if (Object.keys(json).length > 0) {
 		let value: string | number | undefined = undefined;
 		value = eval('json');
@@ -378,7 +378,7 @@ export function getJsonFieldValues(fields: string[]): string[] {
 			} else if (field === 'Message') {
 				values.push(messageStore.getLogEntry().message);
 			} else {
-				let value = getValue(json, field);
+				let value = getJSONValue(json, field);
 				if (value === undefined) {
 					values.push('');
 				} else {

@@ -3,6 +3,7 @@ import MessageStore from './MessageStore';
 import _ from 'lodash';
 import { messageQueueStore } from "./MessageQueueStore";
 import { dateToHHMMSS } from "../components/Request";
+import { getJSONValue } from "./JSONLogStore";
 
 export default class FilterStore {
     private enabled = true;
@@ -392,12 +393,7 @@ export default class FilterStore {
     }
 
     private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
-        const lowerKey = key.toLowerCase();
-        const upperKey = key.toUpperCase();
-        let jsonValue;
-        if (jsonValue === undefined) jsonValue = json[key];
-        if (jsonValue === undefined) jsonValue = json[lowerKey];
-        if (jsonValue === undefined) jsonValue = json[upperKey];
+        const jsonValue = getJSONValue(json, key);
         if (jsonValue === undefined) return false;
 
         if (!this.sortByKeys.includes(key)) {
@@ -414,16 +410,21 @@ export default class FilterStore {
                 return eval(jsonValue + operator + int);
             }
             return false;
+        } else if (typeof jsonValue === 'string') {
+            if (operator === '==') {
+                return jsonValue.toLowerCase().includes(value.toLowerCase());
+            } else if (operator === '===') {
+                console.log(jsonValue, value);
+                return jsonValue === value;
+            } else {
+                const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
+                return eval(evalString);
+            }
+        } else if (typeof jsonValue === 'boolean') {
+            return jsonValue && value === 'true' ||
+                !jsonValue && value === 'false';
         }
-        if (operator === '==') {
-            return jsonValue.toLowerCase().includes(value.toLowerCase());
-        } else if (operator === '===') {
-            console.log(jsonValue, value);
-            return jsonValue === value;
-        } else {
-            const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
-            return eval(evalString);
-        }
+        return false;
     }
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
