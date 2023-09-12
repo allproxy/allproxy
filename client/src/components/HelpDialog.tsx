@@ -204,25 +204,25 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 										A JSON field term matches the value of a specific JSON field.  The syntax is <b>field:value</b> which does a prefix match by default.  An operator may be placed before the value (field:<b>operator</b>value):
 										<div style={{ paddingLeft: ".5rem" }}>
 											<div>
-												<b>&gt;</b> Match JSON field float or int greater than value.
+												<b>field:<code>&gt;</code>value</b> JSON field float or int greater than value.
 											</div>
 											<div>
-												<b>&gt;</b> Match JSON field float or int greater than value.
+												<b>field:<code>&gt;</code>value</b> JSON field float or int greater than value.
 											</div>
 											<div>
-												<b>&ge;</b> Match JSON field float or int greater than or equal to value.
+												<b>field:<code>&ge;</code>value</b> JSON field float or int greater than or equal to value.
 											</div>
 											<div>
-												<b>&lt;</b> Match JSON field float or int less than value.
+												<b>field:<code>&lt;</code>value</b> JSON field float or int less than value.
 											</div>
 											<div>
-												<b>&le;</b> Match JSON field float or int less than or equal to value.
+												<b>field:<code>&le;</code>value</b> JSON field float or int less than or equal to value.
 											</div>
 											<div>
-												<b>==</b> Prefix match on JSON field.
+												<b>field:<code>==</code>value</b> Prefix match on JSON field.
 											</div>
 											<div>
-												<b>===</b> Exact match on JSON field.
+												<b>field:<code>===</code>value</b> Exact match on JSON field.
 											</div>
 										</div>
 									</dd>
@@ -292,6 +292,20 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							</button>
 						</div>
 						<p></p>
+						<pre>
+							<div>// Sample function used to extract <b>date</b>, <b>level</b>, <b>category</b> and <b>message</b></div>
+							<div>// @param <b>nonJson</b>: string - optional non-JSON string</div>
+							<div>// @param <b>jsonData</b>: {'{}'} - JSON log data</div>
+							<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>category</b>: string, <b>message</b>: string{'}'}</div>
+							<div>// <b>category</b> is the pod name, process ID... </div>
+							<div>function(nonJson, jsonData) {'{'}</div>
+							<div>  let date = new Date(jsonData.my_date);</div>
+							<div>  let level = new Date(jsonData.my_level);</div>
+							<div>  let category = new Date(jsonData.my_pod_name);</div>
+							<div>  let message = new Date(jsonData.my_message);</div>
+							<div>  return {'{date, level, category, message}'};</div>
+							<div>{'}'}</div>
+						</pre>
 						<h5>Import JSON Log</h5>
 						Click this button to import a JSON log file.
 						<p></p>
