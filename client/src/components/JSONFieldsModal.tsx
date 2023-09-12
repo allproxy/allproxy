@@ -18,13 +18,13 @@ type Props = {
 }
 const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values';
 const TAB_NAMES: { [key: string]: string } = {};
-TAB_NAMES[JSON_FIELDS_DIR] = 'Highlight JSON Fields';
-TAB_NAMES[SCRIPTS_DIR] = 'Script';
+TAB_NAMES[JSON_FIELDS_DIR] = 'Annotate JSON Fields';
+TAB_NAMES[SCRIPTS_DIR] = 'Extract Date, Level, Category and Message';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = SHOW_JSON_FIELD_VALUES;
 
 const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) => {
-	const TAB_VALUES = [SHOW_JSON_FIELD_VALUES, JSON_FIELDS_DIR, SCRIPTS_DIR];
-	const [tabValue, setTabValue] = React.useState(SHOW_JSON_FIELD_VALUES);
+	const TAB_VALUES = [JSON_FIELDS_DIR, SCRIPTS_DIR, SHOW_JSON_FIELD_VALUES];
+	const [tabValue, setTabValue] = React.useState(JSON_FIELDS_DIR);
 	const [error, setError] = React.useState('');
 	const [radioValue, setRadioValue] = React.useState('table');
 
@@ -85,12 +85,12 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) =
 									{tabValue === JSON_FIELDS_DIR &&
 										<div style={{ fontSize: 'small' }}>
 											<pre>
-												Enter <b>a.b</b> to highlight multi-level JSON:
+												Enter <b>a.b</b> to annotate multi-level JSON:
 												<br></br>
 												{JSON.stringify({ a: { b: "value" } }, null, "  ")}
 											</pre>
 											<pre>
-												Enter <b>x[.]y</b> to highlight JSON with period in name:
+												Enter <b>x[.]y</b> to annotate JSON with period in name:
 												<br></br>
 												{JSON.stringify({ "x.y": "value" }, null, "  ")}
 											</pre>

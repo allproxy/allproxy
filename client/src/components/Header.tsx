@@ -46,8 +46,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
-	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
+	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
 
 	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
