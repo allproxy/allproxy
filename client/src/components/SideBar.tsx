@@ -185,7 +185,7 @@ const SideBar = observer(() => {
 			</div>
 			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
-				<button className="btn btn-primary"
+				<button className="btn btn-warning"
 					style={{ width: '142.29' }}
 					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
 						setAnchorEl(event.currentTarget);
