@@ -74,12 +74,16 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 	}
 
 	return (
-		<><Dialog onBackdropClick={handleClose} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+		<><Dialog onBackdropClick={handleClose}
+			maxWidth={'lg'}
+			onClose={handleClose}
+			aria-labelledby="simple-dialog-title"
+			open={open}>
 			<div style={{
 				paddingBottom: "2rem",
 				paddingLeft: "1.5rem",
 				paddingRight: "1rem",
-				width: "80vw",
+				width: "70vw",
 				height: "90vh"
 			}}>
 				<TabContext value={tabValue}>
@@ -292,17 +296,31 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							</button>
 						</div>
 						<p></p>
+						<h5>Example log message:</h5>
 						<pre>
-							<div>// Sample function used to extract <b>date</b>, <b>level</b>, <b>category</b> and <b>message</b></div>
-							<div>// @param <b>nonJson</b>: string - optional non-JSON string</div>
-							<div>// @param <b>jsonData</b>: {'{}'} - JSON log data</div>
+							<div>{'{'}</div>
+							<div>  "date": "2023-09-12T18:03:33.496Z"</div>
+							<div>  "level": "info"</div>
+							<div>  "pod_name": "my-pod-name"</div>
+							<div>  "message": "This is a test message."</div>
+							<div>{'}'}</div>
+						</pre>
+						<p></p>
+						<h5>Example extract function:</h5>
+						<pre>
+							<div>// Function called to extract <b>date</b>, <b>level</b>, <b>category</b> and <b>message</b></div>
+							<div>//</div>
+							<div>// @param <b>nonJson</b>: string - optional non-JSON string proceeding JSON object</div>
+							<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
 							<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>category</b>: string, <b>message</b>: string{'}'}</div>
+							<div>//</div>
 							<div>// <b>category</b> is the pod name, process ID... </div>
-							<div>function(nonJson, jsonData) {'{'}</div>
-							<div>  let date = new Date(jsonData.my_date);</div>
-							<div>  let level = new Date(jsonData.my_level);</div>
-							<div>  let category = new Date(jsonData.my_pod_name);</div>
-							<div>  let message = new Date(jsonData.my_message);</div>
+							<div>//</div>
+							<div>function(nonJson, jsonObject) {'{'}</div>
+							<div>  let date = new Date(jsonObject.date);</div>
+							<div>  let level = new Date(jsonObject.level);</div>
+							<div>  let category = new Date(jsonObject.pod_name);</div>
+							<div>  let message = new Date(jsonObject.message);</div>
 							<div>  return {'{date, level, category, message}'};</div>
 							<div>{'}'}</div>
 						</pre>
