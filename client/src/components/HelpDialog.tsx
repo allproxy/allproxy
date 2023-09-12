@@ -74,7 +74,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 	}
 
 	return (
-		<><Dialog onBackdropClick={handleClose}
+		<><Dialog
 			maxWidth={'lg'}
 			onClose={handleClose}
 			aria-labelledby="simple-dialog-title"
@@ -123,7 +123,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 								</span>
 							))
 						}
-						<h5>Reverse Proxy:</h5>
+						<h5>Configure Reverse Proxy:</h5>
 						{showConfigButtons()}
 						<h5>Shortcuts:</h5>
 						- <b>{key}-f</b> Find text in page
@@ -205,7 +205,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									</dd>
 									<dt>JSON Field Term</dt>
 									<dd>
-										A JSON field term matches the value of a specific JSON field.  The syntax is <b>field:value</b> which does a prefix match by default.  An operator may be placed before the value (field:<b>operator</b>value):
+										A JSON field term matches the value of a specific JSON field.  The term <code>field:value</code> does a prefix match by default.  An operator may also be specified <code>field:<b>operator</b>value</code>:
 										<div style={{ paddingLeft: ".5rem" }}>
 											<div>
 												<b>field:<code>&gt;</code>value</b> JSON field float or int greater than value.
@@ -230,6 +230,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 											</div>
 										</div>
 									</dd>
+									<div>Multi-level JSON fields <code>field1.field2.field3:value</code> are also supported.</div>
 								</dl>
 							</div>
 							<h5>Boolean Operators</h5>
@@ -310,13 +311,13 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						<pre>
 							<div>// Function called to extract <b>date</b>, <b>level</b>, <b>category</b> and <b>message</b></div>
 							<div>//</div>
-							<div>// @param <b>nonJson</b>: string - optional non-JSON string proceeding JSON object</div>
+							<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
 							<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
 							<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>category</b>: string, <b>message</b>: string{'}'}</div>
 							<div>//</div>
 							<div>// <b>category</b> is the pod name, process ID... </div>
 							<div>//</div>
-							<div>function(nonJson, jsonObject) {'{'}</div>
+							<div>function(preJSONString, jsonObject) {'{'}</div>
 							<div>  let date = new Date(jsonObject.date);</div>
 							<div>  let level = new Date(jsonObject.level);</div>
 							<div>  let category = new Date(jsonObject.pod_name);</div>
