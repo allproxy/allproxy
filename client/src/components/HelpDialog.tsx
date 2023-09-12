@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { Dialog, DialogTitle, Grid, IconButton, Typography } from '@material-ui/core';
-import CloseIcon from "@material-ui/icons/Close";
+import { Dialog, Tab, Tabs } from '@material-ui/core';
 import pickIcon, { getBrowserIconColor } from '../PickIcon';
 import { Browser, browserStore } from '../store/BrowserStore';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
@@ -9,6 +8,10 @@ import { ConfigCategoryGroups, settingsStore } from '../store/SettingsStore';
 import { ConfigProtocol } from '../common/ProxyConfig';
 import SessionModal from './SessionModal';
 import { sessionStore } from '../store/SessionStore';
+import { TabContext, TabPanel } from '@material-ui/lab';
+import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
+import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
+import { snapshotStore } from '../store/SnapshotStore';
 
 type Props = {
 	open: boolean,
@@ -18,6 +21,10 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
+	const [tabValue, setTabValue] = React.useState('1');
+
+	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
+	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
 
 	const handleClose = () => {
 		onClose();
@@ -68,122 +75,245 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 
 	return (
 		<><Dialog onBackdropClick={handleClose} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-			<DialogTitle id="simple-dialog-title">
-				<Grid container justify="space-between" alignItems="center">
-					<Typography><h3>Welcome</h3></Typography>
-					<IconButton onClick={handleClose}>
-						<CloseIcon />
-					</IconButton>
-				</Grid>
-			</DialogTitle>
 			<div style={{
 				paddingBottom: "2rem",
 				paddingLeft: "1.5rem",
-				paddingRight: "1rem"
+				paddingRight: "1rem",
+				width: "80vw",
+				height: "90vh"
 			}}>
-				<h4>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h4>
-				<p></p>
-				<h4>Launch Browser/Terminal or View Log:</h4>
-				{
-					browserStore.getBrowsers().map(browser => (
-						<span style={{ marginRight: '1rem' }}>
-							<button className="btn btn-lg btn-secondary"
-								style={{ marginBottom: "1rem", background: getBrowserIconColor(browserName(browser)) }}
-								onClick={() => {
-									browserStore.launchBrowser(browser);
-									handleClose();
-								}}>
-								<div className={pickIcon('browser:', browser.name)}
-									style={{
-										marginRight: '.5rem'
-									}} />
-								{browserName(browser)}
-							</button>
-						</span>
-					))
-				}
-				<span style={{ marginRight: '1rem' }}>
-					<button className="btn btn-lg btn-primary"
-						style={{ marginBottom: "1rem" }}
-						onClick={() => {
-							setOpenImportJSONFileDialog(true);
-							handleClose();
-						}}>
-						<div className={pickIcon('log:', '')}
-							style={{
-								marginRight: '.5rem'
-							}}
-						/>
-						JSON Log
-					</button>
-				</span>
-				<h4>Reverse Proxy Configuration:</h4>
-				{showConfigButtons()}
-				<h4>Shortcuts:</h4>
-				- <b>{key}-f</b> Find text in page
-				<p></p>
-				<h4>Manual Setup:</h4>
-				<ol style={{ paddingLeft: "1rem" }}>
-					<li>
-						<b>Trust AllProxy certificate:</b>
-						<br></br>
-						Run in terminal: <strong>{trustCertCmd()}</strong>
-						<button type="button" className="btn btn-sm btn-default"
-							title="Copy"
-							onClick={() => navigator.clipboard.writeText(trustCertCmd())}
-						>
-							<div className="fa fa-copy" />
-						</button>
-						<br></br>(If "permission denied", run chmod +x {(trustCertCmd().split(" ")[0])})
+				<TabContext value={tabValue}>
+					<Tabs
+						variant='scrollable'
+						value={tabValue}
+						onChange={(_, v) => setTabValue(v)}
+						textColor="primary"
+						indicatorColor="primary"
+						aria-label="help-tabs"
+					>
+						<Tab value="1" label="Quick Start" />
+						<Tab value="2" label="Certificates" />
+						<Tab value="3" label="Filtering" />
+						<Tab value="4" label="JSON Logs" />
+					</Tabs>
+					<TabPanel value="1" key="1">
+						<h4>Quick Start</h4>
+						<h5>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h5>
 						<p></p>
-						This will import the AllProxy CA certificate into your certificate store
-						and mark it as trusted.
-						<p></p>
-						For some browsers (eg, Firefox) you may also need to import the AllProxy CA
-						certificate into the browser trust store.
-						<p></p>
-					</li>
-					<li>
-						<b>Capture Browser Traffic:</b>
-						<ul style={{
-							listStyleType: 'none',
-							paddingLeft: 0
-						}}>
+						<h5>Launch Browser/Terminal:</h5>
+						{
+							browserStore.getBrowsers().map(browser => (
+								<span style={{ marginRight: '1rem' }}>
+									<button className="btn btn-lg btn-secondary"
+										style={{ marginBottom: "1rem", background: getBrowserIconColor(browserName(browser)) }}
+										onClick={() => {
+											browserStore.launchBrowser(browser);
+											handleClose();
+										}}>
+										<div className={pickIcon('browser:', browser.name)}
+											style={{
+												marginRight: '.5rem'
+											}} />
+										{browserName(browser)}
+									</button>
+								</span>
+							))
+						}
+						<h5>Reverse Proxy:</h5>
+						{showConfigButtons()}
+						<h5>Shortcuts:</h5>
+						- <b>{key}-f</b> Find text in page
+					</TabPanel>
+					<TabPanel value="2" key="2">
+						<h4>Certificates</h4>
+						<ol style={{ paddingLeft: "1rem" }}>
 							<li>
-								Configure System Proxy
+								<b>Trust AllProxy certificate:</b>
 								<br></br>
-								- Run in terminal: <b>{systemProxyCmd()}</b>
+								Run in terminal: <strong>{trustCertCmd()}</strong>
 								<button type="button" className="btn btn-sm btn-default"
 									title="Copy"
-									onClick={() => navigator.clipboard.writeText(systemProxyCmd())}
+									onClick={() => navigator.clipboard.writeText(trustCertCmd())}
 								>
 									<div className="fa fa-copy" />
 								</button>
-								<br></br>(If "permission denied", run chmod +x {systemProxyCmd().split(" ")[0]})
+								<br></br>(If "permission denied", run chmod +x {(trustCertCmd().split(" ")[0])})
 								<p></p>
-								Some browsers (eg, Firefox) do not use the system proxy settings.
+								This will import the AllProxy CA certificate into your certificate store
+								and mark it as trusted.
+								<p></p>
+								For some browsers (eg, Firefox) you may also need to import the AllProxy CA
+								certificate into the browser trust store.
 								<p></p>
 							</li>
 							<li>
-								Configure Browser Proxy
-								<br></br>
-								- Configure your browser proxy settings to host=localhost and port=8888
+								<b>Capture Browser Traffic:</b>
+								<ul style={{
+									listStyleType: 'none',
+									paddingLeft: 0
+								}}>
+									<li>
+										Configure System Proxy
+										<br></br>
+										- Run in terminal: <b>{systemProxyCmd()}</b>
+										<button type="button" className="btn btn-sm btn-default"
+											title="Copy"
+											onClick={() => navigator.clipboard.writeText(systemProxyCmd())}
+										>
+											<div className="fa fa-copy" />
+										</button>
+										<br></br>(If "permission denied", run chmod +x {systemProxyCmd().split(" ")[0]})
+										<p></p>
+										Some browsers (eg, Firefox) do not use the system proxy settings.
+										<p></p>
+									</li>
+									<li>
+										Configure Browser Proxy
+										<br></br>
+										- Configure your browser proxy settings to host=localhost and port=8888
+									</li>
+								</ul>
+								<p></p>
 							</li>
-						</ul>
+							<li>
+								<b>Capture Terminal Commands:</b>
+								<br></br>
+								- For secure HTTPS, set HTTPS_PROXY=localhost:8888
+								<br></br>
+								- For unsecure HTTP, set HTTP_PROXY=localhost:8888
+								<br></br>
+								- To exclude hosts, set NO_PROXY="domain1,domain2,domain3"
+							</li>
+						</ol>
+					</TabPanel>
+					<TabPanel value="3" key="3">
+						<h4>Filtering</h4>
+						<div style={{ paddingLeft: "1rem" }}>
+							A search filter criteria can be specified to keep matching lines and remove unmatched lines.  A search term is an operand in a boolean expression.   Boolean operators may be used to more precisely identify matching lines.
+							<p></p>
+							<h5>Search Terms</h5>
+							<div style={{ paddingLeft: ".5rem" }}>
+								String Terms and JSON Field Terms are supported.
+								<dl>
+									<dt>String Term</dt>
+									<dd>
+										A string term may include one or more words to match any substring in a line.
+									</dd>
+									<dt>JSON Field Term</dt>
+									<dd>
+										A JSON field term matches the value of a specific JSON field.  The syntax is <b>field:value</b> which does a prefix match by default.  An operator may be placed before the value (field:<b>operator</b>value):
+										<div style={{ paddingLeft: ".5rem" }}>
+											<div>
+												<b>&gt;</b> Match JSON field float or int greater than value.
+											</div>
+											<div>
+												<b>&gt;</b> Match JSON field float or int greater than value.
+											</div>
+											<div>
+												<b>&ge;</b> Match JSON field float or int greater than or equal to value.
+											</div>
+											<div>
+												<b>&lt;</b> Match JSON field float or int less than value.
+											</div>
+											<div>
+												<b>&le;</b> Match JSON field float or int less than or equal to value.
+											</div>
+											<div>
+												<b>==</b> Prefix match on JSON field.
+											</div>
+											<div>
+												<b>===</b> Exact match on JSON field.
+											</div>
+										</div>
+									</dd>
+								</dl>
+							</div>
+							<h5>Boolean Operators</h5>
+							<div style={{ paddingLeft: ".5rem" }}>
+								<dl>
+									<dt>AND or &&</dt>
+									<dd>
+										The AND operator performs a boolean and on the search terms.
+									</dd>
+									<dt>OR or ||</dt>
+									<dd>
+										The OR operator performs a boolean or on the search terms.
+									</dd>
+									<dt>NOT, ! or -</dt>
+									<dd>
+										The NOT operator performs a boolean not on the search term.
+									</dd>
+								</dl>
+							</div>
+							<h5>Parenthesis</h5>
+							Parenthesis can be used to group related search terms together.
+						</div>
+					</TabPanel>
+					<TabPanel value="4" key="4">
+						<h4>JSON Logs</h4>
+						JSON logs can be imported and annotated for easier reading.
 						<p></p>
-					</li>
-					<li>
-						<b>Capture Terminal Commands:</b>
-						<br></br>
-						- For secure HTTPS, set HTTPS_PROXY=localhost:8888
-						<br></br>
-						- For unsecure HTTP, set HTTP_PROXY=localhost:8888
-						<br></br>
-						- To exclude hosts, set NO_PROXY="domain1,domain2,domain3"
-					</li>
-				</ol>
+						<h5>Annotating JSON Fields</h5>
+						Selected JSON fields can be annotated with labels.
+						<p></p>
+						<div style={{ marginRight: '1rem' }}>
+							<button className="btn btn-lg btn-primary"
+								style={{ marginBottom: "1rem" }}
+								onClick={async () => {
+									await jsonLogStore.init();
+									setJsonFields(getJSONFields());
+									setShowJSONFieldsModal(true);
+								}}>
+								<div className='fa fa-code'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Annotate JSON Fields
+							</button>
+						</div>
+						<h5>Extract Date, Level, Category and Message</h5>
+						A custom script can be defined to extract the date, level, category and message from the JSON log data.
+						<p></p>
+						<div style={{ marginRight: '1rem' }}>
+							<button className="btn btn-lg btn-success"
+								style={{ marginBottom: "1rem" }}
+								onClick={async () => {
+									await jsonLogStore.init();
+									setJsonFields(getJSONFields());
+									setShowJSONFieldsModal(true);
+								}}>
+								<div className='fa fa-calendar'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Extract Date...
+							</button>
+						</div>
+						<p></p>
+						<h5>Import JSON Log</h5>
+						Click this button to import a JSON log file.
+						<p></p>
+						<div style={{ marginRight: '1rem' }}>
+							<button className="btn btn-lg btn-warning"
+								style={{ marginBottom: "1rem" }}
+								onClick={() => {
+									setOpenImportJSONFileDialog(true);
+									handleClose();
+								}}>
+								<div className='fa fa-upload'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Import JSON Log
+							</button>
+						</div>
+					</TabPanel>
+				</TabContext>
 			</div>
-		</Dialog>
+		</Dialog >
 			<ImportJSONFileDialog
 				open={openImportJSONFileDialog}
 				onClose={() => {
@@ -193,6 +323,19 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				open={showSessionModal}
 				onClose={() => setShowSessionModal(false)}
 				store={sessionStore}
+			/>
+			<JSONFieldsModal
+				open={showJSONFieldsModal}
+				onClose={() => {
+					setShowJSONFieldsModal(false);
+					snapshotStore.setUpdating(true);
+					setTimeout(() => {
+						updateJSONRequestLabels();
+						snapshotStore.setUpdating(false);
+					});
+				}}
+				store={jsonLogStore}
+				jsonFields={jsonFields}
 			/>
 		</>
 	);
