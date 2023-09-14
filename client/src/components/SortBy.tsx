@@ -59,6 +59,15 @@ const SortBy = observer((): JSX.Element => {
 			displayName: key as string
 		});
 	}
+	if (messageQueueStore.getSortByField() !== undefined) {
+		let found = false;
+		for (const field of fields) {
+			if (field.name === messageQueueStore.getSortByField()) {
+				found = true;
+			}
+		}
+		if (!found) messageQueueStore.setSortByField(undefined);
+	}
 	return (
 		< Accordion >
 			<AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: 'whitesmoke' }} />} style={{ backgroundColor: '#333', color: 'whitesmoke' }}>
@@ -69,7 +78,7 @@ const SortBy = observer((): JSX.Element => {
 					{
 						fields.map(field => (
 							<div className="side-bar-item">
-								<button className={"btn btn-xs " + (messageQueueStore.getSortByField() === field.name ? "btn-primary" : "btn-secondary")}
+								<button className={"btn btn-xs " + (messageQueueStore.getSortByField() === field.name ? "btn-warning" : "btn-secondary")}
 									style={{ width: "7rem", marginLeft: "1rem", textAlign: "left" }}
 									key={field.displayName}
 									onClick={() => sortOrderHandler(field.name)}

@@ -329,7 +329,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						Click this button to import a JSON log file.
 						<p></p>
 						<div style={{ marginRight: '1rem' }}>
-							<button className="btn btn-lg btn-warning"
+							<button className="btn btn-lg btn-primary"
 								style={{ marginBottom: "1rem" }}
 								onClick={() => {
 									setOpenImportJSONFileDialog(true);
