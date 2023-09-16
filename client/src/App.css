@@ -40,6 +40,15 @@ body {
 	td {
 		border-color: black !important;
 	}
+
+	.request__msg-even {
+		background-color: #333333;
+	}
+
+	.request__msg-highlight {
+		/* color:rgba(0, 55, 255, 0.884) !important; */
+		color: #4ca728 !important;
+	}
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -78,6 +87,15 @@ body {
 
 	.MuiCheckbox-colorSecondary {
 		color: blue;
+	}
+
+	.request__msg-even {
+		background-color: #e5e5e5;
+	}
+
+	.request__msg-highlight {
+		/* color:rgba(0, 55, 255, 0.884) !important; */
+		color: rgb(203, 75, 22) !important;
 	}
 }
 
@@ -169,8 +187,8 @@ td input {
 	padding-bottom: 0 !important;
 }
 
-.json-label {
-	cursor: pointer;
+.keep-all {
+	word-break: keep-all;
 }
 
 .center {
@@ -323,11 +341,6 @@ td input {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
-}
-
-.request__msg-highlight {
-	/* color:rgba(0, 55, 255, 0.884) !important; */
-	color: rgb(203, 75, 22) !important;
 }
 
 .request__msg-unhighlight {
@@ -731,6 +744,11 @@ td input {
 	cursor: pointer;
 	white-space: nowrap;
 	display: flex;
+}
+
+.request__msg.wrap {
+	white-space: wrap;
+	word-break: break-all;
 }
 
 /* .request__msg.active {

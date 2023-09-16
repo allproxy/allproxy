@@ -23,7 +23,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
-			elements.push(<span> {nonJson + JSON.stringify(message.responseBody)}</span>);
+			elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflow: 'hidden', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 		}
 
 		let messageText = messageStore.getLogEntry().message;
@@ -58,14 +58,15 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	function makeLabel(name: string, background: string, color: string, filter: string, value: any = undefined): JSX.Element[] {
 		const v = value === undefined ? '' : typeof value === 'string' ? `"${value}"` : value;
 
-		const className = value !== undefined ? 'json-label' : '';
+		const className = value !== undefined ? 'json-label keep-all' : '';
 
 		const elements: JSX.Element[] = [];
 		elements.push(
 			<span className={className}
 				style={{ color: color, background: background, filter: filter, marginLeft: '.25rem', padding: '0 .25rem', borderRadius: '.25rem', border: `${background} thin solid` }}>{name}</span>);
 		if (v !== undefined) {
-			elements.push(<span style={{ marginLeft: '.25rem' }}>{v}</span >);
+			const className = value === 'string' && v.length > 16 ? undefined : 'keep-all';
+			elements.push(<span className={className} style={{ marginLeft: '.25rem' }}>{v}</span >);
 		}
 		return elements;
 	}

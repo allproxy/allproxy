@@ -21,8 +21,9 @@ type Props = {
 	maxEndpointSize: number,
 	vertical: boolean,
 	isFiltered: boolean,
+	className: string,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className }: Props) => {
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => {
@@ -39,7 +40,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 
 	return (
 		<><div>
-			<div className="request__msg-container">
+			<div className={"request__msg-container " + className} >
 				<div className="request__msg-header">
 					<div className="request__msg-time-ms">
 						{message.protocol !== 'log:' ?
@@ -105,6 +106,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 					</div>
 
 					<div className={`request__msg
+					    ${message.protocol === 'log:' ? ' wrap' : ''}
 						${isActive ? ' active' : ''}
 						${highlight ? ' highlight' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
@@ -147,7 +149,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 						displayDataTypes={false}
 						quotesOnKeys={false} />}
 			</div>
-		</div>
+		</div >
 			<NoteDialog
 				message={store}
 				open={openNoteDialog}
