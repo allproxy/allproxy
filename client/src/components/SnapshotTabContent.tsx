@@ -170,6 +170,7 @@ const SnapshotTabContent = observer(({
 										onResend={() => handleResend(message)}
 										vertical={vertical}
 										isFiltered={isFiltered}
+										className={message.protocol === 'log:' && matchCount % 2 === 0 ? 'request__msg-even' : ''}
 									/>);
 							}
 						})}
