@@ -106,7 +106,7 @@ const SnapshotTabContent = observer(({
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
 			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
 			if (messageStore.getMessage().protocol === 'log:') {
-				maxLogCategorySize = Math.max(maxLogCategorySize, messageStore.getLogEntry().category.length);
+				maxLogCategorySize = Math.max(maxLogCategorySize, messageStore.getLogEntry().category.split(' ')[0].length);
 			}
 		});
 

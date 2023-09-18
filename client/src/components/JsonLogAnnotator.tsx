@@ -40,12 +40,16 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 				const categoryStyle = pickCategoryStyle(name);
 				const border = `${categoryStyle.background} .25rem solid`;
 				categories = categories.concat(
-					<div style={{ display: 'inline-block', paddingLeft: '.25rem', minWidth: maxLogCategorySize + 'ch' }}>
+					<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 						<div className="json-label"
 							style={{ lineHeight: '1', display: 'inline-block', filter: categoryStyle.filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}>{name}</div>
 					</div>);
 			}
-			elements = categories.concat(elements);
+			const width = maxLogCategorySize + 'ch';
+			elements.unshift(
+				<div style={{ display: 'inline-block', minWidth: width }}>
+					{categories}
+				</div>);
 		}
 
 		return elements;
