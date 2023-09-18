@@ -4,8 +4,9 @@ import MessageStore from '../store/MessageStore';
 
 type Props = {
 	message: MessageStore,
+	maxLogCategorySize: number,
 };
-const JsonLogAnnotator = observer(({ message }: Props) => {
+const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 
 	return (
 		<div className="request__json-annotationsx">
@@ -39,7 +40,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				const categoryStyle = pickCategoryStyle(name);
 				const border = `${categoryStyle.background} .25rem solid`;
 				categories = categories.concat(
-					<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
+					<div style={{ display: 'inline-block', paddingLeft: '.25rem', minWidth: maxLogCategorySize + 'ch' }}>
 						<div className="json-label"
 							style={{ lineHeight: '1', display: 'inline-block', filter: categoryStyle.filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}>{name}</div>
 					</div>);
