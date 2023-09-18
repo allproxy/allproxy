@@ -324,8 +324,14 @@ export default class SnapshotStore {
 		} else {
 			parsedBlob = snapshot;
 		}
+
 		const messageStores: MessageStore[] = [];
-		for (const message of parsedBlob) {
+		let messages = (parsedBlob as Message[]);
+		if (messages.length > 10000) {
+			messages = messages.slice(messages.length - 10000);
+		}
+
+		for (const message of messages) {
 			const ms = new MessageStore(message);
 			if (ms.getMessage().protocol !== 'log:') doDateSort = false;
 			messageStores.push(ms);
