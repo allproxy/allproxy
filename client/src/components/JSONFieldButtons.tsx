@@ -6,7 +6,9 @@ import { updateJSONRequestLabels } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
 import { snapshotStore } from '../store/SnapshotStore';
 
-export const JSONFieldButtonsHeight = 40;
+const HIDE_JSON_FIELD_BUTTONS = true;
+
+export const JSONFieldButtonsHeight = HIDE_JSON_FIELD_BUTTONS ? 0 : 40;
 
 /**
  * JSON Fields
@@ -20,7 +22,7 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 		messageQueueStore.updateJSONFields(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
 	}, [messageQueueStore]);
 
-	if (snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length === 0 || messageQueueStore.getMessages().length === 0) return null;
+	if (HIDE_JSON_FIELD_BUTTONS || snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length === 0 || messageQueueStore.getMessages().length === 0) return null;
 
 	const iconColor = messageQueueStore.getMessages()[0].getColor();
 	const jsonFields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName());

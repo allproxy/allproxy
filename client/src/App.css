@@ -692,6 +692,11 @@ td input {
 	flex-direction: column;
 }
 
+.request__json-annotations {
+	font-family: 'Courier New', Courier, monospace;
+	font-weight: bold;
+}
+
 .request__container.unselected {
 	width: 100%;
 	resize: none;

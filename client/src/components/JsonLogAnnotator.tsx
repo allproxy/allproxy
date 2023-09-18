@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { pickLabelStyle } from '../PickButtonStyle';
+import { pickCategoryStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
 const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	return (
-		<div>
+		<div className="request__json-annotationsx">
 			{makeJSONRequestLabels(message).map((element) => {
 				return element;
 			})}
@@ -28,18 +28,23 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 		let messageText = messageStore.getLogEntry().message;
 		if (messageText !== '') {
-			elements.unshift(<span className="request__msg-highlight">{messageText}</span>);
+			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem' }}>{messageText}</div>);
 		}
 
 		let category = messageStore.getLogEntry().category;
+		let categories: JSX.Element[] = [];
 		if (category !== '') {
 			//messageStore.setColor(categoryStyle.background);
-			let labels: JSX.Element[] = [];
 			for (const name of category.split(' ')) {
-				const categoryStyle = pickLabelStyle(name);
-				labels = labels.concat(makeLabel(name, categoryStyle.background, categoryStyle.color, categoryStyle.filter));
+				const categoryStyle = pickCategoryStyle(name);
+				const border = `${categoryStyle.background} .25rem solid`;
+				categories = categories.concat(
+					<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
+						<div className="json-label"
+							style={{ lineHeight: '1', display: 'inline-block', filter: categoryStyle.filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}>{name}</div>
+					</div>);
 			}
-			elements = labels.concat(elements);
+			elements = categories.concat(elements);
 		}
 
 		return elements;
@@ -49,25 +54,39 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		let elements: JSX.Element[] = [];
 		for (const field of messageStore.getJsonFields()) {
 			const style = pickLabelStyle(field.name);
-			elements = elements.concat(makeLabel(field.name, style.background, style.color, style.filter, field.value));
+			const bg = style.background;
+			elements = elements.concat(makeLabel(field.name, `${bg} thin solid`, style.background, style.color, style.filter, field.value));
 		}
 
 		return elements;
 	}
 
-	function makeLabel(name: string, background: string, color: string, filter: string, value: any = undefined): JSX.Element[] {
-		const v = value === undefined ? '' : typeof value === 'string' ? `"${value}"` : value;
+	function makeLabel(name: string, border: string, background: string, color: string, filter: string, value: string | number | boolean): JSX.Element[] {
+		if (value === '') value = '""';
+
+		const smallChars = ['.', ':', '/', '!', ',', ';', "'"];
+		let smallCount = 0;
+		for (const char of value + '') {
+			if (smallChars.includes(char)) {
+				++smallCount;
+			}
+		}
+		if (smallCount == 1) smallCount = 0;
+
+		let width = ((value + '').length - smallCount) + 'ch';
 
 		const className = value !== undefined ? 'json-label keep-all' : '';
 
 		const elements: JSX.Element[] = [];
-		elements.push(
-			<span className={className}
-				style={{ color: color, background: background, filter: filter, marginLeft: '.25rem', padding: '0 .25rem', borderRadius: '.25rem', border: `${background} thin solid` }}>{name}</span>);
-		if (v !== undefined) {
-			const className = value === 'string' && v.length > 16 ? undefined : 'keep-all';
-			elements.push(<span className={className} style={{ marginLeft: '.25rem' }}>{v}</span >);
-		}
+		const element =
+			<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
+				<div style={{ display: 'inline-block' }}>
+					<div className={className}
+						style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: background, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}>{name}</div>
+				</div>
+				<div className={className} style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
+			</div >;
+		elements.push(element);
 		return elements;
 	}
 });

@@ -29,20 +29,35 @@ const colorStyles = [
     { background: '#bfef45', color: "black" },
 ];
 
-let index = 0;
+let labelIndex = 0;
+let categoryIndex = 0;
 const styleMap: { [key: string]: { background: string, color: string, lightColor: string, filter: string } } = {};
 
+export function pickCategoryStyle(name: string): { background: string, color: string, filter: string } {
+    return pickStyle(name, 'category');
+}
+
 export function pickLabelStyle(name: string): { background: string, color: string, filter: string } {
+    return pickStyle(name, 'label');
+}
+
+function pickStyle(name: string, type: 'category' | 'label'): { background: string, color: string, filter: string } {
     let style = styleMap[name];
     if (style === undefined) {
         //console.log(index, name)
         style = { background: '', color: '', lightColor: '', filter: '' };
+        let index = type === 'category' ? categoryIndex : labelIndex;
         const s = colorStyles[index];
         style.background = s.background;
         style.lightColor = s.color;
         styleMap[name] = style;
         ++index;
         if (index === colorStyles.length) index = 0;
+        if (type === 'category') {
+            categoryIndex = index;
+        } else {
+            labelIndex = index;
+        }
     }
     if (themeStore.getTheme() === 'dark') {
         style.color = style.lightColor;
