@@ -417,12 +417,14 @@ export default class FilterStore {
                 console.log(jsonValue, value);
                 return jsonValue === value;
             } else {
-                const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
-                return eval(evalString);
+                // const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
+                // return eval(evalString);
             }
         } else if (typeof jsonValue === 'boolean') {
-            return jsonValue && value === 'true' ||
-                !jsonValue && value === 'false';
+            if (operator === '==' || operator === '===') {
+                return jsonValue && value === 'true' ||
+                    !jsonValue && value === 'false';
+            }
         }
         return false;
     }

@@ -162,8 +162,22 @@ export default class JSONLogStore {
 
 	private fields: JSONLogField[] = [];
 
+	private hiddenFields: string[] = [];
+
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public isFieldHidden(field: string): boolean {
+		return this.hiddenFields.includes(field);
+	}
+	public toggleHiddenField(field: string) {
+		const i = this.hiddenFields.indexOf(field);
+		if (i === -1) {
+			this.hiddenFields.push(field);
+		} else {
+			this.hiddenFields.splice(i, 1);
+		}
 	}
 
 	@action public resetScriptToDefault() {
