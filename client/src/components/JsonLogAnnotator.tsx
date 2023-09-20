@@ -1,15 +1,15 @@
 import { observer } from 'mobx-react-lite';
 import { pickCategoryStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
+import { jsonLogStore } from '../store/JSONLogStore';
 
 type Props = {
 	message: MessageStore,
 	maxLogCategorySize: number,
 };
 const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
-
 	return (
-		<div className="request__json-annotationsx">
+		<div className="request__json-annotations">
 			{makeJSONRequestLabels(message).map((element) => {
 				return element;
 			})}
@@ -82,17 +82,35 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 
 		const className = value !== undefined ? 'json-label keep-all' : '';
 
+		const showValue = !jsonLogStore.isFieldHidden(name);
+		const bg = background;
+		const opacity = showValue ? 1 : .3;
+
 		const elements: JSX.Element[] = [];
 		const element =
 			<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 				<div style={{ display: 'inline-block' }}>
 					<div className={className}
-						style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: background, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}>{name}</div>
+						style={{ opacity: opacity, lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}
+						title={showValue ? 'Click to hide value' : 'Click to show value'}
+						onClick={(e) => toggleHiddenField(e, name)}
+					>
+						{name + ' '}
+						<div className={`fa ${showValue ? 'fa-caret-right' : 'fa-caret-left'}`}
+						/>
+					</div>
 				</div>
-				<div className={className} style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
+				{showValue &&
+					<div className={className} style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
+				}
 			</div >;
 		elements.push(element);
 		return elements;
+	}
+
+	function toggleHiddenField(event: any, field: string) {
+		event.stopPropagation();
+		jsonLogStore.toggleHiddenField(field);
 	}
 });
 

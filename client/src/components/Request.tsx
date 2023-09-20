@@ -107,7 +107,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 					</div>
 
 					<div className={`request__msg
-					    ${message.protocol === 'log:' ? ' wrap' : ''}
+						${message.protocol !== 'log:' ? ' nowrap' : ''}
 						${isActive ? ' active' : ''}
 						${highlight ? ' highlight' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}

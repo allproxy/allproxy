@@ -693,8 +693,7 @@ td input {
 }
 
 .request__json-annotations {
-	font-family: 'Courier New', Courier, monospace;
-	font-weight: bold;
+	white-space: wrap;
 }
 
 .request__container.unselected {
@@ -747,13 +746,11 @@ td input {
 
 .request__msg {
 	cursor: pointer;
-	white-space: nowrap;
 	display: flex;
 }
 
-.request__msg.wrap {
-	white-space: wrap;
-	word-break: break-all;
+.request__msg.nowrap {
+	white-space: nowrap;
 }
 
 /* .request__msg.active {
