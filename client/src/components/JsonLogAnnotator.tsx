@@ -87,7 +87,7 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 		const opacity = showValue ? 1 : .3;
 		const displayName = showValue
 			? name
-			: name.length > 6 ? name.substring(0, 3) + "..." : name;
+			: name.length > 3 ? name.substring(0, 3) + "..." : name;
 
 		const elements: JSX.Element[] = [];
 		const element =
