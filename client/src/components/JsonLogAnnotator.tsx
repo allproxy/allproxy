@@ -85,6 +85,9 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 		const showValue = !jsonLogStore.isFieldHidden(name);
 		const bg = background;
 		const opacity = showValue ? 1 : .3;
+		const displayName = showValue
+			? name
+			: name.length > 3 ? name.substring(0, 3) + "..." : name;
 
 		const elements: JSX.Element[] = [];
 		const element =
@@ -95,9 +98,7 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 						title={showValue ? 'Click to hide value' : 'Click to show value'}
 						onClick={(e) => toggleHiddenField(e, name)}
 					>
-						{name + ' '}
-						<div className={`fa ${showValue ? 'fa-caret-right' : 'fa-caret-left'}`}
-						/>
+						{displayName}
 					</div>
 				</div>
 				{showValue &&
