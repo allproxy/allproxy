@@ -25,9 +25,9 @@ body {
 	.form-control,
 	textarea,
 	select {
-		color: rgba(232, 230, 227);
-		background-color: #444444;
-		border-color: #444444;
+		color: rgba(232, 230, 227) !important;
+		background-color: #444444 !important;
+		border-color: #444444 !important;
 	}
 
 	.MuiTab-textColorPrimary.Mui-selected,
