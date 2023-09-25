@@ -23,6 +23,7 @@ import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
+import { logViewerStore } from '../store/LogViewerStore';
 
 let filterWasStopped = false;
 
@@ -72,7 +73,10 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						width="24" height="24" />
 				</div>
 				<div className="header__title" onClick={() => window.location.reload()}>
-					<b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
+					{logViewerStore.isLogViewer()
+						? <b><span style={{ color: '#f50057' }}>Log</span>Viewer</b>
+						: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
+					}
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
@@ -139,45 +143,49 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					open={Boolean(moreMenuIcon)}
 					onClose={() => setMoreMenuIcon(null)}
 				>
-					<MenuItem
-						style={{
-							opacity: snapshotStore.getSnapshotCount() > 1 ? undefined : 0.3,
-							pointerEvents: snapshotStore.getSnapshotCount() > 1 ? undefined : 'none'
-						}}>
-						<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
-							onClick={() => {
-								snapshotStore.deleteAllSnapshots();
-								setMoreMenuIcon(null);
-							}}
-						>
-							&nbsp;Delete Snapshots
-						</div>
-					</MenuItem>
-					<MenuItem style={{
-						opacity: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
-							? undefined : 0.3,
-						pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
-							? undefined : 'none'
-					}}>
-						<div className="header__export fa fa-download" title="Export snapshot file"
-							onClick={() => {
-								setOpenExportDialog(true);
-								setMoreMenuIcon(null);
-							}}
-						>
-							&nbsp;Export Snapshot
-						</div>
-					</MenuItem>
-					<MenuItem>
-						<div className="header__import fa fa-upload" title="Import snapshot file"
-							onClick={() => {
-								openSnapshotFileSelector();
-								setMoreMenuIcon(null);
-							}}
-						>
-							&nbsp;Import Snapshot
-						</div>
-					</MenuItem>
+					{!logViewerStore.isLogViewer() &&
+						<>
+							<MenuItem
+								style={{
+									opacity: snapshotStore.getSnapshotCount() > 1 ? undefined : 0.3,
+									pointerEvents: snapshotStore.getSnapshotCount() > 1 ? undefined : 'none'
+								}}>
+								<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
+									onClick={() => {
+										snapshotStore.deleteAllSnapshots();
+										setMoreMenuIcon(null);
+									}}
+								>
+									&nbsp;Delete Snapshots
+								</div>
+							</MenuItem>
+							<MenuItem style={{
+								opacity: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+									? undefined : 0.3,
+								pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+									? undefined : 'none'
+							}}>
+								<div className="header__export fa fa-download" title="Export snapshot file"
+									onClick={() => {
+										setOpenExportDialog(true);
+										setMoreMenuIcon(null);
+									}}
+								>
+									&nbsp;Export Snapshot
+								</div>
+							</MenuItem>
+							<MenuItem>
+								<div className="header__import fa fa-upload" title="Import snapshot file"
+									onClick={() => {
+										openSnapshotFileSelector();
+										setMoreMenuIcon(null);
+									}}
+								>
+									&nbsp;Import Snapshot
+								</div>
+							</MenuItem>
+						</>
+					}
 					<MenuItem>
 						<div className="header__import fa fa-file" title="Import JSON file"
 							onClick={() => {
@@ -246,41 +254,45 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					open={Boolean(settingsMenuIcon)}
 					onClose={() => setSettingsMenuIcon(null)}
 				>
-					<MenuItem>
-						<div className="fa fa-network-wired"
-							onClick={() => {
-								setSettingsMenuIcon(null);
-								settingsStore.toggleOpenSettingsModal();
-								settingsStore.reset();
-								if (!messageQueueStore.getStopped()) {
-									messageQueueStore.setStopped(true);
-									filterWasStopped = true;
-								}
-							}}
-						>
-							&nbsp;Proxy Configuration
-						</div>
-					</MenuItem>
-					<MenuItem>
-						<div className="fa fa-bug" title="Breakpoints"
-							onClick={() => {
-								setSettingsMenuIcon(null);
-								setShowBreakpointModal(true);
-								breakpointStore.init();
-							}}>
-							&nbsp;Breakpoints
-						</div>
-					</MenuItem>
-					<MenuItem>
-						<div className="fa fa-ban" title="No Capture List"
-							onClick={() => {
-								setSettingsMenuIcon(null);
-								setShowNoCaptureModal(true);
-								noCaptureStore.init();
-							}}>
-							&nbsp;No Capture List
-						</div>
-					</MenuItem>
+					{!logViewerStore.isLogViewer() &&
+						<>
+							<MenuItem>
+								<div className="fa fa-network-wired"
+									onClick={() => {
+										setSettingsMenuIcon(null);
+										settingsStore.toggleOpenSettingsModal();
+										settingsStore.reset();
+										if (!messageQueueStore.getStopped()) {
+											messageQueueStore.setStopped(true);
+											filterWasStopped = true;
+										}
+									}}
+								>
+									&nbsp;Proxy Configuration
+								</div>
+							</MenuItem>
+							<MenuItem>
+								<div className="fa fa-bug" title="Breakpoints"
+									onClick={() => {
+										setSettingsMenuIcon(null);
+										setShowBreakpointModal(true);
+										breakpointStore.init();
+									}}>
+									&nbsp;Breakpoints
+								</div>
+							</MenuItem>
+							<MenuItem>
+								<div className="fa fa-ban" title="No Capture List"
+									onClick={() => {
+										setSettingsMenuIcon(null);
+										setShowNoCaptureModal(true);
+										noCaptureStore.init();
+									}}>
+									&nbsp;No Capture List
+								</div>
+							</MenuItem>
+						</>
+					}
 					{window.darkMode &&
 						<MenuItem>
 							<div className="header__import fa fa-image" title="Theme"

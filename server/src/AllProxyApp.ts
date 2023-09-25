@@ -25,6 +25,12 @@ const AllProxyApp = (
           'content-type': 'text/html'
         });
         clientRes.end(fs.readFileSync(clientBuildDir + Paths.sep() + 'index.html'));
+      } else if (reqUrl.pathname === '/' + 'logviewer') {
+        clientRes.writeHead(200, {
+          'content-type': 'text/html'
+        });
+        clientRes.end(fs.readFileSync(clientBuildDir + Paths.sep() + 'index.html'));
+        Global.renderLogView = true;
       } else {
         const dir = clientBuildDir + reqUrl.pathname?.replace(/\//g, Paths.sep());
         // File exists locally?

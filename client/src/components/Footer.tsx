@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import BreakpointStore from '../store/BreakpointStore';
 import ExcludeTags from './ExcludeTags';
 import { messageQueueStore } from '../store/MessageQueueStore';
+import { logViewerStore } from '../store/LogViewerStore';
 
 /**
  * Footer view
@@ -19,11 +20,13 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 					<div>Messages: {messageQueueStore.getUnfilteredCount()} of {messageQueueStore.getTotalLength()}</div>
 				</div>
 			</div>
-			<div>
-				<div className="footer__item" title="Number of active breakpoints">
-					<div>Breakpoints: {breakpointStore.getBreakpointCount()}</div>
+			{!logViewerStore.isLogViewer() &&
+				<div>
+					<div className="footer__item" title="Number of active breakpoints">
+						<div>Breakpoints: {breakpointStore.getBreakpointCount()}</div>
+					</div>
 				</div>
-			</div>
+			}
 			<div className="footer__item footer__exclude-filter">
 				<div className="footer__exclude-label">Exclude:</div>
 				<div>

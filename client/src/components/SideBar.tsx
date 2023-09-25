@@ -11,6 +11,7 @@ import MessageStore from "../store/MessageStore";
 import { snapshotStore } from "../store/SnapshotStore";
 import { useFilePicker } from "use-file-picker";
 import ImportJSONFileDialog from "./ImportJSONFileDialog";
+import { logViewerStore } from "../store/LogViewerStore";
 
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
@@ -188,7 +189,11 @@ const SideBar = observer(() => {
 				<button className="btn btn-primary"
 					style={{ width: '142.29' }}
 					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-						setAnchorEl(event.currentTarget);
+						{
+							logViewerStore.isLogViewer()
+								? setOpenImportJSONFileDialog(true)
+								: setAnchorEl(event.currentTarget);
+						}
 					}}>
 					<div style={{ width: '11.5ch' }}>Import</div>
 				</button>
@@ -238,28 +243,31 @@ const SideBar = observer(() => {
 							onChange={() => messageQueueStore.toggleFullPageSearch()} />
 						Full Page Search
 					</div>
-					<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							checked={messageQueueStore.getShowAPI()}
-							value={messageQueueStore.getShowAPI()}
-							onChange={() => messageQueueStore.toggleShowAPI()} />
-						Show API
-					</div>
-					<div hidden style={{ display: 'flex' }}>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							value={messageQueueStore.getShowTooltip()}
-							onChange={() => messageQueueStore.toggleShowTooltip()} />
-						Show Tooltip
-					</div>
-					<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							value={messageQueueStore.getShowUserAgent()}
-							onChange={() => messageQueueStore.toggleShowRequestUA()} />
-						Show User Agent
-					</div>
+					{!logViewerStore.isLogViewer() &&
+						<>
+							<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
+								<Checkbox className="side-bar-checkbox"
+									size="small"
+									checked={messageQueueStore.getShowAPI()}
+									value={messageQueueStore.getShowAPI()}
+									onChange={() => messageQueueStore.toggleShowAPI()} />
+								Show API
+							</div>
+							<div hidden style={{ display: 'flex' }}>
+								<Checkbox className="side-bar-checkbox"
+									size="small"
+									value={messageQueueStore.getShowTooltip()}
+									onChange={() => messageQueueStore.toggleShowTooltip()} />
+								Show Tooltip
+							</div><div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
+								<Checkbox className="side-bar-checkbox"
+									size="small"
+									value={messageQueueStore.getShowUserAgent()}
+									onChange={() => messageQueueStore.toggleShowRequestUA()} />
+								Show User Agent
+							</div>
+						</>
+					}
 				</div>
 			</div>
 
