@@ -6,6 +6,8 @@ import { TabContext, TabPanel } from '@material-ui/lab';
 import SnapshotTabContent from './SnapshotTabContent';
 import SnapshotStore, { ACTIVE_SNAPSHOT_NAME } from '../store/SnapshotStore';
 import CreateSnapshotNameDialog from './CreateSnapshotDialog';
+import { logViewerStore } from '../store/LogViewerStore';
+import LayoutStore from '../store/LayoutStore';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -32,75 +34,93 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 			snapshotStore.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
 		snapshotStore.deleteSnapshot(value);
+		if (logViewerStore.isLogViewer()) {
+			const names = snapshotStore.getSnapshotNames();
+			if (names.length > 1) {
+				snapshotStore.setSelectedSnapshotName(names[1]);
+			}
+		}
 	}
 
 	function title(value: string, i: number) {
 		return (i === 0
-			? messageQueueStore.getStopped() ? 'Stopped' : 'Recording'
+			? 'Proxy'
 			: snapshotStore.getSnapshotName(value)) + ' (' + snapshotStore.getSnapshotSize(value) + ')';
 	}
 
+	const dim = new LayoutStore().requestContainer(true);
 	return (
 		<div className="snapshot__container">
-			<TabContext value={snapshotStore.getSelectedSnapshotName()}>
-				<Tabs
-					value={snapshotStore.getSelectedSnapshotName()}
-					onChange={handleTabChange}
-					indicatorColor="primary"
-					textColor="primary"
-					aria-label="Snapshots">
-					{snapshotStore.getSnapshotNames().map((value, i) => (
-						<Tab
-							key={value}
-							value={value}
-							label={
-								<div className={'snapshot__tab'} title={title(value, i)}>
-									<div className="snapshot__tab-name">
-										{title(value, i)}
+			{snapshotStore.getSnapshotNames().length === 1 && logViewerStore.isLogViewer()
+				?
+				<div style={{ height: dim.height, width: dim.width }}>
+					<div className="center">
+						Click the <b>Import</b> or <b>Restore Session</b> button
+					</div>
+				</div>
+				:
+				<TabContext value={snapshotStore.getSelectedSnapshotName()}>
+					<Tabs
+						value={snapshotStore.getSelectedSnapshotName()}
+						onChange={handleTabChange}
+						indicatorColor="primary"
+						textColor="primary"
+						aria-label="Snapshots">
+						{snapshotStore.getSnapshotNames().map((value, i) => (
+							(i > 0 || !logViewerStore.isLogViewer()) &&
+							<Tab
+								key={value}
+								value={value}
+								label={
+									<div className={'snapshot__tab'} title={title(value, i)}>
+										<div className="snapshot__tab-name">
+											{title(value, i)}
+										</div>
+										{value === ACTIVE_SNAPSHOT_NAME
+											? <div className={'snapshot__folder-plus fa fa-camera'}
+												style={{
+													marginLeft: '.5rem',
+													pointerEvents: snapshotStore.getSnapshotSize(value) === 0 ? 'none' : undefined,
+													opacity: snapshotStore.getSnapshotSize(value) === 0 ? .2 : undefined,
+												}}
+												title="Take snapshot"
+												onClick={() => handleTakeSnapshot(value)}
+											/>
+											: <div className={'snapshot__close fa fa-times'}
+												style={{ marginLeft: '.5rem' }}
+												title="Delete snapshot"
+												onClick={(e) => handleDeleteTab(e, value)}
+											/>
+										}
 									</div>
-									{value === ACTIVE_SNAPSHOT_NAME
-										? <div className={'snapshot__folder-plus fa fa-camera'}
-											style={{
-												marginLeft: '.5rem',
-												pointerEvents: snapshotStore.getSnapshotSize(value) === 0 ? 'none' : undefined,
-												opacity: snapshotStore.getSnapshotSize(value) === 0 ? .2 : undefined,
-											}}
-											title="Take snapshot"
-											onClick={() => handleTakeSnapshot(value)}
-										/>
-										: <div className={'snapshot__close fa fa-times'}
-											style={{ marginLeft: '.5rem' }}
-											title="Delete snapshot"
-											onClick={(e) => handleDeleteTab(e, value)}
-										/>
-									}
-								</div>
-							}>
-						</Tab>
+								}>
+							</Tab>
+						))}
+					</Tabs>
+					{snapshotStore.getSnapshotNames().map((value, i) => (
+						(i > 0 || !logViewerStore.isLogViewer()) &&
+						<TabPanel
+							key={value}
+							value={value}>
+							<SnapshotTabContent
+								messageQueueStore={messageQueueStore}
+								selectedReqSeqNum={snapshotStore.getSelectedReqSeqNumbers()[i]}
+								setSelectedReqSeqNum={
+									(num) => snapshotStore.getSelectedReqSeqNumbers()[i] = num
+								}
+								scrollTop={snapshotStore.getScrollTop()[i]}
+								setScrollTop={
+									(scrollTop) => snapshotStore.getScrollTop()[i] = scrollTop
+								}
+								highlightSeqNum={snapshotStore.getHightlightSeqNum()[i]}
+								setHighlightSeqNum={
+									(seqNum) => snapshotStore.getHightlightSeqNum()[i] = seqNum
+								}
+							/>
+						</TabPanel>
 					))}
-				</Tabs>
-				{snapshotStore.getSnapshotNames().map((value, i) => (
-					<TabPanel
-						key={value}
-						value={value}>
-						<SnapshotTabContent
-							messageQueueStore={messageQueueStore}
-							selectedReqSeqNum={snapshotStore.getSelectedReqSeqNumbers()[i]}
-							setSelectedReqSeqNum={
-								(num) => snapshotStore.getSelectedReqSeqNumbers()[i] = num
-							}
-							scrollTop={snapshotStore.getScrollTop()[i]}
-							setScrollTop={
-								(scrollTop) => snapshotStore.getScrollTop()[i] = scrollTop
-							}
-							highlightSeqNum={snapshotStore.getHightlightSeqNum()[i]}
-							setHighlightSeqNum={
-								(seqNum) => snapshotStore.getHightlightSeqNum()[i] = seqNum
-							}
-						/>
-					</TabPanel>
-				))}
-			</TabContext>
+				</TabContext>
+			}
 			<CreateSnapshotNameDialog
 				open={openCreateSnapshotDialog}
 				onClose={(snapshotName) => {

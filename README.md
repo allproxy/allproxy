@@ -8,13 +8,13 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 
 ### Install
 
-> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.30.0/allproxy-3.30.1-x64.dmg)**
+> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.31.0/allproxy-3.31.0-x64.dmg)**
 
-> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.30.0/allproxy-3.30.1-1.x86_64.rpm)**
+> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.31.0/allproxy-3.31.0-1.x86_64.rpm)**
 
-> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.30.0/allproxy_3.30.1_amd64.deb)**
+> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.31.0/allproxy_3.31.0_amd64.deb)**
 
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.30.0/allproxy-3.30.1.Setup.exe)**
+> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.31.0/allproxy-3.31.0.Setup.exe)**
 
 > Other install options:
 > 1. Install NPM package: **npm install -g allproxy**

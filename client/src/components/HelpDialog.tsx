@@ -12,6 +12,7 @@ import { TabContext, TabPanel } from '@material-ui/lab';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
 import { snapshotStore } from '../store/SnapshotStore';
+import { logViewerStore } from '../store/LogViewerStore';
 
 type Props = {
 	open: boolean,
@@ -21,7 +22,7 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState('1');
+	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '1');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
@@ -95,10 +96,10 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						indicatorColor="primary"
 						aria-label="help-tabs"
 					>
-						<Tab value="1" label="Quick Start" />
-						<Tab value="2" label="Certificates" />
-						<Tab value="3" label="Filtering" />
-						<Tab value="4" label="JSON Logs" />
+						{!logViewerStore.isLogViewer() && <Tab value="1" label="Quick Start" />}
+						{!logViewerStore.isLogViewer() && <Tab value="2" label="Certificates" />}
+						{!logViewerStore.isLogViewer() && <Tab value="3" label="Filtering" />}
+						<Tab value="4" label="Log Viewer" />
 					</Tabs>
 					<TabPanel value="1" key="1">
 						<h4>Quick Start</h4>
@@ -255,7 +256,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						</div>
 					</TabPanel>
 					<TabPanel value="4" key="4">
-						<h4>JSON Logs</h4>
+						<h4>Log Viewer</h4>
 						JSON logs can be imported and annotated for easier reading.
 						<p></p>
 						<h5>Annotating JSON Fields</h5>
