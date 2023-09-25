@@ -15,7 +15,7 @@ import { snapshotStore } from '../store/SnapshotStore';
 import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
 
-let entryHeight = 26;
+let minEntryHeight = 26;
 const defaultRenderCount = 100;
 
 type Props = {
@@ -318,19 +318,18 @@ const SnapshotTabContent = observer(({
 				const parent = (requestContainerRef.current as Element);
 				if (parent && parent.childNodes.length > 0) {
 					const children = parent.childNodes;
+					let elementIndex = 0;
+					let entryHeight = 0;
 					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 						const msg = messageQueueStore.getMessages()[i].getMessage();
+						if (filterStore.isFiltered(messageQueueStore.getMessages()[i])) continue;
+						const element = (children[elementIndex] as Element);
 						if (msg.sequenceNumber === seqNum) {
+							entryHeight = element.clientHeight;
 							break;
 						}
-						if (filterStore.isFiltered(messageQueueStore.getMessages()[i])) continue;
-						const element = (children[i] as Element);
-						if (element) {
-							offset += element.clientHeight;
-							entryHeight = element.clientHeight;
-						} else {
-							offset += entryHeight;
-						}
+						offset += element.clientHeight;
+						++elementIndex;
 					}
 					// if (offset > 0) {
 					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
@@ -359,10 +358,10 @@ const SnapshotTabContent = observer(({
 						const children = parent.childNodes;
 						const element = (children[0] as Element);
 						if (element) {
-							entryHeight = element.clientHeight;
+							minEntryHeight = element.clientHeight;
 						}
 					}
-					renderCount = scrollBottom / entryHeight;
+					renderCount = scrollBottom / minEntryHeight;
 				}
 				renderCount = Math.floor(renderCount);
 				//console.log('calcRenderCount', entryHeight, renderCount);
