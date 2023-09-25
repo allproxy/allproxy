@@ -694,6 +694,7 @@ td input {
 
 .request__json-annotations {
 	white-space: wrap;
+	margin: .5rem 0;
 }
 
 .request__container.unselected {
