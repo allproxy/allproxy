@@ -69,18 +69,18 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 	function makeLabel(name: string, border: string, background: string, color: string, filter: string, value: string | number | boolean): JSX.Element[] {
 		if (value === '') value = '""';
 
-		const smallChars = ['.', ':', '/', '!', ',', ';', "'"];
-		let smallCount = 0;
-		for (const char of value + '') {
-			if (smallChars.includes(char)) {
-				++smallCount;
+		let width: string | undefined;
+		if ((value + '').length < 100) {
+			const smallChars = ['.', ':', '/', '!', ',', ';', "'"];
+			let smallCount = 0;
+			for (const char of value + '') {
+				if (smallChars.includes(char)) {
+					++smallCount;
+				}
 			}
+			if (smallCount == 1) smallCount = 0;
+			width = ((value + '').length - smallCount) + 'ch';
 		}
-		if (smallCount == 1) smallCount = 0;
-
-		let width = ((value + '').length - smallCount) + 'ch';
-
-		const className = value !== undefined ? 'json-label keep-all' : '';
 
 		const showValue = !jsonLogStore.isFieldHidden(name);
 		const bg = background;
@@ -93,26 +93,26 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 		const element =
 			<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 				<div style={{ display: 'inline-block' }}>
-					<div className={className}
+					<div className="json-label"
 						style={{ opacity: opacity, lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}
-						title={showValue ? 'Click to hide value' : 'Click to show value'}
-						onClick={(e) => toggleHiddenField(e, name)}
+					//title={showValue ? 'Click to hide value' : 'Click to show value'}
+					//onClick={(e) => toggleHiddenField(e, name)}
 					>
 						{displayName}
 					</div>
 				</div>
 				{showValue &&
-					<div className={className} style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
+					<div className="json-value" style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
 				}
 			</div >;
 		elements.push(element);
 		return elements;
 	}
 
-	function toggleHiddenField(event: any, field: string) {
-		event.stopPropagation();
-		jsonLogStore.toggleHiddenField(field);
-	}
+	// function toggleHiddenField(event: any, field: string) {
+	// 	event.stopPropagation();
+	// 	jsonLogStore.toggleHiddenField(field);
+	// }
 });
 
 export default JsonLogAnnotator;
