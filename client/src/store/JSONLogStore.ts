@@ -269,7 +269,11 @@ export default class JSONLogStore {
 export async function updateJSONRequestLabels() {
 	const selectedFields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName());
 	snapshotStore.setJsonFields(snapshotStore.getSelectedSnapshotName(), selectedFields);
-	for (const message of messageQueueStore.getMessages()) message.updateJsonLog();
+	const messages = messageQueueStore.getMessages();
+	const copy = messages.slice();
+	messages.splice(0, messages.length);
+	for (const message of copy) message.updateJsonLog();
+	messages.push(...copy);
 }
 
 export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): JsonField[] {
