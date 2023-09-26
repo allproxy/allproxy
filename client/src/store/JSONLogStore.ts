@@ -77,7 +77,7 @@ const defaultScript =
 	const jsonLogScript = function (preJSONString, jsonObject) {
 		let date = new Date();
 		let level = 'info';
-		let category = 'Test category';
+		let category = 'My-category';
 		let message = 'This is a test message';
 		let additionalJSON = {};
 		return { date, level, category, message, additionalJSON };
