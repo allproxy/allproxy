@@ -318,12 +318,13 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							<div>//</div>
 							<div>// <b>category</b> is the pod name, process ID... </div>
 							<div>//</div>
-							<div>function(preJSONString, jsonObject) {'{'}</div>
+							<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
 							<div>  let date = new Date(jsonObject.date);</div>
-							<div>  let level = new Date(jsonObject.level);</div>
-							<div>  let category = new Date(jsonObject.pod_name);</div>
-							<div>  let message = new Date(jsonObject.message);</div>
-							<div>  return {'{date, level, category, message}'};</div>
+							<div>  let level = jsonObject.level;</div>
+							<div>  let category = jsonObject.pod_name;</div>
+							<div>  let message = jsonObject.message;</div>
+							<div>  let additionalJSON = {'{}'};</div>
+							<div>  return {'{date, level, category, message, additionalJSON}'};</div>
 							<div>{'}'}</div>
 						</pre>
 						<h5>Import JSON Log</h5>

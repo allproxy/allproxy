@@ -218,7 +218,6 @@ export default class SnapshotStore {
 
 	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
 		const padTime = (num: number) => (num + '').padStart(2, '0');
-		const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
 		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds()) + ' ' + this.count++;
@@ -227,9 +226,13 @@ export default class SnapshotStore {
 			layoutStore.setVertical(snapshot.length === 0 || snapshot[0].getMessage().protocol !== 'log:');
 			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0, [], layoutStore);
 		} else {
+			// Take snapshot of proxy tab
+			const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
+			const copy = activeSnapshot.slice();
+			activeSnapshot.splice(0, activeSnapshot.length);
 			this.snapshots.set(
 				name,
-				activeSnapshot.slice(),
+				copy,
 				fileName,
 				this.getSelectedReqSeqNumbers()[0],
 				this.getScrollTop()[0],
@@ -237,7 +240,6 @@ export default class SnapshotStore {
 				this.getLayout(ACTIVE_SNAPSHOT_NAME),
 				this.getHightlightSeqNum()[0],
 			);
-			activeSnapshot.splice(0, activeSnapshot.length);
 		}
 		this.setSelectedSnapshotName(name);
 		return name;
