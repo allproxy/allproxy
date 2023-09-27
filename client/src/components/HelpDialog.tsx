@@ -224,10 +224,10 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 												<b>field:<code>&le;</code>value</b> JSON field float or int less than or equal to value.
 											</div>
 											<div>
-												<b>field:<code>==</code>value</b> Prefix match on JSON field.
+												<b>field:<code>==</code>value</b> Prefix match on JSON field.  The value <code>*</code> matches all fields.
 											</div>
 											<div>
-												<b>field:<code>===</code>value</b> Exact match on JSON field.
+												<b>field:<code>===</code>value</b> Exact match on JSON field.  The value <code>*</code> matches all fields.
 											</div>
 										</div>
 									</dd>

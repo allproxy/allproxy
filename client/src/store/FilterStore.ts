@@ -400,6 +400,10 @@ export default class FilterStore {
             this.sortByKeys.push(key);
         }
 
+        if (value === '*' && (operator === '==' || operator === '===')) {
+            return true;
+        }
+
         if (typeof jsonValue === 'number') {
             const float = parseFloat(value);
             if (!isNaN(float)) {
