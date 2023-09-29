@@ -74,7 +74,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 						>
 						</div>
 					}
-					<div hidden={!isActive} style={{ display: 'flex' }}>
+					<div hidden={!isActive} style={{ display: 'flex', height: '26px' }}>
 						<IconButton size="small">
 							<div className="header__export fa fa-copy" title="Copy to clipboard"
 								style={{ marginRight: '0rem' }}
