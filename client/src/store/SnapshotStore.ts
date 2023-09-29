@@ -289,18 +289,19 @@ export default class SnapshotStore {
 	}
 
 	public copyMessage(message: Message): string {
-		let json = message.responseBody as { [key: string]: any };
-		const prefix = json['PREFIX'];
-		if (prefix) {
-			delete json['PREFIX'];
+		let json = { ...message.responseBody as { [key: string]: any } };
+		for (const key in json) {
+			if (key === 'PREFIX' || key.startsWith('_')) {
+				delete json[key];
+			}
 		}
 		// message.path is any non-json data before JSON object.  It is called the PREFIX.
-		const line = message.path + JSON.stringify(message.responseBody);
-		const data = line + '\n';
-		if (prefix) {
-			json['PREFIX'] = prefix;
-		}
-		return data;
+		let line = message.path + JSON.stringify(json);
+		line = line.replace(/\\n/g, '');
+		line = line.replace(/\\r/g, '');
+		line = line.replace(/\\"/g, '');
+		console.log(line);
+		return line;
 	}
 
 	public exportSelectedSnapshot(fileName: string) {
