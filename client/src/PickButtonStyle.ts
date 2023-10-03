@@ -30,31 +30,31 @@ const colorStyles = [
 ];
 
 let labelIndex = 0;
-let categoryIndex = 0;
+let appNameIndex = 0;
 const styleMap: { [key: string]: { background: string, color: string, lightColor: string, filter: string } } = {};
 
-export function pickCategoryStyle(name: string): { background: string, color: string, filter: string } {
-    return pickStyle(name, 'category');
+export function pickAppNameStyle(name: string): { background: string, color: string, filter: string } {
+    return pickStyle(name, 'app');
 }
 
 export function pickLabelStyle(name: string): { background: string, color: string, filter: string } {
     return pickStyle(name, 'label');
 }
 
-function pickStyle(name: string, type: 'category' | 'label'): { background: string, color: string, filter: string } {
+function pickStyle(name: string, type: 'app' | 'label'): { background: string, color: string, filter: string } {
     let style = styleMap[name];
     if (style === undefined) {
         //console.log(index, name)
         style = { background: '', color: '', lightColor: '', filter: '' };
-        let index = type === 'category' ? categoryIndex : labelIndex;
+        let index = type === 'app' ? appNameIndex : labelIndex;
         const s = colorStyles[index];
         style.background = s.background;
         style.lightColor = s.color;
         styleMap[name] = style;
         ++index;
         if (index === colorStyles.length) index = 0;
-        if (type === 'category') {
-            categoryIndex = index;
+        if (type === 'app') {
+            appNameIndex = index;
         } else {
             labelIndex = index;
         }

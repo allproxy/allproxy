@@ -42,8 +42,8 @@ const logFields = [
 		displayName: 'Level'
 	},
 	{
-		name: 'category',
-		displayName: 'Category'
+		name: 'appName',
+		displayName: 'App Name'
 	},
 	{
 		name: 'message',

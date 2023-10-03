@@ -459,6 +459,9 @@ export default class FilterStore {
             } else {
                 operator = '==';
             }
+            if (key === 'app' && (operator === '==' || operator === '===')) {
+                if (messageStore.getLogEntry().appName.startsWith(value)) return false;
+            }
             if (typeof message.requestBody !== 'string') {
                 if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
             }

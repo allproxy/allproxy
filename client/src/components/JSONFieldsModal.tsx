@@ -19,7 +19,7 @@ type Props = {
 const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values';
 const TAB_NAMES: { [key: string]: string } = {};
 TAB_NAMES[JSON_FIELDS_DIR] = 'Annotate JSON Fields';
-TAB_NAMES[SCRIPTS_DIR] = 'Extract Date, Level, Category and Message';
+TAB_NAMES[SCRIPTS_DIR] = 'Extract Date, Level, App Name and Message';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = SHOW_JSON_FIELD_VALUES;
 
 const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) => {
@@ -99,7 +99,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) =
 									{tabValue === SCRIPTS_DIR ?
 										<>
 											<div style={{ fontSize: 'small' }}>
-												Define Javascript function to return date, level, category, message and additional JSON data.
+												Define Javascript function to return date, level, app name, message and additional JSON data.
 											</div>
 											{error !== '' &&
 												<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
