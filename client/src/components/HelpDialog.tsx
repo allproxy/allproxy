@@ -278,8 +278,8 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 								Annotate JSON Fields
 							</button>
 						</div>
-						<h5>Extract Date, Level, Category and Message</h5>
-						A custom script can be defined to extract the date, level, category and message from the JSON log data.
+						<h5>Extract Date, Level, App Name and Message</h5>
+						A custom script can be defined to extract the date, level, app name and message from the JSON log data.
 						<p></p>
 						<div style={{ marginRight: '1rem' }}>
 							<button className="btn btn-lg btn-success"
@@ -310,21 +310,21 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						<p></p>
 						<h5>Example extract function:</h5>
 						<pre>
-							<div>// Function called to extract <b>date</b>, <b>level</b>, <b>category</b> and <b>message</b></div>
+							<div>// Function called to extract <b>date</b>, <b>level</b>, <b>app name</b> and <b>message</b></div>
 							<div>//</div>
 							<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
 							<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
-							<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>category</b>: string, <b>message</b>: string{'}'}</div>
+							<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string{'}'}</div>
 							<div>//</div>
-							<div>// <b>category</b> is the pod name, process ID... </div>
+							<div>// <b>appName</b> is the pod name, process ID... </div>
 							<div>//</div>
 							<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
 							<div>  let date = new Date(jsonObject.date);</div>
 							<div>  let level = jsonObject.level;</div>
-							<div>  let category = jsonObject.pod_name;</div>
+							<div>  let appName = jsonObject.pod_name;</div>
 							<div>  let message = jsonObject.message;</div>
 							<div>  let additionalJSON = {'{}'};</div>
-							<div>  return {'{date, level, category, message, additionalJSON}'};</div>
+							<div>  return {'{date, level, appName, message, additionalJSON}'};</div>
 							<div>{'}'}</div>
 						</pre>
 						<h5>Import JSON Log</h5>

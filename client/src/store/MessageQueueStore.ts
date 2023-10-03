@@ -265,8 +265,8 @@ export default class MessageQueueStore {
 						case 'level':
 							field = messageStore.getLogEntry().level;
 							break;
-						case 'category':
-							field = messageStore.getLogEntry().category;
+						case 'appName':
+							field = messageStore.getLogEntry().appName;
 							break;
 						case 'message':
 							field = messageStore.getLogEntry().message;

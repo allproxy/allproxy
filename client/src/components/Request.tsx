@@ -22,9 +22,9 @@ type Props = {
 	vertical: boolean,
 	isFiltered: boolean,
 	className: string,
-	maxLogCategorySize: number,
+	maxLogAppNameSize: number,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className, maxLogCategorySize }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className, maxLogAppNameSize }: Props) => {
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => {
@@ -132,7 +132,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 							</div>}
 							{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
 							{message.protocol === 'log:' ?
-								<JsonLogAnnotator message={store} maxLogCategorySize={maxLogCategorySize} />
+								<JsonLogAnnotator message={store} maxLogAppNameSize={maxLogAppNameSize} />
 								:
 								<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
 							}

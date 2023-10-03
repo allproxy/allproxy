@@ -98,7 +98,7 @@ const SnapshotTabContent = observer(({
 	let maxStatusSize = 0;
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
-	let maxLogCategorySize = 0;
+	let maxLogAppNameSize = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
 			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
@@ -106,7 +106,7 @@ const SnapshotTabContent = observer(({
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
 			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
 			if (messageStore.getMessage().protocol === 'log:') {
-				maxLogCategorySize = Math.max(maxLogCategorySize, messageStore.getLogEntry().category.split(' ')[0].length);
+				maxLogAppNameSize = Math.max(maxLogAppNameSize, messageStore.getLogEntry().appName.split(' ')[0].length);
 			}
 		});
 
@@ -175,7 +175,7 @@ const SnapshotTabContent = observer(({
 										vertical={vertical}
 										isFiltered={isFiltered}
 										className={message.protocol === 'log:' && matchCount % 2 === 0 ? 'request__msg-even' : ''}
-										maxLogCategorySize={maxLogCategorySize}
+										maxLogAppNameSize={maxLogAppNameSize}
 									/>);
 							}
 						})}

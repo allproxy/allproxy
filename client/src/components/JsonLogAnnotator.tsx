@@ -1,13 +1,13 @@
 import { observer } from 'mobx-react-lite';
-import { pickCategoryStyle, pickLabelStyle } from '../PickButtonStyle';
+import { pickAppNameStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
 import { jsonLogStore } from '../store/JSONLogStore';
 
 type Props = {
 	message: MessageStore,
-	maxLogCategorySize: number,
+	maxLogAppNameSize: number,
 };
-const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
+const JsonLogAnnotator = observer(({ message, maxLogAppNameSize }: Props) => {
 	return (
 		<div className="request__json-annotations">
 			{makeJSONRequestLabels(message).map((element) => {
@@ -32,24 +32,23 @@ const JsonLogAnnotator = observer(({ message, maxLogCategorySize }: Props) => {
 			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem' }}>{messageText}</div>);
 		}
 
-		let category = messageStore.getLogEntry().category;
-		let categories: JSX.Element[] = [];
-		if (category !== '') {
-			//messageStore.setColor(categoryStyle.background);
-			for (const name of category.split(' ')) {
-				const categoryStyle = pickCategoryStyle(name);
-				categories = categories.concat(
+		let appName = messageStore.getLogEntry().appName;
+		let appNames: JSX.Element[] = [];
+		if (appName !== '') {
+			for (const name of appName.split(' ')) {
+				const appNameStyle = pickAppNameStyle(name);
+				appNames = appNames.concat(
 					<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 						<div className="json-label"
-							style={{ lineHeight: '1.2', display: 'inline-block', filter: categoryStyle.filter, padding: '0 .25rem', color: categoryStyle.color, borderRadius: '.25rem', background: categoryStyle.background }}>
+							style={{ lineHeight: '1.2', display: 'inline-block', filter: appNameStyle.filter, padding: '0 .25rem', color: appNameStyle.color, borderRadius: '.25rem', background: appNameStyle.background }}>
 							{name}
 						</div>
 					</div >);
 			}
-			const width = maxLogCategorySize + 'ch';
+			const width = maxLogAppNameSize + 'ch';
 			elements.unshift(
 				<div style={{ display: 'inline-block', minWidth: width }}>
-					{categories}
+					{appNames}
 				</div>);
 		}
 

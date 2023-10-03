@@ -15,7 +15,7 @@ export default class MessageStore {
     private iconClass = '';
     private tooltip = '';
     private note = '';
-    private logEntry: LogEntry = { date: new Date(), level: '', category: '', message: '', additionalJSON: {} };
+    private logEntry: LogEntry = { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} };
     private jsonFields: JsonField[] = [];
     private filtered = false;
 

@@ -66,28 +66,28 @@ export class JSONLogField {
 
 const defaultScript =
 	`
-	// Function called to extract date, level, category and message
+	// Function called to extract date, level, app name and message
 	//
 	// @param preJSONString: string - optional non-JSON string proceeding JSON object
 	// @param jsonObject: {} - JSON log data
-	// @returns {date: Date, level: string, category: string, message: string, additionalJSON: {} }
+	// @returns {date: Date, level: string, appName: string, message: string, additionalJSON: {} }
 	//
-	// category is the pod name, process ID...
+	// appName is the pod name, process ID...
 	//
 	const jsonLogScript = function (preJSONString, jsonObject) {
 		let date = new Date();
 		let level = 'info';
-		let category = 'My-category';
+		let appName = 'My-App';
 		let message = 'This is a test message';
 		let additionalJSON = {};
-		return { date, level, category, message, additionalJSON };
+		return { date, level, appName, message, additionalJSON };
 	}
 `;
 
 export type LogEntry = {
 	date: Date,
 	level: string,
-	category: string,
+	appName: string,
 	message: string,
 	additionalJSON: {}
 };
@@ -95,7 +95,7 @@ export type LogEntry = {
 export default class JSONLogStore {
 	private script = defaultScript;
 
-	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', category: '', message: '', additionalJSON: {} }; };
+	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} }; };
 
 	private fields: JSONLogField[] = [];
 
@@ -134,12 +134,16 @@ export default class JSONLogStore {
 		this.scriptFunc = this.evalScript(this.script);
 	}
 	public callScriptFunc(nonJson: string, jsonData: object): LogEntry {
-		let logEntry: LogEntry = { date: new Date(), level: '', category: '', message: '', additionalJSON: {} };
+		let logEntry: LogEntry = { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} };
 		try {
 			logEntry = this.scriptFunc(nonJson, jsonData);
 		} catch (e) {
 			console.log(e);
 		}
+		if (logEntry.date === undefined) logEntry.date = new Date();
+		if (logEntry.level === undefined) logEntry.level = '';
+		if (logEntry.appName === undefined) logEntry.appName = 'App_name_not_defined?';
+		if (logEntry.message === undefined) logEntry.message = '';
 		return logEntry;
 	}
 
