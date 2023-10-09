@@ -382,15 +382,16 @@ export default class MessageQueueStore {
 			} else if (sn > msgSequenceNumber) {
 				copyMessages.splice(m, 0, messageStore);
 			}
-
-			// Shrink array
-			if (copyMessages.length > this.limit) {
-				copyMessages.splice(0, copyMessages.length - this.limit);
-			}
 		}
 
 		if (!this.sortByReq || this.sortByField) {
 			this.sortCopy(copyMessages);
+		}
+
+		// Move batch of messages to new tab when limit (e.g., 10,000) is reached.
+		if (copyMessages.length > this.limit) {
+			snapshotStore.newSnapshot("Save");
+			copyMessages.splice(0, activeSnapshot.length);
 		}
 
 		activeSnapshot.splice(0, activeSnapshot.length);
