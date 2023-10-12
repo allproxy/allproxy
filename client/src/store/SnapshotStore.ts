@@ -300,7 +300,6 @@ export default class SnapshotStore {
 		line = line.replace(/\\n/g, '');
 		line = line.replace(/\\r/g, '');
 		line = line.replace(/\\"/g, '');
-		console.log(line);
 		return line;
 	}
 
