@@ -5,6 +5,7 @@ import { filterStore } from "./FilterStore";
 import LayoutStore from "./LayoutStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
+import { dateToHHMMSS } from "../components/Request";
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
 
@@ -329,9 +330,6 @@ export default class SnapshotStore {
 
 		const messageStores: MessageStore[] = [];
 		let messages = (parsedBlob as Message[]);
-		if (messages.length > 10000) {
-			messages = messages.slice(messages.length - 10000);
-		}
 
 		for (const message of messages) {
 			const ms = new MessageStore(message);
@@ -356,7 +354,21 @@ export default class SnapshotStore {
 				message.sequenceNumber = i;
 			});
 		}
-		this.newSnapshot(fileName, messageStores);
+		if (messages.length > 10000) {
+			messages = messages.slice(messages.length - 10000);
+		}
+		while (messageStores.length > 0) {
+			if (messageStores.length > 10000) {
+				const copy = messageStores.splice(0, 10000);
+				this.newSnapshot(fileName, copy);
+				const message = messageStores[0].getMessage();
+				const date = message.protocol === 'log:' ? messageStores[0].getLogEntry().date : new Date(message.timestamp);
+				fileName = dateToHHMMSS(date);
+			} else {
+				this.newSnapshot(fileName, messageStores);
+				messageStores.splice(0, messageStores.length);
+			}
+		}
 	}
 
 	public getSelectedMessages(): MessageStore[] {

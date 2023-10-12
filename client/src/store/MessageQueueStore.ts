@@ -2,6 +2,7 @@ import { makeAutoObservable, action } from "mobx";
 import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
 import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
+import { dateToHHMMSS } from "../components/Request";
 
 const DEFAULT_LIMIT = 1000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
@@ -390,7 +391,8 @@ export default class MessageQueueStore {
 
 		// Move batch of messages to new tab when limit (e.g., 10,000) is reached.
 		if (copyMessages.length > this.limit) {
-			snapshotStore.newSnapshot("Save");
+			const date = dateToHHMMSS(new Date(copyMessages[0].getMessage().timestamp));
+			snapshotStore.newSnapshot(date);
 			copyMessages.splice(0, activeSnapshot.length);
 		}
 
