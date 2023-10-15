@@ -354,12 +354,10 @@ export default class SnapshotStore {
 				message.sequenceNumber = i;
 			});
 		}
-		if (messages.length > 10000) {
-			messages = messages.slice(messages.length - 10000);
-		}
+		const chunkSize = 10000;
 		while (messageStores.length > 0) {
-			if (messageStores.length > 10000) {
-				const copy = messageStores.splice(0, 10000);
+			if (messageStores.length > chunkSize) {
+				const copy = messageStores.splice(0, chunkSize);
 				this.newSnapshot(fileName, copy);
 				const message = messageStores[0].getMessage();
 				const date = message.protocol === 'log:' ? messageStores[0].getLogEntry().date : new Date(message.timestamp);

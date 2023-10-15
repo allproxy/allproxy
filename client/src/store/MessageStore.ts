@@ -57,9 +57,9 @@ export default class MessageStore {
 
         const responseBody = message.responseBody;
         if (typeof responseBody === 'string') {
-            this.logEntry = jsonLogStore.callScriptFunc(responseBody, {});
+            this.logEntry = jsonLogStore.extractJSONFields(responseBody, {});
         } else {
-            this.logEntry = jsonLogStore.callScriptFunc(message.path, responseBody);
+            this.logEntry = jsonLogStore.extractJSONFields(message.path, responseBody);
         }
 
         let json: { [key: string]: string } = {};

@@ -45,7 +45,9 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 						const value = json[field];
 						if (Array.isArray(value)) {
 							for (const obj of value) {
-								jsonLines += "\n" + flatten(obj);
+								if (typeof value === 'object') {
+									jsonLines += "\n" + flatten(obj);
+								}
 							}
 						}
 					}
