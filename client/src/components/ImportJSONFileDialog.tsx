@@ -29,7 +29,32 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				}
 				jsonClear();
 			} else if (pastedJSON.length > 0) {
-				snapshotStore.importSnapshot(tabName, importJSONFile(tabName, pastedJSON, []));
+				const flatten = function (json: object) {
+					let line = JSON.stringify(json);
+					line = line.replace(/\\n/g, '');
+					line = line.replace(/\\r/g, '');
+					line = line.replace(/\\"/g, '');
+					return line;
+				};
+
+				let jsonLines = pastedJSON;
+				try {
+					const json = JSON.parse(pastedJSON);
+					jsonLines = flatten(json);
+					for (const field in json) {
+						const value = json[field];
+						if (Array.isArray(value)) {
+							for (const obj of value) {
+								if (typeof value === 'object') {
+									jsonLines += "\n" + flatten(obj);
+								}
+							}
+						}
+					}
+				} catch (e) {
+					console.log(e);
+				}
+				snapshotStore.importSnapshot(tabName, importJSONFile(tabName, jsonLines, []));
 				setPastedJSON('');
 			}
 			setTabName('');

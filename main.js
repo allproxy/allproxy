@@ -1,7 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('Starting main.js');
+// Valid paths are allproxy and logviewer
+let appName = 'allproxy';
+if (process.env.ALLPROXY_APP) {
+  appName = process.env.ALLPROXY_APP;
+}
+
+console.log('Starting main.js', appName);
 process.env.NODE_ENV = 'production';
 const dirName = __dirname;
 const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;
@@ -12,7 +18,7 @@ console.log(`Data directory: ${dataDir}`)
 
 let headless = process.env.HEADLESS
 if (headless) {
-  console.log("Running headless: open http://localhost:8888 in browser")
+  console.log(`Running headless: open http://localhost:8888/${appName} in browser`)
 }
 
 const mkDir = (dir) => {
@@ -61,7 +67,7 @@ if (!headless) {
 
     //win.maximize();
     setTimeout(() => {
-      win.loadURL('http://localhost:8888/allproxy')
+      win.loadURL('http://localhost:8888/' + appName)
         .then(() => {
           console.log('main.js: AllProxy page loaded');
           win.show()

@@ -13,6 +13,8 @@ import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
 import { snapshotStore } from '../store/SnapshotStore';
 import { logViewerStore } from '../store/LogViewerStore';
+import JSONSimpleFields from './JSONSimpleFields';
+import JSONFieldsMethods from './JSONFieldsMethod';
 
 type Props = {
 	open: boolean,
@@ -74,6 +76,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 		);
 	}
 
+	jsonLogStore.init();
 	return (
 		<><Dialog
 			maxWidth={'lg'}
@@ -262,7 +265,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						<h5>Annotating JSON Fields</h5>
 						Selected JSON fields can be annotated with labels.
 						<p></p>
-						<div style={{ marginRight: '1rem' }}>
+						<div style={{ margin: '0 1rem' }}>
 							<button className="btn btn-lg btn-primary"
 								style={{ marginBottom: "1rem" }}
 								onClick={async () => {
@@ -278,59 +281,11 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 								Annotate JSON Fields
 							</button>
 						</div>
-						<h5>Extract Date, Level, App Name and Message</h5>
-						A custom script can be defined to extract the date, level, app name and message from the JSON log data.
 						<p></p>
-						<div style={{ marginRight: '1rem' }}>
-							<button className="btn btn-lg btn-success"
-								style={{ marginBottom: "1rem" }}
-								onClick={async () => {
-									await jsonLogStore.init();
-									setJsonFields(getJSONFields());
-									setShowJSONFieldsModal(true);
-								}}>
-								<div className='fa fa-calendar'
-									style={{
-										marginRight: '.5rem'
-									}}
-								/>
-								Extract Date...
-							</button>
-						</div>
-						<p></p>
-						<h5>Example log message:</h5>
-						<pre>
-							<div>{'{'}</div>
-							<div>  "date": "2023-09-12T18:03:33.496Z"</div>
-							<div>  "level": "info"</div>
-							<div>  "pod_name": "my-pod-name"</div>
-							<div>  "message": "This is a test message."</div>
-							<div>{'}'}</div>
-						</pre>
-						<p></p>
-						<h5>Example extract function:</h5>
-						<pre>
-							<div>// Function called to extract <b>date</b>, <b>level</b>, <b>app name</b> and <b>message</b></div>
-							<div>//</div>
-							<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
-							<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
-							<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string{'}'}</div>
-							<div>//</div>
-							<div>// <b>appName</b> is the pod name, process ID... </div>
-							<div>//</div>
-							<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
-							<div>  let date = new Date(jsonObject.date);</div>
-							<div>  let level = jsonObject.level;</div>
-							<div>  let appName = jsonObject.pod_name;</div>
-							<div>  let message = jsonObject.message;</div>
-							<div>  let additionalJSON = {'{}'};</div>
-							<div>  return {'{date, level, appName, message, additionalJSON}'};</div>
-							<div>{'}'}</div>
-						</pre>
 						<h5>Import JSON Log</h5>
 						Click this button to import a JSON log file.
 						<p></p>
-						<div style={{ marginRight: '1rem' }}>
+						<div style={{ margin: '0 1rem' }}>
 							<button className="btn btn-lg btn-primary"
 								style={{ marginBottom: "1rem" }}
 								onClick={() => {
@@ -344,6 +299,34 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 								/>
 								Import JSON Log
 							</button>
+						</div>
+						<p></p>
+						<h5>Date, Level, App Name and Message</h5>
+						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
+						<div style={{ margin: '0 1rem' }}>
+							<JSONFieldsMethods />
+							{jsonLogStore.getMethod() === 'simple' ?
+								<JSONSimpleFields />
+								:
+								<>
+									Write your own JavaScript to extract the date, level, app name and message fields.
+									<p></p>
+									<button className="btn btn-lg btn-success"
+										style={{ marginBottom: "1rem" }}
+										onClick={async () => {
+											await jsonLogStore.init();
+											setJsonFields(getJSONFields());
+											setShowJSONFieldsModal(true);
+										}}>
+										<div className='fa fa-calendar'
+											style={{
+												marginRight: '.5rem'
+											}}
+										/>
+										Edit JavaScript
+									</button>
+								</>
+							}
 						</div>
 					</TabPanel>
 				</TabContext>
@@ -359,19 +342,22 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				onClose={() => setShowSessionModal(false)}
 				store={sessionStore}
 			/>
-			<JSONFieldsModal
-				open={showJSONFieldsModal}
-				onClose={() => {
-					setShowJSONFieldsModal(false);
-					snapshotStore.setUpdating(true);
-					setTimeout(() => {
-						updateJSONRequestLabels();
-						snapshotStore.setUpdating(false);
-					});
-				}}
-				store={jsonLogStore}
-				jsonFields={jsonFields}
-			/>
+			{showJSONFieldsModal &&
+				<JSONFieldsModal
+					open={showJSONFieldsModal}
+					onClose={() => {
+						setShowJSONFieldsModal(false);
+						snapshotStore.setUpdating(true);
+						setTimeout(() => {
+							updateJSONRequestLabels();
+							snapshotStore.setUpdating(false);
+						});
+					}}
+					store={jsonLogStore}
+					jsonFields={jsonFields}
+					selectTab='scripts'
+				/>
+			}
 		</>
 	);
 });

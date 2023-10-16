@@ -381,23 +381,31 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				setShowHelp(false);
 				await jsonLogStore.init();
 				jsonLogStore.updateScriptFunc();
+				snapshotStore.setUpdating(true);
+				setTimeout(() => {
+					updateJSONRequestLabels();
+					snapshotStore.setUpdating(false);
+				});
 			}} />
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => {
 				setShowDarkModeDialog(false);
 			}} />
-			<JSONFieldsModal
-				open={showJSONFieldsModal}
-				onClose={() => {
-					setShowJSONFieldsModal(false);
-					snapshotStore.setUpdating(true);
-					setTimeout(() => {
-						updateJSONRequestLabels();
-						snapshotStore.setUpdating(false);
-					});
-				}}
-				store={jsonLogStore}
-				jsonFields={jsonFields}
-			/>
+			{showJSONFieldsModal &&
+				<JSONFieldsModal
+					open={showJSONFieldsModal}
+					onClose={() => {
+						setShowJSONFieldsModal(false);
+						snapshotStore.setUpdating(true);
+						setTimeout(() => {
+							updateJSONRequestLabels();
+							snapshotStore.setUpdating(false);
+						});
+					}}
+					store={jsonLogStore}
+					jsonFields={jsonFields}
+					selectTab='jsonFields'
+				/>
+			}
 			<NotesModal
 				open={showNotesModal}
 				onClose={() => {

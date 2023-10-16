@@ -1,5 +1,5 @@
 import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
-import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR } from '../store/JSONLogStore';
+import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR, jsonLogStore } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import TabContext from '@material-ui/lab/TabContext';
@@ -9,26 +9,29 @@ import _ from 'lodash';
 import JSONFieldValues from './JSONFieldValues';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import { filterStore } from '../store/FilterStore';
+import JSONFieldsMethod from './JSONFieldsMethod';
+import JSONSimpleFields from './JSONSimpleFields';
 
 type Props = {
 	open: boolean,
 	onClose: () => void,
 	store: JSONLogStore,
-	jsonFields: { name: string, count: number, selected: boolean }[]
+	jsonFields: { name: string, count: number, selected: boolean }[],
+	selectTab: 'jsonFields' | 'scripts' | 'showFields'
 }
-const SHOW_JSON_FIELD_VALUES = 'Show JSON Field Values';
+const SHOW_JSON_FIELD_VALUES = 'showFields';
 const TAB_NAMES: { [key: string]: string } = {};
 TAB_NAMES[JSON_FIELDS_DIR] = 'Annotate JSON Fields';
-TAB_NAMES[SCRIPTS_DIR] = 'Extract Date, Level, App Name and Message';
-TAB_NAMES[SHOW_JSON_FIELD_VALUES] = SHOW_JSON_FIELD_VALUES;
+TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, App Name and Message';
+TAB_NAMES[SHOW_JSON_FIELD_VALUES] = 'Show JSON Field Values';
 
-const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) => {
+const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab }: Props) => {
 	const TAB_VALUES = [JSON_FIELDS_DIR, SCRIPTS_DIR, SHOW_JSON_FIELD_VALUES];
-	const [tabValue, setTabValue] = React.useState(JSON_FIELDS_DIR);
+	const [tabValue, setTabValue] = React.useState(selectTab);
 	const [error, setError] = React.useState('');
 	const [radioValue, setRadioValue] = React.useState('table');
 
-	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: string) {
+	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: 'jsonFields' | 'scripts' | 'showFields') {
 		setTabValue(tabValue);
 	}
 
@@ -98,29 +101,68 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields }: Props) =
 									}
 									{tabValue === SCRIPTS_DIR ?
 										<>
-											<div style={{ fontSize: 'small' }}>
-												Define Javascript function to return date, level, app name, message and additional JSON data.
-											</div>
-											{error !== '' &&
-												<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
+											<JSONFieldsMethod />
+											{jsonLogStore.getMethod() === 'simple' ?
+												<JSONSimpleFields />
+												: <>
+													Write your own JavaScript to extract the date, level, app name and message fields.
+													<p></p>
+													{error !== '' &&
+														<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
+													}
+													<div style={{ width: '100%', overflow: 'hidden' }}>
+														<div style={{ display: 'inline-block' }}>
+															<button className="btn btn-sm btn-primary"
+																onClick={() => store.resetScriptToDefault()}
+															>
+																Reset to default
+															</button>
+															<p></p>
+															<div>
+																<textarea
+																	rows={29} cols={80}
+																	value={store.getScript()}
+																	onChange={(e) => {
+																		store.setScript(e.target.value);
+																		setError('');
+																	}}
+																/>
+															</div>
+														</div>
+														<div style={{ display: 'inline-block', margin: '2rem 0 0 2rem', verticalAlign: 'top' }}>
+															<h5>Example log message:</h5>
+															<pre>
+																<div>{'{'}</div>
+																<div>  "date": "2023-09-12T18:03:33.496Z"</div>
+																<div>  "level": "info"</div>
+																<div>  "pod_name": "my-pod-name"</div>
+																<div>  "message": "This is a test message."</div>
+																<div>{'}'}</div>
+															</pre>
+															<p></p>
+															<h5>Example extract function:</h5>
+															<pre>
+																<div>// Function called to extract <b>date</b>, <b>level</b>, <b>app name</b> and <b>message</b></div>
+																<div>//</div>
+																<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
+																<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
+																<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string{'}'}</div>
+																<div>//</div>
+																<div>// <b>appName</b> is the pod name, process ID... </div>
+																<div>//</div>
+																<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
+																<div>  let date = new Date(jsonObject.date);</div>
+																<div>  let level = jsonObject.level;</div>
+																<div>  let appName = jsonObject.pod_name;</div>
+																<div>  let message = jsonObject.message;</div>
+																<div>  let additionalJSON = {'{}'};</div>
+																<div>  return {'{date, level, appName, message, additionalJSON}'};</div>
+																<div>{'}'}</div>
+															</pre>
+														</div>
+													</div>
+												</>
 											}
-											<div>
-												<button className="btn btn-sm btn-primary"
-													onClick={() => store.resetScriptToDefault()}
-												>
-													Reset to default
-												</button>
-												<div style={{ marginTop: '.25rem' }}>
-													<textarea
-														rows={29} cols={80}
-														value={store.getScript()}
-														onChange={(e) => {
-															store.setScript(e.target.value);
-															setError('');
-														}}
-													/>
-												</div>
-											</div>
 										</>
 										: tabValue === SHOW_JSON_FIELD_VALUES ?
 											<JSONFieldValues jsonFields={jsonFields} />

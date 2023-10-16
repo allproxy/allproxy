@@ -92,7 +92,18 @@ export type LogEntry = {
 	additionalJSON: {}
 };
 
+export type SimpleFields = {
+	date: string,
+	level: string,
+	appName: string,
+	message: string
+}
+
 export default class JSONLogStore {
+	private method: 'simple' | 'advanced' = 'simple';
+
+	private simpleFields: SimpleFields = { date: '', level: '', appName: '', message: '' };
+
 	private script = defaultScript;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} }; };
@@ -103,6 +114,22 @@ export default class JSONLogStore {
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public getMethod() { return this.method; }
+	public async setMethod(method: 'simple' | 'advanced') {
+		this.method = method;
+		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+	}
+
+	public getSimpleFields() { return this.simpleFields; }
+	public async setSimpleFields(field: 'date' | 'level' | 'appName' | 'message', value: string) {
+		const oldValue = this.simpleFields[field];
+		this.simpleFields[field] = value;
+		if (oldValue !== '') {
+			await apFileSystem.deleteFile(SCRIPTS_DIR + '/' + field);
+		}
+		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + field, value);
 	}
 
 	public isFieldHidden(field: string): boolean {
@@ -133,17 +160,40 @@ export default class JSONLogStore {
 	public updateScriptFunc() {
 		this.scriptFunc = this.evalScript(this.script);
 	}
-	public callScriptFunc(nonJson: string, jsonData: object): LogEntry {
+	public extractJSONFields(nonJson: string, jsonData: {
+		[key: string]: any
+	}): LogEntry {
 		let logEntry: LogEntry = { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} };
-		try {
-			logEntry = this.scriptFunc(nonJson, jsonData);
-		} catch (e) {
-			console.log(e);
+		if (jsonLogStore.getMethod() === 'simple') {
+			const simpleFields = jsonLogStore.getSimpleFields();
+			if (simpleFields.date !== '') {
+				try {
+					logEntry.date = new Date(simpleFields.date);
+				} catch (e) { }
+			}
+			const setField = (field: 'level' | 'appName' | 'message') => {
+				if (simpleFields[field] !== '') {
+					const value = jsonData[simpleFields[field]] as string | undefined;
+					if (value) {
+						logEntry[field] = value;
+					}
+				}
+			};
+			setField('level');
+			setField('appName');
+			setField('message');
+
+		} else {
+			try {
+				logEntry = this.scriptFunc(nonJson, jsonData);
+			} catch (e) {
+				console.log(e);
+			}
+			if (logEntry.date === undefined) logEntry.date = new Date();
+			if (logEntry.level === undefined) logEntry.level = '';
+			if (logEntry.appName === undefined) logEntry.appName = 'App_name_not_defined?';
+			if (logEntry.message === undefined) logEntry.message = '';
 		}
-		if (logEntry.date === undefined) logEntry.date = new Date();
-		if (logEntry.level === undefined) logEntry.level = '';
-		if (logEntry.appName === undefined) logEntry.appName = 'App_name_not_defined?';
-		if (logEntry.message === undefined) logEntry.message = '';
 		return logEntry;
 	}
 
@@ -179,6 +229,22 @@ export default class JSONLogStore {
 					this.script = script;
 					break;
 			}
+		}
+
+		const initSimpleField = async (field: 'date' | 'level' | 'appName' | 'message') => {
+			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
+			if (exists) {
+				this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
+			}
+		};
+		initSimpleField('date');
+		initSimpleField('level');
+		initSimpleField('appName');
+		initSimpleField('message');
+
+		const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
+		if (exists) {
+			this.method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'simple' | 'advanced';
 		}
 	}
 
@@ -303,12 +369,12 @@ function formatValue(name: string, value: string): string {
 	if (lname.indexOf('useragent') !== -1) {
 		return value.split(' ')[0].split('/')[0];
 	} else if (lname.indexOf('uri') !== -1 || lname.indexOf('url') !== -1) {
-		const tokens = value.split('?')[0].split('/');
-		let value2 = tokens.pop() as string;
-		if (tokens.length > 0) {
-			value2 = tokens.pop() + '/' + value2;
+		try {
+			const url = new URL(value);
+			return url.pathname;
+		} catch (e) {
+			return value;
 		}
-		return value2 as string;
 	}
 	// Remove double quotes
 	if (value.charAt(0) === '"') {
