@@ -168,7 +168,7 @@ export default class JSONLogStore {
 			const simpleFields = jsonLogStore.getSimpleFields();
 			if (simpleFields.date !== '') {
 				try {
-					logEntry.date = new Date(simpleFields.date);
+					logEntry.date = new Date(jsonData[simpleFields.date]);
 				} catch (e) { }
 			}
 			const setField = (field: 'level' | 'appName' | 'message') => {
