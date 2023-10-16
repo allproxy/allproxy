@@ -60,7 +60,7 @@ const ReachableHostsModal = observer(({ open, onClose, store, initTabValue }: Pr
 														(value === HostStatus.Reachable
 															? 'success fa-circle'
 															: 'error fa-exclamation-triangle')}>
-														<span style={{ marginLeft: '.25rem', color: 'black' }}>{value}</span>
+														<span style={{ marginLeft: '.25rem' }}>{value}</span>
 													</div>
 												}>
 											</Tab>

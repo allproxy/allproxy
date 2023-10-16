@@ -85,14 +85,14 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 										aria-label="Response table">
 										{Object.keys(message.requestHeaders).length > 0 &&
 											<Tab value={'Request Headers'} label={<div>
-												<span style={{ marginLeft: '.25rem', color: 'black' }}>Request Headers</span>
+												<span style={{ marginLeft: '.25rem' }}>Request Headers</span>
 											</div>} />}
 										<Tab value={'Request Body'} label={<div>
-											<span style={{ marginLeft: '.25rem', color: 'black' }}>Request Body</span>
+											<span style={{ marginLeft: '.25rem' }}>Request Body</span>
 										</div>} />
 										{queryParams !== null &&
 											<Tab value={'Query Parameters'} label={<div>
-												<span style={{ marginLeft: '.25rem', color: 'black' }}>Query Parameters</span>
+												<span style={{ marginLeft: '.25rem' }}>Query Parameters</span>
 											</div>} />}
 									</Tabs>
 									{Object.keys(message.requestHeaders).length > 0 &&
@@ -129,10 +129,10 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 										aria-label="Response table">
 										{Object.keys(message.responseHeaders).length > 0 &&
 											<Tab value={'Response Headers'} label={<div>
-												<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Headers</span>
+												<span style={{ marginLeft: '.25rem' }}>Response Headers</span>
 											</div>} />}
 										<Tab value={'Response Body'} label={<div>
-											<span style={{ marginLeft: '.25rem', color: 'black' }}>Response Body</span>
+											<span style={{ marginLeft: '.25rem' }}>Response Body</span>
 										</div>} />
 									</Tabs>
 									{Object.keys(message.responseHeaders).length > 0 &&
