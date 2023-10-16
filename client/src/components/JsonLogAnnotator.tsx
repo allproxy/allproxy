@@ -24,7 +24,7 @@ const JsonLogAnnotator = observer(({ message, maxLogAppNameSize }: Props) => {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
-			elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflow: 'hidden', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
+			elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 		}
 
 		let messageText = messageStore.getLogEntry().message;

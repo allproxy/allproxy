@@ -24,9 +24,10 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '1');
+	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '4');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
+	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
 
 	const handleClose = () => {
@@ -106,9 +107,9 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					</Tabs>
 					<TabPanel value="1" key="1">
 						<h4>Quick Start</h4>
-						<h5>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h5>
+						<h3>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h3>
 						<p></p>
-						<h5>Launch Browser/Terminal:</h5>
+						<h3>Launch Browser/Terminal:</h3>
 						{
 							browserStore.getBrowsers().map(browser => (
 								<span style={{ marginRight: '1rem' }}>
@@ -127,9 +128,9 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 								</span>
 							))
 						}
-						<h5>Configure Reverse Proxy:</h5>
+						<h3>Configure Reverse Proxy:</h3>
 						{showConfigButtons()}
-						<h5>Shortcuts:</h5>
+						<h3>Shortcuts:</h3>
 						- <b>{key}-f</b> Find text in page
 					</TabPanel>
 					<TabPanel value="2" key="2">
@@ -199,7 +200,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						<div style={{ paddingLeft: "1rem" }}>
 							A search filter criteria can be specified to keep matching lines and remove unmatched lines.  A search term is an operand in a boolean expression.   Boolean operators may be used to more precisely identify matching lines.
 							<p></p>
-							<h5>Search Terms</h5>
+							<h3>Search Terms</h3>
 							<div style={{ paddingLeft: ".5rem" }}>
 								String Terms and JSON Field Terms are supported.
 								<dl>
@@ -237,7 +238,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									<div>Multi-level JSON fields <code>field1.field2.field3:value</code> are also supported.</div>
 								</dl>
 							</div>
-							<h5>Boolean Operators</h5>
+							<h3>Boolean Operators</h3>
 							<div style={{ paddingLeft: ".5rem" }}>
 								<dl>
 									<dt>AND or &&</dt>
@@ -254,56 +255,14 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									</dd>
 								</dl>
 							</div>
-							<h5>Parenthesis</h5>
+							<h3>Parenthesis</h3>
 							Parenthesis can be used to group related search terms together.
 						</div>
 					</TabPanel>
 					<TabPanel value="4" key="4">
-						<h4>Log Viewer</h4>
-						JSON logs can be imported and annotated for easier reading.
-						<p></p>
-						<h5>Annotating JSON Fields</h5>
-						Selected JSON fields can be annotated with labels.
-						<p></p>
-						<div style={{ margin: '0 1rem' }}>
-							<button className="btn btn-lg btn-primary"
-								style={{ marginBottom: "1rem" }}
-								onClick={async () => {
-									await jsonLogStore.init();
-									setJsonFields(getJSONFields());
-									setShowJSONFieldsModal(true);
-								}}>
-								<div className='fa fa-code'
-									style={{
-										marginRight: '.5rem'
-									}}
-								/>
-								Annotate JSON Fields
-							</button>
-						</div>
-						<p></p>
-						<h5>Import JSON Log</h5>
-						Click this button to import a JSON log file.
-						<p></p>
-						<div style={{ margin: '0 1rem' }}>
-							<button className="btn btn-lg btn-primary"
-								style={{ marginBottom: "1rem" }}
-								onClick={() => {
-									setOpenImportJSONFileDialog(true);
-									handleClose();
-								}}>
-								<div className='fa fa-upload'
-									style={{
-										marginRight: '.5rem'
-									}}
-								/>
-								Import JSON Log
-							</button>
-						</div>
-						<p></p>
-						<h5>Date, Level, App Name and Message</h5>
+						<h3>Define Date, Level, App Name and Message</h3>
 						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
-						<div style={{ margin: '0 1rem' }}>
+						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
 							<JSONFieldsMethods />
 							{jsonLogStore.getMethod() === 'simple' ?
 								<JSONSimpleFields />
@@ -316,6 +275,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 										onClick={async () => {
 											await jsonLogStore.init();
 											setJsonFields(getJSONFields());
+											setJsonFieldsModalTab('scripts');
 											setShowJSONFieldsModal(true);
 										}}>
 										<div className='fa fa-calendar'
@@ -327,6 +287,37 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									</button>
 								</>
 							}
+						</div>
+						<h3>Annotate Fields and Import Log File</h3>
+						<p></p>
+						<div style={{ marginLeft: '1rem' }}>
+							<button className="btn btn-lg btn-primary"
+								style={{ marginRight: "1rem" }}
+								onClick={async () => {
+									await jsonLogStore.init();
+									setJsonFields(getJSONFields());
+									setJsonFieldsModalTab('jsonFields');
+									setShowJSONFieldsModal(true);
+								}}>
+								<div className='fa fa-code'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Annotate JSON Fields
+							</button>
+							<button className="btn btn-lg btn-success"
+								onClick={() => {
+									setOpenImportJSONFileDialog(true);
+									handleClose();
+								}}>
+								<div className='fa fa-upload'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Import JSON Log
+							</button>
 						</div>
 					</TabPanel>
 				</TabContext>
@@ -355,7 +346,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					}}
 					store={jsonLogStore}
 					jsonFields={jsonFields}
-					selectTab='scripts'
+					selectTab={jsonFieldsModalTab}
 				/>
 			}
 		</>
