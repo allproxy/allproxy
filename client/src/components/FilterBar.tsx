@@ -99,14 +99,6 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 								style={{ paddingLeft: 0 }}
 								hidden={query.indexOf(filter) === -1 || !showQueries}
 							>
-								<div
-									style={{ width: '100%', height: '100%', marginLeft: '.5rem' }}
-									onClick={() => {
-										applyFilter(query);
-									}}
-								>
-									{query}
-								</div>
 								<div className="filter-bar__menu-item-links">
 									<Link href="#"
 										onClick={() => queryStore.addAndSaveQuery(query)}
@@ -118,6 +110,14 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 										onClick={() => handleDeleteQuery(query)}>
 										Delete
 									</Link>
+								</div>
+								<div
+									style={{ width: '100%', height: '100%', marginLeft: '.5rem' }}
+									onClick={() => {
+										applyFilter(query);
+									}}
+								>
+									{query}
 								</div>
 							</MenuItem>
 						)) : (
