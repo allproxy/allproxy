@@ -137,11 +137,12 @@ td input {
 }
 
 .filter-bar__menu-item .filter-bar__menu-item-links {
-	visibility: hidden;
+	display: none;
 }
 
 .filter-bar__menu-item:hover .filter-bar__menu-item-links {
-	visibility: visible;
+	display: inline-block;
+	margin-left: .5rem;
 }
 
 .MuiTabs-scroller {
