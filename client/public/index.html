@@ -39,8 +39,8 @@
     -->
 </body>
 <script>
-  if (document.location.pathname.includes('logviewer')) {
-    document.title = 'LogViewer';
+  if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
+    document.title = 'JLogViewer';
   } else {
     document.title = 'AllProxy';
   }

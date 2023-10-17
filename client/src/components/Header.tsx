@@ -74,7 +74,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				</div>
 				<div className="header__title" onClick={() => window.location.reload()}>
 					{logViewerStore.isLogViewer()
-						? <b><span style={{ color: '#f50057' }}>Log</span>Viewer</b>
+						? <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
 						: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
 					}
 				</div>

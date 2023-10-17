@@ -25,7 +25,7 @@ const AllProxyApp = (
           'content-type': 'text/html'
         });
         clientRes.end(fs.readFileSync(clientBuildDir + Paths.sep() + 'index.html'));
-      } else if (reqUrl.pathname === '/' + 'logviewer') {
+      } else if (reqUrl.pathname === '/logviewer' || reqUrl.pathname === '/jlogviewer') {
         clientRes.writeHead(200, {
           'content-type': 'text/html'
         });

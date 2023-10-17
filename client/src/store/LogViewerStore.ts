@@ -5,7 +5,7 @@ export default class LogViewerStore {
 
 
 	public constructor() {
-		this.logViewer = document.location.pathname.includes('logviewer');
+		this.logViewer = document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer';
 		makeAutoObservable(this);
 	}
 
