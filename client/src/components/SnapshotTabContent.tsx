@@ -144,6 +144,7 @@ const SnapshotTabContent = observer(({
 								return null;
 							} else {
 								if (renderedCount >= renderCount &&
+									filterStore.getFilter().length === 0 &&
 									!messageQueueStore.getFullPageSearch() &&
 									(selectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === selectedReqSeqNum) &&
 									(unselectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === unselectedReqSeqNum)
@@ -364,7 +365,7 @@ const SnapshotTabContent = observer(({
 					renderCount = scrollBottom / minEntryHeight;
 				}
 				renderCount = Math.floor(renderCount);
-				//console.log('calcRenderCount', entryHeight, renderCount);
+				console.log('calcRenderCount', minEntryHeight, renderCount);
 				resolve(renderCount);
 			});
 		});
