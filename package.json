@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.32.5",
+  "version": "3.32.6",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -21,7 +21,8 @@
   },
   "main": "build/main.js",
   "bin": {
-    "allproxy": "bin/allproxy"
+    "allproxy": "bin/allproxy",
+    "allproxy_win.bat": "bin/allproxy_win.bat"
   },
   "scripts": {
     "install": "npm run install-client",

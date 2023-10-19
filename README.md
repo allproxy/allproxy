@@ -17,7 +17,9 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 > Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.5.Setup.exe)**
 
 > Other install options:
-> 1. Install NPM package: **npm install -g allproxy**
+> 1. Install NPM package: `npm install -g allproxy`
+>    * Run: `allproxy` or `allproxy_win.bat`
+>    * [localhost:8888/allproxy](http://localhost:8888/allproxy) in browser
 > 2. Clone repo and run: **npm install && npm run build && npm start**
 > 3. Clone repo and run headless: **npm install && npm run build && npm run headless**
 >    * http://localhost:8888/allproxy in browser
