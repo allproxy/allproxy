@@ -6,6 +6,10 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 ![image](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![image](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
+![Alt text](image-2.png)
+
+![Alt text](image-1.png)
+
 ### Install
 
 > Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.5-x64.dmg)**
@@ -28,12 +32,12 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 >    * docker run --name allproxy -i -t -v ~/.allproxy:/root/.allproxy —expose 8888 -p 9999:8888  allproxy
 >    * http://localhost:8888/allproxy in browser
 
-![Alt text](image-2.png)
+### JSON Log Viewer
 
-![Alt text](image-1.png)
+JSON structured logs can be viewed in a human readable format.  See [jlogviewer](https://github.com/allproxy/jlogviewer) for more details.
 
-Supported reverse proxy protocols:
-![Alt text](image.png)
+### Reverse Proxy Support
+Resource proxy protocols include: MongoDb, Redis, MySQL, qGRPC, HTTP, HTTPS and TCP.
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
