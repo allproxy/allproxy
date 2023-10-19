@@ -7,8 +7,4 @@ if [ ! -z "$SYMLINK" ]; then
 fi
 cd $BIN_DIR
 
-if [ "$1" == "headless" ]; then
-  npm run headless
-else
-  npm start
-fi
+npm run headless
