@@ -2,6 +2,9 @@ import { observer } from 'mobx-react-lite';
 import { pickAppNameStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
 import { jsonLogStore } from '../store/JSONLogStore';
+import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { themeStore } from '../store/ThemeStore';
 
 type Props = {
 	message: MessageStore,
@@ -24,7 +27,32 @@ const JsonLogAnnotator = observer(({ message, maxLogAppNameSize }: Props) => {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
-			elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
+			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
+
+			const value = nonJson + JSON.stringify(message.responseBody);
+			elements.push(
+				<div className="transparent" style={{ display: 'inline-block', backgroundColor: 'transparent' }}>
+					< Accordion >
+						<AccordionSummary expandIcon={<ExpandMoreIcon />}
+							style={{
+								backgroundColor: 'transparent'
+							}}
+						>
+							<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflowX: 'hidden', backgroundColor: 'transparent' }}> {value}</div>
+						</AccordionSummary>
+						<AccordionDetails>
+							<div style={{
+								wordBreak: 'break-all',
+								backgroundColor: themeStore.getTheme() === 'dark' ? '#333333' : 'whitesmoke',
+								color: themeStore.getTheme() === 'dark' ? 'whitesmoke' : undefined,
+								padding: '.5rem',
+								overflowY: 'auto'
+							}}>
+								{value}
+							</div>
+						</AccordionDetails>
+					</Accordion>
+				</div >);
 		}
 
 		let messageText = messageStore.getLogEntry().message;

@@ -21,6 +21,14 @@ body {
 		background-color: #333333 !important;
 	}
 
+	.transparent>.MuiPaper-root {
+		background-color: transparent !important;
+	}
+
+	.highlight .MuiPaper-root {
+		color: black !important;
+	}
+
 	.btn-default,
 	.form-control,
 	textarea,
@@ -62,6 +70,10 @@ body {
 	.MuiPaper-root {
 		background-color: whitesmoke !important;
 		color: black !important;
+	}
+
+	.transparent>.MuiPaper-root {
+		background-color: transparent !important;
 	}
 
 	table,
