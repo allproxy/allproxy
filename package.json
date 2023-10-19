@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.32.4",
+  "version": "3.32.5",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -33,7 +33,7 @@
     "clean": "rimraf ./build",
     "clean-client": "rimraf ./client/build",
     "start": "electron-forge start",
-    "start-headless": "if [ ! -d ./build ]; then npm run build; fi; if [ ! -d ./client/build ]; then npm run build-client; fi; NODE_ENV=production HEADLESS=1 node ./build/main.js",
+    "start-headless": "node ./headless.js",
     "headless": "npm run start-headless",
     "test": "cd ./client && npm run test",
     "help": "if [ ! -d ./build ]; then npm run build; fi; node ./build/app.js --help; exit 0",

@@ -9,3 +9,4 @@ client/package.json
 !proto/README.md
 !main.js
 !preload.js
+!headless.js
