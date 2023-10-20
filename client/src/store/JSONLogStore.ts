@@ -70,23 +70,26 @@ const defaultScript =
 	//
 	// @param preJSONString: string - optional non-JSON string proceeding JSON object
 	// @param jsonObject: {} - JSON log data
-	// @returns {date: Date, level: string, appName: string, message: string, additionalJSON: {} }
+	// @returns {date: Date, level: string, category: string, appName: string, message: string, additionalJSON: {} }
 	//
+	// category is the availability zone, processor...
 	// appName is the pod name, process ID...
 	//
 	const jsonLogScript = function (preJSONString, jsonObject) {
 		let date = new Date();
 		let level = 'info';
+		let category = 'My-Category';
 		let appName = 'My-App';
 		let message = 'This is a test message';
 		let additionalJSON = {};
-		return { date, level, appName, message, additionalJSON };
+		return { date, level, category, appName, message, additionalJSON };
 	}
 `;
 
 export type LogEntry = {
 	date: Date,
 	level: string,
+	category: string,
 	appName: string,
 	message: string,
 	additionalJSON: {}
@@ -95,6 +98,7 @@ export type LogEntry = {
 export type SimpleFields = {
 	date: string,
 	level: string,
+	category: string,
 	appName: string,
 	message: string
 }
@@ -102,11 +106,13 @@ export type SimpleFields = {
 export default class JSONLogStore {
 	private method: 'simple' | 'advanced' = 'simple';
 
-	private simpleFields: SimpleFields = { date: '', level: '', appName: '', message: '' };
+	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '' };
 
 	private script = defaultScript;
 
-	private scriptFunc = (_logEntry: string, _logentryJson: object) => { return { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} }; };
+	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
+		return { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
+	};
 
 	private fields: JSONLogField[] = [];
 
@@ -123,7 +129,7 @@ export default class JSONLogStore {
 	}
 
 	public getSimpleFields() { return this.simpleFields; }
-	public async setSimpleFields(field: 'date' | 'level' | 'appName' | 'message', value: string) {
+	public async setSimpleFields(field: 'date' | 'level' | 'category' | 'appName' | 'message', value: string) {
 		const oldValue = this.simpleFields[field];
 		this.simpleFields[field] = value;
 		if (oldValue !== '') {
@@ -154,16 +160,16 @@ export default class JSONLogStore {
 	@action public setScript(script: string) {
 		this.script = script;
 	}
-	public saveScript() {
+	@action public saveScript() {
 		apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
 	}
-	public updateScriptFunc() {
+	@action public updateScriptFunc() {
 		this.scriptFunc = this.evalScript(this.script);
 	}
-	public extractJSONFields(nonJson: string, jsonData: {
+	@action public extractJSONFields(nonJson: string, jsonData: {
 		[key: string]: any
 	}): LogEntry {
-		let logEntry: LogEntry = { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} };
+		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
 		if (jsonLogStore.getMethod() === 'simple') {
 			const simpleFields = jsonLogStore.getSimpleFields();
 			if (simpleFields.date !== '') {
@@ -171,7 +177,7 @@ export default class JSONLogStore {
 					logEntry.date = new Date(jsonData[simpleFields.date]);
 				} catch (e) { }
 			}
-			const setField = (field: 'level' | 'appName' | 'message') => {
+			const setField = (field: 'level' | 'category' | 'appName' | 'message') => {
 				if (simpleFields[field] !== '') {
 					const value = jsonData[simpleFields[field]] as string | undefined;
 					if (value) {
@@ -180,6 +186,7 @@ export default class JSONLogStore {
 				}
 			};
 			setField('level');
+			setField('category');
 			setField('appName');
 			setField('message');
 
@@ -191,7 +198,8 @@ export default class JSONLogStore {
 			}
 			if (logEntry.date === undefined) logEntry.date = new Date();
 			if (logEntry.level === undefined) logEntry.level = '';
-			if (logEntry.appName === undefined) logEntry.appName = 'App_name_not_defined?';
+			if (logEntry.category === undefined) logEntry.category = '';
+			if (logEntry.appName === undefined) logEntry.appName = 'appName is required';
 			if (logEntry.message === undefined) logEntry.message = '';
 		}
 		return logEntry;
@@ -231,7 +239,7 @@ export default class JSONLogStore {
 			}
 		}
 
-		const initSimpleField = async (field: 'date' | 'level' | 'appName' | 'message') => {
+		const initSimpleField = async (field: 'date' | 'level' | 'category' | 'appName' | 'message') => {
 			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
 			if (exists) {
 				this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
@@ -239,6 +247,7 @@ export default class JSONLogStore {
 		};
 		initSimpleField('date');
 		initSimpleField('level');
+		initSimpleField('category');
 		initSimpleField('appName');
 		initSimpleField('message');
 

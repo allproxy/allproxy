@@ -6,7 +6,7 @@ import Util from '../Util';
 import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatchingJsonFields } from "./JSONLogStore";
 import { snapshotStore } from "./SnapshotStore";
 
-export default class MessageStore {
+class MessageStoreBase {
     private message: Message = new Message();
     private url = '';
     private _isError = false;
@@ -15,7 +15,6 @@ export default class MessageStore {
     private iconClass = '';
     private tooltip = '';
     private note = '';
-    private logEntry: LogEntry = { date: new Date(), level: '', appName: '', message: '', additionalJSON: {} };
     private jsonFields: JsonField[] = [];
     private filtered = false;
 
@@ -38,9 +37,6 @@ export default class MessageStore {
         this.iconClass += ' ' + this.colorObj.iconClass;
         this.tooltip = message.method ? 'Click to resend request' : '';
         this.note = message.note;
-        if (message.protocol === 'log:') {
-            this.updateJsonLog();
-        }
         makeAutoObservable(this);
     }
 
@@ -52,25 +48,7 @@ export default class MessageStore {
         this.filtered = filtered;
     }
 
-    public async updateJsonLog() {
-        const message = this.message;
-
-        const responseBody = message.responseBody;
-        if (typeof responseBody === 'string') {
-            this.logEntry = jsonLogStore.extractJSONFields(responseBody, {});
-        } else {
-            this.logEntry = jsonLogStore.extractJSONFields(message.path, responseBody);
-        }
-
-        let json: { [key: string]: string } = {};
-        if (typeof message.responseBody === 'string') {
-            json = this.getLogEntry().additionalJSON;
-        } else {
-            json = {
-                ...this.getLogEntry().additionalJSON,
-                ...message.responseBody
-            };
-        }
+    @action protected async updateJsonLog2(json: { [key: string]: string }) {
         const newJsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
 
         const oldJsonFields = this.getJsonFields();
@@ -86,10 +64,6 @@ export default class MessageStore {
         }
 
         if (updateRequired) this.setJsonFields(newJsonFields);
-    }
-
-    public getLogEntry() {
-        return this.logEntry;
     }
 
     public getJsonFields() {
@@ -273,5 +247,41 @@ export default class MessageStore {
             || ((message.protocol === 'mysql:')
                 && message.status !== 0)
             || Util.isGraphQlError(message);
+    }
+}
+
+export default class MessageStore extends MessageStoreBase {
+    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
+
+    constructor(message: Message) {
+        super(message);
+        if (message.protocol === 'log:') {
+            this.updateJsonLog();
+        }
+    }
+
+    public async updateJsonLog() {
+        const message = this.getMessage();
+        const responseBody = message.responseBody;
+        if (typeof responseBody === 'string') {
+            this.logEntry = jsonLogStore.extractJSONFields(responseBody, {});
+        } else {
+            this.logEntry = jsonLogStore.extractJSONFields(message.path, responseBody);
+        }
+
+        let json: { [key: string]: string } = {};
+        if (typeof message.responseBody === 'string') {
+            json = this.logEntry.additionalJSON;
+        } else {
+            json = {
+                ...this.logEntry.additionalJSON,
+                ...message.responseBody
+            };
+        }
+        this.updateJsonLog2(json);
+    }
+
+    @action public getLogEntry() {
+        return this.logEntry;
     }
 }

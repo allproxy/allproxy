@@ -33,7 +33,7 @@ let labelIndex = 0;
 let appNameIndex = 0;
 const styleMap: { [key: string]: { background: string, color: string, lightColor: string, filter: string } } = {};
 
-export function pickAppNameStyle(name: string): { background: string, color: string, filter: string } {
+export function pickCategoryAppNameStyle(name: string): { background: string, color: string, filter: string } {
     return pickStyle(name, 'app');
 }
 

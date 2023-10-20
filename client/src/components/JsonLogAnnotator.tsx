@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { pickAppNameStyle, pickLabelStyle } from '../PickButtonStyle';
+import { pickCategoryAppNameStyle as pickCatAppNameStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
 import { jsonLogStore } from '../store/JSONLogStore';
 import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
@@ -8,9 +8,8 @@ import { themeStore } from '../store/ThemeStore';
 
 type Props = {
 	message: MessageStore,
-	maxLogAppNameSize: number,
 };
-const JsonLogAnnotator = observer(({ message, maxLogAppNameSize }: Props) => {
+const JsonLogAnnotator = observer(({ message }: Props) => {
 	return (
 		<div className="request__json-annotations">
 			{makeJSONRequestLabels(message).map((element) => {
@@ -60,23 +59,25 @@ const JsonLogAnnotator = observer(({ message, maxLogAppNameSize }: Props) => {
 			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem' }}>{messageText}</div>);
 		}
 
-		let appName = messageStore.getLogEntry().appName;
-		let appNames: JSX.Element[] = [];
-		if (appName !== '') {
-			for (const name of appName.split(' ')) {
-				const appNameStyle = pickAppNameStyle(name);
-				appNames = appNames.concat(
+		let catAppName = messageStore.getLogEntry().appName;
+		if (messageStore.getLogEntry().category !== '') catAppName = messageStore.getLogEntry().category + ' ' + catAppName;
+		let catAppNames: JSX.Element[] = [];
+		if (catAppName !== '') {
+			for (const name of catAppName.split(' ')) {
+				const catAppNameStyle = pickCatAppNameStyle(name);
+				catAppNames = catAppNames.concat(
 					<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 						<div className="json-label"
-							style={{ lineHeight: '1.2', display: 'inline-block', filter: appNameStyle.filter, padding: '0 .25rem', color: appNameStyle.color, borderRadius: '.25rem', background: appNameStyle.background }}>
+							style={{ lineHeight: '1.2', display: 'inline-block', filter: catAppNameStyle.filter, padding: '0 .25rem', color: catAppNameStyle.color, borderRadius: '.25rem', background: catAppNameStyle.background }}>
 							{name}
 						</div>
 					</div >);
 			}
-			const width = maxLogAppNameSize + 'ch';
+			//console.log(width);
 			elements.unshift(
-				<div style={{ display: 'inline-block', minWidth: width }}>
-					{appNames}
+				<div style={{ display: 'inline-block', marginRight: '2rem' }}>
+					{catAppNames}
+					<b> :</b>
 				</div>);
 		}
 

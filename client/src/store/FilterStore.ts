@@ -459,6 +459,9 @@ export default class FilterStore {
             } else {
                 operator = '==';
             }
+            if (key === 'cat' && (operator === '==' || operator === '===')) {
+                if (messageStore.getLogEntry().category.startsWith(value)) return false;
+            }
             if (key === 'app' && (operator === '==' || operator === '===')) {
                 if (messageStore.getLogEntry().appName.startsWith(value)) return false;
             }

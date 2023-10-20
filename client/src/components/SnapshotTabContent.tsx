@@ -98,16 +98,12 @@ const SnapshotTabContent = observer(({
 	let maxStatusSize = 0;
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
-	let maxLogAppNameSize = 0;
 	messageQueueStore.getMessages()
 		.forEach(messageStore => {
 			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
 			const method = messageStore.getMessage().method;
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
 			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
-			if (messageStore.getMessage().protocol === 'log:') {
-				maxLogAppNameSize = Math.max(maxLogAppNameSize, messageStore.getLogEntry().appName.split(' ')[0].length);
-			}
 		});
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
@@ -176,7 +172,6 @@ const SnapshotTabContent = observer(({
 										vertical={vertical}
 										isFiltered={isFiltered}
 										className={message.protocol === 'log:' && matchCount % 2 === 0 ? 'request__msg-even' : ''}
-										maxLogAppNameSize={maxLogAppNameSize}
 									/>);
 							}
 						})}
@@ -365,7 +360,7 @@ const SnapshotTabContent = observer(({
 					renderCount = scrollBottom / minEntryHeight;
 				}
 				renderCount = Math.floor(renderCount);
-				console.log('calcRenderCount', minEntryHeight, renderCount);
+				//console.log('calcRenderCount', minEntryHeight, renderCount);
 				resolve(renderCount);
 			});
 		});
