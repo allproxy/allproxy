@@ -1,6 +1,6 @@
 {
   "name": "allproxy",
-  "version": "3.32.10",
+  "version": "3.32.11",
   "description": "AllProxy: MITM HTTP Debugging Tool.",
   "keywords": [
     "proxy",
@@ -33,14 +33,11 @@
     "build-client": "npm run clean-client && cd ./client && npm run build",
     "clean": "rimraf ./build",
     "clean-client": "rimraf ./client/build",
-    "start": "electron-forge start",
+    "start": "node ./headless.js",
     "start-headless": "node ./headless.js",
     "headless": "npm run start-headless",
     "test": "cd ./client && npm run test",
-    "help": "if [ ! -d ./build ]; then npm run build; fi; node ./build/app.js --help; exit 0",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "help": "if [ ! -d ./build ]; then npm run build; fi; node ./build/app.js --help; exit 0"
   },
   "repository": {
     "type": "git",
@@ -53,15 +50,10 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.63",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
-    "@electron/remote": "^2.0.8",
     "@httptoolkit/browser-launcher": "^2.0.1",
     "async": "^3.2.4",
     "bufferutil": "^4.0.3",
     "decompress-response": "^3.3.0",
-    "electron-find": "^1.0.7",
-    "electron-squirrel-startup": "^1.0.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "lodash": "^4.17.21",
@@ -86,9 +78,6 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
-    "@electron-forge/maker-deb": "^6.0.0-beta.63",
-    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
     "@types/jquery": "^3.5.5",
     "@types/lodash": "^4.14.182",
     "@types/node": "^14.14.35",
@@ -99,7 +88,6 @@
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "ava": "^5.3.1",
-    "electron": "<=19.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",
