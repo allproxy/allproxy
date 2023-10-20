@@ -12,25 +12,26 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 
 ### Install
 
-> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.5-x64.dmg)**
-
-> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.5-1.x86_64.rpm)**
-
-> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy_3.32.5_amd64.deb)**
-
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.5.Setup.exe)**
-
-> Other install options:
+> Options:
 > 1. Install NPM package: `npm install -g allproxy`
 >    * Run: `allproxy` or `allproxy_win.bat`
->    * [localhost:8888/allproxy](http://localhost:8888/allproxy) in browser
 > 2. Clone repo and run: **npm install && npm run build && npm start**
-> 3. Clone repo and run headless: **npm install && npm run build && npm run headless**
->    * http://localhost:8888/allproxy in browser
 > 3. Docker container:
 >    * docker build -t allproxy .
 >    * docker run --name allproxy -i -t -v ~/.allproxy:/root/.allproxy —expose 8888 -p 9999:8888  allproxy
->    * http://localhost:8888/allproxy in browser
+
+> Open `allproxy` in browser;
+>    * [localhost:8888/allproxy](http://localhost:8888/allproxy)
+
+### Electron Packages
+
+> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.11-x64.dmg)**
+
+> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.11-1.x86_64.rpm)**
+
+> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy_3.32.11_amd64.deb)**
+
+> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.11.Setup.exe)**
 
 ### JSON Log Viewer
 

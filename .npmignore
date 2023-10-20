@@ -1,8 +1,6 @@
 /*
 client/*
 client/package.json
-node_modules/election*
-node_modules/@elections*
 !bin/
 !build/
 !client/build/
