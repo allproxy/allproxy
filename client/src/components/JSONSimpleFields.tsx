@@ -30,6 +30,15 @@ const JSONSimpleFields = observer(({ }: Props) => {
                 <TextField
                     id="json-app"
                     style={{ marginBottom: 16 }}
+                    label="Enter Category (optional)"
+                    variant='outlined'
+                    fullWidth
+                    value={jsonLogStore.getSimpleFields().category}
+                    onChange={(e) => jsonLogStore.setSimpleFields('category', e.target.value)}
+                />
+                <TextField
+                    id="json-app"
+                    style={{ marginBottom: 16 }}
                     label="Enter App Name Field"
                     variant='outlined'
                     fullWidth

@@ -22,7 +22,7 @@ type Props = {
 const SHOW_JSON_FIELD_VALUES = 'showFields';
 const TAB_NAMES: { [key: string]: string } = {};
 TAB_NAMES[JSON_FIELDS_DIR] = 'Annotate JSON Fields';
-TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, App Name and Message';
+TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, Category, App Name and Message';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = 'Show JSON Field Values';
 
 const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab }: Props) => {
@@ -105,7 +105,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 											{jsonLogStore.getMethod() === 'simple' ?
 												<JSONSimpleFields />
 												: <>
-													Write your own JavaScript to extract the date, level, app name and message fields.
+													Write your own JavaScript to extract the date, level, category, app name and message fields.
 													<p></p>
 													{error !== '' &&
 														<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
@@ -135,7 +135,8 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																<div>{'{'}</div>
 																<div>  "date": "2023-09-12T18:03:33.496Z"</div>
 																<div>  "level": "info"</div>
-																<div>  "pod_name": "my-pod-name"</div>
+																<div>  "zone": "zone1"</div>
+																<div>  "pod_name": "pod-name"</div>
 																<div>  "message": "This is a test message."</div>
 																<div>{'}'}</div>
 															</pre>
@@ -148,15 +149,17 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
 																<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string{'}'}</div>
 																<div>//</div>
+																<div>// <b>category</b> e.g., availability zone, processor... </div>
 																<div>// <b>appName</b> is the pod name, process ID... </div>
 																<div>//</div>
 																<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
 																<div>  let date = new Date(jsonObject.date);</div>
 																<div>  let level = jsonObject.level;</div>
+																<div>  let category = jsonObject.zone;</div>
 																<div>  let appName = jsonObject.pod_name;</div>
 																<div>  let message = jsonObject.message;</div>
 																<div>  let additionalJSON = {'{}'};</div>
-																<div>  return {'{date, level, appName, message, additionalJSON}'};</div>
+																<div>  return {'{date, level, category, appName, message, additionalJSON}'};</div>
 																<div>{'}'}</div>
 															</pre>
 														</div>
