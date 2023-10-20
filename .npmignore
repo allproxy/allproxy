@@ -1,15 +1,15 @@
 /*
 client/*
 client/package.json
-node_modules/lectron
-node_modules/electron-find
-node_modules/electron-installer-common
-node_modules/electron-installer-debian
-node_modules/electron-installer-dmg
-node_modules/electron-installer-redhat electron-packager
-node_modules/electron-squirrel-startup electron-winstaller
-node_modules/@electron
-node_modules/@electron-forge
+node_modules/lectron/
+node_modules/electron-find/
+node_modules/electron-installer-common/
+node_modules/electron-installer-debian/
+node_modules/electron-installer-dmg/
+node_modules/electron-installer-redhat electron-packager/
+node_modules/electron-squirrel-startup electron-winstaller/
+node_modules/@electron/
+node_modules/@electron-forge/
 !bin/
 !build/
 !client/build/
