@@ -114,7 +114,7 @@
     "forge": {
       "packagerConfig": {
         "icon": "icons/icon",
-        "ignore": "^/(common|css|icons|intercept|out|packages|proto|replace-responses|scripts|server|.git|client/node_modules|client/src|.gitignore|ca.pem|.http-mitm-proxy)|^/node_modules/(.bin|@electron-forge|electron-notarize|electron-osx-sign|electron-packager|electron-rebuild|electron-winstaller|@types|@typescript-eslint|eslint*|@eslint|nodemon|ts_node|typescript|@babel|.*/README.md|.*/readme.md|.*/CHANGELOG.md|.*/package-lock.json|.*/yarn.lock|.*/.DS_Store|.*/.git|.*/.hg|.*/.svn|.*/CVS|.*/RCS|.*/SCCS|.*/.gitignore|.*/.gitattributes|.*/Dockerfile|.*/test|.*/.*test.js)|^.+.(tsx|md|jpeg|gif|jpeg|jpg|png|avif|markdown|mkd|zip|tgz|tar.gz|cert|pem|key)$|^/node_modules/(.*/doc|.*/docs)$|^/node_modules/(.*/makefile|.*/gulpfile.js|.*/gruntfile.js|.*/karma.conf.js|.*/.*eslintrc..*)|^/node_modules/+..(h|c|cpp|ts)$"
+        "ignore": "^/(common|css|icons|intercept|out|packages|proto|replace-responses|scripts|server|.git|client/node_modules|client/src|.gitignore|ca.pem|.http-mitm-proxy)|^/node_modules/(.bin|@electron-forge|electron-notarize|electron-osx-sign|electron-packager|electron-rebuild|electron-winstaller|@types|@typescript-eslint|eslint*|@eslint|nodemon|ts_node|typescript|@babel|.*/README.md|.*/readme.md|.*/CHANGELOG.md|.*/package-lock.json|.*/yarn.lock|.*/.DS_Store|.*/.git|.*/.hg|.*/.svn|.*/CVS|.*/RCS|.*/SCCS|.*/.gitignore|.*/.gitattributes|.*/Dockerfile)|^.+.(tsx|md|jpeg|gif|jpeg|jpg|png|avif|markdown|mkd|zip|tgz|tar.gz|cert|pem|key)$|^/node_modules/(.*/doc|.*/docs)$|^/node_modules/(.*/makefile|.*/gulpfile.js|.*/gruntfile.js|.*/karma.conf.js|.*/.*eslintrc..*)|^/node_modules/+..(h|c|cpp|ts)$"
       },
       "makers": [
         {
