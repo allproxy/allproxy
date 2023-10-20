@@ -32,7 +32,7 @@ const JsonLogAnnotator = observer(({ message, maxLogAppNameSize }: Props) => {
 			const value = nonJson + JSON.stringify(message.responseBody);
 			elements.push(
 				<div className="transparent" style={{ display: 'inline-block', backgroundColor: 'transparent' }}>
-					< Accordion >
+					< Accordion onClick={(e) => e.stopPropagation()} >
 						<AccordionSummary expandIcon={<ExpandMoreIcon />}
 							style={{
 								backgroundColor: 'transparent'
