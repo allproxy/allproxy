@@ -139,9 +139,8 @@ const SnapshotTabContent = observer(({
 							if (!isActiveRequest && isFiltered) {
 								return null;
 							} else {
-								if (false && // disable!!!
+								if (
 									renderedCount >= renderCount &&
-									filterStore.getFilter().length === 0 &&
 									!messageQueueStore.getFullPageSearch() &&
 									(selectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === selectedReqSeqNum) &&
 									(unselectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === unselectedReqSeqNum)
@@ -350,14 +349,6 @@ const SnapshotTabContent = observer(({
 				const parent = (requestContainerRef.current as Element);
 				if (parent) {
 					const scrollBottom = parent.scrollTop + (parent.clientHeight * 2);
-
-					if (parent && parent.childNodes.length > 0) {
-						const children = parent.childNodes;
-						const element = (children[0] as Element);
-						if (element) {
-							minEntryHeight = element.clientHeight;
-						}
-					}
 					renderCount = scrollBottom / minEntryHeight;
 				}
 				renderCount = Math.floor(renderCount);
