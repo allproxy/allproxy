@@ -18,8 +18,8 @@ export default class SessionStore {
 
 		const fileNames = await apFileSystem.readDir('sessions/');
 		fileNames.sort((a, b) => {
-			a = a.split(' - ')[0];
-			b = b.split(' - ')[0];
+			a = a.split(' - ')[0].replaceAll('-', '/');
+			b = b.split(' - ')[0].replaceAll('-', '/');
 			return new Date(b).getTime() - new Date(a).getTime();
 		});
 		for (const fileName of fileNames) {
