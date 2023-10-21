@@ -23,15 +23,9 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 > Open `allproxy` in browser;
 >    * [localhost:8888/allproxy](http://localhost:8888/allproxy)
 
-### Electron Packages
+### Electron Application
 
-> Mac: **[allproxy.dmg](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.10-x64.dmg)**
-
-> RedHat: **[allproxy.rpm](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.10-1.x86_64.rpm)**
-
-> Ubuntu: **[allproxy.deb](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy_3.32.10_amd64.deb)**
-
-> Windows: **[Setup.exe](https://github.com/allproxy/allproxy/releases/download/v3.32.0/allproxy-3.32.10.Setup.exe)**
+See the [Release](https://github.com/allproxy/allproxy/releases) to download an Electron Applications for MacOS, Linux and Windows.
 
 ### JSON Log Viewer
 
