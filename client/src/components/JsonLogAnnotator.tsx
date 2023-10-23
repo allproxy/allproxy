@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { pickCategoryAppNameStyle as pickCatAppNameStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
-import { jsonLogStore } from '../store/JSONLogStore';
 import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
@@ -29,29 +28,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 
 			const value = nonJson + JSON.stringify(message.responseBody);
-			elements.push(
-				<div className="transparent" style={{ display: 'inline-block', backgroundColor: 'transparent' }}>
-					< Accordion onClick={(e) => e.stopPropagation()} >
-						<AccordionSummary expandIcon={<ExpandMoreIcon />}
-							style={{
-								backgroundColor: 'transparent'
-							}}
-						>
-							<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflowX: 'hidden', backgroundColor: 'transparent' }}> {value}</div>
-						</AccordionSummary>
-						<AccordionDetails>
-							<div style={{
-								wordBreak: 'break-all',
-								backgroundColor: themeStore.getTheme() === 'dark' ? '#333333' : 'whitesmoke',
-								color: themeStore.getTheme() === 'dark' ? 'whitesmoke' : undefined,
-								padding: '.5rem',
-								overflowY: 'auto'
-							}}>
-								{value}
-							</div>
-						</AccordionDetails>
-					</Accordion>
-				</div >);
+			elements.push(accordionValue(value));
 		}
 
 		let messageText = messageStore.getLogEntry().message;
@@ -111,26 +88,24 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			width = ((value + '').length - smallCount) + 'ch';
 		}
 
-		const showValue = !jsonLogStore.isFieldHidden(name);
 		const bg = background;
-		const opacity = showValue ? 1 : .3;
-		const displayName = showValue
-			? name
-			: name.length > 3 ? name.substring(0, 3) + "..." : name;
+		const displayName = name;
 
 		const elements: JSX.Element[] = [];
 		const element =
 			<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 				<div style={{ display: 'inline-block' }}>
 					<div className="json-label"
-						style={{ opacity: opacity, lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}
+						style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}
 					//title={showValue ? 'Click to hide value' : 'Click to show value'}
 					//onClick={(e) => toggleHiddenField(e, name)}
 					>
 						{displayName}
 					</div>
 				</div>
-				{showValue &&
+				{typeof value === 'string' && value.length > 500 ?
+					accordionValue(value)
+					:
 					<div className="json-value" style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
 				}
 			</div >;
@@ -138,10 +113,30 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		return elements;
 	}
 
-	// function toggleHiddenField(event: any, field: string) {
-	// 	event.stopPropagation();
-	// 	jsonLogStore.toggleHiddenField(field);
-	// }
+	function accordionValue(value: string) {
+		return (
+			< Accordion onClick={(e) => e.stopPropagation()} >
+				<AccordionSummary expandIcon={<ExpandMoreIcon />}
+					style={{
+						backgroundColor: 'transparent'
+					}}
+				>
+					<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflowX: 'hidden', backgroundColor: 'transparent' }}> {value}</div>
+				</AccordionSummary>
+				<AccordionDetails>
+					<div style={{
+						wordBreak: 'break-all',
+						backgroundColor: themeStore.getTheme() === 'dark' ? '#333333' : 'whitesmoke',
+						color: themeStore.getTheme() === 'dark' ? 'whitesmoke' : undefined,
+						padding: '.5rem',
+						overflowY: 'auto'
+					}}>
+						{value}
+					</div>
+				</AccordionDetails>
+			</Accordion>
+		);
+	}
 });
 
 export default JsonLogAnnotator;
