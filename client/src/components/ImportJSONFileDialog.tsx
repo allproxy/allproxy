@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, DialogTitle } from '@material-ui/core';
-import { useFilePicker } from 'use-file-picker';
 import { snapshotStore } from '../store/SnapshotStore';
 import { importJSONFile } from '../ImportJSONFile';
+import pako from 'pako';
 
 type Props = {
 	open: boolean,
@@ -11,23 +11,50 @@ type Props = {
 };
 const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
+	const [fileContent, setFileContent] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
 	const [submit, setSubmit] = React.useState(false);
 
-	const [openJSONFileSelector, { filesContent: jsonContent, clear: jsonClear }] = useFilePicker({
-		multiple: false
-	});
+	var input = document.createElement('input');
+	input.type = 'file';
+
+	let fileName: string;
+
+	input.onchange = (e: any) => {
+		let file = e.target.files[0];
+
+		// setting up the reader
+		const reader = new FileReader();
+
+		fileName = file.name;
+		const isGzip = file.type.indexOf('gzip') !== -1;
+		if (isGzip) {
+			reader.readAsArrayBuffer(file);
+		} else {
+			reader.readAsText(file, 'UTF-8');
+		}
+
+		let content;
+		// here we tell the reader what to do when it's done reading...
+		reader.onload = (readerEvent: any) => {
+			content = readerEvent.target.result; // this is the content!
+
+			if (isGzip) {
+				setFileContent(pako.ungzip(content, { to: 'string' }));
+			} else {
+				setFileContent(content);
+			}
+		};
+	};
 
 	if (submit) {
 		snapshotStore.setUpdating(true);
 		setSubmit(false);
 		onClose();
 		setTimeout(() => {
-			if (!!jsonContent.length) {
-				for (const fileContent of jsonContent) {
-					snapshotStore.importSnapshot(tabName, importJSONFile(fileContent.name, fileContent.content, []));
-				}
-				jsonClear();
+			if (!!fileContent.length) {
+				snapshotStore.importSnapshot(tabName, importJSONFile(fileName, fileContent, []));
+				setFileContent('');
 			} else if (pastedJSON.length > 0) {
 				const flatten = function (json: object) {
 					let line = JSON.stringify(json);
@@ -90,7 +117,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				<div className="primary-text-color">Import File or Paste Text:</div>
 				<div style={{ display: "flex", alignItems: "center", margin: ".5rem 0 1rem 0" }}>
 					<button className={'btn btn-primary btn-lg'} style={{ whiteSpace: 'nowrap' }}
-						onClick={() => { openJSONFileSelector(); }}
+						onClick={() => input.click()}
 					>
 						Import File
 					</button>
@@ -104,7 +131,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					/>
 				</div>
 				<button className={'btn btn-success'} style={{ float: "right" }}
-					disabled={tabName.length === 0 || (jsonContent.length === 0 && pastedJSON.length === 0)}
+					disabled={tabName.length === 0 || (fileContent.length === 0 && pastedJSON.length === 0)}
 					onClick={() => setSubmit(true)}
 				>
 					Submit
