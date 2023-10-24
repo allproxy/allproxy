@@ -2,6 +2,8 @@ import fs from 'fs';
 import { Socket } from 'socket.io';
 import ConsoleLog from './ConsoleLog';
 import Paths from './Paths';
+import { commandExists } from './interceptors/util/fs';
+const spawn = require('child_process').spawn;
 const rmdir = require('rimraf');
 
 export default class APFileSystem {
@@ -94,6 +96,27 @@ export default class APFileSystem {
             }
         })
 
+        // grepDir - find all files in a directory with a matching string
+        this.socket.on('grepDir', async (path: string, match: string, callback: (files: string[]) => void) => {
+            try {
+                const subDir = Paths.platform(path);
+
+                let output: string;
+                if (await commandExists('parallel')) {
+                    output = await run(`find ${subDir} -type f -print0 | parallel -0 grep -l -m 1 ${match} {}`, Paths.getDataDir());
+                } else {
+                    output = await run(`find ${subDir} -type f -exec grep -l -m 1 ${match} {} +`, Paths.getDataDir());
+                }
+
+                const files = output.toString().split('\n')
+
+                ConsoleLog.debug('ApFileSystem.grepDir', subDir, match, files);
+                callback(files);
+            } catch (e) {
+                console.log(e);
+            }
+        })
+
         // readFile
         this.socket.on('readFile', (path: string, offset: number, chunkSize: number, callback: (data: string, eof: boolean) => void) => {
             try {
@@ -112,4 +135,23 @@ export default class APFileSystem {
             }
         })
     }
+}
+
+async function run(command: string, cwd: string): Promise<string> {
+    console.log(command);
+    let response = ''
+    await new Promise(resolve => {
+        const tokens = command.split(' ');
+        const p = spawn(tokens[0], tokens.slice(1), { cwd, shell: true })
+        p.stdout.on('data', (data: Buffer) => {
+            //console.log(data.toString());
+            response += data.toString();
+        })
+        p.stderr.on('data', (data: Buffer) => {
+            console.error(data.toString());
+        })
+        p.on('exit', resolve)
+    })
+    console.log(response)
+    return response;
 }

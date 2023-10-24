@@ -76,6 +76,14 @@ export default class APFileSystem {
         });
     }
 
+    public async grepDir(path: string, match: string): Promise<string[]> {
+        return new Promise<string[]>((resolve) => {
+            this.socket?.emit('grepDir', path, match, (files: string[]) => {
+                resolve(files);
+            });
+        });
+    }
+
     // readFile
     public async readFile(path: string): Promise<string> {
         const chunks: string[] = [];
