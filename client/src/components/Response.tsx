@@ -39,7 +39,7 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 		<div>
 			<React.Fragment>
 				{!vertical && <div style={{ background: '#007bff', height: '0.1rem', marginRight: '4rem' }}></div>}
-				<IconButton style={{ marginRight: '.5rem' }} onClick={onClose} title="Close response panel">
+				<IconButton style={{ marginRight: '.5rem' }} onClick={onClose} title="Close">
 					<CloseIcon />
 				</IconButton>
 				<button className="btn btn-sm btn-success" onClick={onSync} title="Sync request and response panels">Sync</button>

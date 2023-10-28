@@ -4,6 +4,7 @@ import React from 'react';
 import { filterStore } from '../store/FilterStore';
 import { queryStore } from '../store/QueryStore';
 import CloseIcon from "@material-ui/icons/Close";
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import _ from 'lodash';
 
@@ -100,15 +101,15 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 								hidden={query.indexOf(filter) === -1 || !showQueries}
 							>
 								<div className="filter-bar__menu-item-links">
+									<Link href="#" style={{ color: 'red' }}
+										onClick={() => handleDeleteQuery(query)}>
+										<CloseIcon />
+									</Link>
 									<Link href="#"
 										onClick={() => queryStore.addAndSaveQuery(query)}
 										hidden={queryStore.getQueries().indexOf(query) !== -1}
-										style={{ marginRight: "1rem" }}>
-										Save
-									</Link>
-									<Link href="#"
-										onClick={() => handleDeleteQuery(query)}>
-										Delete
+										style={{ marginRight: "0rem", color: 'green' }}>
+										<BookmarkAddIcon />
 									</Link>
 								</div>
 								<div
