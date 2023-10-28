@@ -4,6 +4,7 @@ import MessageStore from '../store/MessageStore';
 import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
+import { filterStore } from '../store/FilterStore';
 
 type Props = {
 	message: MessageStore,
@@ -33,7 +34,8 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 		let messageText = messageStore.getLogEntry().message;
 		if (messageText !== '') {
-			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem' }}>{messageText}</div>);
+			const border = filterStore.isJSONFieldOperandMatch(messageText) ? `orange thin solid` : '';
+			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border }}> {messageText}</div >);
 		}
 
 		let catAppName = messageStore.getLogEntry().appName;
@@ -66,13 +68,15 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		for (const field of messageStore.getJsonFields()) {
 			const style = pickLabelStyle(field.name);
 			const bg = style.background;
-			elements = elements.concat(makeLabel(field.name, `${bg} thin solid`, style.background, style.color, style.filter, field.value));
+			const keyBorder = filterStore.isJSONFieldOperandMatch(field.name) ? `orange thick solid` : `${bg} thin solid`;
+			const valueBorder = filterStore.isJSONFieldOperandMatch(field.name) ? `orange thin solid` : undefined;
+			elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, style.background, style.color, style.filter, field.value));
 		}
 
 		return elements;
 	}
 
-	function makeLabel(name: string, border: string, background: string, color: string, filter: string, value: string | number | boolean): JSX.Element[] {
+	function makeLabel(name: string, keyBorder: string, valueBorder: string | undefined, background: string, color: string, filter: string, value: string | number | boolean): JSX.Element[] {
 		if (value === '') value = '""';
 
 		let width: string | undefined;
@@ -96,9 +100,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 				<div style={{ display: 'inline-block' }}>
 					<div className="json-label"
-						style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${border}` }}
-					//title={showValue ? 'Click to hide value' : 'Click to show value'}
-					//onClick={(e) => toggleHiddenField(e, name)}
+						style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${keyBorder}` }}
 					>
 						{displayName}
 					</div>
@@ -106,7 +108,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				{typeof value === 'string' && value.length > 500 ?
 					accordionValue(value)
 					:
-					<div className="json-value" style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width }}>{value}</div >
+					<div className="json-value" style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width, border: valueBorder }}>{value}</div >
 				}
 			</div >;
 		elements.push(element);

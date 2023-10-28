@@ -214,7 +214,7 @@ const SnapshotTabContent = observer(({
 									<IconButton style={{ marginRight: '.5rem' }} onClick={() => {
 										setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 										setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-									}} title="Close response panel">
+									}} title="Close">
 										<CloseIcon />
 									</IconButton>
 									<div className="center">

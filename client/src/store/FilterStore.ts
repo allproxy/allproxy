@@ -433,14 +433,38 @@ export default class FilterStore {
         return false;
     }
 
+    private parseKeyValue(operand: string) {
+        const i = operand.indexOf(':');
+        if (i !== -1 && operand.length > i + 1 && operand.substring(i + 1).indexOf(':') === -1) {
+            const key = operand.substring(0, i);
+            let value = operand.substring(i + 1);
+            return { key, value };
+        } else {
+            return { key: operand, value: undefined };
+        }
+    }
+
+    public isJSONFieldOperandMatch(jsonField: string): boolean {
+        const jsonFieldLower = jsonField.toLocaleLowerCase();
+        for (const operand of this.boolOperands) {
+            const keyValue = this.parseKeyValue(operand);
+            if (keyValue.value !== undefined) {
+                if (jsonFieldLower === keyValue.key.toLocaleLowerCase()) return true;
+            } else {
+                if (jsonFieldLower.indexOf(operand.toLocaleLowerCase()) !== -1) return true;
+            }
+        }
+        return false;
+    }
+
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
         const message = messageStore.getMessage();
 
         // Check for JSON key:value syntax
-        const i = needle.indexOf(':');
-        if (i !== -1 && needle.length > i + 1 && needle.substring(i + 1).indexOf(':') === -1) {
-            const key = needle.substring(0, i);
-            let value = needle.substring(i + 1);
+        const keyValue = this.parseKeyValue(needle);
+        if (keyValue.value !== undefined) {
+            const key = keyValue.key;
+            let value = keyValue.value;
             let operator: string;
             if (value.startsWith('>') || value.startsWith('<')) {
                 operator = value.substring(0, 1);
