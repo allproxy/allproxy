@@ -25,7 +25,7 @@ MITM debugging proxy with a web GUI to view and modify all of the HTTP and HTTPS
 
 ### Electron Application
 
-See the [Release](https://github.com/allproxy/allproxy/releases) to download an Electron Applications for MacOS, Linux and Windows.
+See the [Releases](https://github.com/allproxy/allproxy/releases) to download an Electron Applications for MacOS, Linux and Windows.
 
 ### JSON Log Viewer
 
