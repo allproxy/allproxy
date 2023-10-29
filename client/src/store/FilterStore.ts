@@ -495,6 +495,7 @@ export default class FilterStore {
             if (typeof message.responseBody !== 'string') {
                 if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
             }
+            if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;
             return true;
         }
 
