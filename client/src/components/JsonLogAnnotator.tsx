@@ -10,6 +10,8 @@ type Props = {
 	message: MessageStore,
 };
 const JsonLogAnnotator = observer(({ message }: Props) => {
+	const highlightColor = 'red';
+	const hightlightWidth = 'medium';
 	return (
 		<div className="request__json-annotations">
 			{makeJSONRequestLabels(message).map((element) => {
@@ -34,8 +36,8 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 		let messageText = messageStore.getLogEntry().message;
 		if (messageText !== '') {
-			const border = filterStore.isJSONFieldOperandMatch(messageText) ? `orange thin solid` : '';
-			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border }}> {messageText}</div >);
+			const border = '';
+			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border, lineHeight: '1.2' }}> {messageText}</div >);
 		}
 
 		let catAppName = messageStore.getLogEntry().appName;
@@ -67,10 +69,12 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		let elements: JSX.Element[] = [];
 		for (const field of messageStore.getJsonFields()) {
 			const style = pickLabelStyle(field.name);
-			const bg = style.background;
-			const keyBorder = filterStore.isJSONFieldOperandMatch(field.name) ? `orange thick solid` : `${bg} thin solid`;
-			const valueBorder = filterStore.isJSONFieldOperandMatch(field.name) ? `orange thin solid` : undefined;
-			elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, style.background, style.color, style.filter, field.value));
+			const bg = filterStore.isJSONFieldOperandMatch(field.name) ? 'yellow' : style.background;
+			const color = filterStore.isJSONFieldOperandMatch(field.name) ? 'black' : style.color;
+			const keyBorder = filterStore.isJSONFieldOperandMatch(field.name) ? `${highlightColor} ${hightlightWidth} solid` : `${bg} thin solid`;
+			const valueBorder = undefined;
+			const filter = filterStore.isJSONFieldOperandMatch(field.name) ? '' : style.filter;
+			elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, bg, color, filter, field.value));
 		}
 
 		return elements;
