@@ -444,14 +444,16 @@ export default class FilterStore {
         }
     }
 
-    public isJSONFieldOperandMatch(jsonField: string): boolean {
+    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): boolean {
         const jsonFieldLower = jsonField.toLocaleLowerCase();
+        const jsonValueLower = jsonValue.toLocaleLowerCase();
         for (const operand of this.boolOperands) {
             const keyValue = this.parseKeyValue(operand);
             if (keyValue.value !== undefined) {
                 if (jsonFieldLower === keyValue.key.toLocaleLowerCase()) return true;
             } else {
-                if (jsonFieldLower.indexOf(operand.toLocaleLowerCase()) !== -1) return true;
+                if (jsonFieldLower.endsWith(operand.toLocaleLowerCase())) return true;
+                if (jsonValueLower === operand.toLocaleLowerCase()) return true;
             }
         }
         return false;
