@@ -129,7 +129,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			< Accordion onClick={(e) => e.stopPropagation()} >
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}
 					style={{
-						backgroundColor: 'transparent'
+						backgroundColor: 'transparent', wordBreak: 'break-all'
 					}}
 				>
 					<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflowX: 'hidden', backgroundColor: 'transparent' }}> {value}</div>
