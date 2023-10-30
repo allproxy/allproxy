@@ -445,9 +445,11 @@ export default class FilterStore {
     }
 
     public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): boolean {
+        if (this.searchFilter.length === 0) return false;
         const jsonFieldLower = jsonField.toLocaleLowerCase();
         const jsonValueLower = jsonValue.toLocaleLowerCase();
-        for (const operand of this.boolOperands) {
+        const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
+        for (const operand of operands) {
             const keyValue = this.parseKeyValue(operand);
             if (keyValue.value !== undefined) {
                 if (jsonFieldLower === keyValue.key.toLocaleLowerCase()) return true;
