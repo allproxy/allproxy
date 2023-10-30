@@ -67,14 +67,13 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	function formatJSONRequestLabels(messageStore: MessageStore): JSX.Element[] {
 		let elements: JSX.Element[] = [];
-		let firstHighlight = false;
 		for (const field of messageStore.getJsonFields()) {
 			let highlight = false;
-			if (!firstHighlight && filterStore.isJSONFieldOperandMatch(field.name, typeof field.value === 'string' ? field.value : '')) {
-				firstHighlight = true;
+			if (filterStore.isJSONFieldOperandMatch(
+				field.name, typeof field.value === 'string' ? field.value : '')) {
 				highlight = true;
 			}
-			const style = highlight ? pickLabelStyle(field.name) : { background: '', color: '', filter: '' };
+			const style = pickLabelStyle(field.name);
 			const bg = highlight ? 'yellow' : style.background;
 			const color = highlight ? 'black' : style.color;
 			const keyBorder = highlight ? `${highlightColor} ${hightlightWidth} solid` : `${bg} thin solid`;
