@@ -434,8 +434,8 @@ export default class FilterStore {
     }
 
     private parseKeyValue(operand: string) {
-        const i = operand.indexOf(':');
-        if (i !== -1 && operand.length > i + 1 && operand.substring(i + 1).indexOf(':') === -1) {
+        const i = operand.lastIndexOf(':');
+        if (i !== -1 && operand.length > i + 1) {
             const key = operand.substring(0, i);
             let value = operand.substring(i + 1);
             return { key, value };
