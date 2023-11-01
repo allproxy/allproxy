@@ -208,34 +208,37 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									<dd>
 										A string term may include one or more words to match any substring in a line.
 									</dd>
-									<dt>JSON Field Term</dt>
+									<dt>JSON key:value</dt>
 									<dd>
-										A JSON field term matches the value of a specific JSON field.  The term <code>field:value</code> does a prefix match by default.  An operator may also be specified <code>field:<b>operator</b>value</code>:
+										A JSON key:value matches on JSON fields.  The <code>key:value</code> does a prefix match by default.  An operator may also be specified <code>key:<b>operator</b>value</code>:
 										<div style={{ paddingLeft: ".5rem" }}>
 											<div>
-												<b>field:<code>&gt;</code>value</b> JSON field float or int greater than value.
+												<b>key:<code>&gt;</code>value</b> JSON field float or int greater than value.
 											</div>
 											<div>
-												<b>field:<code>&gt;</code>value</b> JSON field float or int greater than value.
+												<b>key:<code>&gt;</code>value</b> JSON field float or int greater than value.
 											</div>
 											<div>
-												<b>field:<code>&ge;</code>value</b> JSON field float or int greater than or equal to value.
+												<b>key:<code>&ge;</code>value</b> JSON field float or int greater than or equal to value.
 											</div>
 											<div>
-												<b>field:<code>&lt;</code>value</b> JSON field float or int less than value.
+												<b>key:<code>&lt;</code>value</b> JSON field float or int less than value.
 											</div>
 											<div>
-												<b>field:<code>&le;</code>value</b> JSON field float or int less than or equal to value.
+												<b>key:<code>&le;</code>value</b> JSON field float or int less than or equal to value.
 											</div>
 											<div>
-												<b>field:<code>==</code>value</b> Prefix match on JSON field.  The value <code>*</code> matches all fields.
+												<b>key:<code>==</code>value</b> Prefix match on JSON field.  The value <code>*</code> matches all fields.
 											</div>
 											<div>
-												<b>field:<code>===</code>value</b> Exact match on JSON field.  The value <code>*</code> matches all fields.
+												<b>key:<code>===</code>value</b> Exact match on JSON field.  The value <code>*</code> matches all fields.
+											</div>
+											<div>
+												<b>*:<code>===</code>value</b> Match string value of any JSON field.  The <code>value</code> is checked against all JSON fields.
 											</div>
 										</div>
 									</dd>
-									<div>Multi-level JSON fields <code>field1.field2.field3:value</code> are also supported.</div>
+									<div>Multi-level JSON keys <code>field1.field2.field3:value</code> are also supported.</div>
 								</dl>
 							</div>
 							<h3>Boolean Operators</h3>
@@ -333,7 +336,8 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				onClose={() => setShowSessionModal(false)}
 				store={sessionStore}
 			/>
-			{showJSONFieldsModal &&
+			{
+				showJSONFieldsModal &&
 				<JSONFieldsModal
 					open={showJSONFieldsModal}
 					onClose={() => {

@@ -446,16 +446,17 @@ export default class FilterStore {
 
     public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): boolean {
         if (this.searchFilter.length === 0) return false;
-        const jsonFieldLower = jsonField.toLocaleLowerCase();
-        const jsonValueLower = jsonValue.toLocaleLowerCase();
+        const jsonFieldLower = jsonField.toLowerCase();
+        const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
         for (const operand of operands) {
             const keyValue = this.parseKeyValue(operand);
             if (keyValue.value !== undefined) {
-                if (jsonFieldLower === keyValue.key.toLocaleLowerCase()) return true;
+                if (jsonFieldLower === keyValue.key.toLowerCase()) return true;
+                if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
             } else {
-                if (jsonFieldLower.endsWith(operand.toLocaleLowerCase())) return true;
-                if (jsonValueLower === operand.toLocaleLowerCase()) return true;
+                if (jsonFieldLower.endsWith(operand.toLowerCase())) return true;
+                if (jsonValueLower === operand.toLowerCase()) return true;
             }
         }
         return false;
@@ -494,10 +495,18 @@ export default class FilterStore {
                 if (messageStore.getLogEntry().appName.startsWith(value)) return false;
             }
             if (typeof message.requestBody !== 'string') {
-                if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
+                if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
+                    return false;
+                } else {
+                    if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
+                }
             }
             if (typeof message.responseBody !== 'string') {
-                if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
+                if (key === '*' && JSON.stringify(message.responseBody).indexOf(`:"${value}"`) !== -1) {
+                    return false;
+                } else {
+                    if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
+                }
             }
             if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;
             return true;
