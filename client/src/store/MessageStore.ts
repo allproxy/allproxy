@@ -129,30 +129,6 @@ class MessageStoreBase {
         return this.visited;
     }
 
-    public getRequestUrl(): string {
-        let str = '';
-        if (this.isHttpOrHttps()) {
-            str = this.getUrl().startsWith('http:') || this.getUrl().startsWith('https:')
-                ? this.getUrl()
-                : `${this.message.protocol}//${this.message.serverHost}${this.getUrl()}`;
-            const tokens = str.split('://', 2);
-            const parts = tokens[1].split('/');
-            const host = parts[0];
-            let uri = parts.length === 1 ? '/' : '/' + parts.slice(1).join('/');
-            if (uri.indexOf('?') !== -1) {
-                uri = uri.replace('?', '<span class="request__msg-unhighlight">?');
-                uri += '</span>';
-            }
-
-            str = `${tokens[0]}://<span class="request__msg-highlight">${host}</span>${uri}`;
-        } else if (this.message.proxyConfig && this.message.proxyConfig.protocol === 'log:') {
-            str = this.getUrl();
-        } else {
-            str = `${this.message.serverHost} ${this.getUrl()}`;
-        }
-        return str;
-    }
-
     public getRequestClient(): string | undefined {
         let ip = this.message.clientIp;
         if (ip === undefined || ip === '127.0.0.1' || ip === '::1' || ip?.indexOf('loopback') !== -1) {

@@ -452,23 +452,4 @@ const SideBar = observer(() => {
 	);
 });
 
-// function getRequestLine(store: MessageStore) {
-// 	const message = store.getMessage();
-// 	return (
-// 		<div className={`request__msg`}>
-// 			{store.isHttpOrHttps() &&
-// 				<div className={(store.isError() ? 'error' : '') + ' request__msg-status'}>
-// 					{message.status}
-// 				</div>}
-// 			<div className="request__msg-request-line">
-// 				{message.method && message.method.length > 0 &&
-// 					<div className="request__msg-method">
-// 						{message.method}
-// 					</div>}
-// 				<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
-// 			</div>
-// 		</div>
-// 	);
-// }
-
 export default SideBar;

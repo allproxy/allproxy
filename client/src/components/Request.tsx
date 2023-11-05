@@ -8,6 +8,7 @@ import { snapshotStore } from "../store/SnapshotStore";
 import JsonLogAnnotator from "./JsonLogAnnotator";
 import NoteDialog from "./NoteDialog";
 import { themeStore } from "../store/ThemeStore";
+import RequestURL from "./RequestURL";
 
 
 type Props = {
@@ -133,7 +134,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 							{message.protocol === 'log:' ?
 								<JsonLogAnnotator message={store} />
 								:
-								<div dangerouslySetInnerHTML={{ __html: store.getRequestUrl() }} />
+								<RequestURL message={store} />
 							}
 						</div>
 					</div>
