@@ -4,6 +4,7 @@ import MessageStore from '../store/MessageStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import React from 'react';
 import { themeStore } from '../store/ThemeStore';
+import RequestURL from './RequestURL';
 
 type Props = {
 	open: boolean,
@@ -28,7 +29,7 @@ const BreakpointResponseModal = observer(({ open, onClose, store }: Props) => {
 					<h3 className="modal-title">Breakpoint: Edit Response</h3>
 					<div className="modal-body">
 						<div className="modal-full-screen-scroll">
-							<div dangerouslySetInnerHTML={{ __html: message.method + " " + store.getRequestUrl() }} />
+							<RequestURL message={store} />
 							<hr />
 							<h4>JSON Response Body:</h4>
 							<div style={{ marginTop: '1rem', marginBottom: '.5rem' }}>
