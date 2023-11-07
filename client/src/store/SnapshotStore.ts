@@ -115,6 +115,7 @@ export default class SnapshotStore {
 	private snapshots: Snapshots = new Snapshots();
 	private count = 0;
 	private updating = false;
+	private updatingMessage = '';
 	private notes = '';
 
 	public constructor() {
@@ -133,8 +134,12 @@ export default class SnapshotStore {
 	public isUpdating() {
 		return this.updating;
 	}
-	@action setUpdating(updating: boolean) {
+	@action setUpdating(updating: boolean, message: string = "Updating...") {
 		this.updating = updating;
+		this.updatingMessage = message;
+	}
+	public getUpdatingMessage() {
+		return this.updatingMessage;
 	}
 
 	public getSnapshots() {
