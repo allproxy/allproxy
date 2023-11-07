@@ -89,7 +89,8 @@ function App() {
 }
 
 const Updating = observer(() => {
-  return <StatusBox show={snapshotStore.isUpdating()}>Updating...</StatusBox>;
+  if (snapshotStore.getUpdatingMessage().length === 0) return null;
+  return <StatusBox show={snapshotStore.isUpdating()}>{snapshotStore.getUpdatingMessage()}</StatusBox>;
 });
 
 export default App;
