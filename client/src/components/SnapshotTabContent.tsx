@@ -133,7 +133,7 @@ const SnapshotTabContent = observer(({
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
-							const isFiltered = (!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) && filterStore.isFilteredNoCache(messageStore);
+							const isFiltered = renderedCount >= renderCount || ((!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) && filterStore.isFilteredNoCache(messageStore));
 							if (!isActiveRequest && isFiltered) {
 								return null;
 							} else {
