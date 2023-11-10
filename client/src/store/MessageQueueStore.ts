@@ -158,7 +158,6 @@ export default class MessageQueueStore {
 
 	@action public setScrollToTop(top: boolean) {
 		this.scrollToTop = top;
-		if (this.scrollToBottom) this.fullPageSearch = true;
 	}
 
 	public getScrollToBottom(): boolean {
@@ -167,7 +166,6 @@ export default class MessageQueueStore {
 
 	@action public setScrollToBottom(buttom: boolean) {
 		this.scrollToBottom = buttom;
-		if (this.scrollToBottom) this.fullPageSearch = true;
 	}
 
 	public getSortByReq(): boolean {

@@ -32,13 +32,9 @@ const SnapshotTabContent = observer(({
 	highlightSeqNum, setHighlightSeqNum
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
-	const [unselectedReqSeqNum, setUnselectedReqSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 	const [clickPendingSeqNum, setClickPendingSeqNum] = React.useState(Number.MAX_SAFE_INTEGER);
 
 	const messageStore = breakpointStore.getMessageStore();
-
-	let firstSeqNum = 0;
-	let lastSeqNum = 0;
 
 	const requestContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -54,6 +50,13 @@ const SnapshotTabContent = observer(({
 		if (messageQueueStore.getScrollPending()) {
 			if (messageQueueStore.getScrollToTop()) {
 				if (matchCount > 0) {
+					let firstSeqNum = 0;
+					for (const messageStore of messageQueueStore.getMessages()) {
+						if (!filterStore.isFilteredNoCache(messageStore)) {
+							firstSeqNum = messageStore.getMessage().sequenceNumber;
+							break;
+						}
+					}
 					messageQueueStore.setScrollToSeqNum(firstSeqNum);
 					setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 				}
@@ -61,6 +64,13 @@ const SnapshotTabContent = observer(({
 			}
 			if (messageQueueStore.getScrollToBottom()) {
 				if (matchCount > 0) {
+					let lastSeqNum = 0;
+					messageQueueStore.getMessages()
+						.forEach(messageStore => {
+							if (!filterStore.isFilteredNoCache(messageStore)) {
+								lastSeqNum = messageStore.getMessage().sequenceNumber;
+							}
+						});
 					messageQueueStore.setScrollToSeqNum(lastSeqNum);
 					setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 				}
@@ -74,7 +84,7 @@ const SnapshotTabContent = observer(({
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
-				setScrollTo(selectedReqSeqNum);
+				doScrollTo(selectedReqSeqNum);
 			}
 		} else {
 			restoreScrollTop();
@@ -86,7 +96,7 @@ const SnapshotTabContent = observer(({
 			const seqNum = messageQueueStore.getScrollToSeqNum();
 			messageQueueStore.setScrollToSeqNum(null);
 			if (seqNum !== null) {
-				setScrollTo(seqNum);
+				doScrollTo(seqNum, 3000);
 				messageQueueStore.setHighlightSeqNum(seqNum);
 				setHighlightSeqNum(seqNum);
 			}
@@ -97,7 +107,7 @@ const SnapshotTabContent = observer(({
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
 	messageQueueStore.getMessages()
-		.forEach(messageStore => {
+		.forEach((messageStore) => {
 			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
 			const method = messageStore.getMessage().method;
 			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
@@ -111,8 +121,12 @@ const SnapshotTabContent = observer(({
 	const vertical = layout.isVertical();
 	const requestContainerLayout = layout.requestContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 	const responseContainerLayout = layout.responseContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
+
+
 	let renderedCount = 0;
-	const renderCount = calcRenderCount(scrollTop);
+	let renderCount = calcRenderCount(scrollTop);
+
+	console.log('render');
 	return (
 		<div style={{
 			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollPending() ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
@@ -133,21 +147,12 @@ const SnapshotTabContent = observer(({
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
-							const isFiltered = renderedCount >= renderCount || ((!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) && filterStore.isFilteredNoCache(messageStore));
+							const isFiltered = renderedCount >= renderCount && highlightSeqNum < seqNum && !messageQueueStore.getFullPageSearch()
+								|| ((!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) && filterStore.isFilteredNoCache(messageStore));
 							if (!isActiveRequest && isFiltered) {
 								return null;
 							} else {
-								if (
-									renderedCount >= renderCount &&
-									!messageQueueStore.getFullPageSearch() &&
-									(selectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === selectedReqSeqNum) &&
-									(unselectedReqSeqNum === Number.MAX_SAFE_INTEGER || lastSeqNum === unselectedReqSeqNum)
-								) {
-									return null;
-								}
-								if (renderCount === 0) firstSeqNum = seqNum;
 								++renderedCount;
-								lastSeqNum = seqNum;
 								if (isActiveRequest) {
 									activeRequestIndex = index;
 								}
@@ -207,7 +212,6 @@ const SnapshotTabContent = observer(({
 								<>
 									<IconButton style={{ marginRight: '.5rem' }} onClick={() => {
 										setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-										setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 									}} title="Close">
 										<CloseIcon />
 									</IconButton>
@@ -258,13 +262,11 @@ const SnapshotTabContent = observer(({
 		setTimeout(() => {
 			const curSeqNum = selectedReqSeqNum;
 			setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-			setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 			if (seqNum !== curSeqNum) {
 				setSelectedReqSeqNum(seqNum);
 				messageQueueStore.setHighlightSeqNum(seqNum);
 				messageQueueStore.setScrollToSeqNum(seqNum);
 			} else {
-				setUnselectedReqSeqNum(seqNum);
 				messageQueueStore.setScrollToSeqNum(seqNum);
 			}
 			snapshotStore.setUpdating(false);
@@ -272,7 +274,6 @@ const SnapshotTabContent = observer(({
 	}
 
 	function handleScroll() {
-		setUnselectedReqSeqNum(Number.MAX_SAFE_INTEGER);
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			setScrollTop(parent.scrollTop);
@@ -305,7 +306,7 @@ const SnapshotTabContent = observer(({
 		}
 	}
 
-	function setScrollTo(seqNum: number): boolean {
+	function doScrollTo(seqNum: number, delay: number = 0): boolean {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
 			setTimeout(() => {
@@ -314,7 +315,7 @@ const SnapshotTabContent = observer(({
 					const children = parent.childNodes;
 					let elementIndex = 0;
 					let entryHeight = 0;
-					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
+					for (let i = 0; i < Math.min(messageQueueStore.getMessages().length, parent.childNodes.length); ++i) {
 						const msg = messageQueueStore.getMessages()[i].getMessage();
 						if (filterStore.isFiltered(messageQueueStore.getMessages()[i])) continue;
 						const element = (children[elementIndex] as Element);
@@ -335,7 +336,7 @@ const SnapshotTabContent = observer(({
 						//setScrollTop(offset);
 					}
 				}
-			});
+			}, delay);
 		}
 		return true;
 	}
