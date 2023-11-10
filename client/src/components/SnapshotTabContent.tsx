@@ -126,7 +126,6 @@ const SnapshotTabContent = observer(({
 	let renderedCount = 0;
 	let renderCount = calcRenderCount(scrollTop);
 
-	console.log('render');
 	return (
 		<div style={{
 			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollPending() ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
