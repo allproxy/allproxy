@@ -314,7 +314,7 @@ const SnapshotTabContent = observer(({
 					const children = parent.childNodes;
 					let elementIndex = 0;
 					let entryHeight = 0;
-					for (let i = 0; i < Math.min(messageQueueStore.getMessages().length, parent.childNodes.length); ++i) {
+					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 						const msg = messageQueueStore.getMessages()[i].getMessage();
 						if (filterStore.isFiltered(messageQueueStore.getMessages()[i])) continue;
 						const element = (children[elementIndex] as Element);
