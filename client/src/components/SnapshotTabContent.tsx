@@ -110,8 +110,6 @@ const SnapshotTabContent = observer(({
 						if (stIndex !== renderSet[0].getIndex()) {
 							setScrollTopIndex(stIndex);
 							messageQueueStore.setScrollToSeqNum(lastSeqNum);
-							setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-							setHighlightSeqNum(renderSet[0].getIndex());
 						}
 						break;
 					}
@@ -128,8 +126,6 @@ const SnapshotTabContent = observer(({
 						if (more) {
 							setScrollTopIndex(end.getIndex());
 							messageQueueStore.setScrollToSeqNum(end.getMessage().sequenceNumber);
-							setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-							setHighlightSeqNum(end.getMessage().sequenceNumber);
 						}
 						break;
 					}
@@ -369,21 +365,19 @@ const SnapshotTabContent = observer(({
 		const up = e.deltaY < 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
-			if (selectedReqSeqNum === Number.MAX_SAFE_INTEGER) {
-				const bottom = endOfScroll() - parent.clientHeight;
-				//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
-				if (messageQueueStore.getScrollAction() === undefined) {
-					const now = Date.now();
-					const elapsed = now - lastScrollTime;
-					if (elapsed > 1000) {
-						lastScrollTime = now;
-						if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
-							messageQueueStore.setScrollAction('pageup');
-							messageQueueStore.setScrollPending(true);
-						} else if (!up && parent.scrollTop + 1 >= bottom && parent.scrollTop === scrollTop && renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
-							messageQueueStore.setScrollAction('pagedown');
-							messageQueueStore.setScrollPending(true);
-						}
+			const bottom = endOfScroll() - parent.clientHeight;
+			//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
+			if (messageQueueStore.getScrollAction() === undefined) {
+				const now = Date.now();
+				const elapsed = now - lastScrollTime;
+				if (elapsed > 1000) {
+					lastScrollTime = now;
+					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
+						messageQueueStore.setScrollAction('pageup');
+						messageQueueStore.setScrollPending(true);
+					} else if (!up && parent.scrollTop + 1 >= bottom && parent.scrollTop === scrollTop && renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
+						messageQueueStore.setScrollAction('pagedown');
+						messageQueueStore.setScrollPending(true);
 					}
 				}
 			}
