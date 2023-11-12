@@ -10,9 +10,10 @@ const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 export default class MessageQueueStore {
 	private limit: number = this._getLimit();
 	private stopped: boolean = false;
+
 	private scrollPending: boolean = false;
-	private scrollToTop: boolean = false;
-	private scrollToBottom: boolean = false;
+	private scrollAction: 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined = undefined;
+
 	private sortByReq: boolean = true;
 	private freeze: boolean = false;
 	private freezeQ: Message[] = [];
@@ -152,20 +153,12 @@ export default class MessageQueueStore {
 		this.scrollPending = scrollPending;
 	}
 
-	public getScrollToTop(): boolean {
-		return this.scrollToTop;
+	public getScrollAction(): 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined {
+		return this.scrollAction;
 	}
 
-	@action public setScrollToTop(top: boolean) {
-		this.scrollToTop = top;
-	}
-
-	public getScrollToBottom(): boolean {
-		return this.scrollToBottom;
-	}
-
-	@action public setScrollToBottom(buttom: boolean) {
-		this.scrollToBottom = buttom;
+	@action public setScrollAction(action: 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined) {
+		this.scrollAction = action;
 	}
 
 	public getSortByReq(): boolean {

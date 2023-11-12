@@ -14,21 +14,25 @@ import JSONFieldButtons from './JSONFieldButtons';
 import { snapshotStore } from '../store/SnapshotStore';
 import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
+import MessageStore from '../store/MessageStore';
 
 let minEntryHeight = 26;
+let lastScrollTime = 0;
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
 	selectedReqSeqNum: number,
 	setSelectedReqSeqNum: (seqNum: number) => void,
 	scrollTop: number,
-	setScrollTop: (scrollTop: number) => void,
+	setScrollTop: (index: number) => void,
+	scrollTopIndex: number,
+	setScrollTopIndex: (index: number) => void,
 	highlightSeqNum: number,
 	setHighlightSeqNum: (seqNum: number) => void,
 }
 
 const SnapshotTabContent = observer(({
-	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, setScrollTop,
+	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, scrollTopIndex, setScrollTop, setScrollTopIndex,
 	highlightSeqNum, setHighlightSeqNum
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
@@ -48,34 +52,90 @@ const SnapshotTabContent = observer(({
 			setClickPendingSeqNum(Number.MAX_SAFE_INTEGER);
 		}
 		if (messageQueueStore.getScrollPending()) {
-			if (messageQueueStore.getScrollToTop()) {
-				if (matchCount > 0) {
-					let firstSeqNum = 0;
-					for (const messageStore of messageQueueStore.getMessages()) {
-						if (!filterStore.isFilteredNoCache(messageStore)) {
-							firstSeqNum = messageStore.getMessage().sequenceNumber;
-							break;
-						}
-					}
-					messageQueueStore.setScrollToSeqNum(firstSeqNum);
-					setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-				}
-				messageQueueStore.setScrollToTop(false);
-			}
-			if (messageQueueStore.getScrollToBottom()) {
-				if (matchCount > 0) {
-					let lastSeqNum = 0;
-					messageQueueStore.getMessages()
-						.forEach(messageStore => {
+			if (renderSet.length > 0) {
+				switch (messageQueueStore.getScrollAction()) {
+					case 'top': {
+						let firstSeqNum = 0;
+						for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
+							const messageStore = messageQueueStore.getMessages()[i];
 							if (!filterStore.isFilteredNoCache(messageStore)) {
-								lastSeqNum = messageStore.getMessage().sequenceNumber;
+								firstSeqNum = messageStore.getMessage().sequenceNumber;
+								setScrollTopIndex(i);
+								break;
 							}
-						});
-					messageQueueStore.setScrollToSeqNum(lastSeqNum);
-					setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+						}
+						messageQueueStore.setScrollToSeqNum(firstSeqNum);
+						setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+						setHighlightSeqNum(firstSeqNum);
+						break;
+					}
+					case 'bottom': {
+						let lastSeqNum = 0;
+						let stIndex = 0;
+						let back = 0;
+						for (let i = messageQueueStore.getMessages().length - 1; i >= 0; --i) {
+							const messageStore = messageQueueStore.getMessages()[i];
+							if (!filterStore.isFilteredNoCache(messageStore)) {
+								if (lastSeqNum === 0) {
+									lastSeqNum = messageStore.getMessage().sequenceNumber;
+								}
+								if (++back === renderCount) {
+									break;
+								}
+								stIndex = i;
+							}
+						}
+						setScrollTopIndex(stIndex);
+						messageQueueStore.setScrollToSeqNum(lastSeqNum);
+						setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+						setHighlightSeqNum(lastSeqNum);
+						break;
+					}
+					case 'pageup': {
+						let lastSeqNum = 0;
+						let stIndex = 0;
+						let back = 0;
+						for (let i = renderSet[0].getIndex(); i >= 0; --i) {
+							const messageStore = messageQueueStore.getMessages()[i];
+							if (!filterStore.isFilteredNoCache(messageStore)) {
+								if (lastSeqNum === 0) {
+									lastSeqNum = messageStore.getMessage().sequenceNumber;
+								}
+								if (++back === 4) {
+									break;
+								}
+								stIndex = i;
+							}
+						}
+						if (stIndex !== renderSet[0].getIndex()) {
+							setScrollTopIndex(stIndex);
+							messageQueueStore.setScrollToSeqNum(lastSeqNum);
+							setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+							setHighlightSeqNum(renderSet[0].getIndex());
+						}
+						break;
+					}
+					case 'pagedown': {
+						let end = renderSet[renderSet.length - 1];
+						let more = false;
+						for (let i = end.getIndex() + 1; i < messageQueueStore.getMessages().length; ++i) {
+							const messageStore = messageQueueStore.getMessages()[i];
+							if (!filterStore.isFilteredNoCache(messageStore)) {
+								more = true;
+								break;
+							}
+						}
+						if (more) {
+							setScrollTopIndex(end.getIndex());
+							messageQueueStore.setScrollToSeqNum(end.getMessage().sequenceNumber);
+							setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+							setHighlightSeqNum(end.getMessage().sequenceNumber);
+						}
+						break;
+					}
 				}
-				messageQueueStore.setScrollToBottom(false);
 			}
+			messageQueueStore.setScrollAction(undefined);
 			messageQueueStore.setScrollPending(false);
 		}
 	});
@@ -96,35 +156,71 @@ const SnapshotTabContent = observer(({
 			const seqNum = messageQueueStore.getScrollToSeqNum();
 			messageQueueStore.setScrollToSeqNum(null);
 			if (seqNum !== null) {
-				doScrollTo(seqNum, 3000);
+				doScrollTo(seqNum, 0);
 				messageQueueStore.setHighlightSeqNum(seqNum);
-				setHighlightSeqNum(seqNum);
 			}
 		}
 	}
 
+	function calcRenderCount(): number {
+		let renderCount;
+		const parent = (requestContainerRef.current as Element);
+		let height = parent ? parent.clientHeight : window.innerHeight;
+		height *= 2;
+		renderCount = height / minEntryHeight;
+		renderCount = Math.floor(renderCount);
+		return renderCount;
+	}
+
+	if (!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) {
+		for (const messageStore of messageQueueStore.getMessages()) {
+			filterStore.isFilteredNoCache(messageStore);
+		}
+	}
+
+	let renderCount = calcRenderCount();
+
+	let renderSet: MessageStore[] = [];
 	let maxStatusSize = 0;
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
-	messageQueueStore.getMessages()
-		.forEach((messageStore) => {
-			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
-			const method = messageStore.getMessage().method;
-			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
-			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
-		});
+
+	let activeReqSeqNumAdded = false;
+	const startIndex = messageQueueStore.getFullPageSearch() ? 0 : scrollTopIndex;
+	for (let i = startIndex; i < messageQueueStore.getMessages().length; ++i) {
+		const messageStore = messageQueueStore.getMessages()[i];
+		messageStore.setIndex(i);
+		maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
+		const method = messageStore.getMessage().method;
+		maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
+		maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
+
+		const message = messageStore.getMessage();
+		const seqNum = message.sequenceNumber;
+		const isActiveRequest = selectedReqSeqNum === seqNum;
+		const isFiltered = messageStore.isFiltered() || renderSet.length >= renderCount && !messageQueueStore.getFullPageSearch();
+		if (isActiveRequest || !isFiltered) {
+			renderSet.push(messageStore);
+		}
+		if (isActiveRequest) activeReqSeqNumAdded = true;
+	}
+
+	if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !activeReqSeqNumAdded) {
+		for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
+			const messageStore = messageQueueStore.getMessages()[i];
+			if (selectedReqSeqNum === messageStore.getMessage().sequenceNumber) {
+				renderSet.push(messageStore);
+				break;
+			}
+		}
+	}
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
-	let matchCount = 0;
 	let layout = snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName());
 	if (layout === undefined) layout = new LayoutStore();
 	const vertical = layout.isVertical();
 	const requestContainerLayout = layout.requestContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 	const responseContainerLayout = layout.responseContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
-
-
-	let renderedCount = 0;
-	let renderCount = calcRenderCount(scrollTop);
 
 	return (
 		<div style={{
@@ -141,22 +237,17 @@ const SnapshotTabContent = observer(({
 					<div className={'request__container '
 						+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
 						style={{ width: requestContainerLayout.width, height: requestContainerLayout.height }}
-						ref={requestContainerRef} onScroll={handleScroll}>
-						{messageQueueStore.getMessages().map((messageStore, index) => {
+						ref={requestContainerRef} onWheel={handleScroll}>
+						{renderSet.map((messageStore, index) => {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
 							const isActiveRequest = selectedReqSeqNum === seqNum;
-							const isFiltered = renderedCount >= renderCount && highlightSeqNum < seqNum && !messageQueueStore.getFullPageSearch()
-								|| ((!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) && filterStore.isFilteredNoCache(messageStore));
-							if (!isActiveRequest && isFiltered) {
-								return null;
-							} else {
-								++renderedCount;
-								if (isActiveRequest) {
-									activeRequestIndex = index;
-								}
-								matchCount++;
-								return (
+
+							if (isActiveRequest) {
+								activeRequestIndex = index;
+							}
+							return (
+								<>
 									<Request
 										maxStatusSize={maxStatusSize}
 										maxMethodSize={maxMethodSize}
@@ -168,12 +259,13 @@ const SnapshotTabContent = observer(({
 										onClick={() => setClickPendingSeqNum(seqNum)}
 										onResend={() => handleResend(message)}
 										vertical={vertical}
-										isFiltered={isFiltered}
-										className={message.protocol === 'log:' && matchCount % 2 === 0 ? 'request__msg-even' : ''}
-									/>);
-							}
+										isFiltered={messageStore.isFiltered()}
+										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
+									/>
+								</>
+							);
 						})}
-						{matchCount === 0 && (
+						{renderSet.length === 0 && (
 							<div className="center">
 								No matching request or response found.  Adjust your filter criteria.
 							</div>
@@ -268,33 +360,35 @@ const SnapshotTabContent = observer(({
 			} else {
 				messageQueueStore.setScrollToSeqNum(seqNum);
 			}
+			setHighlightSeqNum(seqNum);
 			snapshotStore.setUpdating(false);
 		});
 	}
 
-	function handleScroll() {
+	function handleScroll(e: any) {
+		const up = e.deltaY < 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
-			setScrollTop(parent.scrollTop);
-			// If the last message is visible, we need setFreeze(false) to cause
-			// all queued messages to be merged into the message queue, and become
-			// visible.
-			setTimeout(() => {
-				const parent = (requestContainerRef.current as Element);
-				if (parent && parent.childNodes.length > 0) {
-					const children = parent.childNodes;
-					let i = messageQueueStore.getMessages().length - 1;
-					i = Math.max(0, i - 1);
-					const element = (children[i] as Element);
-					if (element) {
-						const top = element.getBoundingClientRect().top;
-						if (top <= 800) {
-							messageQueueStore.setFreeze(false);
-							setTimeout(handleScroll, 1000);
+			if (selectedReqSeqNum === Number.MAX_SAFE_INTEGER) {
+				const bottom = endOfScroll() - parent.clientHeight;
+				//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
+				if (messageQueueStore.getScrollAction() === undefined) {
+					const now = Date.now();
+					const elapsed = now - lastScrollTime;
+					if (elapsed > 1000) {
+						lastScrollTime = now;
+						if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
+							messageQueueStore.setScrollAction('pageup');
+							messageQueueStore.setScrollPending(true);
+						} else if (!up && parent.scrollTop + 1 >= bottom && parent.scrollTop === scrollTop && renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
+							messageQueueStore.setScrollAction('pagedown');
+							messageQueueStore.setScrollPending(true);
 						}
 					}
 				}
-			});
+			}
+
+			setScrollTop(parent.scrollTop);
 		}
 	}
 
@@ -303,6 +397,21 @@ const SnapshotTabContent = observer(({
 		if (parent && parent.childNodes.length > 0) {
 			parent.scrollTop = scrollTop;
 		}
+	}
+
+	function endOfScroll(): number {
+		let offset = 0;
+		const parent = (requestContainerRef.current as Element);
+		if (parent && parent.childNodes.length > 0) {
+			const children = parent.childNodes;
+			for (let i = 0; i < renderSet.length; ++i) {
+				const element = (children[i] as Element);
+				if (!element) break;
+				offset += element.clientHeight;
+			}
+			return offset;
+		}
+		return 0;
 	}
 
 	function doScrollTo(seqNum: number, delay: number = 0): boolean {
@@ -314,11 +423,11 @@ const SnapshotTabContent = observer(({
 					const children = parent.childNodes;
 					let elementIndex = 0;
 					let entryHeight = 0;
-					for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
-						const msg = messageQueueStore.getMessages()[i].getMessage();
-						if (filterStore.isFiltered(messageQueueStore.getMessages()[i])) continue;
+					for (const messageStore of renderSet) {
+						const message = messageStore.getMessage();
 						const element = (children[elementIndex] as Element);
-						if (msg.sequenceNumber === seqNum) {
+						if (!element) return false;
+						if (message.sequenceNumber === seqNum) {
 							entryHeight = element.clientHeight;
 							break;
 						}
@@ -332,23 +441,12 @@ const SnapshotTabContent = observer(({
 						offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
 					) {
 						parent.scrollTop = offset;
-						//setScrollTop(offset);
+						setScrollTop(offset);
 					}
 				}
 			}, delay);
 		}
 		return true;
-	}
-
-	function calcRenderCount(scrollTop: number): number {
-		let renderCount = Number.MAX_SAFE_INTEGER;
-		const parent = (requestContainerRef.current as Element);
-		const height = parent ? parent.clientHeight : window.innerHeight;
-		const top = parent ? parent.scrollTop : scrollTop;
-		const scrollBottom = top + (height * 2);
-		renderCount = scrollBottom / minEntryHeight;
-		renderCount = Math.floor(renderCount);
-		return renderCount;
 	}
 });
 

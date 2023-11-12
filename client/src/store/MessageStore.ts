@@ -7,6 +7,7 @@ import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatch
 import { snapshotStore } from "./SnapshotStore";
 
 class MessageStoreBase {
+    private index: number = 0;
     private message: Message = new Message();
     private url = '';
     private _isError = false;
@@ -38,6 +39,14 @@ class MessageStoreBase {
         this.tooltip = message.method ? 'Click to resend request' : '';
         this.note = message.note;
         makeAutoObservable(this);
+    }
+
+    public setIndex(index: number) {
+        this.index = index;
+    }
+
+    public getIndex() {
+        return this.index;
     }
 
     public isFiltered() {
