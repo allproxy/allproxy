@@ -5,8 +5,9 @@ import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
 import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatchingJsonFields } from "./JSONLogStore";
 import { snapshotStore } from "./SnapshotStore";
+import { filterStore } from "./FilterStore";
 
-class MessageStoreBase {
+export class MessageStoreBase {
     private index: number = 0;
     private message: Message = new Message();
     private url = '';
@@ -17,7 +18,7 @@ class MessageStoreBase {
     private tooltip = '';
     private note = '';
     private jsonFields: JsonField[] = [];
-    private filtered = false;
+    private filtered: false | true | undefined = undefined;
 
     public constructor(message: Message) {
         this.message = message;
@@ -49,11 +50,12 @@ class MessageStoreBase {
         return this.index;
     }
 
-    public isFiltered() {
-        return this.filtered;
+    public isFiltered(): true | false {
+        const messageStore = this as unknown as MessageStore;
+        return this.filtered === undefined ? filterStore.isFilteredNoCache(messageStore) : this.filtered;
     }
 
-    public setFiltered(filtered: boolean) {
+    public setFiltered(filtered: true | false | undefined) {
         this.filtered = filtered;
     }
 

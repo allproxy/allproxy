@@ -108,10 +108,11 @@ export default class SocketStore {
 					if (noCaptureStore.contains(message)) {
 						return false;
 					}
+					const messageStore = new MessageStore(message);
 					if (
 						filterStore.getFilter().length > 0
 						&& filterStore.deleteFiltered()
-						&& filterStore.isFiltered(new MessageStore(message))) {
+						&& messageStore.isFiltered()) {
 						return false;
 					}
 					return true;

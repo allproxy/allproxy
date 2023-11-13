@@ -2,7 +2,6 @@ import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { snapshotStore } from "./SnapshotStore";
-import { filterStore } from "./FilterStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -400,7 +399,7 @@ export function getJsonFieldValues(fields: string[]): string[] {
 	type Values = string[];
 	const valueArray: Values[] = [];
 	for (const messageStore of messageQueueStore.getMessages()) {
-		if (filterStore.isFiltered(messageStore)) continue;
+		if (messageStore.isFiltered()) continue;
 		const message = messageStore.getMessage();
 		let json: { [key: string]: string } = {};
 		if (typeof message.responseBody === 'string') {
