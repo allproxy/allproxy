@@ -61,6 +61,7 @@ export default class FilterStore {
 
     @action public toggleMatchCase() {
         this._matchCase = !this._matchCase;
+        this.filterUpdated();
     }
 
     @action public setMatchCase(matchCase: boolean) {
@@ -73,6 +74,7 @@ export default class FilterStore {
 
     @action public toggleRegex() {
         this._regex = !this._regex;
+        this.filterUpdated();
     }
 
     @action public setRegex(regex: boolean) {
@@ -85,6 +87,7 @@ export default class FilterStore {
 
     @action public toggleLogical() {
         this._logical = !this._logical;
+        this.filterUpdated();
     }
 
     @action public setLogical(logical: boolean) {
@@ -97,6 +100,7 @@ export default class FilterStore {
 
     @action public toggleDeleteFiltered() {
         this._deleteFiltered = !this._deleteFiltered;
+        this.filterUpdated();
     }
 
     public getShowErrors(): boolean {
@@ -230,10 +234,14 @@ export default class FilterStore {
             }
             messageQueueStore.setScrollToSeqNum(messageQueueStore.getMessages()[0].getMessage().sequenceNumber);
         }
+        this.filterUpdated();
+        messageQueueStore.setFreeze(false);
+    }
+
+    @action private filterUpdated() {
         const i = snapshotStore.getSelectedSnapshotIndex();
         snapshotStore.getScrollTop()[i] = 0;
         snapshotStore.getScrollTopIndex()[i] = 0;
-        messageQueueStore.setFreeze(false);
     }
 
     @action public setFilter(filter: string) {
