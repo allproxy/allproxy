@@ -4,14 +4,13 @@ import MessageStore from './MessageStore';
 import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
 import { dateToHHMMSS } from "../components/Request";
 
-const DEFAULT_LIMIT = 1000;
+export const DEFAULT_LIMIT = 20000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 
 export default class MessageQueueStore {
 	private limit: number = this._getLimit();
 	private stopped: boolean = false;
 
-	private scrollPending: boolean = false;
 	private scrollAction: 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined = undefined;
 
 	private sortByReq: boolean = true;
@@ -105,8 +104,12 @@ export default class MessageQueueStore {
 	private _getLimit(): number {
 		const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
 		if (limit) {
-			return Number(limit);
+			// Ensure limit is at least 10000
+			if (Number(limit) >= 10000) {
+				return Number(limit);
+			}
 		}
+
 		localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
 		return DEFAULT_LIMIT;
 	}
@@ -143,14 +146,6 @@ export default class MessageQueueStore {
 
 	@action public toggleStopped() {
 		this.stopped = !this.stopped;
-	}
-
-	public getScrollPending(): boolean {
-		return this.scrollPending;
-	}
-
-	@action public setScrollPending(scrollPending: boolean) {
-		this.scrollPending = scrollPending;
 	}
 
 	public getScrollAction(): 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined {

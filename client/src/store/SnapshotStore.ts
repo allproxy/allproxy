@@ -1,9 +1,8 @@
 import { makeAutoObservable, action } from "mobx";
 import Message from '../common/Message';
 import { importJSONFile } from "../ImportJSONFile";
-import { filterStore } from "./FilterStore";
 import LayoutStore from "./LayoutStore";
-import { messageQueueStore } from "./MessageQueueStore";
+import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 import { dateToHHMMSS } from "../components/Request";
 
@@ -287,7 +286,8 @@ export default class SnapshotStore {
 		let data = "";
 		if (messages[0].protocol === 'log:') {
 			for (const message of messages) {
-				if (filterStore.isFiltered(new MessageStore(message))) continue;
+				const messageStore = new MessageStore(message);
+				if (messageStore.isFiltered()) continue;
 				let json = message.responseBody as { [key: string]: any };
 				const prefix = json['PREFIX'];
 				if (prefix) {
@@ -339,6 +339,7 @@ export default class SnapshotStore {
 				parsedBlob = JSON.parse(snapshot);
 				doDateSort = false; // no need to re-sort
 			} catch (e) {
+				console.log('importJSONFile');
 				parsedBlob = importJSONFile(fileName, snapshot, []);
 			}
 		} else {
@@ -371,7 +372,7 @@ export default class SnapshotStore {
 				message.sequenceNumber = i;
 			});
 		}
-		const chunkSize = 10000;
+		const chunkSize = DEFAULT_LIMIT;
 		while (messageStores.length > 0) {
 			if (messageStores.length > chunkSize) {
 				const copy = messageStores.splice(0, chunkSize);

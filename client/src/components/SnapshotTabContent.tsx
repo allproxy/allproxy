@@ -16,7 +16,9 @@ import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
 import MessageStore from '../store/MessageStore';
 
-let minEntryHeight = 26;
+const minEntryHeight = 26;
+const minRenderCount = 100;
+
 let lastScrollTime = 0;
 
 type Props = {
@@ -51,14 +53,14 @@ const SnapshotTabContent = observer(({
 			handleClick(clickPendingSeqNum);
 			setClickPendingSeqNum(Number.MAX_SAFE_INTEGER);
 		}
-		if (messageQueueStore.getScrollPending()) {
+		if (messageQueueStore.getScrollAction() !== undefined) {
 			if (renderSet.length > 0) {
 				switch (messageQueueStore.getScrollAction()) {
 					case 'top': {
 						let firstSeqNum = 0;
 						for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 							const messageStore = messageQueueStore.getMessages()[i];
-							if (!filterStore.isFilteredNoCache(messageStore)) {
+							if (!messageStore.isFiltered()) {
 								firstSeqNum = messageStore.getMessage().sequenceNumber;
 								setScrollTopIndex(i);
 								break;
@@ -75,7 +77,7 @@ const SnapshotTabContent = observer(({
 						let back = 0;
 						for (let i = messageQueueStore.getMessages().length - 1; i >= 0; --i) {
 							const messageStore = messageQueueStore.getMessages()[i];
-							if (!filterStore.isFilteredNoCache(messageStore)) {
+							if (!messageStore.isFiltered()) {
 								if (lastSeqNum === 0) {
 									lastSeqNum = messageStore.getMessage().sequenceNumber;
 								}
@@ -97,7 +99,7 @@ const SnapshotTabContent = observer(({
 						let back = 0;
 						for (let i = renderSet[0].getIndex(); i >= 0; --i) {
 							const messageStore = messageQueueStore.getMessages()[i];
-							if (!filterStore.isFilteredNoCache(messageStore)) {
+							if (!messageStore.isFiltered()) {
 								if (lastSeqNum === 0) {
 									lastSeqNum = messageStore.getMessage().sequenceNumber;
 								}
@@ -118,7 +120,7 @@ const SnapshotTabContent = observer(({
 						let more = false;
 						for (let i = end.getIndex() + 1; i < messageQueueStore.getMessages().length; ++i) {
 							const messageStore = messageQueueStore.getMessages()[i];
-							if (!filterStore.isFilteredNoCache(messageStore)) {
+							if (!messageStore.isFiltered()) {
 								more = true;
 								break;
 							}
@@ -132,7 +134,6 @@ const SnapshotTabContent = observer(({
 				}
 			}
 			messageQueueStore.setScrollAction(undefined);
-			messageQueueStore.setScrollPending(false);
 		}
 	});
 
@@ -165,13 +166,7 @@ const SnapshotTabContent = observer(({
 		height *= 2;
 		renderCount = height / minEntryHeight;
 		renderCount = Math.floor(renderCount);
-		return renderCount;
-	}
-
-	if (!snapshotStore.isUpdating() || snapshotStore.getUpdatingMessage().length === 0) {
-		for (const messageStore of messageQueueStore.getMessages()) {
-			filterStore.isFilteredNoCache(messageStore);
-		}
+		return Math.max(renderCount, minRenderCount);
 	}
 
 	let renderCount = calcRenderCount();
@@ -220,7 +215,7 @@ const SnapshotTabContent = observer(({
 
 	return (
 		<div style={{
-			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollPending() ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
+			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollAction() !== undefined ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
 		}}>
 			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
@@ -374,10 +369,8 @@ const SnapshotTabContent = observer(({
 					lastScrollTime = now;
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
 						messageQueueStore.setScrollAction('pageup');
-						messageQueueStore.setScrollPending(true);
 					} else if (!up && parent.scrollTop + 1 >= bottom && parent.scrollTop === scrollTop && renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
 						messageQueueStore.setScrollAction('pagedown');
-						messageQueueStore.setScrollPending(true);
 					}
 				}
 			}

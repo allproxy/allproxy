@@ -59,7 +59,7 @@ export default class SessionStore {
 					messages.push(messageStore.getMessage());
 				}
 				if (messages.length > 0) {
-					const data = JSON.stringify(messages, null, 2);
+					const data = JSON.stringify(messages);
 					let tabName = snapshotStore.getSnapshots().getFileName(key);
 					if (tabName === undefined) {
 						tabName = date;

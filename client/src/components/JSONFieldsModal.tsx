@@ -8,7 +8,6 @@ import React from 'react';
 import _ from 'lodash';
 import JSONFieldValues from './JSONFieldValues';
 import { messageQueueStore } from '../store/MessageQueueStore';
-import { filterStore } from '../store/FilterStore';
 import JSONFieldsMethod from './JSONFieldsMethod';
 import JSONSimpleFields from './JSONSimpleFields';
 
@@ -253,7 +252,7 @@ export function getJSONFields() {
 	const jsonFields: { name: string, count: number, selected: boolean }[] = [];
 	const jsonMap: { [key: string]: number } = { Time: 99999, Level: 99999, Message: 99999 };
 	for (const messageStore of messageQueueStore.getMessages()) {
-		if (filterStore.isFiltered(messageStore)) continue;
+		if (messageStore.isFiltered()) continue;
 		for (const field of messageStore.getJsonFields()) {
 			if (jsonMap[field.name]) {
 				jsonMap[field.name] = ++jsonMap[field.name];

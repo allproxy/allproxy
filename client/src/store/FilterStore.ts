@@ -1,9 +1,10 @@
 import { makeAutoObservable, action } from "mobx";
-import MessageStore from './MessageStore';
+import MessageStore, { MessageStoreBase } from './MessageStore';
 import _ from 'lodash';
 import { messageQueueStore } from "./MessageQueueStore";
 import { dateToHHMMSS } from "../components/Request";
 import { getJSONValue } from "./JSONLogStore";
+import { snapshotStore } from "./SnapshotStore";
 
 export default class FilterStore {
     private enabled = true;
@@ -222,6 +223,16 @@ export default class FilterStore {
         this.filter = filter;
         this.searchFilter = this.filter;
         this.updateBoolString();
+        if (messageQueueStore.getMessages().length > 0) {
+            for (const messageStore of messageQueueStore.getMessages()) {
+                messageStore.setFiltered(undefined);
+                this.isFiltered(messageStore); // Set "filtered"
+            }
+            messageQueueStore.setScrollToSeqNum(messageQueueStore.getMessages()[0].getMessage().sequenceNumber);
+        }
+        const i = snapshotStore.getSelectedSnapshotIndex();
+        snapshotStore.getScrollTop()[i] = 0;
+        snapshotStore.getScrollTopIndex()[i] = 0;
         messageQueueStore.setFreeze(false);
     }
 
@@ -539,7 +550,7 @@ export default class FilterStore {
         return typeof o !== 'string' ? JSON.stringify(o) : o;
     }
 
-    private isMessageExcluded(messageStore: MessageStore) {
+    private isMessageExcluded(messageStore: MessageStoreBase) {
         const message = messageStore.getMessage();
         if (message.proxyConfig && this.isExcluded(message.proxyConfig.protocol)) return true;
         if (this.isExcluded(message.protocol)) return true;
