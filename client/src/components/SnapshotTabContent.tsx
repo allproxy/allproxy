@@ -141,12 +141,11 @@ const SnapshotTabContent = observer(({
 	}
 
 	function checkForScrollTo() {
-		if (messageQueueStore.getScrollToSeqNum() !== null) {
-			const seqNum = messageQueueStore.getScrollToSeqNum();
+		const seqNum = messageQueueStore.getScrollToSeqNum();
+		if (seqNum !== null) {
 			messageQueueStore.setScrollToSeqNum(null);
-			if (seqNum !== null) {
-				doScrollTo(seqNum, 0);
-			}
+			const delay = messageQueueStore.getHighlightSeqNum() !== null ? 1000 : 0;
+			doScrollTo(seqNum, delay);
 		}
 	}
 
@@ -331,7 +330,6 @@ const SnapshotTabContent = observer(({
 	}
 
 	function handleClick(seqNum: number) {
-		snapshotStore.setUpdating(true, '');
 		setTimeout(() => {
 			const curSeqNum = selectedReqSeqNum;
 			setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
@@ -343,7 +341,6 @@ const SnapshotTabContent = observer(({
 				messageQueueStore.setScrollToSeqNum(seqNum);
 			}
 			setHighlightSeqNum(seqNum);
-			snapshotStore.setUpdating(false);
 		});
 	}
 
@@ -378,6 +375,7 @@ const SnapshotTabContent = observer(({
 	}
 
 	function findScrollTopIndex(): number {
+		const bottom = findScrollBottom();
 		let offset = 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
@@ -386,9 +384,9 @@ const SnapshotTabContent = observer(({
 				const element = (children[i] as Element);
 				if (!element) break;
 				offset += element.clientHeight;
-				if (offset >= parent.scrollTop) {
+				if (offset >= parent.scrollTop || offset + parent.clientHeight >= bottom) {
 					for (let j = 0; j < 2; ++j) {
-						if (i < renderSet.length - 1) {
+						if (i < renderSet.length - 1 && offset + parent.clientHeight < bottom) {
 							++i;
 						}
 					}

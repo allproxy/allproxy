@@ -38,9 +38,10 @@ export default class MessageQueueStore {
 	}
 	@action public setScrollToSeqNum(seqNum: number | null) {
 		this.scrollToSeqNum = seqNum;
-		if (seqNum !== null) {
-			this.forceRerender();
-		}
+		// if (seqNum !== null) {
+		// 	this.forceRerender();
+		// }
+		//console.log(seqNum);
 		return seqNum;
 	}
 	public getHighlightSeqNum() {

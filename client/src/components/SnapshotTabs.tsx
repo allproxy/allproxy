@@ -19,6 +19,9 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
 		snapshotStore.setSelectedSnapshotName(value);
+		for (const messageStore of snapshotStore.getSelectedMessages()) {
+			messageStore.setFiltered(undefined);
+		}
 	}
 
 	function handleTakeSnapshot(_value: string) {
