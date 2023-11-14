@@ -7,6 +7,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import _ from 'lodash';
+import DeleteDialog from './DeleteDialog';
 
 type Props = {
 };
@@ -15,6 +16,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	const [queries, setQueries] = React.useState<string[]>([]);
 	const [showQueries, setShowQueries] = React.useState(false);
 	const [showSavedQueries, setShowSavedQueries] = React.useState(false);
+	const [queryToDelete, setQueryToDelete] = React.useState("");
 
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -102,7 +104,9 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 							>
 								<div className="filter-bar__menu-item-links">
 									<Link href="#" style={{ color: 'red' }}
-										onClick={() => handleDeleteQuery(query)}>
+										onClick={() => {
+											setQueryToDelete(query);
+										}}>
 										<CloseIcon />
 									</Link>
 									<Link href="#"
@@ -156,6 +160,14 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 					}
 				</div>
 			</ClickAwayListener >
+			<DeleteDialog
+				open={queryToDelete.length > 0}
+				onClose={(doDelete: boolean) => {
+					setQueryToDelete("");
+					if (doDelete) {
+						handleDeleteQuery(queryToDelete);
+					}
+				}} />
 		</div >
 	);
 });
