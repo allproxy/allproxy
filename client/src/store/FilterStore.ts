@@ -242,6 +242,7 @@ export default class FilterStore {
         const i = snapshotStore.getSelectedSnapshotIndex();
         snapshotStore.getScrollTop()[i] = 0;
         snapshotStore.getScrollTopIndex()[i] = 0;
+        this.setResetScroll(true);
     }
 
     @action public setFilter(filter: string) {
