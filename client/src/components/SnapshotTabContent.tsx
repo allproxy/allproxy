@@ -133,7 +133,7 @@ const SnapshotTabContent = observer(({
 		if (filterStore.shouldResetScroll()) {
 			filterStore.setResetScroll(false);
 			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
-				doScrollTo(selectedReqSeqNum);
+				doScrollTo(selectedReqSeqNum, 1000);
 			}
 		} else {
 			restoreScrollTop();
@@ -145,7 +145,7 @@ const SnapshotTabContent = observer(({
 			const seqNum = messageQueueStore.getScrollToSeqNum();
 			messageQueueStore.setScrollToSeqNum(null);
 			if (seqNum !== null) {
-				doScrollTo(seqNum);
+				doScrollTo(seqNum, 0);
 			}
 		}
 	}
@@ -226,7 +226,7 @@ const SnapshotTabContent = observer(({
 							const isActiveRequest = selectedReqSeqNum === seqNum;
 
 							if (isActiveRequest) {
-								activeRequestIndex = index;
+								activeRequestIndex = messageStore.getIndex();
 							}
 							return (
 								<>
@@ -415,34 +415,41 @@ const SnapshotTabContent = observer(({
 		return 0;
 	}
 
-	function doScrollTo(seqNum: number): boolean {
+	function doScrollTo(seqNum: number, delay: number): boolean {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
-			let offset = 0;
-			const parent = (requestContainerRef.current as Element);
-			if (parent && parent.childNodes.length > 0) {
-				const children = parent.childNodes;
-				let elementIndex = 0;
-				let entryHeight = 0;
-				for (const messageStore of renderSet) {
-					const message = messageStore.getMessage();
-					const element = (children[elementIndex] as Element);
-					if (!element) return false;
-					if (message.sequenceNumber === seqNum) {
-						entryHeight = element.clientHeight;
-						break;
+			const changeScrollTop = () => {
+				let offset = 0;
+				const parent = (requestContainerRef.current as Element);
+				if (parent && parent.childNodes.length > 0) {
+					const children = parent.childNodes;
+					let elementIndex = 0;
+					let entryHeight = 0;
+					for (const messageStore of renderSet) {
+						const message = messageStore.getMessage();
+						const element = (children[elementIndex] as Element);
+						if (!element) return false;
+						if (message.sequenceNumber === seqNum) {
+							entryHeight = element.clientHeight;
+							break;
+						}
+						offset += element.clientHeight;
+						++elementIndex;
 					}
-					offset += element.clientHeight;
-					++elementIndex;
+					// if (offset > 0) {
+					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
+					// }
+					if ((offset < parent.scrollTop || // above
+						offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
+					) {
+						parent.scrollTop = offset;
+						setScrollTop(offset);
+					}
 				}
-				// if (offset > 0) {
-				// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
-				// }
-				if ((offset < parent.scrollTop || // above
-					offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
-				) {
-					parent.scrollTop = offset;
-					setScrollTop(offset);
-				}
+			};
+			if (delay > 0) {
+				setTimeout(changeScrollTop);
+			} else {
+				changeScrollTop();
 			}
 		}
 		return true;
