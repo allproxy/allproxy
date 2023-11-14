@@ -232,17 +232,21 @@ export default class FilterStore {
                 messageStore.setFiltered(undefined);
                 this.isFiltered(messageStore); // Set "filtered"
             }
-            messageQueueStore.setScrollToSeqNum(messageQueueStore.getMessages()[0].getMessage().sequenceNumber);
         }
         this.filterUpdated();
         messageQueueStore.setFreeze(false);
     }
 
-    @action private filterUpdated() {
+    @action public filterUpdated() {
+        if (messageQueueStore.getScrollToSeqNum() === null && messageQueueStore.getHighlightSeqNum() !== null) {
+            messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
+        }
         const i = snapshotStore.getSelectedSnapshotIndex();
         snapshotStore.getScrollTop()[i] = 0;
         snapshotStore.getScrollTopIndex()[i] = 0;
-        this.setResetScroll(true);
+        if (messageQueueStore.getScrollToSeqNum() === null) {
+            this.setResetScroll(true);
+        }
     }
 
     @action public setFilter(filter: string) {
