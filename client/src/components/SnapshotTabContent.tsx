@@ -116,18 +116,10 @@ const SnapshotTabContent = observer(({
 						break;
 					}
 					case 'pagedown': {
-						let end = renderSet[renderSet.length - 1];
-						let more = false;
-						for (let i = end.getIndex() + 1; i < messageQueueStore.getMessages().length; ++i) {
-							const messageStore = messageQueueStore.getMessages()[i];
-							if (!messageStore.isFiltered()) {
-								more = true;
-								break;
-							}
-						}
-						if (more) {
-							setScrollTopIndex(end.getIndex());
-							messageQueueStore.setScrollToSeqNum(end.getMessage().sequenceNumber);
+						const i = findScrollTopIndex();
+						if (i < messageQueueStore.getMessages().length - 1) {
+							setScrollTopIndex(i);
+							messageQueueStore.setScrollToSeqNum(messageQueueStore.getMessages()[i].getMessage().sequenceNumber);
 						}
 						break;
 					}
@@ -153,8 +145,7 @@ const SnapshotTabContent = observer(({
 			const seqNum = messageQueueStore.getScrollToSeqNum();
 			messageQueueStore.setScrollToSeqNum(null);
 			if (seqNum !== null) {
-				doScrollTo(seqNum, 0);
-				messageQueueStore.setHighlightSeqNum(seqNum);
+				doScrollTo(seqNum);
 			}
 		}
 	}
@@ -360,7 +351,7 @@ const SnapshotTabContent = observer(({
 		const up = e.deltaY < 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
-			const bottom = endOfScroll() - parent.clientHeight;
+			const bottom = findScrollBottom() - parent.clientHeight;
 			//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
 			if (messageQueueStore.getScrollAction() === undefined) {
 				const now = Date.now();
@@ -386,7 +377,30 @@ const SnapshotTabContent = observer(({
 		}
 	}
 
-	function endOfScroll(): number {
+	function findScrollTopIndex(): number {
+		let offset = 0;
+		const parent = (requestContainerRef.current as Element);
+		if (parent && parent.childNodes.length > 0) {
+			const children = parent.childNodes;
+			for (let i = 0; i < renderSet.length; ++i) {
+				const element = (children[i] as Element);
+				if (!element) break;
+				offset += element.clientHeight;
+				if (offset >= parent.scrollTop) {
+					for (let j = 0; j < 2; ++j) {
+						if (i < renderSet.length - 1) {
+							++i;
+						}
+					}
+					return renderSet[i].getIndex();
+				}
+			}
+			return renderSet[renderSet.length - 1].getIndex();
+		}
+		return 0;
+	}
+
+	function findScrollBottom(): number {
 		let offset = 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
@@ -401,37 +415,35 @@ const SnapshotTabContent = observer(({
 		return 0;
 	}
 
-	function doScrollTo(seqNum: number, delay: number = 0): boolean {
+	function doScrollTo(seqNum: number): boolean {
 		if (seqNum !== Number.MAX_SAFE_INTEGER) {
 			let offset = 0;
-			setTimeout(() => {
-				const parent = (requestContainerRef.current as Element);
-				if (parent && parent.childNodes.length > 0) {
-					const children = parent.childNodes;
-					let elementIndex = 0;
-					let entryHeight = 0;
-					for (const messageStore of renderSet) {
-						const message = messageStore.getMessage();
-						const element = (children[elementIndex] as Element);
-						if (!element) return false;
-						if (message.sequenceNumber === seqNum) {
-							entryHeight = element.clientHeight;
-							break;
-						}
-						offset += element.clientHeight;
-						++elementIndex;
+			const parent = (requestContainerRef.current as Element);
+			if (parent && parent.childNodes.length > 0) {
+				const children = parent.childNodes;
+				let elementIndex = 0;
+				let entryHeight = 0;
+				for (const messageStore of renderSet) {
+					const message = messageStore.getMessage();
+					const element = (children[elementIndex] as Element);
+					if (!element) return false;
+					if (message.sequenceNumber === seqNum) {
+						entryHeight = element.clientHeight;
+						break;
 					}
-					// if (offset > 0) {
-					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
-					// }
-					if ((offset < parent.scrollTop || // above
-						offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
-					) {
-						parent.scrollTop = offset;
-						setScrollTop(offset);
-					}
+					offset += element.clientHeight;
+					++elementIndex;
 				}
-			}, delay);
+				// if (offset > 0) {
+				// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
+				// }
+				if ((offset < parent.scrollTop || // above
+					offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
+				) {
+					parent.scrollTop = offset;
+					setScrollTop(offset);
+				}
+			}
 		}
 		return true;
 	}
