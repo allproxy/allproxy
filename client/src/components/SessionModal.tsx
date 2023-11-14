@@ -178,7 +178,6 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 				onClose={(doDelete: boolean) => {
 					setOpenDeleteDialog(false);
 					if (doDelete) {
-						console.log('delete', pendingDeleteIndex);
 						store.deleteEntry(pendingDeleteIndex);
 					}
 					setPendingDeleteIndex(-1);
