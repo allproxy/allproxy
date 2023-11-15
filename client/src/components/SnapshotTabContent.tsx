@@ -103,7 +103,7 @@ const SnapshotTabContent = observer(({
 								if (lastSeqNum === 0) {
 									lastSeqNum = messageStore.getMessage().sequenceNumber;
 								}
-								if (++back === 4) {
+								if (++back === 3) {
 									break;
 								}
 								stIndex = i;
@@ -353,7 +353,7 @@ const SnapshotTabContent = observer(({
 			if (messageQueueStore.getScrollAction() === undefined) {
 				const now = Date.now();
 				const elapsed = now - lastScrollTime;
-				if (elapsed > 1000) {
+				if (elapsed > 100) {
 					lastScrollTime = now;
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
 						messageQueueStore.setScrollAction('pageup');
