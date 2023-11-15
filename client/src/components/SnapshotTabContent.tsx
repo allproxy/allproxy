@@ -242,7 +242,11 @@ const SnapshotTabContent = observer(({
 										vertical={vertical}
 										isFiltered={messageStore.isFiltered()}
 										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
-										doHighlight={() => setHighlightSeqNum(seqNum)}
+										doHighlight={() => {
+											setHighlightSeqNum(seqNum);
+											setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+										}
+										}
 									/>
 								</>
 							);
