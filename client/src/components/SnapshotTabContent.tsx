@@ -103,7 +103,7 @@ const SnapshotTabContent = observer(({
 								if (lastSeqNum === 0) {
 									lastSeqNum = messageStore.getMessage().sequenceNumber;
 								}
-								if (++back === 4) {
+								if (++back === 3) {
 									break;
 								}
 								stIndex = i;
@@ -242,6 +242,7 @@ const SnapshotTabContent = observer(({
 										vertical={vertical}
 										isFiltered={messageStore.isFiltered()}
 										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
+										doHighlight={() => setHighlightSeqNum(seqNum)}
 									/>
 								</>
 							);
@@ -348,16 +349,19 @@ const SnapshotTabContent = observer(({
 		const up = e.deltaY < 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
-			const bottom = findScrollBottom() - parent.clientHeight;
+			const scrollBottom = findScrollBottom();
 			//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
 			if (messageQueueStore.getScrollAction() === undefined) {
 				const now = Date.now();
 				const elapsed = now - lastScrollTime;
-				if (elapsed > 1000) {
+				if (elapsed > 100) {
 					lastScrollTime = now;
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
 						messageQueueStore.setScrollAction('pageup');
-					} else if (!up && parent.scrollTop + 1 >= bottom && parent.scrollTop === scrollTop && renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
+					} else if (!up &&
+						parent.scrollTop + 1 >= scrollBottom - parent.clientHeight &&
+						parent.scrollTop === scrollTop &&
+						renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
 						messageQueueStore.setScrollAction('pagedown');
 					}
 				}

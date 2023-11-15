@@ -23,8 +23,9 @@ type Props = {
 	vertical: boolean,
 	isFiltered: boolean,
 	className: string,
+	doHighlight: () => void,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className, doHighlight }: Props) => {
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
 	const handleClick = () => {
@@ -74,37 +75,6 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 						>
 						</div>
 					}
-					<div hidden={!isActive} style={{ display: 'flex', height: '26px' }}>
-						<IconButton size="small">
-							<div className="header__export fa fa-copy" title="Copy to clipboard"
-								style={{ marginRight: '0rem' }}
-								onClick={() => {
-									navigator.clipboard.writeText(snapshotStore.copyMessage(message));
-								}}
-							>
-							</div>
-						</IconButton>
-						<IconButton size="small">
-							<div className="fa fa-sticky-note"
-								title="Add note"
-								style={{ marginRight: '0rem', color: '#E8A317' }}
-								onClick={() => {
-									setOpenNoteDialog(true);
-								}}
-							>
-							</div>
-						</IconButton>
-						<IconButton size="small" hidden={!canResend()}>
-							<div className="fa fa-paper-plane"
-								title="Resend HTTP request"
-								style={{ marginRight: '.25rem' }}
-								onClick={() => {
-									onResend();
-								}}
-							>
-							</div>
-						</IconButton>
-					</div>
 
 					<div className={`request__msg
 						${message.protocol !== 'log:' ? ' nowrap' : ''}
@@ -113,16 +83,50 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
 						title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
-						onClick={handleClick}
 					>
-						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`} />
+						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
+							style={{ marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
+							onClick={handleClick} />
+						<div hidden={!isActive} style={{ display: 'flex', height: '26px' }}>
+							<IconButton size="small">
+								<div className="header__export fa fa-copy" title="Copy to clipboard"
+									style={{ marginRight: '0rem' }}
+									onClick={() => {
+										navigator.clipboard.writeText(snapshotStore.copyMessage(message));
+									}}
+								>
+								</div>
+							</IconButton>
+							<IconButton size="small">
+								<div className="fa fa-sticky-note"
+									title="Add note"
+									style={{ marginRight: '0rem', color: '#E8A317' }}
+									onClick={() => {
+										setOpenNoteDialog(true);
+									}}
+								>
+								</div>
+							</IconButton>
+							<IconButton size="small" hidden={!canResend()}>
+								<div className="fa fa-paper-plane"
+									title="Resend HTTP request"
+									style={{ marginRight: '.25rem' }}
+									onClick={() => {
+										onResend();
+									}}
+								>
+								</div>
+							</IconButton>
+						</div>
 						{store.isHttpOrHttps() &&
 							<div className={(store.isError() ? 'error' : '') + ' request__msg-status'} style={{ width: maxStatusSize + 'ch' }}>
 								{message.status}
 							</div>}
 						<div className={`
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
-						`} style={{ textDecoration: isFiltered ? "line-through" : undefined }}>
+						`}
+							style={{ textDecoration: isFiltered ? "line-through" : undefined }}
+							onClick={doHighlight}>
 							{message.method && message.method.length > 0 &&
 								<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
 									{message.method}

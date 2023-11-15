@@ -314,10 +314,7 @@ export default class SnapshotStore {
 			}
 		}
 		// message.path is any non-json data before JSON object.  It is called the PREFIX.
-		let line = message.path + JSON.stringify(json);
-		line = line.replace(/\\n/g, '');
-		line = line.replace(/\\r/g, '');
-		line = line.replace(/\\"/g, '');
+		let line = message.path + compressJSON(json);
 		return line;
 	}
 
@@ -391,6 +388,15 @@ export default class SnapshotStore {
 		const snapshot = this.snapshots.get(this.selectedSnapshotName);
 		return snapshot;
 	}
+}
+
+export function compressJSON(json: object) {
+	let line = JSON.stringify(json);
+	line = line.replace(/\\n/g, '');
+	line = line.replace(/\\r/g, '');
+	line = line.replace(/\\"/g, '');
+	line = line.replace(/ /g, '');
+	return line;
 }
 
 export const snapshotStore = new SnapshotStore();

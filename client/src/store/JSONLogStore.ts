@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
-import { snapshotStore } from "./SnapshotStore";
+import { compressJSON, snapshotStore } from "./SnapshotStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -365,6 +365,9 @@ export function getJSONValue(json: { [key: string]: any }, field: string): undef
 					break;
 				}
 			}
+		}
+		if (typeof value === 'object') {
+			value = compressJSON(value);
 		}
 		if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return undefined;
 		else return value;
