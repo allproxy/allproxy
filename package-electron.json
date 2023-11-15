@@ -62,6 +62,7 @@
     "decompress-response": "^3.3.0",
     "electron-find": "^1.0.7",
     "electron-squirrel-startup": "^1.0.0",
+    "fetch-to-curl": "^0.6.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "lodash": "^4.17.21",
