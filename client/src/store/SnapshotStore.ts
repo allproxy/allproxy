@@ -5,6 +5,7 @@ import LayoutStore from "./LayoutStore";
 import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 import { dateToHHMMSS } from "../components/Request";
+import fetchToCurl from 'fetch-to-curl';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
 
@@ -318,6 +319,15 @@ export default class SnapshotStore {
 		return line;
 	}
 
+	public copyAsCurl(message: Message): string {
+		return fetchToCurl({
+			url: message.url,
+			headers: getSafeHeaders(message),
+			method: message.method,
+			body: message.requestBody ? message.requestBody : undefined
+		});
+	}
+
 	public exportSelectedSnapshot(fileName: string) {
 		const data = this.copySelectedSnapshot();
 		const file = new Blob([data], { type: 'text/plain' });
@@ -389,6 +399,28 @@ export default class SnapshotStore {
 		return snapshot;
 	}
 }
+
+function getSafeHeaders(message: Message) {
+	const headers: { [key: string]: string } = {};
+	const unsafeHeaders = [
+		'host',
+		'connection',
+		'content-length',
+		'origin',
+		'referer',
+		'accept-encoding',
+		'cookie',
+		'sec-fetch-dest',
+		'proxy-connection'
+	];
+	for (const header in message.requestHeaders) {
+		if (unsafeHeaders.indexOf(header) === -1) {
+			headers[header] = message.requestHeaders[header];
+		}
+	}
+	return headers;
+}
+
 
 export function compressJSON(json: object) {
 	let line = JSON.stringify(json);

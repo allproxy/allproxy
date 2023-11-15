@@ -87,7 +87,18 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
 							style={{ marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
 							onClick={handleClick} />
-						<div hidden={!isActive} style={{ display: 'flex', height: '26px' }}>
+
+						<div hidden={!isActive} style={{ display: 'flex', height: '26px', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}>
+							<IconButton size="small" hidden={!canResend()}>
+								<div title="Copy cURL to clipboard"
+									className="btn-xs btn-primary"
+									style={{ marginRight: '0rem' }}
+									onClick={() => {
+										navigator.clipboard.writeText(snapshotStore.copyAsCurl(message));
+									}}>
+									cURL
+								</div>
+							</IconButton>
 							<IconButton size="small">
 								<div className="header__export fa fa-copy" title="Copy to clipboard"
 									style={{ marginRight: '0rem' }}
@@ -97,7 +108,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 								>
 								</div>
 							</IconButton>
-							<IconButton size="small">
+							<IconButton size="small" hidden>
 								<div className="fa fa-sticky-note"
 									title="Add note"
 									style={{ marginRight: '0rem', color: '#E8A317' }}
