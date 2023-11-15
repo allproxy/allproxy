@@ -348,7 +348,7 @@ const SnapshotTabContent = observer(({
 		const up = e.deltaY < 0;
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
-			const bottom = findScrollBottom() - parent.clientHeight;
+			const scrollBottom = findScrollBottom();
 			//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
 			if (messageQueueStore.getScrollAction() === undefined) {
 				const now = Date.now();
@@ -357,7 +357,10 @@ const SnapshotTabContent = observer(({
 					lastScrollTime = now;
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
 						messageQueueStore.setScrollAction('pageup');
-					} else if (!up && parent.scrollTop + 1 >= bottom && parent.scrollTop === scrollTop && renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
+					} else if (!up &&
+						parent.scrollTop + 1 >= scrollBottom - parent.clientHeight &&
+						parent.scrollTop === scrollTop &&
+						renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
 						messageQueueStore.setScrollAction('pagedown');
 					}
 				}
