@@ -244,7 +244,9 @@ const SnapshotTabContent = observer(({
 										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
 										doHighlight={() => {
 											setHighlightSeqNum(seqNum);
-											setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+											if (seqNum !== selectedReqSeqNum) {
+												setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+											}
 										}
 										}
 									/>
