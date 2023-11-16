@@ -116,6 +116,7 @@ export default class FilterStore {
 
     @action public setExcludeTags(excludeList: string[]) {
         this.excludeTags = excludeList;
+        this.filterUpdated();
     }
 
     public excludeMatchCase(): boolean {
@@ -227,17 +228,15 @@ export default class FilterStore {
         this.filter = filter;
         this.searchFilter = this.filter;
         this.updateBoolString();
-        if (messageQueueStore.getMessages().length > 0) {
-            for (const messageStore of messageQueueStore.getMessages()) {
-                messageStore.setFiltered(undefined);
-                this.isFiltered(messageStore); // Set "filtered"
-            }
-        }
         this.filterUpdated();
         messageQueueStore.setFreeze(false);
     }
 
     @action public filterUpdated() {
+        for (const messageStore of messageQueueStore.getMessages()) {
+            messageStore.setFiltered(undefined);
+        }
+
         if (messageQueueStore.getScrollToSeqNum() === null && messageQueueStore.getHighlightSeqNum() !== null) {
             messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
         }
