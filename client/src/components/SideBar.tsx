@@ -224,8 +224,8 @@ const SideBar = observer(() => {
 					</MenuItem>
 				</Menu>
 			</div>
-			<hr className="side-bar-divider"></hr>
-			<div className="side-bar-item">
+			<hr className="side-bar-divider" hidden={isJsonLogViewer()}></hr>
+			<div className="side-bar-item" hidden={isJsonLogViewer()}>
 				<div>
 					<div hidden style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
@@ -235,7 +235,7 @@ const SideBar = observer(() => {
 							onChange={() => messageQueueStore.toggleSaveQueriesFeature()} />
 						Save Queries
 					</div>
-					<div style={{ display: 'flex' }}>
+					<div style={{ display: 'flex' }} hidden>
 						<Checkbox className="side-bar-checkbox"
 							size="small"
 							checked={messageQueueStore.getFullPageSearch()}

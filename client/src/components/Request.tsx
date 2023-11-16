@@ -51,24 +51,26 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 								{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
 							</div>
 							:
-							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
-								title={store.getLogEntry().date.toLocaleDateString()}>
-								{dateToHHMMSS(store.getLogEntry().date)}
+							<div>
+								<div className="request__msg-log-level" style={{ fontFamily: 'monospace', marginTop: '.5rem' }}
+									title={store.getLogEntry().date.toLocaleDateString()}>
+									{dateToHHMMSS(store.getLogEntry().date)}
+								</div>
+								<div style={{ color: levelColor(store.getLogEntry().level) }}>
+									{store.getLogEntry().level}
+								</div>
 							</div>
 						}
 					</div>
-					<div className="request__msg-time-bar-container">
-					</div>
-					<div className="request__msg-icon fa fa-sticky-note"
-						title={store.getNote()}
-						style={{ visibility: (!store.hasNote() ? 'hidden' : 'visible'), fontSize: '.75rem', color: '#E8A317' }}>
-					</div>
 					{message.protocol === 'log:' ?
-						<div>
-							<div style={{ minWidth: '6ch', color: levelColor(store.getLogEntry().level) }}>
-								{store.getLogEntry().level}
-							</div>
-							<div style={{ textAlign: 'right' }}>
+						<div style={{ minWidth: '3.5rem' }}>
+							<div
+								style={{
+									fontFamily: 'monospace',
+									margin: '.5rem 0',
+									textAlign: 'right'
+								}}
+							>
 								{store.getIndex() + 1}
 							</div>
 						</div>
