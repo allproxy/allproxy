@@ -166,7 +166,7 @@ const SnapshotTabContent = observer(({
 	let maxMethodSize = 0;
 	let maxEndpointSize = 0;
 
-	let activeReqSeqNumAdded = false;
+	let selectedReqSeqNumAdded = false;
 	const startIndex = messageQueueStore.getFullPageSearch() ? 0 : scrollTopIndex;
 	for (let i = startIndex; i < messageQueueStore.getMessages().length; ++i) {
 		const messageStore = messageQueueStore.getMessages()[i];
@@ -178,19 +178,23 @@ const SnapshotTabContent = observer(({
 
 		const message = messageStore.getMessage();
 		const seqNum = message.sequenceNumber;
-		const isActiveRequest = selectedReqSeqNum === seqNum;
+		const isSelectedRequest = selectedReqSeqNum === seqNum;
 		const isFiltered = messageStore.isFiltered() || renderSet.length >= renderCount && !messageQueueStore.getFullPageSearch();
-		if (isActiveRequest || !isFiltered) {
+		if (isSelectedRequest || !isFiltered) {
 			renderSet.push(messageStore);
 		}
-		if (isActiveRequest) activeReqSeqNumAdded = true;
+		if (isSelectedRequest) selectedReqSeqNumAdded = true;
 	}
 
-	if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !activeReqSeqNumAdded) {
+	if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !selectedReqSeqNumAdded) {
 		for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 			const messageStore = messageQueueStore.getMessages()[i];
 			if (selectedReqSeqNum === messageStore.getMessage().sequenceNumber) {
-				renderSet.push(messageStore);
+				if (messageStore.getIndex() < renderSet[0].getIndex()) {
+					renderSet.unshift(messageStore);
+				} else {
+					renderSet.push(messageStore);
+				}
 				break;
 			}
 		}
@@ -222,9 +226,9 @@ const SnapshotTabContent = observer(({
 						{renderSet.map((messageStore, index) => {
 							const message = messageStore.getMessage();
 							const seqNum = message.sequenceNumber;
-							const isActiveRequest = selectedReqSeqNum === seqNum;
+							const isSelectedRequest = selectedReqSeqNum === seqNum;
 
-							if (isActiveRequest) {
+							if (isSelectedRequest) {
 								activeRequestIndex = messageStore.getIndex();
 							}
 							return (
@@ -235,7 +239,7 @@ const SnapshotTabContent = observer(({
 										maxEndpointSize={maxEndpointSize}
 										store={messageStore}
 										key={seqNum}
-										isActive={isActiveRequest}
+										isActive={isSelectedRequest}
 										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
 										onClick={() => setClickPendingSeqNum(seqNum)}
 										onResend={() => handleResend(message)}
@@ -391,17 +395,21 @@ const SnapshotTabContent = observer(({
 		if (parent && parent.childNodes.length > 0) {
 			const children = parent.childNodes;
 			for (let i = 0; i < renderSet.length; ++i) {
-				const element = (children[i] as Element);
+				let element = (children[i] as Element);
 				if (!element) break;
-				offset += element.clientHeight;
 				if (offset >= parent.scrollTop || offset + parent.clientHeight >= bottom) {
-					for (let j = 0; j < 2; ++j) {
+					for (; ;) {
 						if (i < renderSet.length - 1 && offset + parent.clientHeight < bottom) {
 							++i;
+							element = (children[i] as Element);
+							offset += element.clientHeight;
+						} else {
+							break;
 						}
 					}
 					return renderSet[i].getIndex();
 				}
+				offset += element.clientHeight;
 			}
 			return renderSet[renderSet.length - 1].getIndex();
 		}
