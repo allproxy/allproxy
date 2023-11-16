@@ -64,8 +64,13 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 						style={{ visibility: (!store.hasNote() ? 'hidden' : 'visible'), fontSize: '.75rem', color: '#E8A317' }}>
 					</div>
 					{message.protocol === 'log:' ?
-						<div style={{ minWidth: '6ch', color: levelColor(store.getLogEntry().level) }}>
-							{store.getLogEntry().level}
+						<div>
+							<div style={{ minWidth: '6ch', color: levelColor(store.getLogEntry().level) }}>
+								{store.getLogEntry().level}
+							</div>
+							<div style={{ textAlign: 'right' }}>
+								{store.getIndex() + 1}
+							</div>
 						</div>
 						:
 						<div className={`${store.getIconClass()} request__msg-icon`}
