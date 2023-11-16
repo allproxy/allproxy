@@ -747,15 +747,9 @@ td input {
 
 .request__msg-time-ms {
 	margin-left: .75rem;
-	z-index: 1;
-	position: absolute;
 	text-align: center;
-	font-size: xx-small;
 	line-height: 24px;
-}
-
-.request__msg-log-level {
-	font-size: medium;
+	text-wrap: nowrap;
 }
 
 .request__msg {
