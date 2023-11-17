@@ -129,17 +129,6 @@ const SnapshotTabContent = observer(({
 		}
 	});
 
-	function updateScroll() {
-		if (filterStore.shouldResetScroll()) {
-			filterStore.setResetScroll(false);
-			if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER) {
-				doScrollTo(selectedReqSeqNum, 1000);
-			}
-		} else {
-			restoreScrollTop();
-		}
-	}
-
 	function checkForScrollTo() {
 		const seqNum = messageQueueStore.getScrollToSeqNum();
 		if (seqNum !== null) {
@@ -262,7 +251,7 @@ const SnapshotTabContent = observer(({
 								No matching request or response found.  Adjust your filter criteria.
 							</div>
 						)}
-						{updateScroll()}
+						{restoreScrollTop()}
 						{checkForScrollTo()}
 					</div>
 				}
@@ -287,7 +276,7 @@ const SnapshotTabContent = observer(({
 								vertical={layout.isVertical()}
 								onSync={() => messageQueueStore.setScrollToSeqNum(selectedReqSeqNum)}
 								onClose={() => {
-									handleClick(selectedReqSeqNum);
+									setClickPendingSeqNum(selectedReqSeqNum);
 								}}
 							/>
 							:
