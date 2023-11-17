@@ -12,7 +12,6 @@ export default class FilterStore {
     private searchFilter = '';
     private boolString = '';
     private boolOperands: string[] = [];
-    private resetScroll = false;
     private _matchCase = false;
     private _regex = false;
     private _logical = true;
@@ -45,14 +44,6 @@ export default class FilterStore {
 
     @action setEnabled(enabled: boolean) {
         this.enabled = enabled;
-    }
-
-    public shouldResetScroll() {
-        return this.resetScroll;
-    }
-
-    @action public setResetScroll(value: boolean) {
-        this.resetScroll = value;
     }
 
     public matchCase(): boolean {
@@ -109,9 +100,7 @@ export default class FilterStore {
 
     @action public toggleShowErrors() {
         this.showErrors = !this.showErrors;
-        if (!this.showErrors && this.filter.length === 0) {
-            this.resetScroll = true;
-        }
+        this.filterUpdated();
     }
 
     @action public setExcludeTags(excludeList: string[]) {
@@ -221,9 +210,6 @@ export default class FilterStore {
 
     @action public setFilterNoDebounce(filter: string) {
         this.sortByKeys = [];
-        if (this.filter.length > 0 && filter.length === 0 && !this.showErrors) {
-            this.resetScroll = true;
-        }
 
         this.filter = filter;
         this.searchFilter = this.filter;
@@ -239,30 +225,11 @@ export default class FilterStore {
 
         if (messageQueueStore.getScrollToSeqNum() === null && messageQueueStore.getHighlightSeqNum() !== null) {
             messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
+        } else {
+            const i = snapshotStore.getSelectedSnapshotIndex();
+            snapshotStore.getScrollTop()[i] = 0;
+            snapshotStore.getScrollTopIndex()[i] = 0;
         }
-        const i = snapshotStore.getSelectedSnapshotIndex();
-        snapshotStore.getScrollTop()[i] = 0;
-        snapshotStore.getScrollTopIndex()[i] = 0;
-        if (messageQueueStore.getScrollToSeqNum() === null) {
-            this.setResetScroll(true);
-        }
-    }
-
-    @action public setFilter(filter: string) {
-        this.sortByKeys = [];
-        if (this.filter.length > 0 && filter.length === 0) {
-            this.resetScroll = true;
-        }
-
-        this.filter = filter;
-
-        const debounce = _.debounce(() => {
-            this.searchFilter = this.filter;
-            this.updateBoolString();
-            messageQueueStore.setFreeze(false);
-        }, 500);
-
-        debounce();
     }
 
     public isInvalidFilterSyntax(): boolean {
