@@ -754,7 +754,7 @@ td input {
 	margin-left: .75rem;
 	text-align: center;
 	line-height: 24px;
-	text-wrap: nowrap;
+	white-space: nowrap;
 }
 
 .request__msg {
