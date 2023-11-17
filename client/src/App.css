@@ -720,6 +720,11 @@ td input {
 	width: 100%;
 }
 
+.request__msg-container.highlight {
+	background-color: yellow;
+	color: black !important;
+}
+
 .request__msg-header {
 	position: relative;
 	display: flex;
@@ -765,11 +770,6 @@ td input {
 	border: red solid thin;
 	border-radius: .2rem;
 } */
-
-.request__msg.highlight {
-	background-color: yellow;
-	color: black !important;
-}
 
 .request__endpoint {
 	color: green;

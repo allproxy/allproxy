@@ -42,7 +42,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 
 	return (
 		<><div>
-			<div className={"request__msg-container " + className} >
+			<div className={"request__msg-container " + className + (highlight ? ' highlight' : '')} >
 				<div className="request__msg-header">
 					<div className="request__msg-time-ms">
 						{message.protocol !== 'log:' ?
@@ -86,7 +86,6 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 					<div className={`request__msg
 						${message.protocol !== 'log:' ? ' nowrap' : ''}
 						${isActive ? ' active' : ''}
-						${highlight ? ' highlight' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
 						title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
