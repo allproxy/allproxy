@@ -365,14 +365,10 @@ const SnapshotTabContent = observer(({
 				let element = (children[i] as Element);
 				if (!element) break;
 				if (offset >= parent.scrollTop || offset + parent.clientHeight >= bottom) {
-					for (; ;) {
-						if (i < renderSet.length - 1 && offset + parent.clientHeight < bottom) {
-							++i;
-							element = (children[i] as Element);
-							offset += element.clientHeight;
-						} else {
-							break;
-						}
+					for (; offset > bottom - parent.clientHeight;) {
+						--i;
+						element = (children[i] as Element);
+						offset -= element.clientHeight;
 					}
 
 					const seqNum = messageQueueStore.getMessages()[renderSet[i].getIndex()].getMessage().sequenceNumber;
@@ -384,7 +380,9 @@ const SnapshotTabContent = observer(({
 						if (!element) break;
 					}
 					setScrollTopIndex(renderSet[stIndex].getIndex());
+					break;
 				}
+
 				offset += element.clientHeight;
 			}
 		}
@@ -452,12 +450,14 @@ const SnapshotTabContent = observer(({
 						offset += element.clientHeight;
 						++elementIndex;
 					}
-					// if (offset > 0) {
-					// 	offset += snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? JSONFieldButtonsHeight : 0;
-					// }
-					if ((offset < parent.scrollTop || // above
-						offset + entryHeight > parent.scrollTop + parent.clientHeight) // below
-					) {
+
+					// Above?
+					if (offset < parent.scrollTop) {
+						parent.scrollTop = offset;
+						setScrollTop(offset);
+					}
+					// Below?
+					else if (offset + entryHeight > parent.scrollTop + parent.clientHeight) {
 						parent.scrollTop = offset;
 						setScrollTop(offset);
 					}
