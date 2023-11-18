@@ -62,19 +62,19 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 							</div>
 						}
 					</div>
-					{message.protocol === 'log:' ?
-						<div style={{ minWidth: '3.5rem' }}>
-							<div
-								style={{
-									fontFamily: 'monospace',
-									margin: '.5rem 0',
-									textAlign: 'right'
-								}}
-							>
-								{store.getIndex() + 1}
-							</div>
+					<div style={{ minWidth: '3.5rem' }}>
+						<div
+							className="request__msg-highlight"
+							style={{
+								fontFamily: 'monospace',
+								margin: message.protocol === 'log:' ? '.5rem 0' : undefined,
+								textAlign: 'right'
+							}}
+						>
+							{store.getIndex() + 1}
 						</div>
-						:
+					</div>
+					{message.protocol !== 'log:' &&
 						<div className={`${store.getIconClass()} request__msg-icon`}
 							style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px' }}
 							onClick={handleClick}
