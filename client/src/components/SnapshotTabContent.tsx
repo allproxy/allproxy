@@ -94,33 +94,11 @@ const SnapshotTabContent = observer(({
 						break;
 					}
 					case 'pageup': {
-						let lastSeqNum = 0;
-						let stIndex = 0;
-						let back = 0;
-						for (let i = renderSet[0].getIndex(); i >= 0; --i) {
-							const messageStore = messageQueueStore.getMessages()[i];
-							if (!messageStore.isFiltered()) {
-								if (lastSeqNum === 0) {
-									lastSeqNum = messageStore.getMessage().sequenceNumber;
-								}
-								if (++back === 3) {
-									break;
-								}
-								stIndex = i;
-							}
-						}
-						if (stIndex !== renderSet[0].getIndex()) {
-							setScrollTopIndex(stIndex);
-							messageQueueStore.setScrollToSeqNum(lastSeqNum);
-						}
+						doPageUp();
 						break;
 					}
 					case 'pagedown': {
-						const i = findScrollTopIndex();
-						if (i < messageQueueStore.getMessages().length - 1) {
-							setScrollTopIndex(i);
-							messageQueueStore.setScrollToSeqNum(messageQueueStore.getMessages()[i].getMessage().sequenceNumber);
-						}
+						doPageDown();
 						break;
 					}
 				}
@@ -349,11 +327,11 @@ const SnapshotTabContent = observer(({
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			const scrollBottom = findScrollBottom();
-			//console.log(parent.scrollTop, scrollTop, bottom, renderSet[0].getIndex());
+			//console.log(parent.scrollTop, scrollTop, scrollBottom, renderSet[0].getIndex());
 			if (messageQueueStore.getScrollAction() === undefined) {
 				const now = Date.now();
 				const elapsed = now - lastScrollTime;
-				if (elapsed > 100) {
+				if (elapsed > 1000) {
 					lastScrollTime = now;
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
 						messageQueueStore.setScrollAction('pageup');
@@ -377,7 +355,7 @@ const SnapshotTabContent = observer(({
 		}
 	}
 
-	function findScrollTopIndex(): number {
+	function doPageDown() {
 		const bottom = findScrollBottom();
 		let offset = 0;
 		const parent = (requestContainerRef.current as Element);
@@ -396,13 +374,47 @@ const SnapshotTabContent = observer(({
 							break;
 						}
 					}
-					return renderSet[i].getIndex();
+
+					const seqNum = messageQueueStore.getMessages()[renderSet[i].getIndex()].getMessage().sequenceNumber;
+					messageQueueStore.setScrollToSeqNum(seqNum);
+
+					let stIndex = i;
+					for (let j = 0; j < Math.round(renderSet.length / 2); ++j) {
+						element = (children[stIndex--] as Element);
+						if (!element) break;
+					}
+					setScrollTopIndex(renderSet[stIndex].getIndex());
 				}
 				offset += element.clientHeight;
 			}
-			return renderSet[renderSet.length - 1].getIndex();
 		}
-		return 0;
+	}
+
+	function doPageUp() {
+		const parent = (requestContainerRef.current as Element);
+		if (parent && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
+			let stSeqNum = 0;
+			let stIndex = 0;
+			let backup = 1;
+			for (let i = renderSet[0].getIndex() - 1; i >= 0; --i) {
+				const messageStore = messageQueueStore.getMessages()[i];
+				if (!messageStore.isFiltered()) {
+					if (stSeqNum === 0) {
+						stSeqNum = messageStore.getMessage().sequenceNumber;
+					}
+					if (++backup === Math.round(renderSet.length / 2)) {
+						break;
+					}
+					stIndex = i;
+				}
+			}
+			if (stIndex !== renderSet[0].getIndex()) {
+				setScrollTopIndex(stIndex);
+				messageQueueStore.setScrollToSeqNum(stSeqNum);
+				console.log(stIndex, stSeqNum);
+
+			}
+		}
 	}
 
 	function findScrollBottom(): number {
