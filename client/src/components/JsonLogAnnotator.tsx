@@ -31,7 +31,13 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 
 			const value = nonJson + JSON.stringify(message.responseBody);
-			elements.push(accordionValue(value));
+			const style = pickLabelStyle('JSON');
+			const bg = style.background;
+			const color = style.color;
+			const keyBorder = `${bg} thin solid`;
+			const valueBorder = undefined;
+			const filter = style.filter;
+			elements = elements.concat(makeLabel('Unannotated JSON', keyBorder, valueBorder, bg, color, filter, value));
 		}
 
 		let messageText = messageStore.getLogEntry().message;
@@ -126,13 +132,13 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	function accordionValue(value: string) {
 		return (
-			< Accordion onClick={(e) => e.stopPropagation()} >
+			< Accordion>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}
 					style={{
 						backgroundColor: 'transparent', wordBreak: 'break-all'
 					}}
 				>
-					<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflowX: 'hidden', backgroundColor: 'transparent' }}> {value}</div>
+					<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflow: 'hidden', backgroundColor: 'transparent', color: '#4ca728' }}> {value}</div>
 				</AccordionSummary>
 				<AccordionDetails>
 					<div style={{

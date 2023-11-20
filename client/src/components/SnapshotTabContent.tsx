@@ -332,13 +332,14 @@ const SnapshotTabContent = observer(({
 				const now = Date.now();
 				const elapsed = now - lastScrollTime;
 				if (elapsed > 1000) {
-					lastScrollTime = now;
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
+						lastScrollTime = now;
 						messageQueueStore.setScrollAction('pageup');
 					} else if (!up &&
 						parent.scrollTop + 1 >= scrollBottom - parent.clientHeight &&
 						parent.scrollTop === scrollTop &&
 						renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
+						lastScrollTime = now;
 						messageQueueStore.setScrollAction('pagedown');
 					}
 				}

@@ -53,34 +53,13 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		onClose();
 		setTimeout(() => {
 			if (!!fileContent.length) {
+				if (fileContent.startsWith('[')) {
+					setFileContent(jsonToJsonl(fileContent));
+				}
 				snapshotStore.importSnapshot(tabName, importJSONFile(fileName, fileContent, []));
 				setFileContent('');
 			} else if (pastedJSON.length > 0) {
-				const flatten = function (json: object) {
-					let line = JSON.stringify(json);
-					line = line.replace(/\\n/g, '');
-					line = line.replace(/\\r/g, '');
-					line = line.replace(/\\"/g, '');
-					return line;
-				};
-
-				let jsonLines = pastedJSON;
-				try {
-					const json = JSON.parse(pastedJSON);
-					jsonLines = flatten(json);
-					for (const field in json) {
-						const value = json[field];
-						if (Array.isArray(value)) {
-							for (const obj of value) {
-								if (typeof value === 'object') {
-									jsonLines += "\n" + flatten(obj);
-								}
-							}
-						}
-					}
-				} catch (e) {
-					console.log(e);
-				}
+				const jsonLines = jsonToJsonl(pastedJSON);
 				snapshotStore.importSnapshot(tabName, importJSONFile(tabName, jsonLines, []));
 				setPastedJSON('');
 			}
@@ -140,5 +119,42 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		</Dialog >
 	);
 });
+
+function jsonToJsonl(jsonString: string) {
+	const flatten = function (json: object) {
+		let line = JSON.stringify(json);
+		line = line.replace(/\\n/g, '');
+		line = line.replace(/\\r/g, '');
+		line = line.replace(/\\"/g, '');
+		return line;
+	};
+
+	let jsonLines = jsonString;
+	try {
+		const json = JSON.parse(jsonString);
+		if (Array.isArray(json)) {
+			jsonLines = "";
+			for (const obj of json) {
+				if (jsonLines.length > 0) jsonLines += '\n';
+				jsonLines += flatten(obj);
+			}
+		} else {
+			jsonLines = flatten(json);
+			for (const field in json) {
+				const value = json[field];
+				if (Array.isArray(value)) {
+					for (const obj of value) {
+						if (typeof obj === 'object') {
+							jsonLines += "\n" + flatten(obj);
+						}
+					}
+				}
+			}
+		}
+	} catch (e) {
+		console.log(e);
+	}
+	return jsonLines;
+}
 
 export default ImportJSONFileDialog;
