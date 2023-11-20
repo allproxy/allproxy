@@ -172,15 +172,27 @@ export default class JSONLogStore {
 		if (jsonLogStore.getMethod() === 'simple') {
 			const simpleFields = jsonLogStore.getSimpleFields();
 			if (simpleFields.date !== '') {
-				try {
-					logEntry.date = new Date(jsonData[simpleFields.date]);
-				} catch (e) { }
+				const value = getJSONValue(jsonData, simpleFields.date);
+				if (typeof value === 'string') {
+					try {
+						logEntry.date = new Date(value);
+						if (logEntry.date.toString() === 'Invalid Date') {
+							const date = value.split(':', 2);
+							if (date.length === 2) {
+								let d = new Date(date[0]);
+								logEntry.date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + date[1]);
+							}
+						}
+					} catch (e) {
+					}
+				}
 			}
 			const setField = (field: 'level' | 'category' | 'appName' | 'message') => {
 				if (simpleFields[field] !== '') {
-					const value = jsonData[simpleFields[field]] as string | undefined;
-					if (value) {
-						logEntry[field] = value;
+					const value = getJSONValue(jsonData, simpleFields[field]);
+					console.log(field, value);
+					if (typeof value === 'string' || typeof value === 'number') {
+						logEntry[field] = value + '';
 					}
 				}
 			};

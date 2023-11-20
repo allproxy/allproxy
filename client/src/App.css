@@ -182,6 +182,10 @@ td input {
 	margin-bottom: 0 !important;
 }
 
+.MuiAccordionDetails-root {
+	padding: 0 8px !important;
+}
+
 .spinner {
 	font-size: 2rem !important;
 	color: #007bff;
