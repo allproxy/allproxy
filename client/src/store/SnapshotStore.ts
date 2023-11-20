@@ -4,7 +4,6 @@ import { importJSONFile } from "../ImportJSONFile";
 import LayoutStore from "./LayoutStore";
 import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
-import { dateToHHMMSS } from "../components/Request";
 import fetchToCurl from 'fetch-to-curl';
 
 export const ACTIVE_SNAPSHOT_NAME = 'Active';
@@ -380,13 +379,13 @@ export default class SnapshotStore {
 			});
 		}
 		const chunkSize = DEFAULT_LIMIT;
+		let record = 1;
 		while (messageStores.length > 0) {
 			if (messageStores.length > chunkSize) {
 				const copy = messageStores.splice(0, chunkSize);
 				this.newSnapshot(fileName, copy);
-				const message = messageStores[0].getMessage();
-				const date = message.protocol === 'log:' ? messageStores[0].getLogEntry().date : new Date(message.timestamp);
-				fileName = dateToHHMMSS(date);
+				fileName = '...' + record;
+				record += chunkSize;
 			} else {
 				this.newSnapshot(fileName, messageStores);
 				messageStores.splice(0, messageStores.length);
