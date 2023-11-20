@@ -24,7 +24,7 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '4');
+	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '1');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
