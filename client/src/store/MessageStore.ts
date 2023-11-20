@@ -7,7 +7,7 @@ import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatch
 import { snapshotStore } from "./SnapshotStore";
 import { filterStore } from "./FilterStore";
 
-export class MessageStoreBase {
+export default class MessageStore {
     private index: number = 0;
     private message: Message = new Message();
     private url = '';
@@ -19,8 +19,9 @@ export class MessageStoreBase {
     private note = '';
     private jsonFields: JsonField[] = [];
     private filtered: false | true | undefined = undefined;
+    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
 
-    public constructor(message: Message) {
+    public constructor(message: Message, auto: boolean = false) {
         this.message = message;
         this.url = this.formatUrl(message.url!);
         this._isError = this.isErrorResponse(message);
@@ -40,6 +41,10 @@ export class MessageStoreBase {
         this.tooltip = message.method ? 'Click to resend request' : '';
         this.note = message.note;
         makeAutoObservable(this);
+
+        if (message.protocol === 'log:') {
+            this.updateJsonLog(auto ? 'auto' : undefined);
+        }
     }
 
     public setIndex(index: number) {
@@ -59,22 +64,38 @@ export class MessageStoreBase {
         this.filtered = filtered;
     }
 
-    @action protected async updateJsonLog2(json: { [key: string]: string }) {
-        const newJsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
-
-        const oldJsonFields = this.getJsonFields();
-        let updateRequired = true;
-        if (oldJsonFields.length === newJsonFields.length) {
-            updateRequired = false;
-            for (let i = 0; i < oldJsonFields.length; ++i) {
-                if (oldJsonFields[i].name !== newJsonFields[i].name && oldJsonFields[i].name !== newJsonFields[i].name) {
-                    updateRequired = true;
-                    break;
+    @action protected async updateJsonLog2(json: { [key: string]: string }, method: 'auto' | 'simple' | 'advanced') {
+        if (method === 'auto') {
+            let newFields: JsonField[] = [];
+            for (const key in json) {
+                if (key === jsonLogStore.getAutoFields().date) continue;
+                if (key === jsonLogStore.getAutoFields().level) continue;
+                if (key === jsonLogStore.getAutoFields().category) continue;
+                if (key === jsonLogStore.getAutoFields().appName) continue;
+                if (key === jsonLogStore.getAutoFields().message) continue;
+                const value = json[key];
+                if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
+                    newFields.push({ name: key, value: value });
                 }
             }
-        }
+            this.setJsonFields(newFields);
+        } else {
+            const newJsonFields = findMatchingJsonFields(json, snapshotStore.getJsonFieldNames(snapshotStore.getSelectedSnapshotName()), jsonLogStore.getJSONFieldNames());
 
-        if (updateRequired) this.setJsonFields(newJsonFields);
+            const oldJsonFields = this.getJsonFields();
+            let updateRequired = true;
+            if (oldJsonFields.length === newJsonFields.length) {
+                updateRequired = false;
+                for (let i = 0; i < oldJsonFields.length; ++i) {
+                    if (oldJsonFields[i].name !== newJsonFields[i].name && oldJsonFields[i].name !== newJsonFields[i].name) {
+                        updateRequired = true;
+                        break;
+                    }
+                }
+            }
+
+            if (updateRequired) this.setJsonFields(newJsonFields);
+        }
     }
 
     public getJsonFields() {
@@ -235,25 +256,14 @@ export class MessageStoreBase {
                 && message.status !== 0)
             || Util.isGraphQlError(message);
     }
-}
 
-export default class MessageStore extends MessageStoreBase {
-    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
-
-    constructor(message: Message) {
-        super(message);
-        if (message.protocol === 'log:') {
-            this.updateJsonLog();
-        }
-    }
-
-    public async updateJsonLog() {
+    public async updateJsonLog(method: 'auto' | 'simple' | 'advanced' = jsonLogStore.getMethod()) {
         const message = this.getMessage();
         const responseBody = message.responseBody;
         if (typeof responseBody === 'string') {
-            this.logEntry = jsonLogStore.extractJSONFields(responseBody, {});
+            this.logEntry = jsonLogStore.extractJSONFields(responseBody, {}, method);
         } else {
-            this.logEntry = jsonLogStore.extractJSONFields(message.path, responseBody);
+            this.logEntry = jsonLogStore.extractJSONFields(message.path, responseBody, method);
         }
 
         let json: { [key: string]: string } = {};
@@ -265,7 +275,7 @@ export default class MessageStore extends MessageStoreBase {
                 ...message.responseBody
             };
         }
-        this.updateJsonLog2(json);
+        this.updateJsonLog2(json, method);
     }
 
     @action public getLogEntry() {

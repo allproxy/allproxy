@@ -4,6 +4,7 @@ import { untruncateJson } from "./UntruncateJSON";
 export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
     const messages: Message[] = [];
     let sequenceNumber = 0;
+    const hostname = primaryJsonFields.join(',');
     for (let record of jsonContent.split('\n')) {
         record = record.trim();
         if (record.length === 0) continue;
@@ -49,52 +50,54 @@ export function importJSONFile(fileName: string, jsonContent: string, primaryJso
             }
         }
 
+        sequenceNumber++;
         if (json) {
-            const m = newMessage(nonJson, json);
+            const m = newJSONMessage(nonJson, json, sequenceNumber, fileName, hostname);
             m.jsonTruncated = jsonTruncated;
             messages.push(m);
 
         } else {
-            messages.push(newMessage('', record));
+            messages.push(newJSONMessage('', record, sequenceNumber, fileName, hostname));
         }
     }
 
     return messages;
 
-    function newMessage(title: string, data: string | {}): Message {
-        sequenceNumber++;
-        const message: Message = {
-            type: MessageType.REQUEST_AND_RESPONSE,
-            modified: false,
-            timestamp: 0, // ts
-            sequenceNumber,
-            sequenceNumberRes: sequenceNumber,
-            requestHeaders: {},
-            method: '',
-            protocol: 'log:',
-            url: title,
-            endpoint: '',
-            requestBody: { allproxy_inner_body: fileName },
-            clientIp: '',
-            serverHost: fileName,
-            path: title,
-            elapsedTime: 0,
-            responseHeaders: {},
-            responseBody: data,
-            status: 0,
-            proxyConfig: {
-                "isSecure": false,
-                "path": fileName,
-                "protocol": "log:",
-                "hostname": primaryJsonFields.join(','),
-                "port": 0,
-                "recording": true,
-                "hostReachable": true,
-                "comment": ""
-            },
-            jsonTruncated: false,
-            note: '',
-        };
-        return message;
-    }
+
+}
+
+export function newJSONMessage(title: string, data: string | {}, sequenceNumber: number = 0, fileName: string = '', hostname: string = ''): Message {
+    const message: Message = {
+        type: MessageType.REQUEST_AND_RESPONSE,
+        modified: false,
+        timestamp: 0, // ts
+        sequenceNumber,
+        sequenceNumberRes: sequenceNumber,
+        requestHeaders: {},
+        method: '',
+        protocol: 'log:',
+        url: title,
+        endpoint: '',
+        requestBody: { allproxy_inner_body: fileName },
+        clientIp: '',
+        serverHost: fileName,
+        path: title,
+        elapsedTime: 0,
+        responseHeaders: {},
+        responseBody: data,
+        status: 0,
+        proxyConfig: {
+            "isSecure": false,
+            "path": fileName,
+            "protocol": "log:",
+            "hostname": hostname,
+            "port": 0,
+            "recording": true,
+            "hostReachable": true,
+            "comment": ""
+        },
+        jsonTruncated: false,
+        note: '',
+    };
+    return message;
 }

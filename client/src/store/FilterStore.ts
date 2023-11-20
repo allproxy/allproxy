@@ -1,5 +1,5 @@
 import { makeAutoObservable, action } from "mobx";
-import MessageStore, { MessageStoreBase } from './MessageStore';
+import MessageStore from './MessageStore';
 import _ from 'lodash';
 import { messageQueueStore } from "./MessageQueueStore";
 import { dateToHHMMSS } from "../components/Request";
@@ -529,7 +529,7 @@ export default class FilterStore {
         return typeof o !== 'string' ? JSON.stringify(o) : o;
     }
 
-    private isMessageExcluded(messageStore: MessageStoreBase) {
+    private isMessageExcluded(messageStore: MessageStore) {
         const message = messageStore.getMessage();
         if (message.proxyConfig && this.isExcluded(message.proxyConfig.protocol)) return true;
         if (this.isExcluded(message.protocol)) return true;

@@ -103,8 +103,9 @@ export type SimpleFields = {
 }
 
 export default class JSONLogStore {
-	private method: 'simple' | 'advanced' = 'simple';
+	private method: 'auto' | 'simple' | 'advanced' = 'simple';
 
+	private autoFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '' };
 	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '' };
 
 	private script = defaultScript;
@@ -122,9 +123,14 @@ export default class JSONLogStore {
 	}
 
 	public getMethod() { return this.method; }
-	public async setMethod(method: 'simple' | 'advanced') {
+	public async setMethod(method: 'auto' | 'simple' | 'advanced') {
 		this.method = method;
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+	}
+
+	public getAutoFields() { return this.autoFields; }
+	public async setAutoFields(field: 'date' | 'level' | 'category' | 'appName' | 'message', value: string) {
+		this.autoFields[field] = value;
 	}
 
 	public getSimpleFields() { return this.simpleFields; }
@@ -165,53 +171,113 @@ export default class JSONLogStore {
 	@action public updateScriptFunc() {
 		this.scriptFunc = this.evalScript(this.script);
 	}
-	@action public extractJSONFields(nonJson: string, jsonData: {
-		[key: string]: any
-	}): LogEntry {
-		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
-		if (jsonLogStore.getMethod() === 'simple') {
-			const simpleFields = jsonLogStore.getSimpleFields();
-			if (simpleFields.date !== '') {
-				const value = getJSONValue(jsonData, simpleFields.date);
-				if (typeof value === 'string') {
-					try {
-						logEntry.date = new Date(value);
-						if (logEntry.date.toString() === 'Invalid Date') {
-							const date = value.split(':', 2);
-							if (date.length === 2) {
-								let d = new Date(date[0]);
-								logEntry.date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + date[1]);
+
+	private parseDate(value: string | number): Date | undefined {
+		let date: Date | undefined = undefined;
+		try {
+			date = new Date(value);
+			if (date.toString() === 'Invalid Date' && typeof value === 'string') {
+				const tokens = value.split(':', 2);
+				if (tokens.length === 2) {
+					let d = new Date(tokens[0]);
+					date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + tokens[1]);
+				}
+			}
+		} catch (e) {
+		}
+		return date;
+	}
+
+	@action public extractJSONFields(nonJson: string,
+		jsonData: { [key: string]: any },
+		method: 'auto' | 'simple' | 'advanced'
+	): LogEntry {
+
+		const setAutoField = (field: 'date' | 'level' | 'category' | 'appName' | 'message') => {
+			if (this.getAutoFields()[field].length === 0) {
+				if (field === 'date') {
+					let dateKey = '';
+					for (const key in jsonData) {
+						const keyLc = key.toLowerCase();
+						if (keyLc.indexOf('time') !== -1 || keyLc.indexOf('date') !== -1) {
+							const value = jsonData[key];
+							if (typeof value === 'string' || typeof value === 'number') {
+								const date = this.parseDate(value);
+								if (date) {
+									dateKey = key;
+									break;
+								}
 							}
 						}
-					} catch (e) {
 					}
+					this.setAutoFields(field, dateKey);
+				} else {
+					this.setAutoFields(field, field);
 				}
 			}
-			const setField = (field: 'level' | 'category' | 'appName' | 'message') => {
-				if (simpleFields[field] !== '') {
-					const value = getJSONValue(jsonData, simpleFields[field]);
-					console.log(field, value);
-					if (typeof value === 'string' || typeof value === 'number') {
-						logEntry[field] = value + '';
-					}
-				}
-			};
-			setField('level');
-			setField('category');
-			setField('appName');
-			setField('message');
 
-		} else {
-			try {
-				logEntry = this.scriptFunc(nonJson, jsonData);
-			} catch (e) {
-				console.log(e);
+			const key = this.getAutoFields()[field];
+			if (key.length !== 0) {
+				const value = jsonData[key];
+				if (field === 'date') {
+					const date = this.parseDate(value);
+					if (date) {
+						logEntry.date = date;
+					}
+				} else {
+					if (value) {
+						logEntry[field] = jsonData[key];
+					}
+				}
 			}
-			if (logEntry.date === undefined) logEntry.date = new Date();
-			if (logEntry.level === undefined) logEntry.level = '';
-			if (logEntry.category === undefined) logEntry.category = '';
-			if (logEntry.appName === undefined) logEntry.appName = 'appName is required';
-			if (logEntry.message === undefined) logEntry.message = '';
+		};
+
+		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
+		switch (method) {
+			case 'auto':
+				setAutoField('date');
+				setAutoField('level');
+				setAutoField('category');
+				setAutoField('appName');
+				setAutoField('message');
+				break;
+			case 'simple':
+				const simpleFields = jsonLogStore.getSimpleFields();
+				if (simpleFields.date !== '') {
+					const value = getJSONValue(jsonData, simpleFields.date);
+					if (typeof value === 'string') {
+						const date = this.parseDate(value);
+						if (date) {
+							logEntry.date = date;
+						}
+					}
+				}
+				const setField = (field: 'level' | 'category' | 'appName' | 'message') => {
+					if (simpleFields[field] !== '') {
+						const value = getJSONValue(jsonData, simpleFields[field]);
+						console.log(field, value);
+						if (typeof value === 'string' || typeof value === 'number') {
+							logEntry[field] = value + '';
+						}
+					}
+				};
+				setField('level');
+				setField('category');
+				setField('appName');
+				setField('message');
+				break;
+			case 'advanced':
+				try {
+					logEntry = this.scriptFunc(nonJson, jsonData);
+				} catch (e) {
+					console.log(e);
+				}
+				if (logEntry.date === undefined) logEntry.date = new Date();
+				if (logEntry.level === undefined) logEntry.level = '';
+				if (logEntry.category === undefined) logEntry.category = '';
+				if (logEntry.appName === undefined) logEntry.appName = 'appName is required';
+				if (logEntry.message === undefined) logEntry.message = '';
+				break;
 		}
 		return logEntry;
 	}
@@ -264,7 +330,7 @@ export default class JSONLogStore {
 
 		const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
 		if (exists) {
-			this.method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'simple' | 'advanced';
+			this.method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced';
 		}
 	}
 

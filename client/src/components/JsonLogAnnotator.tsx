@@ -5,6 +5,7 @@ import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
 import { filterStore } from '../store/FilterStore';
+import { jsonLogStore } from '../store/JSONLogStore';
 
 type Props = {
 	message: MessageStore,
@@ -23,21 +24,29 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	function makeJSONRequestLabels(messageStore: MessageStore): JSX.Element[] {
 		const message = messageStore.getMessage();
 
+		let catAppName = messageStore.getLogEntry().appName;
+		if (messageStore.getLogEntry().category !== '') catAppName = messageStore.getLogEntry().category + ' ' + catAppName;
+
 		let elements = formatJSONRequestLabels(messageStore);
-		if (elements.length === 0) {
+		if (elements.length === 0 && jsonLogStore.getMethod() !== 'auto') {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
 			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 
 			const value = nonJson + JSON.stringify(message.responseBody);
-			const style = pickLabelStyle('JSON');
-			const bg = style.background;
-			const color = style.color;
-			const keyBorder = `${bg} thin solid`;
-			const valueBorder = undefined;
-			const filter = style.filter;
-			elements = elements.concat(makeLabel('Unannotated JSON', keyBorder, valueBorder, bg, color, filter, value));
+			if (catAppName.length === 0) {
+				const label = 'Unannotated JSON';
+				const style = pickLabelStyle(label);
+				const bg = style.background;
+				const color = style.color;
+				const keyBorder = `${bg} thin solid`;
+				const valueBorder = undefined;
+				const filter = style.filter;
+				elements = elements.concat(makeLabel(label, keyBorder, valueBorder, bg, color, filter, value));
+			} else {
+				elements.push(accordionValue(value));
+			}
 		}
 
 		let messageText = messageStore.getLogEntry().message;
@@ -46,8 +55,6 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border, lineHeight: '1.2' }}> {messageText}</div >);
 		}
 
-		let catAppName = messageStore.getLogEntry().appName;
-		if (messageStore.getLogEntry().category !== '') catAppName = messageStore.getLogEntry().category + ' ' + catAppName;
 		let catAppNames: JSX.Element[] = [];
 		if (catAppName !== '') {
 			for (const name of catAppName.split(' ')) {
