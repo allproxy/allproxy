@@ -4,7 +4,7 @@ import MessageStore from './MessageStore';
 import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
 import { dateToHHMMSS } from "../components/Request";
 
-export const DEFAULT_LIMIT = 20000;
+export const DEFAULT_LIMIT = 100000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 
 export default class MessageQueueStore {
@@ -105,8 +105,8 @@ export default class MessageQueueStore {
 	private _getLimit(): number {
 		const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
 		if (limit) {
-			// Ensure limit is at least 10000
-			if (Number(limit) >= 10000) {
+			// Ensure limit is at least 20000
+			if (Number(limit) > 20000) {
 				return Number(limit);
 			}
 		}

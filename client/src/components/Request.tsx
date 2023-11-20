@@ -56,9 +56,11 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 									title={store.getLogEntry().date.toLocaleDateString()}>
 									{dateToHHMMSS(store.getLogEntry().date)}
 								</div>
-								<div style={{ display: 'inline-block', minWidth: '6ch', padding: '0 .25rem', borderRadius: '.25rem', lineHeight: '1.2', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color }}>
-									{store.getLogEntry().level}
-								</div>
+								{store.getLogEntry().level !== '' &&
+									<div style={{ display: 'inline-block', minWidth: '6ch', padding: '0 .25rem', borderRadius: '.25rem', lineHeight: '1.2', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color }}>
+										{store.getLogEntry().level}
+									</div>
+								}
 							</div>
 						}
 					</div>
