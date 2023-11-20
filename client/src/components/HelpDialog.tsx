@@ -24,7 +24,7 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '1');
+	const [tabValue, setTabValue] = React.useState(logViewerStore.isLogViewer() ? '4' : '4');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
@@ -267,28 +267,30 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
 						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
 							<JSONFieldsMethods />
-							{jsonLogStore.getMethod() === 'simple' ?
-								<JSONSimpleFields />
-								:
-								<>
-									Write your own JavaScript to extract the date, level, app name and message fields.
-									<p></p>
-									<button className="btn btn-lg btn-success"
-										style={{ marginBottom: "1rem" }}
-										onClick={async () => {
-											await jsonLogStore.init();
-											setJsonFields(getJSONFields());
-											setJsonFieldsModalTab('scripts');
-											setShowJSONFieldsModal(true);
-										}}>
-										<div className='fa fa-calendar'
-											style={{
-												marginRight: '.5rem'
-											}}
-										/>
-										Edit JavaScript
-									</button>
-								</>
+							{jsonLogStore.getMethod() === 'auto' ?
+								<div>Trying to automatically select Date and Level.  Level 1 fields are annotated.</div>
+								: jsonLogStore.getMethod() === 'simple' ?
+									<JSONSimpleFields />
+									:
+									<>
+										Write your own JavaScript to extract the date, level, app name and message fields.
+										<p></p>
+										<button className="btn btn-lg btn-success"
+											style={{ marginBottom: "1rem" }}
+											onClick={async () => {
+												await jsonLogStore.init();
+												setJsonFields(getJSONFields());
+												setJsonFieldsModalTab('scripts');
+												setShowJSONFieldsModal(true);
+											}}>
+											<div className='fa fa-calendar'
+												style={{
+													marginRight: '.5rem'
+												}}
+											/>
+											Edit JavaScript
+										</button>
+									</>
 							}
 						</div>
 						<h3>Annotate Fields and Import Log File</h3>

@@ -34,10 +34,10 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 	};
 	const message = store.getMessage();
 	const messageDate = new Date(message.timestamp);
-	const levelColor = function (level: string): string | undefined {
-		if (level === 'err' || level === 'error') return 'red';
-		if (level === 'warning' || level === 'warn') return 'rgb(203, 75, 22)';
-		return undefined;
+	const levelColor = function (level: string): { bg: string, color: string } {
+		if (level === 'err' || level === 'error') return { bg: '#a2191f', color: 'white' };
+		if (level === 'warning' || level === 'warn') return { bg: 'rgb(232, 163, 23)', color: 'black' };
+		return { bg: 'lightgrey', color: 'black' };
 	};
 
 	return (
@@ -56,7 +56,7 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 									title={store.getLogEntry().date.toLocaleDateString()}>
 									{dateToHHMMSS(store.getLogEntry().date)}
 								</div>
-								<div style={{ color: levelColor(store.getLogEntry().level) }}>
+								<div style={{ display: 'inline-block', minWidth: '6ch', padding: '0 .25rem', borderRadius: '.25rem', lineHeight: '1.2', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color }}>
 									{store.getLogEntry().level}
 								</div>
 							</div>
