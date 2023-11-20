@@ -31,7 +31,13 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 
 			const value = nonJson + JSON.stringify(message.responseBody);
-			elements.push(accordionValue(value));
+			const style = pickLabelStyle('JSON');
+			const bg = style.background;
+			const color = style.color;
+			const keyBorder = `${bg} thin solid`;
+			const valueBorder = undefined;
+			const filter = style.filter;
+			elements = elements.concat(makeLabel('JSON', keyBorder, valueBorder, bg, color, filter, value));
 		}
 
 		let messageText = messageStore.getLogEntry().message;
