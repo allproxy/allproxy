@@ -349,8 +349,13 @@ const SnapshotTabContent = observer(({
 						parent.scrollTop + 1 >= scrollBottom - parent.clientHeight &&
 						parent.scrollTop === scrollTop &&
 						renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
-						lastScrollTime = now;
-						messageQueueStore.setScrollAction('pagedown');
+						for (let i = renderSet[renderSet.length - 1].getIndex() + 1; i < messageQueueStore.getMessages().length; ++i) {
+							if (!messageQueueStore.getMessages()[i].isFiltered()) {
+								lastScrollTime = now;
+								messageQueueStore.setScrollAction('pagedown');
+								break;
+							}
+						}
 					}
 				}
 			}
