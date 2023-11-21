@@ -12,6 +12,7 @@ import { snapshotStore } from "../store/SnapshotStore";
 import { useFilePicker } from "use-file-picker";
 import ImportJSONFileDialog from "./ImportJSONFileDialog";
 import { logViewerStore } from "../store/LogViewerStore";
+import { jsonLogStore, updateJSONRequestLabels } from "../store/JSONLogStore";
 
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
@@ -81,6 +82,19 @@ const SideBar = observer(() => {
 		}
 	};
 
+	const handleJsonMethodChange = (e: any) => {
+		jsonLogStore.setMethod(e.target.value as 'auto' | 'simple' | 'advanced');
+		snapshotStore.setUpdating(true);
+		setTimeout(() => {
+			updateJSONRequestLabels();
+			snapshotStore.setUpdating(false);
+		});
+	};
+
+	const getMethodDisplayName = () => {
+		const method = jsonLogStore.getMethod();
+		return method.substring(0, 1).toUpperCase() + method.substring(1);
+	};
 
 	let countsByIconClassMap: Map<string, number> = new Map();
 	let countsByStatusMap: Map<number, number> = new Map();
@@ -224,6 +238,38 @@ const SideBar = observer(() => {
 					</MenuItem>
 				</Menu>
 			</div>
+			<hr className="side-bar-divider" hidden={!isJsonLogViewer()}></hr>
+			{isJsonLogViewer() &&
+				<div>
+					<div className="side-bar-item">
+						<div>
+							<div>JSON Method:</div>
+							<div style={{ marginLeft: '1rem' }}>
+								<Select className="side-bar-select"
+									value={jsonLogStore.getMethod()}
+									renderValue={() => getMethodDisplayName()}
+									onChange={handleJsonMethodChange}
+								>
+									<MenuItem
+										value="auto"
+									>
+										<ListItemText primary="Auto" />
+									</MenuItem>
+									<MenuItem
+										value="simple"
+									>
+										<ListItemText primary="Simple" />
+									</MenuItem>
+									<MenuItem
+										value="advanced"
+									>
+										<ListItemText primary="Advanced" />
+									</MenuItem>
+								</Select>
+							</div>
+						</div>
+					</div>
+				</div>}
 			<hr className="side-bar-divider" hidden={isJsonLogViewer()}></hr>
 			<div className="side-bar-item" hidden={isJsonLogViewer()}>
 				<div>
@@ -425,7 +471,7 @@ const SideBar = observer(() => {
 				</div>
 			)}
 
-		</div>
+		</div >
 			<ExportDialog
 				open={openSaveSessionDialog}
 				heading={"Enter Session Name"}
