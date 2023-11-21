@@ -473,18 +473,18 @@ export function getJSONValue(json: { [key: string]: any }, field: string): undef
 	return undefined;
 }
 
-function formatValue(name: string, value: string): string {
-	const lname = name.toLowerCase();
-	if (lname.indexOf('useragent') !== -1) {
-		return value.split(' ')[0].split('/')[0];
-	} else if (lname.indexOf('uri') !== -1 || lname.indexOf('url') !== -1) {
-		try {
-			const url = new URL(value);
-			return url.pathname;
-		} catch (e) {
-			return value;
-		}
-	}
+function formatValue(_name: string, value: string): string {
+	// const lname = name.toLowerCase();
+	// if (lname.indexOf('useragent') !== -1) {
+	// 	return value.split(' ')[0].split('/')[0];
+	// } else if (lname.indexOf('uri') !== -1 || lname.indexOf('url') !== -1) {
+	// 	try {
+	// 		const url = new URL(value);
+	// 		return url.pathname;
+	// 	} catch (e) {
+	// 		return value;
+	// 	}
+	// }
 	// Remove double quotes
 	if (value.charAt(0) === '"') {
 		value = value.substring(1);
