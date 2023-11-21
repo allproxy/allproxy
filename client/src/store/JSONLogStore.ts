@@ -122,8 +122,8 @@ export default class JSONLogStore {
 		makeAutoObservable(this);
 	}
 
-	public getMethod() { return this.method; }
-	public async setMethod(method: 'auto' | 'simple' | 'advanced') {
+	public getParsingMethod() { return this.method; }
+	public async setParsingMethod(method: 'auto' | 'simple' | 'advanced') {
 		this.method = method;
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
 	}
@@ -222,15 +222,15 @@ export default class JSONLogStore {
 					}
 					this.setAutoFields(field, levelKey);
 				} else if (field === 'message') {
-					let levelKey = '';
+					let messageKey = '';
 					for (const key in jsonData) {
 						const keyLc = key.toLowerCase();
 						if (keyLc === 'message' || keyLc === 'msg') {
-							levelKey = key;
+							messageKey = key;
 							break;
 						}
 					}
-					this.setAutoFields(field, levelKey);
+					this.setAutoFields(field, messageKey);
 				} else {
 					this.setAutoFields(field, field);
 				}

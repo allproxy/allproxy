@@ -8,7 +8,7 @@ import React from 'react';
 import _ from 'lodash';
 import JSONFieldValues from './JSONFieldValues';
 import { messageQueueStore } from '../store/MessageQueueStore';
-import JSONFieldsMethod from './JSONFieldsMethod';
+import JSONFieldsMethod from './JSONParsingMethod';
 import JSONSimpleFields from './JSONSimpleFields';
 
 type Props = {
@@ -101,7 +101,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 									{tabValue === SCRIPTS_DIR ?
 										<>
 											<JSONFieldsMethod />
-											{jsonLogStore.getMethod() === 'simple' ?
+											{jsonLogStore.getParsingMethod() === 'simple' ?
 												<JSONSimpleFields />
 												: <>
 													Write your own JavaScript to extract the date, level, category, app name and message fields.

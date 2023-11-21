@@ -14,7 +14,7 @@ import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
 import { snapshotStore } from '../store/SnapshotStore';
 import { logViewerStore } from '../store/LogViewerStore';
 import JSONSimpleFields from './JSONSimpleFields';
-import JSONFieldsMethods from './JSONFieldsMethod';
+import JSONFieldsMethods from './JSONParsingMethod';
 
 type Props = {
 	open: boolean,
@@ -267,9 +267,9 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
 						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
 							<JSONFieldsMethods />
-							{jsonLogStore.getMethod() === 'auto' ?
+							{jsonLogStore.getParsingMethod() === 'auto' ?
 								<div>Automatically select Date, Level, Message, and annotate other JSON fields.</div>
-								: jsonLogStore.getMethod() === 'simple' ?
+								: jsonLogStore.getParsingMethod() === 'simple' ?
 									<JSONSimpleFields />
 									:
 									<>

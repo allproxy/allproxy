@@ -83,7 +83,7 @@ const SideBar = observer(() => {
 	};
 
 	const handleJsonMethodChange = (e: any) => {
-		jsonLogStore.setMethod(e.target.value as 'auto' | 'simple' | 'advanced');
+		jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced');
 		snapshotStore.setUpdating(true);
 		setTimeout(() => {
 			updateJSONRequestLabels();
@@ -91,8 +91,8 @@ const SideBar = observer(() => {
 		});
 	};
 
-	const getMethodDisplayName = () => {
-		const method = jsonLogStore.getMethod();
+	const getJSONParsingMethodDisplayName = () => {
+		const method = jsonLogStore.getParsingMethod();
 		return method.substring(0, 1).toUpperCase() + method.substring(1);
 	};
 
@@ -243,11 +243,11 @@ const SideBar = observer(() => {
 				<div>
 					<div className="side-bar-item">
 						<div>
-							<div>JSON Method:</div>
+							<div>JSON Parsing:</div>
 							<div style={{ marginLeft: '1rem' }}>
 								<Select className="side-bar-select"
-									value={jsonLogStore.getMethod()}
-									renderValue={() => getMethodDisplayName()}
+									value={jsonLogStore.getParsingMethod()}
+									renderValue={() => getJSONParsingMethodDisplayName()}
 									onChange={handleJsonMethodChange}
 								>
 									<MenuItem
