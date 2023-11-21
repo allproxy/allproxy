@@ -13,14 +13,14 @@ const JSONFieldsMethods = observer(({ }: Props) => {
                 <JSONFieldsSample />
             </div>
             <p></p>
-            <b>Select Method:</b>
+            <b>Select JSON Parsing Method:</b>
             <RadioGroup
                 row
                 aria-labelledby="json-log-mode-radio"
                 defaultValue='auto'
                 name="json-log-mode-radio"
-                value={jsonLogStore.getMethod()}
-                onChange={(e) => jsonLogStore.setMethod(e.target.value as 'auto' | 'simple' | 'advanced')}
+                value={jsonLogStore.getParsingMethod()}
+                onChange={(e) => jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced')}
             >
                 <FormControlLabel value="auto" control={<Radio />} label="Auto" />
                 <FormControlLabel value="simple" control={<Radio />} label="Simple" />

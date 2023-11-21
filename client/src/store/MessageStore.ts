@@ -272,7 +272,7 @@ export default class MessageStore {
             || Util.isGraphQlError(message);
     }
 
-    public async updateJsonLog(method: 'auto' | 'simple' | 'advanced' = jsonLogStore.getMethod()) {
+    public async updateJsonLog(method: 'auto' | 'simple' | 'advanced' = jsonLogStore.getParsingMethod()) {
         const message = this.getMessage();
         const responseBody = message.responseBody;
         if (typeof responseBody === 'string') {
