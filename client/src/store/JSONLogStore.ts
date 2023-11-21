@@ -211,6 +211,26 @@ export default class JSONLogStore {
 						}
 					}
 					this.setAutoFields(field, dateKey);
+				} else if (field === 'level') {
+					let levelKey = '';
+					for (const key in jsonData) {
+						const keyLc = key.toLowerCase();
+						if (keyLc === 'level' || keyLc === 'severity') {
+							levelKey = key;
+							break;
+						}
+					}
+					this.setAutoFields(field, levelKey);
+				} else if (field === 'message') {
+					let levelKey = '';
+					for (const key in jsonData) {
+						const keyLc = key.toLowerCase();
+						if (keyLc === 'message' || keyLc === 'msg') {
+							levelKey = key;
+							break;
+						}
+					}
+					this.setAutoFields(field, levelKey);
 				} else {
 					this.setAutoFields(field, field);
 				}

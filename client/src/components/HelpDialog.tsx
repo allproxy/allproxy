@@ -268,7 +268,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
 							<JSONFieldsMethods />
 							{jsonLogStore.getMethod() === 'auto' ?
-								<div>Trying to automatically select Date and Level.  Level 1 fields are annotated.</div>
+								<div>Automatically select Date, Level, Message, and annotate other JSON fields.</div>
 								: jsonLogStore.getMethod() === 'simple' ?
 									<JSONSimpleFields />
 									:
