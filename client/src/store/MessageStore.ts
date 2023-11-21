@@ -4,7 +4,7 @@ import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
 import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatchingJsonFields } from "./JSONLogStore";
-import { snapshotStore } from "./SnapshotStore";
+import { compressJSON, snapshotStore } from "./SnapshotStore";
 import { filterStore } from "./FilterStore";
 
 export default class MessageStore {
@@ -73,7 +73,10 @@ export default class MessageStore {
                 if (key === jsonLogStore.getAutoFields().category) continue;
                 if (key === jsonLogStore.getAutoFields().appName) continue;
                 if (key === jsonLogStore.getAutoFields().message) continue;
-                const value = json[key];
+                let value = json[key];
+                if (typeof value === 'object') {
+                    value = compressJSON(value);
+                }
                 if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
                     newFields.push({ name: key, value: value });
                 }

@@ -36,7 +36,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 			const value = nonJson + JSON.stringify(message.responseBody);
 			if (catAppName.length === 0) {
-				const label = 'Unannotated JSON';
+				const label = 'JSON';
 				const style = pickLabelStyle(label);
 				const bg = style.background;
 				const color = style.color;
@@ -139,26 +139,28 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	function accordionValue(value: string) {
 		return (
-			< Accordion>
-				<AccordionSummary expandIcon={<ExpandMoreIcon />}
-					style={{
-						backgroundColor: 'transparent', wordBreak: 'break-all'
-					}}
-				>
-					<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflow: 'hidden', backgroundColor: 'transparent', color: '#4ca728' }}> {value}</div>
-				</AccordionSummary>
-				<AccordionDetails>
-					<div style={{
-						wordBreak: 'break-all',
-						backgroundColor: themeStore.getTheme() === 'dark' ? '#333333' : 'whitesmoke',
-						color: themeStore.getTheme() === 'dark' ? 'whitesmoke' : undefined,
-						padding: '.5rem',
-						overflowY: 'auto'
-					}}>
-						{value}
-					</div>
-				</AccordionDetails>
-			</Accordion>
+			<div style={{ margin: '.25rem 0 0 1rem' }}>
+				< Accordion>
+					<AccordionSummary expandIcon={<ExpandMoreIcon />}
+						style={{
+							backgroundColor: 'transparent', wordBreak: 'break-all'
+						}}
+					>
+						<div style={{ display: 'inline-block', maxHeight: '1.5rem', overflow: 'hidden', backgroundColor: 'transparent', color: '#4ca728' }}> {value}</div>
+					</AccordionSummary>
+					<AccordionDetails>
+						<div style={{
+							wordBreak: 'break-all',
+							backgroundColor: themeStore.getTheme() === 'dark' ? '#333333' : 'whitesmoke',
+							color: themeStore.getTheme() === 'dark' ? 'whitesmoke' : undefined,
+							padding: '.5rem',
+							overflowY: 'auto'
+						}}>
+							{value}
+						</div>
+					</AccordionDetails>
+				</Accordion>
+			</div>
 		);
 	}
 });
