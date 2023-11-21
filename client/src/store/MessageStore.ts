@@ -64,7 +64,7 @@ export default class MessageStore {
         this.filtered = filtered;
     }
 
-    @action protected async updateJsonLog2(json: { [key: string]: string }, method: 'auto' | 'simple' | 'advanced') {
+    @action protected async updateJsonLog2(json: { [key: string]: any }, method: 'auto' | 'simple' | 'advanced') {
         if (method === 'auto') {
             let newFields: JsonField[] = [];
             for (const key in json) {
@@ -75,9 +75,21 @@ export default class MessageStore {
                 if (key === jsonLogStore.getAutoFields().message) continue;
                 let value = json[key];
                 if (typeof value === 'object') {
-                    value = compressJSON(value);
-                }
-                if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
+                    if (Array.isArray(value)) {
+                        value = compressJSON(value);
+                        newFields.push({ name: key, value: value });
+                    } else {
+                        for (const key2 in value as { [key: string]: any }) {
+                            let value2 = value[key2];
+                            if (typeof value2 === 'object') {
+                                value2 = compressJSON(value2);
+                            }
+                            if (typeof value2 === 'string' || typeof value2 === 'boolean' || typeof value2 === 'number') {
+                                newFields.push({ name: key + '.' + key2, value: value2 });
+                            }
+                        }
+                    }
+                } else if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
                     newFields.push({ name: key, value: value });
                 }
             }

@@ -5,7 +5,6 @@ import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
 import { filterStore } from '../store/FilterStore';
-import { jsonLogStore } from '../store/JSONLogStore';
 
 type Props = {
 	message: MessageStore,
@@ -28,7 +27,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		if (messageStore.getLogEntry().category !== '') catAppName = messageStore.getLogEntry().category + ' ' + catAppName;
 
 		let elements = formatJSONRequestLabels(messageStore);
-		if (elements.length === 0 && jsonLogStore.getMethod() !== 'auto') {
+		if (elements.length === 0) {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
