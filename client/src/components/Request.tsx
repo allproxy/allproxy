@@ -45,124 +45,123 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 		<><div>
 			<div className={"request__msg-container " + className + (highlight ? ' highlight' : '')} >
 				<div className="request__msg-header">
-					<div className="request__msg-time-ms">
-						{message.protocol !== 'log:' ?
-							<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
-								title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
-								{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
-							</div>
-							:
-							<div style={{ lineHeight: '1.2' }}>
-								<div className="request__msg-log-level" style={{ fontFamily: 'monospace', marginTop: '.6rem' }}
-									title={store.getLogEntry().date.toLocaleDateString()}>
-									{dateToHHMMSS(store.getLogEntry().date)}
+					<div className={`request__msg-twisty fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
+						style={{ minWidth: '1rem', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
+						onClick={handleClick} />
+					<div style={{ display: 'flex' }} onClick={doHighlight}>
+						<div className="request__msg-time-ms">
+							{message.protocol !== 'log:' ?
+								<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
+									title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
+									{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
 								</div>
-								{store.getLogEntry().level !== '' &&
-									<div style={{
-										display: 'inline-block', minWidth: '6ch',
-										marginBottom: '.25rem', borderRadius: '.25rem', lineHeight: '1', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color
-									}}>
-										{store.getLogEntry().level}
+								:
+								<div style={{ lineHeight: '1.2' }}>
+									<div className="request__msg-log-level" style={{ fontFamily: 'monospace', marginTop: '.6rem' }}
+										title={store.getLogEntry().date.toLocaleDateString()}>
+										{dateToHHMMSS(store.getLogEntry().date)}
 									</div>
-								}
+									{store.getLogEntry().level !== '' &&
+										<div style={{
+											display: 'inline-block', minWidth: '6ch',
+											marginBottom: '.25rem', borderRadius: '.25rem', lineHeight: '1', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color
+										}}>
+											{store.getLogEntry().level}
+										</div>
+									}
+								</div>
+							}
+						</div>
+						<div style={{ minWidth: '3.5rem' }}>
+							<div
+
+								style={{
+									fontFamily: 'monospace',
+									margin: message.protocol === 'log:' ? '.5rem 0' : undefined,
+									textAlign: 'right'
+								}}
+							>
+								{store.getIndex() + 1}
+							</div>
+						</div>
+						{message.protocol !== 'log:' &&
+							<div className={`${store.getIconClass()} request__msg-icon`}
+								style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px', marginRight: '.25rem' }}
+								title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
+							>
 							</div>
 						}
-					</div>
-					<div style={{ minWidth: '3.5rem' }}>
-						<div
-							className="request__msg-highlight"
-							style={{
-								fontFamily: 'monospace',
-								margin: message.protocol === 'log:' ? '.5rem 0' : undefined,
-								textAlign: 'right'
-							}}
-						>
-							{store.getIndex() + 1}
-						</div>
-					</div>
-					{message.protocol !== 'log:' &&
-						<div className={`${store.getIconClass()} request__msg-icon`}
-							style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px' }}
-							onClick={handleClick}
-							title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
-						>
-						</div>
-					}
 
-					<div className={`request__msg
+						<div className={`request__msg
 						${message.protocol !== 'log:' ? ' nowrap' : ''}
 						${isActive ? ' active' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
-						title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
-					>
-						<div className={`fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
-							style={{ marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
-							onClick={handleClick} />
-
-						<div hidden={!isActive} style={{ display: 'flex', height: '26px', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}>
-							<IconButton size="small" hidden={!canResend()}>
-								<div title="Copy cURL to clipboard"
-									className="btn-xs btn-primary"
-									style={{ marginRight: '0rem' }}
-									onClick={() => {
-										navigator.clipboard.writeText(snapshotStore.copyAsCurl(message));
-									}}>
-									cURL
-								</div>
-							</IconButton>
-							<IconButton size="small">
-								<div className="header__export fa fa-copy" title="Copy to clipboard"
-									style={{ marginRight: '0rem' }}
-									onClick={() => {
-										navigator.clipboard.writeText(snapshotStore.copyMessage(message));
-									}}
-								>
-								</div>
-							</IconButton>
-							<IconButton size="small" hidden>
-								<div className="fa fa-sticky-note"
-									title="Add note"
-									style={{ marginRight: '0rem', color: '#E8A317' }}
-									onClick={() => {
-										setOpenNoteDialog(true);
-									}}
-								>
-								</div>
-							</IconButton>
-							<IconButton size="small" hidden={!canResend()}>
-								<div className="fa fa-paper-plane"
-									title="Resend HTTP request"
-									style={{ marginRight: '.25rem' }}
-									onClick={() => {
-										onResend();
-									}}
-								>
-								</div>
-							</IconButton>
-						</div>
-						{store.isHttpOrHttps() &&
-							<div className={(store.isError() ? 'error' : '') + ' request__msg-status'} style={{ width: maxStatusSize + 'ch' }}>
-								{message.status}
-							</div>}
-						<div className={`
+							title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
+						>
+							<div hidden={!isActive} style={{ display: 'flex', height: '26px', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}>
+								<IconButton size="small" hidden={!canResend()}>
+									<div title="Copy cURL to clipboard"
+										className="btn-xs btn-primary"
+										style={{ marginRight: '0rem' }}
+										onClick={() => {
+											navigator.clipboard.writeText(snapshotStore.copyAsCurl(message));
+										}}>
+										cURL
+									</div>
+								</IconButton>
+								<IconButton size="small">
+									<div className="header__export fa fa-copy" title="Copy to clipboard"
+										style={{ marginRight: '0rem' }}
+										onClick={() => {
+											navigator.clipboard.writeText(snapshotStore.copyMessage(message));
+										}}
+									>
+									</div>
+								</IconButton>
+								<IconButton size="small" hidden>
+									<div className="fa fa-sticky-note"
+										title="Add note"
+										style={{ marginRight: '0rem', color: '#E8A317' }}
+										onClick={() => {
+											setOpenNoteDialog(true);
+										}}
+									>
+									</div>
+								</IconButton>
+								<IconButton size="small" hidden={!canResend()}>
+									<div className="fa fa-paper-plane"
+										title="Resend HTTP request"
+										style={{ marginRight: '.25rem' }}
+										onClick={() => {
+											onResend();
+										}}
+									>
+									</div>
+								</IconButton>
+							</div>
+							{store.isHttpOrHttps() &&
+								<div className={(store.isError() ? 'error' : '') + ' request__msg-status'} style={{ width: maxStatusSize + 'ch' }}>
+									{message.status}
+								</div>}
+							<div className={`
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
 						`}
-							style={{ textDecoration: isFiltered ? "line-through" : undefined }}
-							onClick={doHighlight}>
-							{message.method && message.method.length > 0 &&
-								<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
-									{message.method}
+								style={{ textDecoration: isFiltered ? "line-through" : undefined }}>
+								{message.method && message.method.length > 0 &&
+									<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
+										{message.method}
+									</div>}
+								{messageQueueStore.getShowAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
+									{message.endpoint}
 								</div>}
-							{messageQueueStore.getShowAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
-								{message.endpoint}
-							</div>}
-							{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
-							{message.protocol === 'log:' ?
-								<JsonLogAnnotator message={store} />
-								:
-								<RequestURL message={store} />
-							}
+								{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
+								{message.protocol === 'log:' ?
+									<JsonLogAnnotator message={store} />
+									:
+									<RequestURL message={store} />
+								}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -230,7 +229,7 @@ export function formatTimestamp(timestamp: number) {
 
 export function dateToHHMMSS(d: Date) {
 	if (isNaN(d.getMonth()) || isNaN(d.getDate())) {
-		return "No date";
+		return "Invalid Date";
 	}
 	const monthDay = d.getMonth() + 1 + '/' + d.getDate();
 	return monthDay + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');

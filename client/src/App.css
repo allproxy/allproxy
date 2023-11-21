@@ -729,6 +729,10 @@ td input {
 	color: black !important;
 }
 
+.request__msg-twisty:hover {
+	color: rgb(203, 75, 22);
+}
+
 .request__msg-header {
 	position: relative;
 	display: flex;
@@ -755,7 +759,6 @@ td input {
 }
 
 .request__msg-time-ms {
-	margin-left: .75rem;
 	text-align: center;
 	line-height: 24px;
 	white-space: nowrap;
