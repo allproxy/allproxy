@@ -180,7 +180,7 @@ export default class JSONLogStore {
 				const tokens = value.split(':', 2);
 				if (tokens.length === 2) {
 					let d = new Date(tokens[0]);
-					date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + tokens[1]);
+					date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + tokens[1]);
 				}
 			}
 		} catch (e) {
