@@ -100,6 +100,10 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	function makeLabel(name: string, keyBorder: string, valueBorder: string | undefined, background: string, color: string, filter: string, value: string | number | boolean): JSX.Element[] {
 		if (value === '') value = '""';
 
+		if (typeof value === 'boolean') {
+			value = value ? 'true' : 'false';
+		}
+
 		let width: string | undefined;
 		if ((value + '').length < 100) {
 			const smallChars = ['.', ':', '/', '!', ',', ';', "'"];
