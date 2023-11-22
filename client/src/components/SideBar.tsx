@@ -250,8 +250,8 @@ const SideBar = observer(() => {
 			<hr className="side-bar-divider" hidden={!isJsonLogViewer()}></hr>
 			{isJsonLogViewer() &&
 				<div>
-					<div style={{ paddingLeft: '.5rem' }}>JSON Settings</div>
-					<div style={{ paddingLeft: '.5rem' }}>
+					<div style={{ paddingLeft: '.5rem' }}>JSON SETTINGS</div>
+					<div>
 						<div className="side-bar-item">
 							<div>
 								<div>Parsing Method:</div>
