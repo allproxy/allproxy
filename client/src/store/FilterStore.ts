@@ -423,15 +423,25 @@ export default class FilterStore {
         return false;
     }
 
-    private parseKeyValue(operand: string) {
-        const i = operand.lastIndexOf(':');
-        if (i !== -1 && operand.length > i + 1) {
-            const key = operand.substring(0, i);
-            let value = operand.substring(i + 1);
-            return { key, value };
-        } else {
-            return { key: operand, value: undefined };
+    private parseKeyValue(operand: string): { key: string, value: string | undefined }[] {
+        const keyValues: { key: string, value: string | undefined }[] = [];
+        const i = operand.indexOf(':');
+        keyValues.push(getKeyValue(i));
+        const j = operand.lastIndexOf(':');
+        if (i !== j) {
+            keyValues.push(getKeyValue(j));
         }
+
+        function getKeyValue(i: number) {
+            if (i !== -1 && operand.length > i + 1) {
+                const key = operand.substring(0, i);
+                let value = operand.substring(i + 1);
+                return { key, value };
+            } else {
+                return { key: operand, value: undefined };
+            }
+        }
+        return keyValues;
     }
 
     public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): boolean {
@@ -440,13 +450,15 @@ export default class FilterStore {
         const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
         for (const operand of operands) {
-            const keyValue = this.parseKeyValue(operand);
-            if (keyValue.value !== undefined) {
-                if (jsonFieldLower === keyValue.key.toLowerCase()) return true;
-                if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
-            } else {
-                if (jsonFieldLower.endsWith(operand.toLowerCase())) return true;
-                if (jsonValueLower === operand.toLowerCase()) return true;
+            const keyValues = this.parseKeyValue(operand);
+            for (const keyValue of keyValues) {
+                if (keyValue.value !== undefined) {
+                    if (jsonFieldLower === keyValue.key.toLowerCase()) return true;
+                    if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
+                } else {
+                    if (jsonFieldLower.endsWith(operand.toLowerCase())) return true;
+                    if (jsonValueLower === operand.toLowerCase()) return true;
+                }
             }
         }
         return false;
@@ -456,50 +468,52 @@ export default class FilterStore {
         const message = messageStore.getMessage();
 
         // Check for JSON key:value syntax
-        const keyValue = this.parseKeyValue(needle);
-        if (keyValue.value !== undefined) {
-            const key = keyValue.key;
-            let value = keyValue.value;
-            let operator: string;
-            if (value.startsWith('>') || value.startsWith('<')) {
-                operator = value.substring(0, 1);
-                value = value.substring(1);
-                if (value.startsWith('=')) {
-                    operator += value.substring(0, 1);
+        const keyValues = this.parseKeyValue(needle);
+        for (const keyValue of keyValues) {
+            if (keyValue.value !== undefined) {
+                const key = keyValue.key;
+                let value = keyValue.value;
+                let operator: string;
+                if (value.startsWith('>') || value.startsWith('<')) {
+                    operator = value.substring(0, 1);
                     value = value.substring(1);
-                }
-            } else if (value.startsWith('==')) {
-                operator = value.substring(0, 2);
-                value = value.substring(2);
-                if (value.startsWith('=')) {
-                    operator += value.substring(0, 1);
-                    value = value.substring(1);
-                }
-            } else {
-                operator = '==';
-            }
-            if (key === 'cat' && (operator === '==' || operator === '===')) {
-                if (messageStore.getLogEntry().category.startsWith(value)) return false;
-            }
-            if (key === 'app' && (operator === '==' || operator === '===')) {
-                if (messageStore.getLogEntry().appName.startsWith(value)) return false;
-            }
-            if (typeof message.requestBody !== 'string') {
-                if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
-                    return false;
+                    if (value.startsWith('=')) {
+                        operator += value.substring(0, 1);
+                        value = value.substring(1);
+                    }
+                } else if (value.startsWith('==')) {
+                    operator = value.substring(0, 2);
+                    value = value.substring(2);
+                    if (value.startsWith('=')) {
+                        operator += value.substring(0, 1);
+                        value = value.substring(1);
+                    }
                 } else {
-                    if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
+                    operator = '==';
                 }
-            }
-            if (typeof message.responseBody !== 'string') {
-                if (key === '*' && JSON.stringify(message.responseBody).indexOf(`:"${value}"`) !== -1) {
-                    return false;
-                } else {
-                    if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
+                if (key === 'cat' && (operator === '==' || operator === '===')) {
+                    if (messageStore.getLogEntry().category.startsWith(value)) return false;
                 }
+                if (key === 'app' && (operator === '==' || operator === '===')) {
+                    if (messageStore.getLogEntry().appName.startsWith(value)) return false;
+                }
+                if (typeof message.requestBody !== 'string') {
+                    if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
+                        return false;
+                    } else {
+                        if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
+                    }
+                }
+                if (typeof message.responseBody !== 'string') {
+                    if (key === '*' && JSON.stringify(message.responseBody).indexOf(`:"${value}"`) !== -1) {
+                        return false;
+                    } else {
+                        if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
+                    }
+                }
+                if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;
+                return true;
             }
-            if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;
-            return true;
         }
 
         if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
