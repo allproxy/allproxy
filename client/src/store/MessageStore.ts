@@ -89,6 +89,9 @@ export default class MessageStore {
                             }
                         }
                     }
+                } else if (typeof value === 'object') {
+                    value = compressJSON(value);
+                    newFields.push({ name: key, value: value });
                 } else if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
                     newFields.push({ name: key, value: value });
                 }
