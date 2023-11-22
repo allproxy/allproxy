@@ -88,6 +88,7 @@ const SideBar = observer(() => {
 		setTimeout(() => {
 			updateJSONRequestLabels();
 			snapshotStore.setUpdating(false);
+			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
 		});
 	};
 	const getJSONParsingMethodDisplayName = () => {
@@ -102,6 +103,7 @@ const SideBar = observer(() => {
 		setTimeout(() => {
 			updateJSONRequestLabels();
 			snapshotStore.setUpdating(false);
+			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
 		});
 	};
 
@@ -184,6 +186,8 @@ const SideBar = observer(() => {
 
 	const userAgents = Array.from(getUserAgents().keys());
 
+	const buttonWidth = '142.29px';
+
 	return (
 		<><div className="side-bar">
 			<div className="side-bar-item">
@@ -202,15 +206,14 @@ const SideBar = observer(() => {
 			</div>
 			<div className="side-bar-item">
 				<button className="btn btn-primary"
-					style={{ width: '142.29' }}
+					style={{ width: buttonWidth }}
 					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
 					<div style={{ width: '11.5ch' }}>Restore Session</div>
 				</button>
 			</div>
-			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
-				<button className="btn btn-primary"
-					style={{ width: '142.29' }}
+				<button className="btn btn-secondary"
+					style={{ width: buttonWidth }}
 					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
 						{
 							logViewerStore.isLogViewer()
@@ -246,6 +249,13 @@ const SideBar = observer(() => {
 						</div>
 					</MenuItem>
 				</Menu>
+			</div>
+			<div className="side-bar-item" hidden>
+				<button className="btn btn-secondary"
+					style={{ width: buttonWidth }}
+					onClick={() => messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum())}>
+					<div style={{ width: '11.5ch' }}>Sync</div>
+				</button>
 			</div>
 			<hr className="side-bar-divider" hidden={!isJsonLogViewer()}></hr>
 			{isJsonLogViewer() &&
