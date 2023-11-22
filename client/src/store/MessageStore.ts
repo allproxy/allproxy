@@ -74,7 +74,7 @@ export default class MessageStore {
                 if (key === jsonLogStore.getAutoFields().appName) continue;
                 if (key === jsonLogStore.getAutoFields().message) continue;
                 let value = json[key];
-                if (typeof value === 'object') {
+                if (typeof value === 'object' && jsonLogStore.getAutoMaxFieldLevel() === 2) {
                     if (Array.isArray(value)) {
                         value = compressJSON(value);
                         newFields.push({ name: key, value: value });

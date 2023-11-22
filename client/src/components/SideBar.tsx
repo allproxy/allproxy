@@ -88,12 +88,23 @@ const SideBar = observer(() => {
 		setTimeout(() => {
 			updateJSONRequestLabels();
 			snapshotStore.setUpdating(false);
+			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
 		});
 	};
-
 	const getJSONParsingMethodDisplayName = () => {
 		const method = jsonLogStore.getParsingMethod();
 		return method.substring(0, 1).toUpperCase() + method.substring(1);
+	};
+
+	const handleJsonMaxFieldLevelChange = (e: any) => {
+		const level = e.target.value === '1' ? 1 : 2;
+		jsonLogStore.setAutoMaxFieldLevel(level);
+		snapshotStore.setUpdating(true);
+		setTimeout(() => {
+			updateJSONRequestLabels();
+			snapshotStore.setUpdating(false);
+			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
+		});
 	};
 
 	let countsByIconClassMap: Map<string, number> = new Map();
@@ -175,6 +186,8 @@ const SideBar = observer(() => {
 
 	const userAgents = Array.from(getUserAgents().keys());
 
+	const buttonWidth = '142.29px';
+
 	return (
 		<><div className="side-bar">
 			<div className="side-bar-item">
@@ -193,15 +206,14 @@ const SideBar = observer(() => {
 			</div>
 			<div className="side-bar-item">
 				<button className="btn btn-primary"
-					style={{ width: '142.29' }}
+					style={{ width: buttonWidth }}
 					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
 					<div style={{ width: '11.5ch' }}>Restore Session</div>
 				</button>
 			</div>
-			<hr className="side-bar-divider"></hr>
 			<div className="side-bar-item">
-				<button className="btn btn-primary"
-					style={{ width: '142.29' }}
+				<button className="btn btn-secondary"
+					style={{ width: buttonWidth }}
 					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
 						{
 							logViewerStore.isLogViewer()
@@ -238,36 +250,70 @@ const SideBar = observer(() => {
 					</MenuItem>
 				</Menu>
 			</div>
+			<div className="side-bar-item" hidden>
+				<button className="btn btn-secondary"
+					style={{ width: buttonWidth }}
+					onClick={() => messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum())}>
+					<div style={{ width: '11.5ch' }}>Sync</div>
+				</button>
+			</div>
 			<hr className="side-bar-divider" hidden={!isJsonLogViewer()}></hr>
 			{isJsonLogViewer() &&
 				<div>
-					<div className="side-bar-item">
-						<div>
-							<div>JSON Parsing:</div>
-							<div style={{ marginLeft: '1rem' }}>
-								<Select className="side-bar-select"
-									value={jsonLogStore.getParsingMethod()}
-									renderValue={() => getJSONParsingMethodDisplayName()}
-									onChange={handleJsonMethodChange}
-								>
-									<MenuItem
-										value="auto"
+					<div style={{ paddingLeft: '.5rem' }}>JSON SETTINGS</div>
+					<div>
+						<div className="side-bar-item">
+							<div>
+								<div>Parsing Method:</div>
+								<div style={{ paddingLeft: '.5rem' }}>
+									<Select className="side-bar-select"
+										value={jsonLogStore.getParsingMethod()}
+										renderValue={() => getJSONParsingMethodDisplayName()}
+										onChange={handleJsonMethodChange}
 									>
-										<ListItemText primary="Auto" />
-									</MenuItem>
-									<MenuItem
-										value="simple"
-									>
-										<ListItemText primary="Simple" />
-									</MenuItem>
-									<MenuItem
-										value="advanced"
-									>
-										<ListItemText primary="Advanced" />
-									</MenuItem>
-								</Select>
+										<MenuItem
+											value="auto"
+										>
+											<ListItemText primary="Auto" />
+										</MenuItem>
+										<MenuItem
+											value="simple"
+										>
+											<ListItemText primary="Simple" />
+										</MenuItem>
+										<MenuItem
+											value="advanced"
+										>
+											<ListItemText primary="Advanced" />
+										</MenuItem>
+									</Select>
+								</div>
 							</div>
 						</div>
+						{jsonLogStore.getParsingMethod() === 'auto' &&
+							<div style={{ paddingLeft: '.5rem' }}>
+								<div>
+									<div>Max Field Level:</div>
+									<div style={{ marginLeft: '.5rem' }}>
+										<Select className="side-bar-select"
+											value={jsonLogStore.getAutoMaxFieldLevel()}
+											renderValue={() => jsonLogStore.getAutoMaxFieldLevel()}
+											onChange={handleJsonMaxFieldLevelChange}
+										>
+											<MenuItem
+												value="1"
+											>
+												<ListItemText primary="1" />
+											</MenuItem>
+											<MenuItem
+												value="2"
+											>
+												<ListItemText primary="2" />
+											</MenuItem>
+										</Select>
+									</div>
+								</div>
+							</div>}
 					</div>
 				</div>}
 			<hr className="side-bar-divider" hidden={isJsonLogViewer()}></hr>
