@@ -106,6 +106,7 @@ export default class JSONLogStore {
 	private method: 'auto' | 'simple' | 'advanced' = 'simple';
 
 	private autoFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '' };
+	private autoMaxFieldLevel: 1 | 2 = 1;
 	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '' };
 
 	private script = defaultScript;
@@ -132,6 +133,9 @@ export default class JSONLogStore {
 	public async setAutoFields(field: 'date' | 'level' | 'category' | 'appName' | 'message', value: string) {
 		this.autoFields[field] = value;
 	}
+
+	public getAutoMaxFieldLevel() { return this.autoMaxFieldLevel; }
+	public setAutoMaxFieldLevel(level: 1 | 2) { this.autoMaxFieldLevel = level; }
 
 	public getSimpleFields() { return this.simpleFields; }
 	public async setSimpleFields(field: 'date' | 'level' | 'category' | 'appName' | 'message', value: string) {

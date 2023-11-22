@@ -90,10 +90,19 @@ const SideBar = observer(() => {
 			snapshotStore.setUpdating(false);
 		});
 	};
-
 	const getJSONParsingMethodDisplayName = () => {
 		const method = jsonLogStore.getParsingMethod();
 		return method.substring(0, 1).toUpperCase() + method.substring(1);
+	};
+
+	const handleJsonMaxFieldLevelChange = (e: any) => {
+		const level = e.target.value === '1' ? 1 : 2;
+		jsonLogStore.setAutoMaxFieldLevel(level);
+		snapshotStore.setUpdating(true);
+		setTimeout(() => {
+			updateJSONRequestLabels();
+			snapshotStore.setUpdating(false);
+		});
 	};
 
 	let countsByIconClassMap: Map<string, number> = new Map();
@@ -241,33 +250,60 @@ const SideBar = observer(() => {
 			<hr className="side-bar-divider" hidden={!isJsonLogViewer()}></hr>
 			{isJsonLogViewer() &&
 				<div>
-					<div className="side-bar-item">
-						<div>
-							<div>JSON Parsing:</div>
-							<div style={{ marginLeft: '1rem' }}>
-								<Select className="side-bar-select"
-									value={jsonLogStore.getParsingMethod()}
-									renderValue={() => getJSONParsingMethodDisplayName()}
-									onChange={handleJsonMethodChange}
-								>
-									<MenuItem
-										value="auto"
+					<div style={{ paddingLeft: '.5rem' }}>JSON Settings</div>
+					<div style={{ paddingLeft: '.5rem' }}>
+						<div className="side-bar-item">
+							<div>
+								<div>Parsing Method:</div>
+								<div style={{ paddingLeft: '.5rem' }}>
+									<Select className="side-bar-select"
+										value={jsonLogStore.getParsingMethod()}
+										renderValue={() => getJSONParsingMethodDisplayName()}
+										onChange={handleJsonMethodChange}
 									>
-										<ListItemText primary="Auto" />
-									</MenuItem>
-									<MenuItem
-										value="simple"
-									>
-										<ListItemText primary="Simple" />
-									</MenuItem>
-									<MenuItem
-										value="advanced"
-									>
-										<ListItemText primary="Advanced" />
-									</MenuItem>
-								</Select>
+										<MenuItem
+											value="auto"
+										>
+											<ListItemText primary="Auto" />
+										</MenuItem>
+										<MenuItem
+											value="simple"
+										>
+											<ListItemText primary="Simple" />
+										</MenuItem>
+										<MenuItem
+											value="advanced"
+										>
+											<ListItemText primary="Advanced" />
+										</MenuItem>
+									</Select>
+								</div>
 							</div>
 						</div>
+						{jsonLogStore.getParsingMethod() === 'auto' &&
+							<div style={{ paddingLeft: '.5rem' }}>
+								<div>
+									<div>Max Field Level:</div>
+									<div style={{ marginLeft: '.5rem' }}>
+										<Select className="side-bar-select"
+											value={jsonLogStore.getAutoMaxFieldLevel()}
+											renderValue={() => jsonLogStore.getAutoMaxFieldLevel()}
+											onChange={handleJsonMaxFieldLevelChange}
+										>
+											<MenuItem
+												value="1"
+											>
+												<ListItemText primary="1" />
+											</MenuItem>
+											<MenuItem
+												value="2"
+											>
+												<ListItemText primary="2" />
+											</MenuItem>
+										</Select>
+									</div>
+								</div>
+							</div>}
 					</div>
 				</div>}
 			<hr className="side-bar-divider" hidden={isJsonLogViewer()}></hr>
