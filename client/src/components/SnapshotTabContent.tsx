@@ -332,17 +332,12 @@ const SnapshotTabContent = observer(({
 				const elapsed = now - lastScrollTime;
 				if (elapsed > 1000) {
 					if (up && parent.scrollTop === 0 && scrollTop === 0 && renderSet[0].getIndex() > 0) {
-						if (renderSet[0].getIndex() > 0) {
-							for (let i = renderSet[0].getIndex() - 1; i >= 0; --i) {
-								if (!messageQueueStore.getMessages()[i].isFiltered()) {
-									lastScrollTime = now;
-									messageQueueStore.setScrollAction('pageup');
-									break;
-								}
+						for (let i = renderSet[0].getIndex() - 1; i >= 0; --i) {
+							if (!messageQueueStore.getMessages()[i].isFiltered()) {
+								lastScrollTime = now;
+								messageQueueStore.setScrollAction('pageup');
+								break;
 							}
-						} else {
-							lastScrollTime = now;
-							messageQueueStore.setScrollAction('pageup');
 						}
 					} else if (!up &&
 						parent.scrollTop + 1 >= scrollBottom - parent.clientHeight &&
@@ -419,7 +414,7 @@ const SnapshotTabContent = observer(({
 					stIndex = i;
 				}
 			}
-			if (i % 2 !== stIndex % 2) stIndex++;
+			if (stIndex !== 0 && i % 2 !== stIndex % 2) stIndex++;
 			if (stIndex !== renderSet[0].getIndex()) {
 				setScrollTopIndex(stIndex);
 				messageQueueStore.setScrollToSeqNum(stSeqNum);
