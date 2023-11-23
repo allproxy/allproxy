@@ -463,13 +463,14 @@ const SnapshotTabContent = observer(({
 						++elementIndex;
 					}
 
-					// Above?
-					if (offset < parent.scrollTop) {
-						parent.scrollTop = offset;
-						setScrollTop(offset);
-					}
-					// Below?
-					else if (offset + entryHeight > parent.scrollTop + parent.clientHeight) {
+					// Not in viewport?
+					if (offset < parent.scrollTop // above
+						|| offset + entryHeight > parent.scrollTop + parent.clientHeight // below
+					) {
+						// Place entry at bottom
+						if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !vertical) {
+							offset -= (parent.clientHeight - entryHeight);
+						}
 						parent.scrollTop = offset;
 						setScrollTop(offset);
 					}
