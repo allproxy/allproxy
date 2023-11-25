@@ -501,7 +501,7 @@ td input {
 }
 
 .header__title {
-	margin: 0 1rem;
+	margin: 0 .5rem 0 1rem;
 	color: whitesmoke;
 	float: left;
 	vertical-align: middle;

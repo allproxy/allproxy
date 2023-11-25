@@ -13,7 +13,7 @@ import MessageQueueStore from '../store/MessageQueueStore';
 import MetricsModal from './MetricsModal';
 import { metricsStore } from '../store/MetricsStore';
 import { useFilePicker } from "use-file-picker";
-import { Menu, MenuItem } from '@material-ui/core';
+import { ListItemText, Menu, MenuItem, Select } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
 import SnapshotStore from '../store/SnapshotStore';
 import HelpDialog from './HelpDialog';
@@ -72,11 +72,29 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<img src="favicon.ico" alt="AllProxy Debugging Tool"
 						width="24" height="24" />
 				</div>
-				<div className="header__title" onClick={() => window.location.reload()}>
-					{logViewerStore.isLogViewer()
-						? <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
-						: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
-					}
+				<div className="header__title">
+					<Select className="side-bar-select"
+						value={logViewerStore.isLogViewer() ? 'jlogviewer' : 'allproxy'}
+						renderValue={() =>
+							<span style={{ fontWeight: 100, fontSize: 'x-large' }}>
+								{logViewerStore.isLogViewer() ?
+									<b><span style={{ color: '#f50057' }}>J</span>LogViewer</b> :
+									<b><span style={{ color: '#f50057' }}>All</span>Proxy</b>}
+							</span>
+						}
+						onChange={logViewerStore.toggleApp}
+					>
+						<MenuItem
+							value="allproxy"
+						>
+							<ListItemText primary="AllProxy" />
+						</MenuItem>
+						<MenuItem
+							value="jlogviewer"
+						>
+							<ListItemText primary="JLogViewer" />
+						</MenuItem>
+					</Select>
 				</div>
 				<div className={"header__status " + statusClassName} title="Status"></div>
 

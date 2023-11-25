@@ -5,12 +5,16 @@ export default class LogViewerStore {
 
 
 	public constructor() {
-		this.logViewer = document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer';
+		this.logViewer = document.location.pathname === '/jlogviewer';
 		makeAutoObservable(this);
 	}
 
 	public isLogViewer() {
 		return this.logViewer;
+	}
+
+	public toggleApp() {
+		document.location.pathname = document.location.pathname === '/jlogviewer' ? '/allproxy' : '/jlogviewer';
 	}
 }
 
