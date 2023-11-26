@@ -215,11 +215,7 @@ const SideBar = observer(() => {
 				<button className="btn btn-secondary"
 					style={{ width: buttonWidth }}
 					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-						{
-							logViewerStore.isLogViewer()
-								? setOpenImportJSONFileDialog(true)
-								: setAnchorEl(event.currentTarget);
-						}
+						setAnchorEl(event.currentTarget);
 					}}>
 					<div style={{ width: '11.5ch' }}>Import</div>
 				</button>
@@ -238,7 +234,7 @@ const SideBar = observer(() => {
 							&nbsp;Import JSON Log
 						</div>
 					</MenuItem>
-					<MenuItem>
+					<MenuItem hidden={logViewerStore.isLogViewer()}>
 						<div className="header__import fa fa-upload" title="Import snapshot file"
 							onClick={() => {
 								setAnchorEl(null);
@@ -246,6 +242,16 @@ const SideBar = observer(() => {
 							}}
 						>
 							&nbsp;Import Snapshot
+						</div>
+					</MenuItem>
+					<MenuItem>
+						<div className="header__import fa fa-upload" title="Import snapshot file"
+							onClick={() => {
+								setAnchorEl(null);
+								sessionStore.importSession();
+							}}
+						>
+							&nbsp;Import Session
 						</div>
 					</MenuItem>
 				</Menu>
