@@ -173,15 +173,30 @@ export default class SessionStore {
 					alert(file.name + ": unsupported zip file - sessionName.txt doesn't exist");
 				}
 
+				const dropOffQ: { [key: string]: { tabName: string, data: string } } = {};
+				const orderedTabs: string[] = [];
 				archive.forEach(async (_, jzipObject) => {
 					if (jzipObject.dir && jzipObject.name.startsWith('tab')) {
+						orderedTabs.push(jzipObject.name);
 						const tabNameFile = archive.files[jzipObject.name + 'tabName.txt'];
 						const tabName = await tabNameFile.async('text');
 						const dataFile = archive.files[jzipObject.name + 'data.txt'];
 						const data = await dataFile.async('text');
-						snapshotStore.importSnapshot(tabName, data);
+						if (orderedTabs[0] === jzipObject.name) {
+							snapshotStore.importSnapshot(tabName, data);
+							orderedTabs.shift();
+							while (orderedTabs.length > 0 && dropOffQ[orderedTabs[0]] !== undefined) {
+								const tab = dropOffQ[orderedTabs[0]];
+								delete dropOffQ[orderedTabs[0]];
+								orderedTabs.shift();
+								snapshotStore.importSnapshot(tab.tabName, tab.data);
+							}
+						} else {
+							dropOffQ[jzipObject.name] = { tabName, data };
+						}
 					}
 				});
+
 				const noteFile = archive.file('notes.txt');
 				if (noteFile !== null) {
 					const notes = await noteFile.async('text');
