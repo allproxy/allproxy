@@ -3,6 +3,8 @@ import Message from "../common/Message";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { snapshotStore } from "./SnapshotStore";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 export default class SessionStore {
 	private sessionFileNameList: string[] = [];
@@ -110,6 +112,83 @@ export default class SessionStore {
 			}
 			resolve(0);
 		});
+	}
+
+	public async exportSession(index: number, zipFileName: string): Promise<number> {
+		return new Promise<number>(async (resolve) => {
+			const zip = new JSZip();
+			const sessionDir = this.sessionFileNameList[index];
+			const dir = 'sessions/' + sessionDir;
+			let sessionName = '';
+			const exists = await apFileSystem.exists(dir + '/sessionName.txt');
+			if (exists) {
+				sessionName = await apFileSystem.readFile(dir + '/sessionName.txt');
+				zip.file("sessionName.txt", sessionName);
+			}
+			for (let dirEntry of await apFileSystem.readDir(dir)) {
+				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry === 'notes.txt') continue;
+				if (dirEntry.startsWith('tab')) {
+					const tab = zip.folder(dirEntry);
+					let tabName = await apFileSystem.readFile(dir + '/' + dirEntry + '/tabName.txt');
+					tab?.file('tabName.txt', tabName);
+					const data = await apFileSystem.readFile(dir + '/' + dirEntry + '/data.txt');
+					tab?.file("data.txt", data);
+				}
+			}
+			if (await apFileSystem.exists(dir + '/notes.txt')) {
+				const notes = await apFileSystem.readFile(dir + '/notes.txt');
+				zip.file('notes.text', notes);
+			}
+			const content = await zip.generateAsync({ type: "blob" });
+			saveAs(content, zipFileName + ".zip");
+			resolve(0);
+		});
+	}
+
+	public importSession() {
+		var input = document.createElement('input');
+		input.type = 'file';
+		input.click();
+
+		input.onchange = (e: any) => {
+			let file = e.target.files[0];
+			if (file.type !== 'application/zip') {
+				console.log(file);
+				alert(file.name + " is not a zip file!");
+				return;
+			}
+
+			// setting up the reader
+			const reader = new FileReader();
+
+			reader.readAsArrayBuffer(file);
+
+			// here we tell the reader what to do when it's done reading...
+			reader.onload = async (readerEvent: any) => {
+				const archive = await new JSZip().loadAsync(readerEvent.target.result);
+
+				const sessionNameFile = archive.file('sessionName.txt');
+				if (sessionNameFile === null) {
+					alert(file.name + ": unsupported zip file - sessionName.txt doesn't exist");
+				}
+
+				archive.forEach(async (_, jzipObject) => {
+					if (jzipObject.dir && jzipObject.name.startsWith('tab')) {
+						const tabNameFile = archive.files[jzipObject.name + 'tabName.txt'];
+						const tabName = await tabNameFile.async('text');
+						const dataFile = archive.files[jzipObject.name + 'data.txt'];
+						const data = await dataFile.async('text');
+						snapshotStore.importSnapshot(tabName, data);
+					}
+				});
+				const noteFile = archive.file('notes.txt');
+				if (noteFile !== null) {
+					const notes = await noteFile.async('text');
+					snapshotStore.setNotes(notes);
+				}
+			};
+		};
 	}
 }
 

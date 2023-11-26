@@ -6,6 +6,7 @@ import { snapshotStore } from '../store/SnapshotStore';
 import React, { useEffect } from 'react';
 import DeleteDialog from './DeleteDialog';
 import { apFileSystem } from '../store/APFileSystem';
+import ExportDialog from './ExportDialog';
 
 type Props = {
 	open: boolean,
@@ -17,6 +18,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	const [titleValue, setTitleValue] = React.useState('');
 	const [searchValue, setSearchValue] = React.useState('');
 	const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [pendingDeleteIndex, setPendingDeleteIndex] = React.useState(-1);
 	const [searchType, setSearchType] = React.useState<string>('Title');
 
@@ -44,6 +46,11 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		snapshotStore.setUpdating(false);
 	}
 
+	async function handleExportSession(i: number) {
+		sessionIndex = i;
+		setOpenExportDialog(true);
+	}
+
 	function isFilterValueMatch(sessionName: string) {
 		if (filterValues.length === 0) return true;
 		for (const value of filterValues) {
@@ -53,6 +60,8 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		}
 		return false;
 	}
+
+	let sessionIndex = 0;
 
 	return (
 		<>
@@ -146,10 +155,16 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 												<CloseIcon style={{ color: 'red' }} />
 											</IconButton>
 											<button className={`btn btn-success`}
-												style={{ marginRight: '1rem' }}
+												style={{ marginRight: '.25rem' }}
 												onClick={() => handleRestoreSession(i)}
 											>
 												Restore
+											</button>
+											<button className={`btn btn-primary`}
+												style={{ marginRight: '1rem' }}
+												onClick={() => handleExportSession(i)}
+											>
+												Export
 											</button>
 											<div
 												style={{
@@ -181,6 +196,16 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 						store.deleteEntry(pendingDeleteIndex);
 					}
 					setPendingDeleteIndex(-1);
+				}} />
+			<ExportDialog
+				open={openExportDialog}
+				heading={"Enter ZIP File Name"}
+				name={''}
+				onClose={async (fileName) => {
+					setOpenExportDialog(false);
+					if (fileName.length > 0) {
+						await store.exportSession(sessionIndex, fileName);
+					}
 				}} />
 		</>
 	);
