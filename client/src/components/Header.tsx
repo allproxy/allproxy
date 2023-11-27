@@ -23,7 +23,7 @@ import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
-import { logViewerStore } from '../store/LogViewerStore';
+import { urlPathStore } from '../store/UrlPathStore';
 
 let filterWasStopped = false;
 
@@ -74,15 +74,15 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				</div>
 				<div className="header__title">
 					<Select className="side-bar-select"
-						value={logViewerStore.isLogViewer() ? 'jlogviewer' : 'allproxy'}
+						value={urlPathStore.isLogViewer() ? 'jlogviewer' : 'allproxy'}
 						renderValue={() =>
 							<span style={{ fontWeight: 100, fontSize: 'x-large' }}>
-								{logViewerStore.isLogViewer() ?
+								{urlPathStore.isLogViewer() ?
 									<b><span style={{ color: '#f50057' }}>J</span>LogViewer</b> :
 									<b><span style={{ color: '#f50057' }}>All</span>Proxy</b>}
 							</span>
 						}
-						onChange={logViewerStore.toggleApp}
+						onChange={urlPathStore.toggleApp}
 					>
 						<MenuItem
 							value="allproxy"
@@ -159,7 +159,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					open={Boolean(moreMenuIcon)}
 					onClose={() => setMoreMenuIcon(null)}
 				>
-					{!logViewerStore.isLogViewer() &&
+					{!urlPathStore.isLogViewer() &&
 						<>
 							<MenuItem
 								style={{
@@ -181,29 +181,29 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 								pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
 									? undefined : 'none'
 							}}>
-								<div className="header__export fa fa-download" title="Export snapshot file"
+								<div className="header__export fa fa-download" title="Export tab to file"
 									onClick={() => {
 										setOpenExportDialog(true);
 										setMoreMenuIcon(null);
 									}}
 								>
-									&nbsp;Export Snapshot
+									&nbsp;Export Tab to file
 								</div>
 							</MenuItem>
 							<MenuItem>
-								<div className="header__import fa fa-upload" title="Import snapshot file"
+								<div className="header__import fa fa-upload" title="Import tab from file"
 									onClick={() => {
 										openSnapshotFileSelector();
 										setMoreMenuIcon(null);
 									}}
 								>
-									&nbsp;Import Snapshot
+									&nbsp;Import Tab from file
 								</div>
 							</MenuItem>
 						</>
 					}
 					<MenuItem>
-						<div className="header__import fa fa-file" title="Import JSON file"
+						<div className="header__import fa fa-file" title="Import JSON log from file"
 							onClick={() => {
 								setOpenImportJSONFileDialog(true);
 								setMoreMenuIcon(null);
@@ -250,7 +250,10 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				<div hidden className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div >
-			<div>
+			<div style={{
+				cursor: urlPathStore.isLocalhost() ? undefined : 'not-allowed',
+				pointerEvents: urlPathStore.isLocalhost() ? undefined : 'none'
+			}}>
 				<div className="header__settings fa fa-question" title="Help"
 					onClick={() => { setShowHelp(true); }}>
 				</div>
@@ -270,7 +273,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					open={Boolean(settingsMenuIcon)}
 					onClose={() => setSettingsMenuIcon(null)}
 				>
-					{!logViewerStore.isLogViewer() &&
+					{!urlPathStore.isLogViewer() &&
 						<>
 							<MenuItem>
 								<div className="fa fa-network-wired"
@@ -378,7 +381,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 			/>
 			<ExportDialog
 				open={openExportDialog}
-				heading={"Enter Snapshot Name"}
+				heading={"Tab Name"}
 				name={''}
 				onClose={(fileName) => {
 					setOpenExportDialog(false);

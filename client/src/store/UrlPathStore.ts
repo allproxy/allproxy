@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
-export default class LogViewerStore {
+export default class UrlPathStore {
 	private logViewer = false;
 
 
@@ -16,6 +16,10 @@ export default class LogViewerStore {
 	public toggleApp() {
 		document.location.pathname = document.location.pathname === '/jlogviewer' ? '/allproxy' : '/jlogviewer';
 	}
+
+	public isLocalhost() {
+		return document.location.host.startsWith('localhost');
+	}
 }
 
-export const logViewerStore = new LogViewerStore();
+export const urlPathStore = new UrlPathStore();

@@ -114,6 +114,7 @@ export default class FilterStore {
 
     @action public toggleExcludeMatchCase() {
         this._excludeMatchCase = !this._excludeMatchCase;
+        this.filterUpdated();
     }
 
     @action public setExcludeMatchCase(matchCase: boolean) {
@@ -140,6 +141,7 @@ export default class FilterStore {
     }
     @action public toggleSideBarProtocolChecked(iconClass: string) {
         this.sideBarProtocols.set(iconClass, !this.sideBarProtocols.get(iconClass));
+        this.filterUpdated();
     }
 
     // Statuses filter
@@ -162,6 +164,7 @@ export default class FilterStore {
     }
     @action public toggleSideBarStatusChecked(status: number) {
         this.sideBarStatuses.set(status, !this.sideBarStatuses.get(status));
+        this.filterUpdated();
     }
 
     // Domains filter
@@ -184,6 +187,7 @@ export default class FilterStore {
     }
     @action public toggleSideBarDomainChecked(domain: string) {
         this.sideBarDomains.set(domain, !this.sideBarDomains.get(domain));
+        this.filterUpdated();
     }
 
     // User Agents filter
@@ -206,6 +210,7 @@ export default class FilterStore {
     }
     @action public toggleSideBarUserAgentChecked(userAgent: string) {
         this.sideBarUserAgents.set(userAgent, !this.sideBarUserAgents.get(userAgent));
+        this.filterUpdated();
     }
 
     @action public setFilterNoDebounce(filter: string) {

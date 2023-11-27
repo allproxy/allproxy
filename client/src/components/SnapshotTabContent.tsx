@@ -209,6 +209,7 @@ const SnapshotTabContent = observer(({
 										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
 										onClick={() => setClickPendingSeqNum(seqNum)}
 										onResend={() => handleResend(message)}
+										onDelete={() => messageQueueStore.getMessages().splice(renderSet[index].getIndex(), 1)}
 										vertical={vertical}
 										isFiltered={messageStore.isFiltered()}
 										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
