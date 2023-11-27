@@ -29,6 +29,7 @@ const JSONFieldsSample = observer(({ }: Props) => {
             isActive={false}
             highlight={false}
             onClick={() => { }}
+            onDelete={() => { }}
             onResend={() => { }}
             vertical={true}
             isFiltered={false}

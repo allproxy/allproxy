@@ -2,6 +2,7 @@ import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { compressJSON, snapshotStore } from "./SnapshotStore";
+import { urlPathStore } from "./UrlPathStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -126,7 +127,9 @@ export default class JSONLogStore {
 	public getParsingMethod() { return this.method; }
 	public async setParsingMethod(method: 'auto' | 'simple' | 'advanced') {
 		this.method = method;
-		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+		if (urlPathStore.isLocalhost()) {
+			await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+		}
 	}
 
 	public getAutoFields() { return this.autoFields; }
@@ -184,7 +187,7 @@ export default class JSONLogStore {
 				const tokens = value.split(':', 2);
 				if (tokens.length === 2) {
 					let d = new Date(tokens[0]);
-					date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + tokens[1]);
+					date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + tokens[1]);
 				}
 			}
 		} catch (e) {

@@ -9,6 +9,7 @@ import JsonLogAnnotator from "./JsonLogAnnotator";
 import NoteDialog from "./NoteDialog";
 import { themeStore } from "../store/ThemeStore";
 import RequestURL from "./RequestURL";
+import DeleteDialog from "./DeleteDialog";
 
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 	highlight: boolean,
 	onClick: () => void,
 	onResend: () => void,
+	onDelete: () => void,
 	store: MessageStore,
 	maxStatusSize: number,
 	maxMethodSize: number,
@@ -25,8 +27,9 @@ type Props = {
 	className: string,
 	doHighlight: () => void,
 };
-const Request = observer(({ isActive, highlight, onClick, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className, doHighlight }: Props) => {
+const Request = observer(({ isActive, highlight, onClick, onDelete, store, onResend, maxStatusSize, maxMethodSize, maxEndpointSize, vertical, isFiltered, className, doHighlight }: Props) => {
 	const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
+	const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
 	const handleClick = () => {
 		onClick();
@@ -51,13 +54,13 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 					<div style={{ display: 'flex' }} onClick={doHighlight}>
 						<div className="request__msg-time-ms">
 							{message.protocol !== 'log:' ?
-								<div className="request__msg-log-level" style={{ fontFamily: 'monospace' }}
+								<div style={{ fontFamily: 'monospace', minWidth: '8.5rem' }}
 									title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
 									{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
 								</div>
 								:
 								<div style={{ lineHeight: '1.2' }}>
-									<div className="request__msg-log-level" style={{ fontFamily: 'monospace', marginTop: '.6rem' }}
+									<div style={{ fontFamily: 'monospace', marginTop: '.6rem', minWidth: '8.5rem' }}
 										title={store.getLogEntry().date.toLocaleDateString()}>
 										{dateToHHMMSS(store.getLogEntry().date)}
 									</div>
@@ -100,6 +103,13 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 							title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
 						>
 							<div hidden={!isActive} style={{ display: 'flex', height: '26px', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}>
+								<IconButton size="small">
+									<div className="header__export fa fa-trash-alt" title="Delete this entry"
+										style={{ marginRight: '0rem', color: 'rgb(245, 0, 87)' }}
+										onClick={() => setOpenDeleteDialog(true)}
+									>
+									</div>
+								</IconButton>
 								<IconButton size="small" hidden={!canResend()}>
 									<div title="Copy cURL to clipboard"
 										className="btn-xs btn-primary"
@@ -182,6 +192,14 @@ const Request = observer(({ isActive, highlight, onClick, store, onResend, maxSt
 				open={openNoteDialog}
 				onClose={() => {
 					setOpenNoteDialog(false);
+				}} />
+			<DeleteDialog
+				open={openDeleteDialog}
+				onClose={(doDelete: boolean) => {
+					setOpenDeleteDialog(false);
+					if (doDelete) {
+						onDelete();
+					}
 				}} />
 		</>
 	);

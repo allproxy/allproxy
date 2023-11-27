@@ -15,7 +15,7 @@ const CreateSnapshotNameDialog = observer(({ open, onClose }: Props) => {
 
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-			<DialogTitle id="simple-dialog-title">Enter Snapshot Name</DialogTitle>
+			<DialogTitle id="simple-dialog-title">Tab Name</DialogTitle>
 			<input className={'export__input-file-name form-control'} value={snapshotName} onChange={(value) => setSnapshotName(value.target.value)} />
 			<button className={'btn btn-success'}
 				disabled={snapshotName.length === 0}

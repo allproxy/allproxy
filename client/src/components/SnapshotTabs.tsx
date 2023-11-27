@@ -6,7 +6,7 @@ import { TabContext, TabPanel } from '@material-ui/lab';
 import SnapshotTabContent from './SnapshotTabContent';
 import SnapshotStore, { ACTIVE_SNAPSHOT_NAME } from '../store/SnapshotStore';
 import CreateSnapshotNameDialog from './CreateSnapshotDialog';
-import { logViewerStore } from '../store/LogViewerStore';
+import { urlPathStore } from '../store/UrlPathStore';
 import LayoutStore from '../store/LayoutStore';
 
 type Props = {
@@ -37,7 +37,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 			snapshotStore.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
 		}
 		snapshotStore.deleteSnapshot(value);
-		if (logViewerStore.isLogViewer()) {
+		if (urlPathStore.isLogViewer()) {
 			const names = snapshotStore.getSnapshotNames();
 			if (names.length > 1) {
 				snapshotStore.setSelectedSnapshotName(names[1]);
@@ -54,7 +54,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 	const dim = new LayoutStore().requestContainer(true);
 	return (
 		<div className="snapshot__container">
-			{snapshotStore.getSnapshotNames().length === 1 && logViewerStore.isLogViewer()
+			{snapshotStore.getSnapshotNames().length === 1 && urlPathStore.isLogViewer()
 				?
 				<div style={{ height: dim.height, width: dim.width }}>
 					<div className="center">
@@ -70,7 +70,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 						textColor="primary"
 						aria-label="Snapshots">
 						{snapshotStore.getSnapshotNames().map((value, i) => (
-							(i > 0 || !logViewerStore.isLogViewer()) &&
+							(i > 0 || !urlPathStore.isLogViewer()) &&
 							<Tab
 								key={value}
 								value={value}
@@ -80,18 +80,18 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 											{title(value, i)}
 										</div>
 										{value === ACTIVE_SNAPSHOT_NAME
-											? <div className={'snapshot__folder-plus fa fa-camera'}
+											? <div className={'snapshot__folder-plus fa fa-arrow-right'}
 												style={{
 													marginLeft: '.5rem',
 													pointerEvents: snapshotStore.getSnapshotSize(value) === 0 ? 'none' : undefined,
 													opacity: snapshotStore.getSnapshotSize(value) === 0 ? .2 : undefined,
 												}}
-												title="Take snapshot"
+												title="Copy to new tab"
 												onClick={() => handleTakeSnapshot(value)}
 											/>
 											: <div className={'snapshot__close fa fa-times'}
 												style={{ marginLeft: '.5rem' }}
-												title="Delete snapshot"
+												title="Delete tab"
 												onClick={(e) => handleDeleteTab(e, value)}
 											/>
 										}
@@ -101,7 +101,7 @@ const SnapshotTabs = observer(({ messageQueueStore, snapshotStore }: Props) => {
 						))}
 					</Tabs>
 					{snapshotStore.getSnapshotNames().map((value, i) => (
-						(i > 0 || !logViewerStore.isLogViewer()) &&
+						(i > 0 || !urlPathStore.isLogViewer()) &&
 						<TabPanel
 							key={value}
 							value={value}>

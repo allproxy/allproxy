@@ -11,7 +11,7 @@ import MessageStore from "../store/MessageStore";
 import { snapshotStore } from "../store/SnapshotStore";
 import { useFilePicker } from "use-file-picker";
 import ImportJSONFileDialog from "./ImportJSONFileDialog";
-import { logViewerStore } from "../store/LogViewerStore";
+import { urlPathStore } from "../store/UrlPathStore";
 import { jsonLogStore, updateJSONRequestLabels } from "../store/JSONLogStore";
 
 const SideBar = observer(() => {
@@ -192,7 +192,7 @@ const SideBar = observer(() => {
 		<><div className="side-bar">
 			<div className="side-bar-item">
 				<button className="btn btn-success"
-					disabled={disableSaveSession}
+					disabled={disableSaveSession || !urlPathStore.isLocalhost()}
 					onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
 					<div style={{ width: '11.5ch' }}>
 						Save Session
@@ -231,40 +231,33 @@ const SideBar = observer(() => {
 								setOpenImportJSONFileDialog(true);
 							}}
 						>
-							&nbsp;Import JSON Log
+							&nbsp;Import JSON Log from file
 						</div>
 					</MenuItem>
-					<MenuItem hidden={logViewerStore.isLogViewer()}>
-						<div className="header__import fa fa-upload" title="Import snapshot file"
+					<MenuItem hidden={urlPathStore.isLogViewer()}>
+						<div className="header__import fa fa-upload" title="Import tab from file"
 							onClick={() => {
 								setAnchorEl(null);
 								openSnapshotFileSelector();
 							}}
 						>
-							&nbsp;Import Snapshot
+							&nbsp;Import Tab from file
 						</div>
 					</MenuItem>
 					<MenuItem>
-						<div className="header__import fa fa-upload" title="Import snapshot file"
+						<div className="header__import fa fa-upload" title="Import session from zip file"
 							onClick={() => {
 								setAnchorEl(null);
 								sessionStore.importSession();
 							}}
 						>
-							&nbsp;Import Session
+							&nbsp;Import Session from zip file
 						</div>
 					</MenuItem>
 				</Menu>
 			</div>
-			<div className="side-bar-item" hidden>
-				<button className="btn btn-secondary"
-					style={{ width: buttonWidth }}
-					onClick={() => messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum())}>
-					<div style={{ width: '11.5ch' }}>Sync</div>
-				</button>
-			</div>
-			<hr className="side-bar-divider" hidden={!isJsonLogViewer()}></hr>
-			{isJsonLogViewer() &&
+			<hr className="side-bar-divider" hidden={!isJsonLogViewer() || !urlPathStore.isLocalhost()}></hr>
+			{isJsonLogViewer() && urlPathStore.isLocalhost() &&
 				<div>
 					<div style={{ paddingLeft: '.5rem' }}>JSON SETTINGS</div>
 					<div>
@@ -341,7 +334,7 @@ const SideBar = observer(() => {
 							onChange={() => messageQueueStore.toggleFullPageSearch()} />
 						Full Page Search
 					</div>
-					{!logViewerStore.isLogViewer() &&
+					{!urlPathStore.isLogViewer() &&
 						<>
 							<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
 								<Checkbox className="side-bar-checkbox"

@@ -1,5 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
+import { urlPathStore } from "./UrlPathStore";
 
 const QUERIES_DIR = 'queries';
 const QUERY_FILE = 'query.txt';
@@ -60,8 +61,10 @@ export default class QueryStore {
 	@action public deleteEntry(query: string) {
 		const index = this.queriesIndexOf(query);
 		if (index !== -1) {
-			const dirName = this.queries[index].dirName;
-			apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
+			if (urlPathStore.isLocalhost()) {
+				const dirName = this.queries[index].dirName;
+				apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
+			}
 			this.queries.splice(index, 1);
 		}
 	}
@@ -78,16 +81,18 @@ export default class QueryStore {
 	public async saveQuery(index: number, query: string): Promise<void> {
 		return new Promise<void>(async (resolve) => {
 			this.queries[index].query = query;
-			const subDir = this.queries[index].dirName;
-			const dir = QUERIES_DIR + '/' + subDir;
-			const path = dir + '/' + QUERY_FILE;
-			if (!await apFileSystem.exists(dir)) {
-				await apFileSystem.mkdir(dir);
+			if (urlPathStore.isLocalhost()) {
+				const subDir = this.queries[index].dirName;
+				const dir = QUERIES_DIR + '/' + subDir;
+				const path = dir + '/' + QUERY_FILE;
+				if (!await apFileSystem.exists(dir)) {
+					await apFileSystem.mkdir(dir);
+				}
+				if (await apFileSystem.exists(path)) {
+					await apFileSystem.deleteFile(path);
+				}
+				await apFileSystem.writeFile(path, query);
 			}
-			if (await apFileSystem.exists(path)) {
-				await apFileSystem.deleteFile(path);
-			}
-			await apFileSystem.writeFile(path, query);
 			resolve();
 		});
 	}
