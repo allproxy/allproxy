@@ -12,6 +12,13 @@ Also imports JSON logs to make them human readable.
 
 ![Alt text](image-1.png)
 
+### Try AllProxy Online
+
+To try a `readonly` demo:
+* Click [Try AllProxy](http://allproxy.ddns.net/allproxy)
+* On the left side panel click the `Restore Session` button
+* From the Restore Session Modal click `Restore` to restore a sample session
+
 ### Install
 
 > Options:

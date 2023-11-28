@@ -100,7 +100,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 
 				<div style={{
 					opacity: snapshotStore.isActiveSnapshotSelected() ? undefined : 0.3,
-					pointerEvents: snapshotStore.isActiveSnapshotSelected() ? undefined : 'none'
+					pointerEvents: snapshotStore.isActiveSnapshotSelected() ? undefined : 'none',
 				}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
@@ -251,8 +251,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div >
 			<div style={{
-				cursor: urlPathStore.isLocalhost() ? undefined : 'not-allowed',
-				pointerEvents: urlPathStore.isLocalhost() ? undefined : 'none'
+				pointerEvents: urlPathStore.isLocalhost() ? undefined : 'none',
+				opacity: urlPathStore.isLocalhost() ? undefined : 0.3,
 			}}>
 				<div className="header__settings fa fa-question" title="Help"
 					onClick={() => { setShowHelp(true); }}>
