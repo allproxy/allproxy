@@ -15,6 +15,7 @@ import { snapshotStore } from "./SnapshotStore";
 import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
+import { urlPathStore } from "./UrlPathStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -33,7 +34,7 @@ export default class SocketStore {
 		//console.log('Connect to AllProxy server')
 		this.socket = io();
 
-		this.socket.on('connect', () => {
+		this.socket.on('connect', async () => {
 			//console.log('socket connected');
 			this.setSocketConnected(true);
 			if (this.socket) {
@@ -45,7 +46,12 @@ export default class SocketStore {
 				else if (navigator.userAgent.indexOf('Linux') !== -1) os = 'linux';
 
 				if (os.length > 0) {
-					this.socket.emit('ostype', os);
+					let ipInfo = undefined;
+					if (!urlPathStore.isLocalhost()) {
+						const response = await fetch("https://api.db-ip.com/v2/free/self");
+						ipInfo = await response.json();
+					}
+					this.socket.emit('ostype', os, ipInfo);
 				}
 			}
 		});
