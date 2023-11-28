@@ -194,9 +194,7 @@ const SideBar = observer(() => {
 				<button className="btn btn-success"
 					disabled={disableSaveSession || !urlPathStore.isLocalhost()}
 					onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
-					<div style={{ width: '11.5ch' }}>
-						Save Session
-					</div>
+					<div style={{ width: '7.25rem' }}>Save Session</div>
 				</button>
 				{disableSaveSession &&
 					<div style={{ zIndex: 99, position: 'absolute', marginLeft: '5ch' }}>
@@ -208,7 +206,7 @@ const SideBar = observer(() => {
 				<button className="btn btn-primary"
 					style={{ width: buttonWidth }}
 					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
-					<div style={{ width: '11.5ch' }}>Restore Session</div>
+					<div style={{ width: '7.25rem' }}>Restore Session</div>
 				</button>
 			</div>
 			<div className="side-bar-item">
@@ -217,7 +215,7 @@ const SideBar = observer(() => {
 					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
 						setAnchorEl(event.currentTarget);
 					}}>
-					<div style={{ width: '11.5ch' }}>Import</div>
+					<div style={{ width: '7.25rem' }}>Import</div>
 				</button>
 				<Menu
 					anchorEl={anchorEl}
