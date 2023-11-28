@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import DeleteDialog from './DeleteDialog';
 import { apFileSystem } from '../store/APFileSystem';
 import ExportDialog from './ExportDialog';
+import { urlPathStore } from '../store/UrlPathStore';
 
 type Props = {
 	open: boolean,
@@ -151,7 +152,9 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 											style={{
 												display: 'flex', alignItems: 'center',
 											}}>
-											<IconButton onClick={() => handleDeleteSession(i)} title="Delete session">
+											<IconButton
+												hidden={!urlPathStore.isLocalhost()}
+												onClick={() => handleDeleteSession(i)} title="Delete session">
 												<CloseIcon style={{ color: 'red' }} />
 											</IconButton>
 											<button className={`btn btn-success`}

@@ -224,16 +224,19 @@ export default class FilterStore {
     }
 
     @action public filterUpdated() {
-        for (const messageStore of messageQueueStore.getMessages()) {
-            messageStore.setFiltered(undefined);
-        }
+        const snapshotIndex = snapshotStore.getSelectedSnapshotIndex();
+        snapshotStore.getScrollTop()[snapshotIndex] = 0;
+        snapshotStore.getScrollTopIndex()[snapshotIndex] = 0;
 
         if (messageQueueStore.getScrollToSeqNum() === null && messageQueueStore.getHighlightSeqNum() !== null) {
             messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
-        } else {
-            const i = snapshotStore.getSelectedSnapshotIndex();
-            snapshotStore.getScrollTop()[i] = 0;
-            snapshotStore.getScrollTopIndex()[i] = 0;
+        }
+
+        for (const messageStore of messageQueueStore.getMessages()) {
+            messageStore.setFiltered(undefined);
+            if (messageQueueStore.getScrollToSeqNum() === messageStore.getMessage().sequenceNumber) {
+                snapshotStore.getScrollTopIndex()[snapshotIndex] = messageStore.getIndex();
+            }
         }
     }
 
@@ -430,11 +433,18 @@ export default class FilterStore {
 
     private parseKeyValue(operand: string): { key: string, value: string | undefined }[] {
         const keyValues: { key: string, value: string | undefined }[] = [];
-        const i = operand.indexOf(':');
-        keyValues.push(getKeyValue(i));
-        const j = operand.lastIndexOf(':');
-        if (i !== j) {
-            keyValues.push(getKeyValue(j));
+        const firstColon = operand.indexOf(':');
+        const lastColon = operand.lastIndexOf(':');
+        let colon = firstColon;
+        if (firstColon !== lastColon) {
+            const firstPeriod = operand.indexOf('.');
+            if (firstPeriod > firstColon && firstPeriod < lastColon) {
+                colon = lastColon;
+            }
+        }
+        keyValues.push(getKeyValue(colon));
+        if (colon !== lastColon) {
+            keyValues.push(getKeyValue(lastColon));
         }
 
         function getKeyValue(i: number) {
