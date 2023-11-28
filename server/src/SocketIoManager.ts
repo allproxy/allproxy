@@ -167,10 +167,13 @@ export default class SocketIoManager {
       pingReply()
     })
 
-    socket.on('ostype', (os: string, ipInfo: any) => {
+    socket.on('ostype', (os: string, urlPath: string, ipInfo: any) => {
       if (ipInfo) {
         if (process.env.FILE_SYSTEM_LOG === '1') {
+          console.log(urlPath);
+          console.log(os);
           console.log(ipInfo);
+          socket.handshake.url = urlPath;
           socket.handshake.address = ipInfo.ipAddress;
         }
       }
