@@ -167,7 +167,13 @@ export default class SocketIoManager {
       pingReply()
     })
 
-    socket.on('ostype', (os: string) => {
+    socket.on('ostype', (os: string, ipInfo: any) => {
+      if (ipInfo) {
+        if (process.env.FILE_SYSTEM_LOG === '1') {
+          console.log(ipInfo);
+          socket.handshake.address = ipInfo.ipAddress;
+        }
+      }
       setOsBinaries(os);
     })
 

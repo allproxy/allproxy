@@ -25,7 +25,7 @@ export default class APFileSystem {
     private log(method: string, ...args: any[]) {
         if (process.env.FILE_SYSTEM_LOG === '1') {
             const time = dateToHHMMSS(new Date());
-            console.log(time, this.socket.client.conn.remoteAddress, method, ...args);
+            console.log(time, this.socket.handshake.address, method, ...args);
         }
     }
 
