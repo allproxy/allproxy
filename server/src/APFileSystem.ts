@@ -25,7 +25,9 @@ export default class APFileSystem {
     private log(method: string, ...args: any[]) {
         if (process.env.FILE_SYSTEM_LOG === '1') {
             const time = dateToHHMMSS(new Date());
-            console.log(time, this.socket.handshake.address, method, ...args);
+            const u = this.socket.handshake.url;
+            const urlPath = u.includes('allproxy') || u.includes('jlogviewer') ? u : '';
+            console.log(time, this.socket.handshake.address, urlPath, method, ...args);
         }
     }
 

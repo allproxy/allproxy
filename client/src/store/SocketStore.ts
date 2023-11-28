@@ -51,7 +51,7 @@ export default class SocketStore {
 						const response = await fetch("https://api.db-ip.com/v2/free/self");
 						ipInfo = await response.json();
 					}
-					this.socket.emit('ostype', os, ipInfo);
+					this.socket.emit('ostype', os, document.location.pathname, ipInfo);
 				}
 			}
 		});
