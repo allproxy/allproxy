@@ -224,19 +224,29 @@ export default class FilterStore {
     }
 
     @action public filterUpdated() {
+        for (const messageStore of messageQueueStore.getMessages()) {
+            messageStore.setFiltered(undefined);
+        }
+
         const snapshotIndex = snapshotStore.getSelectedSnapshotIndex();
         snapshotStore.getScrollTop()[snapshotIndex] = 0;
         snapshotStore.getScrollTopIndex()[snapshotIndex] = 0;
 
-        if (messageQueueStore.getScrollToSeqNum() === null && messageQueueStore.getHighlightSeqNum() !== null) {
-            messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
-        }
-
-        for (const messageStore of messageQueueStore.getMessages()) {
-            messageStore.setFiltered(undefined);
-            if (messageQueueStore.getScrollToSeqNum() === messageStore.getMessage().sequenceNumber) {
-                snapshotStore.getScrollTopIndex()[snapshotIndex] = messageStore.getIndex();
+        if (this.filter.length === 0) {
+            if (messageQueueStore.getScrollToSeqNum() === null && messageQueueStore.getHighlightSeqNum() !== null) {
+                messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
             }
+
+            if (messageQueueStore.getScrollToSeqNum() !== null) {
+                for (const messageStore of messageQueueStore.getMessages()) {
+                    if (messageQueueStore.getScrollToSeqNum() === messageStore.getMessage().sequenceNumber) {
+                        snapshotStore.getScrollTopIndex()[snapshotIndex] = messageStore.getIndex();
+                    }
+                }
+            }
+        } else if (snapshotStore.getSelectedReqSeqNumbers()[snapshotIndex] === Number.MAX_SAFE_INTEGER) {
+            messageQueueStore.setHighlightSeqNum(null);
+            snapshotStore.getHightlightSeqNum()[snapshotIndex] = Number.MAX_SAFE_INTEGER;
         }
     }
 
