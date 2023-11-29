@@ -126,7 +126,7 @@ export default class SnapshotStore {
 	private notes = '';
 
 	public constructor() {
-		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, [], undefined, undefined, undefined);
+		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, []);
 		makeAutoObservable(this);
 	}
 
