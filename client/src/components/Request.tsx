@@ -4,7 +4,7 @@ import React from "react";
 import ReactJson from "react-json-view";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import MessageStore from '../store/MessageStore';
-import { snapshotStore } from "../store/SnapshotStore";
+import { mainTabStore } from "../store/MainTabStore";
 import JsonLogAnnotator from "./JsonLogAnnotator";
 import NoteDialog from "./NoteDialog";
 import { themeStore } from "../store/ThemeStore";
@@ -115,7 +115,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 										className="btn-xs btn-primary"
 										style={{ marginRight: '0rem' }}
 										onClick={() => {
-											navigator.clipboard.writeText(snapshotStore.copyAsCurl(message));
+											navigator.clipboard.writeText(mainTabStore.copyAsCurl(message));
 										}}>
 										cURL
 									</div>
@@ -124,7 +124,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 									<div className="header__export fa fa-copy" title="Copy to clipboard"
 										style={{ marginRight: '0rem' }}
 										onClick={() => {
-											navigator.clipboard.writeText(snapshotStore.copyMessage(message));
+											navigator.clipboard.writeText(mainTabStore.copyMessage(message));
 										}}
 									>
 									</div>

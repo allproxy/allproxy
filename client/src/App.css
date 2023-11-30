@@ -376,7 +376,7 @@ td input {
 	justify-content: space-between;
 }
 
-.side-bar-snapshots {
+.side-bar-tabs {
 	display: flex;
 	width: 100%;
 }
@@ -636,12 +636,12 @@ td input {
 	width: 600px !important;
 }
 
-.snapshot__container {
+.maintab__container {
 	margin-top: 3rem;
 	margin-bottom: 2rem;
 }
 
-.snapshot__container>.MuiTabs-root {
+.maintab__container>.MuiTabs-root {
 	z-index: 99;
 	position: fixed;
 	top: 3rem;
@@ -652,38 +652,38 @@ td input {
 
 @media screen and (prefers-color-scheme: light) {
 
-	.snapshot__container>.MuiTabs-root {
+	.maintab__container>.MuiTabs-root {
 		background-color: rgb(228, 227, 227) !important;
 	}
 }
 
-.snapshot__container .MuiTabPanel-root {
+.maintab__container .MuiTabPanel-root {
 	padding: 0 !important;
 }
 
-.snapshot__tab {
+.maintab__tab {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	white-space: nowrap;
 }
 
-.snapshot__tab-name {
+.maintab__tab-name {
 	max-width: 25ch;
 	overflow-x: hidden;
 }
 
-.snapshot__close,
-.snapshot__folder-plus {
+.maintab__close,
+.maintab__folder-plus {
 	cursor: pointer;
 }
 
-.snapshot__folder-plus {
+.maintab__folder-plus {
 	font-size: x-large;
 }
 
 @media screen and (prefers-color-scheme: dark) {
-	.snapshot__folder-plus {
+	.maintab__folder-plus {
 		color: #bbbbbb;
 	}
 }

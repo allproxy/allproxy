@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
-import { compressJSON, snapshotStore } from "./SnapshotStore";
+import { compressJSON, mainTabStore } from "./MainTabStore";
 import { urlPathStore } from "./UrlPathStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
@@ -396,8 +396,8 @@ export default class JSONLogStore {
 }
 
 export async function updateJSONRequestLabels() {
-	const selectedFields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName());
-	snapshotStore.setJsonFields(snapshotStore.getSelectedSnapshotName(), selectedFields);
+	const selectedFields = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName());
+	mainTabStore.setJsonFields(mainTabStore.getSelectedTabName(), selectedFields);
 	const messages = messageQueueStore.getMessages();
 	const copy = messages.slice();
 	messages.splice(0, messages.length);

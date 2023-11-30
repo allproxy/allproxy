@@ -3,7 +3,7 @@ import { List, ListItem, Modal } from '@material-ui/core';
 import ResendStore from '../store/ResendStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import { themeStore } from '../store/ThemeStore';
-import { snapshotStore, ACTIVE_SNAPSHOT_NAME } from '../store/SnapshotStore';
+import { mainTabStore, PROXY_TAB_NAME } from '../store/MainTabStore';
 
 type Props = {
 	open: boolean,
@@ -159,7 +159,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 	function handleSend() {
 		store.doResend();
 		onClose();
-		snapshotStore.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
+		mainTabStore.setSelectedTabName(PROXY_TAB_NAME);
 	}
 
 	function handleToggleStrJson() {

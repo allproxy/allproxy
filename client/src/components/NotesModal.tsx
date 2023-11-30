@@ -1,6 +1,6 @@
 import { Modal } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 
 type Props = {
 	open: boolean,
@@ -13,7 +13,7 @@ const NotesModal = observer(({ open, onClose }: Props) => {
 	}
 
 	function handleChange(e: any) {
-		snapshotStore.setNotes(e.target.value);
+		mainTabStore.setNotes(e.target.value);
 	}
 
 	return (
@@ -29,7 +29,7 @@ const NotesModal = observer(({ open, onClose }: Props) => {
 					<h3>Notes</h3>
 					<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 						<textarea className="no-capture-modal__scroll-container" style={{ width: '100%' }}
-							value={snapshotStore.getNotes()}
+							value={mainTabStore.getNotes()}
 							onChange={handleChange}
 						/>
 					</div>

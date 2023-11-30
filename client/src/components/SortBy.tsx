@@ -2,7 +2,7 @@ import { Accordion, AccordionDetails, AccordionSummary, TableSortLabel } from '@
 import { observer } from 'mobx-react-lite';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 import { filterStore } from '../store/FilterStore';
 
 const httpFields = [
@@ -56,7 +56,7 @@ const logFields = [
 ];
 
 const SortBy = observer((): JSX.Element => {
-	const fields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0 ? logFields.slice() : httpFields.slice();
+	const fields = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0 ? logFields.slice() : httpFields.slice();
 	for (const key of filterStore.getSortByKeys()) {
 		fields.unshift({
 			name: key as string,

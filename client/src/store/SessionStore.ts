@@ -2,7 +2,7 @@ import { makeAutoObservable, action } from "mobx";
 import Message from "../common/Message";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
-import { snapshotStore } from "./SnapshotStore";
+import { mainTabStore } from "./MainTabStore";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
@@ -55,14 +55,14 @@ export default class SessionStore {
 			await apFileSystem.mkdir(dir);
 			await apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
 			let i = 1;
-			for (const key of snapshotStore.getSnapshotNames()) {
+			for (const key of mainTabStore.getTabNames()) {
 				let messages: Message[] = [];
-				for (const messageStore of snapshotStore.getSnapshots().get(key)) {
+				for (const messageStore of mainTabStore.getTabs().get(key)) {
 					messages.push(messageStore.getMessage());
 				}
 				if (messages.length > 0) {
 					const data = JSON.stringify(messages);
-					let tabName = snapshotStore.getSnapshots().getFileName(key);
+					let tabName = mainTabStore.getTabs().getFileName(key);
 					if (tabName === undefined) {
 						tabName = date;
 					}
@@ -74,7 +74,7 @@ export default class SessionStore {
 			}
 			messageQueueStore.setFreeze(false);
 
-			await apFileSystem.writeFile(dir + '/notes.txt', snapshotStore.getNotes());
+			await apFileSystem.writeFile(dir + '/notes.txt', mainTabStore.getNotes());
 			resolve();
 		});
 	}
@@ -97,18 +97,18 @@ export default class SessionStore {
 						tabName = sessionName;
 					}
 					const data = await apFileSystem.readFile(dir + '/' + dirEntry + '/data.txt');
-					snapshotStore.importSnapshot(tabName, data);
+					mainTabStore.importTab(tabName, data);
 				} else { // backwards compatibility
 					const data = await apFileSystem.readFile(dir + '/' + dirEntry);
 					if (dirEntry === sessionDir && sessionName.length > 0) {
 						dirEntry = sessionName;
 					}
-					snapshotStore.importSnapshot(dirEntry, data);
+					mainTabStore.importTab(dirEntry, data);
 				}
 			}
 			if (await apFileSystem.exists(dir + '/notes.txt')) {
 				const notes = await apFileSystem.readFile(dir + '/notes.txt');
-				snapshotStore.setNotes(notes);
+				mainTabStore.setNotes(notes);
 			}
 			resolve(0);
 		});
@@ -183,13 +183,13 @@ export default class SessionStore {
 						const dataFile = archive.files[jzipObject.name + 'data.txt'];
 						const data = await dataFile.async('text');
 						if (orderedTabs[0] === jzipObject.name) {
-							snapshotStore.importSnapshot(tabName, data);
+							mainTabStore.importTab(tabName, data);
 							orderedTabs.shift();
 							while (orderedTabs.length > 0 && dropOffQ[orderedTabs[0]] !== undefined) {
 								const tab = dropOffQ[orderedTabs[0]];
 								delete dropOffQ[orderedTabs[0]];
 								orderedTabs.shift();
-								snapshotStore.importSnapshot(tab.tabName, tab.data);
+								mainTabStore.importTab(tab.tabName, tab.data);
 							}
 						} else {
 							dropOffQ[jzipObject.name] = { tabName, data };
@@ -200,7 +200,7 @@ export default class SessionStore {
 				const noteFile = archive.file('notes.txt');
 				if (noteFile !== null) {
 					const notes = await noteFile.async('text');
-					snapshotStore.setNotes(notes);
+					mainTabStore.setNotes(notes);
 				}
 			};
 		};
