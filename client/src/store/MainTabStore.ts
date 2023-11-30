@@ -6,10 +6,10 @@ import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 import fetchToCurl from 'fetch-to-curl';
 
-export const ACTIVE_SNAPSHOT_NAME = 'Active';
+export const PROXY_TAB_NAME = 'Proxy';
 
-class Snapshots {
-	private snapshots: Map<string, MessageStore[]> = new Map();
+class MainTabs {
+	private tabs: Map<string, MessageStore[]> = new Map();
 	private names: string[] = [];
 	private selectedReqSeqNumbers: number[] = [];
 	private scrollTop: number[] = [];
@@ -25,12 +25,12 @@ class Snapshots {
 	}
 
 	public get(key: string): MessageStore[] {
-		return this.snapshots.get(key)!;
+		return this.tabs.get(key)!;
 	}
 
 	public set(
 		key: string,
-		snapshot: MessageStore[],
+		messageStores: MessageStore[],
 		fileName?: string,
 		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
 		scrollTop = 0,
@@ -39,7 +39,7 @@ class Snapshots {
 		highlightSeqNum = Number.MAX_SAFE_INTEGER,
 		renderSetTopIndex = 0
 	) {
-		this.snapshots.set(key, snapshot);
+		this.tabs.set(key, messageStores);
 		this.names.push(key);
 		this.selectedReqSeqNumbers.push(selectedReqSeqNumber);
 		this.scrollTop.push(scrollTop);
@@ -53,7 +53,7 @@ class Snapshots {
 	}
 
 	public delete(key: string) {
-		this.snapshots.delete(key);
+		this.tabs.delete(key);
 		const index = this.names.indexOf(key);
 		this.names.splice(index, 1);
 		this.selectedReqSeqNumbers.splice(index, 1);
@@ -117,16 +117,16 @@ class Snapshots {
 	}
 }
 
-export default class SnapshotStore {
-	private selectedSnapshotName = ACTIVE_SNAPSHOT_NAME;
-	private snapshots: Snapshots = new Snapshots();
+export default class MainTabStore {
+	private selectedTabName = PROXY_TAB_NAME;
+	private tabs: MainTabs = new MainTabs();
 	private count = 0;
 	private updating = false;
 	private updatingMessage = '';
 	private notes = '';
 
 	public constructor() {
-		this.snapshots.set(ACTIVE_SNAPSHOT_NAME, []);
+		this.tabs.set(PROXY_TAB_NAME, []);
 		makeAutoObservable(this);
 	}
 
@@ -149,136 +149,136 @@ export default class SnapshotStore {
 		return this.updatingMessage;
 	}
 
-	public getSnapshots() {
-		return this.snapshots;
+	public getTabs() {
+		return this.tabs;
 	}
 
-	public isActiveSnapshotSelected() {
-		return this.selectedSnapshotName === ACTIVE_SNAPSHOT_NAME;
+	public isProxyTabSelected() {
+		return this.selectedTabName === PROXY_TAB_NAME;
 	}
 
-	public getActiveSnapshot(): MessageStore[] {
-		return this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
+	public getProxyTab(): MessageStore[] {
+		return this.tabs.get(PROXY_TAB_NAME);
 	}
 
-	public getSnapshotNames(): string[] {
-		return this.snapshots.getNames();
+	public getTabNames(): string[] {
+		return this.tabs.getNames();
 	}
 
 	public getSelectedReqSeqNumbers(): number[] {
-		return this.snapshots.getSelectedReqSeqNumbers();
+		return this.tabs.getSelectedReqSeqNumbers();
 	}
 
 	public getScrollTop(): number[] {
-		return this.snapshots.getScrollTop();
+		return this.tabs.getScrollTop();
 	}
 
 	public getRenderSetTopIndex(): number[] {
-		return this.snapshots.getRenderSetTopIndex();
+		return this.tabs.getRenderSetTopIndex();
 	}
 
 	public getHightlightSeqNum(): number[] {
-		return this.snapshots.getHighlightSeqNum();
+		return this.tabs.getHighlightSeqNum();
 	}
 
-	public getSnapshotName(name: string): string {
-		const fileName = this.snapshots.getFileName(name);
+	public getTabName(name: string): string {
+		const fileName = this.tabs.getFileName(name);
 		if (fileName) {
 			return fileName.replace('.allproxy', '');
 		} else {
-			return 'SNAPSHOT';
+			return 'TAB';
 		}
 	}
 
 	public getJsonFields(name: string) {
-		const fields = this.snapshots.getJsonPrimaryFields(name);
+		const fields = this.tabs.getJsonPrimaryFields(name);
 		return fields ? fields : [];
 	}
 
 	public setJsonFields(name: string, fields: { name: string, count: number, selected: boolean }[]) {
-		this.snapshots.setJsonFields(name, fields);
+		this.tabs.setJsonFields(name, fields);
 	}
 
 	public getJsonFieldNames(name: string) {
-		const names = this.snapshots.getJsonPrimaryFieldNames(name);
+		const names = this.tabs.getJsonPrimaryFieldNames(name);
 		return names ? names : [];
 	}
 
 	public getLayout(name: string) {
-		return this.snapshots.getLayout(name);
+		return this.tabs.getLayout(name);
 	}
 
-	public getSnapshotCount() {
-		return this.snapshots.count();
+	public getTabCount() {
+		return this.tabs.count();
 	}
 
-	public getSnapshotSize(name: string) {
-		return this.snapshots.get(name).length;
+	public getTabMessageCount(name: string) {
+		return this.tabs.get(name).length;
 	}
 
-	public getSelectedSnapshotName(): string {
-		return this.selectedSnapshotName;
+	public getSelectedTabName(): string {
+		return this.selectedTabName;
 	}
 
-	@action public setSelectedSnapshotName(name: string) {
-		this.selectedSnapshotName = name;
+	@action public setSelectedTabName(name: string) {
+		this.selectedTabName = name;
 		messageQueueStore.resort();
 	}
 
-	public getSelectedSnapshotIndex(): number {
-		for (let i = 0; i < this.snapshots.getNames().length; ++i) {
-			const name = this.snapshots.getNames()[i];
-			if (name === this.selectedSnapshotName) return i;
+	public getSelectedTabIndex(): number {
+		for (let i = 0; i < this.tabs.getNames().length; ++i) {
+			const name = this.tabs.getNames()[i];
+			if (name === this.selectedTabName) return i;
 		}
 		return 0;
 	}
 
-	@action public newSnapshot(fileName?: string, snapshot?: MessageStore[]): string {
+	@action public newTab(fileName?: string, messageStores?: MessageStore[]): string {
 		const padTime = (num: number) => (num + '').padStart(2, '0');
 		const date = new Date();
 		const hours = (date.getHours() >= 12 ? date.getHours() - 12 : date.getHours()) + 1;
-		const name = 'Snapshot ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds()) + ' ' + this.count++;
-		if (snapshot) {
+		const name = 'Tab ' + padTime(hours) + ':' + padTime(date.getMinutes()) + '.' + padTime(date.getSeconds()) + ' ' + this.count++;
+		if (messageStores) {
 			const layoutStore = new LayoutStore();
-			layoutStore.setVertical(snapshot.length === 0 || snapshot[0].getMessage().protocol !== 'log:');
-			this.snapshots.set(name, snapshot, fileName, Number.MAX_SAFE_INTEGER, 0, [], layoutStore);
+			layoutStore.setVertical(messageStores.length === 0 || messageStores[0].getMessage().protocol !== 'log:');
+			this.tabs.set(name, messageStores, fileName, Number.MAX_SAFE_INTEGER, 0, [], layoutStore);
 		} else {
-			// Take snapshot of proxy tab
-			const activeSnapshot = this.snapshots.get(ACTIVE_SNAPSHOT_NAME);
-			const copy = activeSnapshot.slice();
-			activeSnapshot.splice(0, activeSnapshot.length);
-			this.snapshots.set(
+			// Copy the proxy tab data to new tab
+			const proxyTab = this.tabs.get(PROXY_TAB_NAME);
+			const copy = proxyTab.slice();
+			proxyTab.splice(0, proxyTab.length);
+			this.tabs.set(
 				name,
 				copy,
 				fileName,
 				this.getSelectedReqSeqNumbers()[0],
 				this.getScrollTop()[0],
-				this.getJsonFields(ACTIVE_SNAPSHOT_NAME),
-				this.getLayout(ACTIVE_SNAPSHOT_NAME),
+				this.getJsonFields(PROXY_TAB_NAME),
+				this.getLayout(PROXY_TAB_NAME),
 				this.getHightlightSeqNum()[0],
 			);
 		}
-		this.setSelectedSnapshotName(name);
+		this.setSelectedTabName(name);
 		return name;
 	}
 
-	public deleteSnapshot(name: string) {
-		this.snapshots.delete(name);
-		if (this.selectedSnapshotName === name) {
-			this.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
+	public deleteTab(name: string) {
+		this.tabs.delete(name);
+		if (this.selectedTabName === name) {
+			this.setSelectedTabName(PROXY_TAB_NAME);
 		}
 	}
 
-	public deleteAllSnapshots() {
-		for (const name of this.snapshots.getNames().slice()) {
-			if (name !== ACTIVE_SNAPSHOT_NAME) {
-				this.deleteSnapshot(name);
+	public deleteAllTabs() {
+		for (const name of this.tabs.getNames().slice()) {
+			if (name !== PROXY_TAB_NAME) {
+				this.deleteTab(name);
 			}
 		}
-		this.setSelectedSnapshotName(ACTIVE_SNAPSHOT_NAME);
+		this.setSelectedTabName(PROXY_TAB_NAME);
 	}
 
-	public copySelectedSnapshot(): string {
+	public copySelectedTab(): string {
 		let messages: Message[] = [];
 		for (const messageStore of this.getSelectedMessages()) {
 			messages.push(messageStore.getMessage());
@@ -327,8 +327,8 @@ export default class SnapshotStore {
 		});
 	}
 
-	public exportSelectedSnapshot(fileName: string) {
-		const data = this.copySelectedSnapshot();
+	public exportSelectedTab(fileName: string) {
+		const data = this.copySelectedTab();
 		const file = new Blob([data], { type: 'text/plain' });
 		const element = document.createElement("a");
 		element.href = URL.createObjectURL(file);
@@ -337,19 +337,19 @@ export default class SnapshotStore {
 		element.click();
 	}
 
-	public importSnapshot(fileName: string, snapshot: string | Message[]) {
+	public importTab(fileName: string, data: string | Message[]) {
 		let doDateSort = true;
 		let parsedBlob: any;
-		if (typeof snapshot === 'string') {
+		if (typeof data === 'string') {
 			try {
-				parsedBlob = JSON.parse(snapshot);
+				parsedBlob = JSON.parse(data);
 				doDateSort = false; // no need to re-sort
 			} catch (e) {
 				console.log('importJSONFile');
-				parsedBlob = importJSONFile(fileName, snapshot, []);
+				parsedBlob = importJSONFile(fileName, data, []);
 			}
 		} else {
-			parsedBlob = snapshot;
+			parsedBlob = data;
 		}
 
 		const messageStores: MessageStore[] = [];
@@ -383,19 +383,19 @@ export default class SnapshotStore {
 		while (messageStores.length > 0) {
 			if (messageStores.length > chunkSize) {
 				const copy = messageStores.splice(0, chunkSize);
-				this.newSnapshot(fileName, copy);
+				this.newTab(fileName, copy);
 				fileName = '...' + record;
 				record += chunkSize;
 			} else {
-				this.newSnapshot(fileName, messageStores);
+				this.newTab(fileName, messageStores);
 				messageStores.splice(0, messageStores.length);
 			}
 		}
 	}
 
 	public getSelectedMessages(): MessageStore[] {
-		const snapshot = this.snapshots.get(this.selectedSnapshotName);
-		return snapshot;
+		const messageStores = this.tabs.get(this.selectedTabName);
+		return messageStores;
 	}
 }
 
@@ -430,4 +430,4 @@ export function compressJSON(json: object) {
 	return line;
 }
 
-export const snapshotStore = new SnapshotStore();
+export const mainTabStore = new MainTabStore();

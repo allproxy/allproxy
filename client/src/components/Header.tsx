@@ -15,7 +15,7 @@ import { metricsStore } from '../store/MetricsStore';
 import { useFilePicker } from "use-file-picker";
 import { ListItemText, Menu, MenuItem, Select } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
-import SnapshotStore from '../store/SnapshotStore';
+import MainTabStore from '../store/MainTabStore';
 import HelpDialog from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
@@ -33,10 +33,10 @@ let filterWasStopped = false;
 type Props = {
 	socketStore: SocketStore,
 	messageQueueStore: MessageQueueStore,
-	snapshotStore: SnapshotStore,
+	mainTabStore: MainTabStore,
 	filterStore: FilterStore
 };
-const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filterStore }: Props): JSX.Element => {
+const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterStore }: Props): JSX.Element => {
 	const [showNoCaptureModal, setShowNoCaptureModal] = React.useState(false);
 	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
@@ -51,16 +51,16 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
 
-	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
+	const [openTabFileSelector, { filesContent: tabContent, clear: tabClear }] = useFilePicker({
 		multiple: false,
 		accept: ".allproxy"
 	});
 
-	if (!!snapshotContent.length && snapshotContent[0].content) {
-		snapshotStore.setUpdating(true);
-		snapshotStore.importSnapshot(snapshotContent[0].name, snapshotContent[0].content);
-		snapshotClear();
-		snapshotStore.setUpdating(false);
+	if (!!tabContent.length && tabContent[0].content) {
+		mainTabStore.setUpdating(true);
+		mainTabStore.importTab(tabContent[0].name, tabContent[0].content);
+		tabClear();
+		mainTabStore.setUpdating(false);
 	}
 
 	const statusClassName = 'fa ' + (socketStore.isConnected()
@@ -99,8 +99,8 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				<div className={"header__status " + statusClassName} title="Status"></div>
 
 				<div style={{
-					opacity: snapshotStore.isActiveSnapshotSelected() ? undefined : 0.3,
-					pointerEvents: snapshotStore.isActiveSnapshotSelected() ? undefined : 'none',
+					opacity: mainTabStore.isProxyTabSelected() ? undefined : 0.3,
+					pointerEvents: mainTabStore.isProxyTabSelected() ? undefined : 'none',
 				}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
 						onClick={() => {
@@ -159,26 +159,26 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					open={Boolean(moreMenuIcon)}
 					onClose={() => setMoreMenuIcon(null)}
 				>
+					<MenuItem
+						style={{
+							opacity: mainTabStore.getTabCount() > 1 ? undefined : 0.3,
+							pointerEvents: mainTabStore.getTabCount() > 1 ? undefined : 'none'
+						}}>
+						<div className="header__folder-minus fa fa-folder-minus" title="Delete all tabs"
+							onClick={() => {
+								mainTabStore.deleteAllTabs();
+								setMoreMenuIcon(null);
+							}}
+						>
+							&nbsp;Delete Tabs
+						</div>
+					</MenuItem>
 					{!urlPathStore.isLogViewer() &&
 						<>
-							<MenuItem
-								style={{
-									opacity: snapshotStore.getSnapshotCount() > 1 ? undefined : 0.3,
-									pointerEvents: snapshotStore.getSnapshotCount() > 1 ? undefined : 'none'
-								}}>
-								<div className="header__folder-minus fa fa-folder-minus" title="Delete all snapshots"
-									onClick={() => {
-										snapshotStore.deleteAllSnapshots();
-										setMoreMenuIcon(null);
-									}}
-								>
-									&nbsp;Delete Snapshots
-								</div>
-							</MenuItem>
 							<MenuItem style={{
-								opacity: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+								opacity: !mainTabStore.isProxyTabSelected() || messageQueueStore.getStopped()
 									? undefined : 0.3,
-								pointerEvents: !snapshotStore.isActiveSnapshotSelected() || messageQueueStore.getStopped()
+								pointerEvents: !mainTabStore.isProxyTabSelected() || messageQueueStore.getStopped()
 									? undefined : 'none'
 							}}>
 								<div className="header__export fa fa-download" title="Export tab to file"
@@ -193,7 +193,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 							<MenuItem>
 								<div className="header__import fa fa-upload" title="Import tab from file"
 									onClick={() => {
-										openSnapshotFileSelector();
+										openTabFileSelector();
 										setMoreMenuIcon(null);
 									}}
 								>
@@ -213,12 +213,12 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 						</div>
 					</MenuItem>
 					<MenuItem style={{
-						opacity: !snapshotStore.isActiveSnapshotSelected() ? undefined : 0.3,
-						pointerEvents: !snapshotStore.isActiveSnapshotSelected() ? undefined : 'none'
+						opacity: !mainTabStore.isProxyTabSelected() ? undefined : 0.3,
+						pointerEvents: !mainTabStore.isProxyTabSelected() ? undefined : 'none'
 					}}>
 						<div className="header__export fa fa-copy" title="Copy to clipboard"
 							onClick={() => {
-								navigator.clipboard.writeText(snapshotStore.copySelectedSnapshot());
+								navigator.clipboard.writeText(mainTabStore.copySelectedTab());
 								setMoreMenuIcon(null);
 							}}
 						>
@@ -228,11 +228,11 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					<MenuItem>
 						<div className="header__import fa fa-image" title="Layout"
 							onClick={() => {
-								snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.toggleVertical();
+								mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleVertical();
 								setMoreMenuIcon(null);
 							}}
 						>
-							&nbsp;{snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName())?.isVertical() ?
+							&nbsp;{mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isVertical() ?
 								'Set Horizontal Layout' : 'Set Vertical Layout'}
 						</div>
 					</MenuItem>
@@ -386,7 +386,7 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				onClose={(fileName) => {
 					setOpenExportDialog(false);
 					if (fileName.length > 0) {
-						snapshotStore.exportSelectedSnapshot(fileName);
+						mainTabStore.exportSelectedTab(fileName);
 					}
 				}}
 			/>
@@ -400,10 +400,10 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 				setShowHelp(false);
 				await jsonLogStore.init();
 				jsonLogStore.updateScriptFunc();
-				snapshotStore.setUpdating(true);
+				mainTabStore.setUpdating(true);
 				setTimeout(() => {
 					updateJSONRequestLabels();
-					snapshotStore.setUpdating(false);
+					mainTabStore.setUpdating(false);
 				});
 			}} />
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => {
@@ -414,10 +414,10 @@ const Header = observer(({ socketStore, messageQueueStore, snapshotStore, filter
 					open={showJSONFieldsModal}
 					onClose={() => {
 						setShowJSONFieldsModal(false);
-						snapshotStore.setUpdating(true);
+						mainTabStore.setUpdating(true);
 						setTimeout(() => {
 							updateJSONRequestLabels();
-							snapshotStore.setUpdating(false);
+							mainTabStore.setUpdating(false);
 						});
 					}}
 					store={jsonLogStore}

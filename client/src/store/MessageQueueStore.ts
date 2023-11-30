@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
-import { ACTIVE_SNAPSHOT_NAME, snapshotStore } from './SnapshotStore';
+import { PROXY_TAB_NAME, mainTabStore } from './MainTabStore';
 import { dateToHHMMSS } from "../components/Request";
 
 export const DEFAULT_LIMIT = 100000;
@@ -171,20 +171,20 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		while (snapshotStore.getActiveSnapshot().length > 0) {
-			snapshotStore.getActiveSnapshot().pop();
+		while (mainTabStore.getProxyTab().length > 0) {
+			mainTabStore.getProxyTab().pop();
 		}
 		this.stopped = false;
 		this.freezeQ.splice(0, this.freezeQ.length);
 	}
 
 	public getMessages(): MessageStore[] {
-		return snapshotStore.getSelectedMessages();
+		return mainTabStore.getSelectedMessages();
 	}
 
 	public getTotalLength() {
 		let count = this.getMessages().length;
-		if (snapshotStore.isActiveSnapshotSelected()) {
+		if (mainTabStore.isProxyTabSelected()) {
 			count += this.freezeQ.length;
 		}
 		return count;
@@ -201,7 +201,7 @@ export default class MessageQueueStore {
 	}
 
 	@action private sort() {
-		const selectedMessages = snapshotStore.getSelectedMessages();
+		const selectedMessages = mainTabStore.getSelectedMessages();
 		const copyMessages = selectedMessages.slice(); // shallow copy
 
 		this.sortCopy(copyMessages);
@@ -322,10 +322,10 @@ export default class MessageQueueStore {
 	}
 
 	@action public forceRerender() {
-		const activeSnapshot = snapshotStore.getActiveSnapshot();
-		const copyMessages = activeSnapshot.slice(); // shallow copy
-		activeSnapshot.splice(0, activeSnapshot.length);
-		Array.prototype.push.apply(activeSnapshot, copyMessages);
+		const proxyTab = mainTabStore.getProxyTab();
+		const copyMessages = proxyTab.slice(); // shallow copy
+		proxyTab.splice(0, proxyTab.length);
+		Array.prototype.push.apply(proxyTab, copyMessages);
 	}
 
 	@action public insertBatch(messages: Message[]) {
@@ -338,9 +338,9 @@ export default class MessageQueueStore {
 			return;
 		}
 
-		const activeSnapshot = snapshotStore.getActiveSnapshot();
+		const proxyTab = mainTabStore.getProxyTab();
 
-		const copyMessages = activeSnapshot.slice(); // shallow copy
+		const copyMessages = proxyTab.slice(); // shallow copy
 		// Not sorted by request?
 		if (!this.sortByReq || this.sortByField) {
 			copyMessages.sort((a, b) => a.getMessage().sequenceNumber - b.getMessage().sequenceNumber);
@@ -351,7 +351,7 @@ export default class MessageQueueStore {
 
 			const messageStore = new MessageStore(message);
 			if (messageStore.getMessage().protocol === 'log:') {
-				this.updateJSONFields(ACTIVE_SNAPSHOT_NAME, [messageStore]);
+				this.updateJSONFields(PROXY_TAB_NAME, [messageStore]);
 			}
 			if (copyMessages.length === 0) {
 				copyMessages.push(messageStore);
@@ -382,17 +382,17 @@ export default class MessageQueueStore {
 		// Move batch of messages to new tab when limit (e.g., 10,000) is reached.
 		if (copyMessages.length > this.limit) {
 			const date = dateToHHMMSS(new Date(copyMessages[0].getMessage().timestamp));
-			snapshotStore.newSnapshot(date);
-			copyMessages.splice(0, activeSnapshot.length);
+			mainTabStore.newTab(date);
+			copyMessages.splice(0, proxyTab.length);
 		}
 
-		activeSnapshot.splice(0, activeSnapshot.length);
-		Array.prototype.push.apply(activeSnapshot, copyMessages);
+		proxyTab.splice(0, proxyTab.length);
+		Array.prototype.push.apply(proxyTab, copyMessages);
 	}
 
-	public updateJSONFields(snapshotName: string, newMessages: MessageStore[]) {
+	public updateJSONFields(tabName: string, newMessages: MessageStore[]) {
 		const fieldsMap: { [key: string]: { count: number, selected: boolean } } = {};
-		for (const f of snapshotStore.getJsonFields(snapshotName)) {
+		for (const f of mainTabStore.getJsonFields(tabName)) {
 			fieldsMap[f.name] = { count: f.count, selected: f.selected };
 		}
 
@@ -430,7 +430,7 @@ export default class MessageQueueStore {
 				fields2.push({ name: key, selected: fieldsMap[key].selected, count: fieldsMap[key].count });
 			}
 			fields2.sort((a, b) => a.selected ? 1 : b.count - a.count);
-			snapshotStore.setJsonFields(snapshotName, fields2);
+			mainTabStore.setJsonFields(tabName, fields2);
 		}
 	}
 }

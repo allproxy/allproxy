@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, DialogTitle } from '@material-ui/core';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 import { importJSONFile } from '../ImportJSONFile';
 import pako from 'pako';
 
@@ -48,7 +48,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	};
 
 	if (submit) {
-		snapshotStore.setUpdating(true);
+		mainTabStore.setUpdating(true);
 		setSubmit(false);
 		onClose();
 		setTimeout(() => {
@@ -56,15 +56,15 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				if (fileContent.startsWith('[')) {
 					setFileContent(jsonToJsonl(fileContent));
 				}
-				snapshotStore.importSnapshot(tabName, importJSONFile(fileName, fileContent, []));
+				mainTabStore.importTab(tabName, importJSONFile(fileName, fileContent, []));
 				setFileContent('');
 			} else if (pastedJSON.length > 0) {
 				const jsonLines = jsonToJsonl(pastedJSON);
-				snapshotStore.importSnapshot(tabName, importJSONFile(tabName, jsonLines, []));
+				mainTabStore.importTab(tabName, importJSONFile(tabName, jsonLines, []));
 				setPastedJSON('');
 			}
 			setTabName('');
-			snapshotStore.setUpdating(false);
+			mainTabStore.setUpdating(false);
 		}, 1000);
 	}
 

@@ -8,7 +8,7 @@ import { sessionStore } from '../store/SessionStore';
 import ExportDialog from "./ExportDialog";
 import React from "react";
 import MessageStore from "../store/MessageStore";
-import { snapshotStore } from "../store/SnapshotStore";
+import { mainTabStore } from "../store/MainTabStore";
 import { useFilePicker } from "use-file-picker";
 import ImportJSONFileDialog from "./ImportJSONFileDialog";
 import { urlPathStore } from "../store/UrlPathStore";
@@ -21,20 +21,20 @@ const SideBar = observer(() => {
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 
-	const [openSnapshotFileSelector, { filesContent: snapshotContent, clear: snapshotClear }] = useFilePicker({
+	const [openTabFileSelector, { filesContent: tabContent, clear: tabClear }] = useFilePicker({
 		multiple: false,
 		accept: ".allproxy"
 	});
 
-	if (!!snapshotContent.length && snapshotContent[0].content) {
-		snapshotStore.setUpdating(true);
-		snapshotStore.importSnapshot(snapshotContent[0].name, snapshotContent[0].content);
-		snapshotClear();
-		snapshotStore.setUpdating(false);
+	if (!!tabContent.length && tabContent[0].content) {
+		mainTabStore.setUpdating(true);
+		mainTabStore.importTab(tabContent[0].name, tabContent[0].content);
+		tabClear();
+		mainTabStore.setUpdating(false);
 	}
 
 	const isJsonLogViewer = () => {
-		return snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length > 0;
+		return mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0;
 	};
 
 	const areAllDomainsSelected = (): boolean => {
@@ -84,10 +84,10 @@ const SideBar = observer(() => {
 
 	const handleJsonMethodChange = (e: any) => {
 		jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced');
-		snapshotStore.setUpdating(true);
+		mainTabStore.setUpdating(true);
 		setTimeout(() => {
 			updateJSONRequestLabels();
-			snapshotStore.setUpdating(false);
+			mainTabStore.setUpdating(false);
 			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
 		});
 	};
@@ -99,10 +99,10 @@ const SideBar = observer(() => {
 	const handleJsonMaxFieldLevelChange = (e: any) => {
 		const level = e.target.value === '1' ? 1 : 2;
 		jsonLogStore.setAutoMaxFieldLevel(level);
-		snapshotStore.setUpdating(true);
+		mainTabStore.setUpdating(true);
 		setTimeout(() => {
 			updateJSONRequestLabels();
-			snapshotStore.setUpdating(false);
+			mainTabStore.setUpdating(false);
 			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
 		});
 	};
@@ -236,7 +236,7 @@ const SideBar = observer(() => {
 						<div className="header__import fa fa-upload" title="Import tab from file"
 							onClick={() => {
 								setAnchorEl(null);
-								openSnapshotFileSelector();
+								openTabFileSelector();
 							}}
 						>
 							&nbsp;Import Tab from file

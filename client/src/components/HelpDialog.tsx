@@ -11,7 +11,7 @@ import { sessionStore } from '../store/SessionStore';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 import { urlPathStore } from '../store/UrlPathStore';
 import JSONSimpleFields from './JSONSimpleFields';
 import JSONFieldsMethods from './JSONParsingMethod';
@@ -344,10 +344,10 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					open={showJSONFieldsModal}
 					onClose={() => {
 						setShowJSONFieldsModal(false);
-						snapshotStore.setUpdating(true);
+						mainTabStore.setUpdating(true);
 						setTimeout(() => {
 							updateJSONRequestLabels();
-							snapshotStore.setUpdating(false);
+							mainTabStore.setUpdating(false);
 						});
 					}}
 					store={jsonLogStore}

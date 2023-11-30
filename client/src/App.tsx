@@ -1,12 +1,12 @@
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'bootstrap-css-only/css/bootstrap.css';
-import SnapshotTabs from './components/SnapshotTabs';
+import MainTabs from './components/MainTabs';
 import Header from './components/Header';
 import { filterStore } from './store/FilterStore';
 import { socketStore } from './store/SocketStore';
 import { messageQueueStore } from './store/MessageQueueStore';
-import { snapshotStore } from './store/SnapshotStore';
+import { mainTabStore } from './store/MainTabStore';
 import Footer from './components/Footer';
 import { breakpointStore } from './store/BreakpointStore';
 import { createTheme, PaletteType, ThemeProvider } from '@material-ui/core';
@@ -65,17 +65,17 @@ function App() {
           socketStore={socketStore}
           filterStore={filterStore}
           messageQueueStore={messageQueueStore}
-          snapshotStore={snapshotStore}
+          mainTabStore={mainTabStore}
         />
         <Updating />
-        <div className="side-bar-snapshots">
+        <div className="side-bar-tabs">
           <div>
             <SideBar />
           </div>
           <div>
-            <SnapshotTabs
+            <MainTabs
               messageQueueStore={messageQueueStore}
-              snapshotStore={snapshotStore}
+              mainTabStore={mainTabStore}
             />
           </div>
         </div>
@@ -89,8 +89,8 @@ function App() {
 }
 
 const Updating = observer(() => {
-  if (snapshotStore.getUpdatingMessage().length === 0) return null;
-  return <StatusBox show={snapshotStore.isUpdating()}>{snapshotStore.getUpdatingMessage()}</StatusBox>;
+  if (mainTabStore.getUpdatingMessage().length === 0) return null;
+  return <StatusBox show={mainTabStore.isUpdating()}>{mainTabStore.getUpdatingMessage()}</StatusBox>;
 });
 
 export default App;

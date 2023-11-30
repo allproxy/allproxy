@@ -11,7 +11,7 @@ import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import { Fade, IconButton } from '@material-ui/core';
 import JSONFieldButtons from './JSONFieldButtons';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
 import MessageStore from '../store/MessageStore';
@@ -33,7 +33,7 @@ type Props = {
 	setHighlightSeqNum: (seqNum: number) => void,
 }
 
-const SnapshotTabContent = observer(({
+const MainTabContent = observer(({
 	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, renderSetTopIndex, setScrollTop, setRenderSetTopIndex,
 	highlightSeqNum, setHighlightSeqNum
 }: Props) => {
@@ -46,9 +46,6 @@ const SnapshotTabContent = observer(({
 
 	React.useLayoutEffect(() => {
 		messageQueueStore.setHighlightSeqNum(highlightSeqNum);
-	});
-
-	React.useEffect(() => {
 		if (clickPendingSeqNum !== Number.MAX_SAFE_INTEGER) {
 			handleClick(clickPendingSeqNum);
 			setClickPendingSeqNum(Number.MAX_SAFE_INTEGER);
@@ -174,7 +171,7 @@ const SnapshotTabContent = observer(({
 	}
 
 	let activeRequestIndex = Number.MAX_SAFE_INTEGER;
-	let layout = snapshotStore.getLayout(snapshotStore.getSelectedSnapshotName());
+	let layout = mainTabStore.getLayout(mainTabStore.getSelectedTabName());
 	if (layout === undefined) layout = new LayoutStore();
 	const vertical = layout.isVertical();
 	const requestContainerLayout = layout.requestContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
@@ -182,7 +179,7 @@ const SnapshotTabContent = observer(({
 
 	return (
 		<div style={{
-			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollAction() !== undefined ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
+			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollAction() !== undefined ? '.7' : mainTabStore.isUpdating() ? '.3' : undefined
 		}}>
 			<div className="jsonfieldbuttons">
 				{JSONFieldButtons(messageQueueStore)}
@@ -520,4 +517,4 @@ const SnapshotTabContent = observer(({
 	}
 });
 
-export default SnapshotTabContent;
+export default MainTabContent;

@@ -4,7 +4,7 @@ import { pickLabelStyle } from '../PickButtonStyle';
 import pickIcon from '../PickIcon';
 import { updateJSONRequestLabels } from '../store/JSONLogStore';
 import MessageQueueStore from '../store/MessageQueueStore';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 
 const HIDE_JSON_FIELD_BUTTONS = true;
 
@@ -19,13 +19,13 @@ type Props = {
 const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element | null => {
 
 	useEffect(() => {
-		messageQueueStore.updateJSONFields(snapshotStore.getSelectedSnapshotName(), messageQueueStore.getMessages());
+		messageQueueStore.updateJSONFields(mainTabStore.getSelectedTabName(), messageQueueStore.getMessages());
 	}, [messageQueueStore]);
 
-	if (HIDE_JSON_FIELD_BUTTONS || snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName()).length === 0 || messageQueueStore.getMessages().length === 0) return null;
+	if (HIDE_JSON_FIELD_BUTTONS || mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length === 0 || messageQueueStore.getMessages().length === 0) return null;
 
 	const iconColor = messageQueueStore.getMessages()[0].getColor();
-	const jsonFields = snapshotStore.getJsonFields(snapshotStore.getSelectedSnapshotName());
+	const jsonFields = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName());
 	return (
 		<div style={{
 			maxHeight: `calc(${JSONFieldButtonsHeight}px)`,
@@ -43,11 +43,11 @@ const JSONFieldButtons2 = observer(({ messageQueueStore }: Props): JSX.Element |
 								{ margin: ".5rem 0", marginRight: ".25rem", background: pickLabelStyle(field.name).background, color: pickLabelStyle(field.name).color, filter: pickLabelStyle(field.name).color } :
 								{ margin: ".5rem .25rem" }}
 							onClick={() => {
-								snapshotStore.setUpdating(true);
+								mainTabStore.setUpdating(true);
 								jsonFields[i].selected = !jsonFields[i].selected;
 								setTimeout(() => {
 									updateJSONRequestLabels();
-									snapshotStore.setUpdating(false);
+									mainTabStore.setUpdating(false);
 								});
 							}}
 						>

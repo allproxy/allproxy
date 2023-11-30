@@ -11,7 +11,7 @@ import { mapProtocolToIndex } from './MetricsStore';
 import { noCaptureStore } from "./NoCaptureStore";
 import { filterStore } from "./FilterStore";
 import MessageStore from "./MessageStore";
-import { snapshotStore } from "./SnapshotStore";
+import { mainTabStore } from "./MainTabStore";
 import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
@@ -125,7 +125,7 @@ export default class SocketStore {
 				}
 			);
 
-			if (snapshotStore.getActiveSnapshot().length + filteredMessages.length > messageQueueStore.getLimit()) {
+			if (mainTabStore.getProxyTab().length + filteredMessages.length > messageQueueStore.getLimit()) {
 				messageQueueStore.setFreeze(true);
 			}
 			messageQueueStore.insertBatch(messages);

@@ -2,7 +2,7 @@ import { IconButton, List, ListItem, Modal } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
-import { snapshotStore } from '../store/SnapshotStore';
+import { mainTabStore } from '../store/MainTabStore';
 import React, { useEffect } from 'react';
 import DeleteDialog from './DeleteDialog';
 import { apFileSystem } from '../store/APFileSystem';
@@ -31,7 +31,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	}, [open]);
 
 	function close() {
-		snapshotStore.setUpdating(false);
+		mainTabStore.setUpdating(false);
 		onClose();
 	}
 
@@ -42,9 +42,9 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 
 	async function handleRestoreSession(i: number) {
 		onClose();
-		snapshotStore.setUpdating(true);
+		mainTabStore.setUpdating(true);
 		await store.restoreSession(i);
-		snapshotStore.setUpdating(false);
+		mainTabStore.setUpdating(false);
 	}
 
 	async function handleExportSession(i: number) {
@@ -81,7 +81,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 								<div style={{ display: 'flex', marginTop: '1rem' }}>
 
 									<select className="form-control btn btn-primary"
-										disabled={snapshotStore.isUpdating()}
+										disabled={mainTabStore.isUpdating()}
 										style={{ width: '7rem' }}
 										onChange={e => {
 											setSearchType(e.target.value);
@@ -105,14 +105,14 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										:
 										<input type="search" className="form-control"
 											placeholder="Hit enter to search"
-											disabled={snapshotStore.isUpdating()}
+											disabled={mainTabStore.isUpdating()}
 											onChange={(e) => setSearchValue(e.target.value)}
 											onKeyUp={async (e) => {
 												if (e.keyCode === 13) {
 													if (searchValue === '') {
 														setFilterValues([]);
 													} else {
-														snapshotStore.setUpdating(true);
+														mainTabStore.setUpdating(true);
 														//console.log('enter');
 														apFileSystem.grepDir('sessions', searchValue)
 															.then((files) => {
@@ -127,10 +127,10 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 																} else {
 																	console.error(files);
 																}
-																snapshotStore.setUpdating(false);
+																mainTabStore.setUpdating(false);
 															})
 															.catch((e) => {
-																snapshotStore.setUpdating(false);
+																mainTabStore.setUpdating(false);
 																console.error(e);
 															});
 													}
