@@ -46,9 +46,6 @@ const SnapshotTabContent = observer(({
 
 	React.useLayoutEffect(() => {
 		messageQueueStore.setHighlightSeqNum(highlightSeqNum);
-	});
-
-	React.useEffect(() => {
 		if (clickPendingSeqNum !== Number.MAX_SAFE_INTEGER) {
 			handleClick(clickPendingSeqNum);
 			setClickPendingSeqNum(Number.MAX_SAFE_INTEGER);
