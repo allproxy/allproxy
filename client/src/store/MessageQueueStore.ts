@@ -11,7 +11,7 @@ export default class MessageQueueStore {
 	private limit: number = this._getLimit();
 	private stopped: boolean = false;
 
-	private scrollAction: 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined = undefined;
+	private scrollAction: 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined = undefined;
 
 	private sortByReq: boolean = true;
 	private freeze: boolean = false;
@@ -149,11 +149,11 @@ export default class MessageQueueStore {
 		this.stopped = !this.stopped;
 	}
 
-	public getScrollAction(): 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined {
+	public getScrollAction(): 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined {
 		return this.scrollAction;
 	}
 
-	@action public setScrollAction(action: 'top' | 'bottom' | 'pageup' | 'pagedown' | undefined) {
+	@action public setScrollAction(action: 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined) {
 		this.scrollAction = action;
 	}
 

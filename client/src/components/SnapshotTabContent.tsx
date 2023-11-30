@@ -17,7 +17,7 @@ import LayoutStore from '../store/LayoutStore';
 import MessageStore from '../store/MessageStore';
 
 const minEntryHeight = 26;
-const minRenderCount = 100;
+export const minRenderCount = 100;
 
 let lastScrollTime = 0;
 
@@ -27,14 +27,14 @@ type Props = {
 	setSelectedReqSeqNum: (seqNum: number) => void,
 	scrollTop: number,
 	setScrollTop: (index: number) => void,
-	scrollTopIndex: number,
-	setScrollTopIndex: (index: number) => void,
+	renderSetTopIndex: number,
+	setRenderSetTopIndex: (index: number) => void,
 	highlightSeqNum: number,
 	setHighlightSeqNum: (seqNum: number) => void,
 }
 
 const SnapshotTabContent = observer(({
-	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, scrollTopIndex, setScrollTop, setScrollTopIndex,
+	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, renderSetTopIndex, setScrollTop, setRenderSetTopIndex,
 	highlightSeqNum, setHighlightSeqNum
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
@@ -62,7 +62,7 @@ const SnapshotTabContent = observer(({
 							const messageStore = messageQueueStore.getMessages()[i];
 							if (!messageStore.isFiltered()) {
 								firstSeqNum = messageStore.getMessage().sequenceNumber;
-								setScrollTopIndex(i);
+								setRenderSetTopIndex(i);
 								break;
 							}
 						}
@@ -87,10 +87,13 @@ const SnapshotTabContent = observer(({
 								stIndex = i;
 							}
 						}
-						setScrollTopIndex(stIndex);
-						messageQueueStore.setScrollToSeqNum(lastSeqNum);
-						setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-						setHighlightSeqNum(lastSeqNum);
+						// allow time to complete render
+						setTimeout(() => {
+							setRenderSetTopIndex(stIndex);
+							messageQueueStore.setScrollToSeqNum(lastSeqNum);
+							setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+							setHighlightSeqNum(lastSeqNum);
+						});
 						break;
 					}
 					case 'pageup': {
@@ -99,6 +102,10 @@ const SnapshotTabContent = observer(({
 					}
 					case 'pagedown': {
 						doPageDown();
+						break;
+					}
+					case 'filter': {
+						setTimeout(() => doFilterAction());
 						break;
 					}
 				}
@@ -133,7 +140,7 @@ const SnapshotTabContent = observer(({
 	let maxEndpointSize = 0;
 
 	let selectedReqSeqNumAdded = false;
-	const startIndex = messageQueueStore.getFullPageSearch() ? 0 : scrollTopIndex;
+	const startIndex = messageQueueStore.getFullPageSearch() ? 0 : renderSetTopIndex;
 	for (let i = startIndex; i < messageQueueStore.getMessages().length; ++i) {
 		const messageStore = messageQueueStore.getMessages()[i];
 		messageStore.setIndex(i);
@@ -156,7 +163,7 @@ const SnapshotTabContent = observer(({
 		for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 			const messageStore = messageQueueStore.getMessages()[i];
 			if (selectedReqSeqNum === messageStore.getMessage().sequenceNumber) {
-				if (messageStore.getIndex() < renderSet[0].getIndex()) {
+				if (renderSet.length > 0 && messageStore.getIndex() < renderSet[0].getIndex()) {
 					renderSet.unshift(messageStore);
 				} else {
 					renderSet.push(messageStore);
@@ -174,123 +181,121 @@ const SnapshotTabContent = observer(({
 	const responseContainerLayout = layout.responseContainer(selectedReqSeqNum === Number.MAX_SAFE_INTEGER);
 
 	return (
-		<Fade in={true} timeout={500}>
-			<div style={{
-				opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollAction() !== undefined ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
-			}}>
-				<div className="jsonfieldbuttons">
-					{JSONFieldButtons(messageQueueStore)}
-				</div>
-				<div className="request-response__container"
-					style={{ flexDirection: layout.flexDirection() }}
-				>
-					{
-						messageQueueStore.getMessages().length > 0 &&
-						<div className={'request__container '
-							+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
-							style={{ width: requestContainerLayout.width, height: requestContainerLayout.height }}
-							ref={requestContainerRef} onWheel={handleScroll}>
-							{renderSet.map((messageStore, index) => {
-								const message = messageStore.getMessage();
-								const seqNum = message.sequenceNumber;
-								const isSelectedRequest = selectedReqSeqNum === seqNum;
+		<div style={{
+			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollAction() !== undefined ? '.7' : snapshotStore.isUpdating() ? '.3' : undefined
+		}}>
+			<div className="jsonfieldbuttons">
+				{JSONFieldButtons(messageQueueStore)}
+			</div>
+			<div className="request-response__container"
+				style={{ flexDirection: layout.flexDirection() }}
+			>
+				{
+					messageQueueStore.getMessages().length > 0 &&
+					<div className={'request__container '
+						+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
+						style={{ width: requestContainerLayout.width, height: requestContainerLayout.height }}
+						ref={requestContainerRef} onWheel={handleScroll}>
+						{renderSet.map((messageStore, index) => {
+							const message = messageStore.getMessage();
+							const seqNum = message.sequenceNumber;
+							const isSelectedRequest = selectedReqSeqNum === seqNum;
 
-								if (isSelectedRequest) {
-									activeRequestIndex = messageStore.getIndex();
-								}
-								return (
-									<Request
-										maxStatusSize={maxStatusSize}
-										maxMethodSize={maxMethodSize}
-										maxEndpointSize={maxEndpointSize}
-										store={messageStore}
-										key={seqNum}
-										isActive={isSelectedRequest}
-										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
-										onClick={() => setClickPendingSeqNum(seqNum)}
-										onResend={() => handleResend(message)}
-										onDelete={() => messageQueueStore.getMessages().splice(renderSet[index].getIndex(), 1)}
-										vertical={vertical}
-										isFiltered={messageStore.isFiltered()}
-										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
-										doHighlight={() => {
-											setHighlightSeqNum(seqNum);
-											if (seqNum !== selectedReqSeqNum) {
-												setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-											}
-										}
-										}
-									/>
-								);
-							})}
-							{renderSet.length === 0 && (
-								<div className="center">
-									No matching request or response found.  Adjust your filter criteria.
-								</div>
-							)}
-							{restoreScrollTop()}
-							{checkForScrollTo()}
-						</div>
-					}
-					{messageQueueStore.getMessages().length === 0 &&
-						<div className="request__container unselected"
-							style={{ width: layout.calcMaxWidth(), height: layout.calcMaxHeight() }}
-						>
-							<div className="center fas fa-exchange-alt"
-								style={{ fontSize: '8rem', color: '#007bff' }}>
-							</div>
-						</div>
-					}
-					{
-						messageQueueStore.getMessages().length > 0 &&
-						<div className="response__container"
-							style={{ width: responseContainerLayout.width, height: responseContainerLayout.height }}
-						>
-							{activeRequestIndex < messageQueueStore.getMessages().length ?
-								<Response
-									store={messageQueueStore.getMessages()[activeRequestIndex]}
-									message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
-									vertical={layout.isVertical()}
-									onSync={() => messageQueueStore.setScrollToSeqNum(selectedReqSeqNum)}
-									onClose={() => {
-										setClickPendingSeqNum(selectedReqSeqNum);
-									}}
-								/>
-								:
-								<Fade in={true}>
-									<>
-										<IconButton style={{ marginRight: '.5rem' }} onClick={() => {
-											setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
-										}} title="Close">
-											<CloseIcon />
-										</IconButton>
-										<div className="center">
-											{filterStore.getFilter().length > 0 ? 'Request is filtered' : 'Select request from left column'}
-										</div>
-									</>
-								</Fade>
+							if (isSelectedRequest) {
+								activeRequestIndex = messageStore.getIndex();
 							}
+							return (
+								<Request
+									maxStatusSize={maxStatusSize}
+									maxMethodSize={maxMethodSize}
+									maxEndpointSize={maxEndpointSize}
+									store={messageStore}
+									key={seqNum}
+									isActive={isSelectedRequest}
+									highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
+									onClick={() => setClickPendingSeqNum(seqNum)}
+									onResend={() => handleResend(message)}
+									onDelete={() => messageQueueStore.getMessages().splice(renderSet[index].getIndex(), 1)}
+									vertical={vertical}
+									isFiltered={messageStore.isFiltered()}
+									className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
+									doHighlight={() => {
+										setHighlightSeqNum(seqNum);
+										if (seqNum !== selectedReqSeqNum) {
+											setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+										}
+									}
+									}
+								/>
+							);
+						})}
+						{renderSet.length === 0 && (
+							<div className="center">
+								No matching request or response found.  Adjust your filter criteria.
+							</div>
+						)}
+						{restoreScrollTop()}
+						{checkForScrollTo()}
+					</div>
+				}
+				{messageQueueStore.getMessages().length === 0 &&
+					<div className="request__container unselected"
+						style={{ width: layout.calcMaxWidth(), height: layout.calcMaxHeight() }}
+					>
+						<div className="center fas fa-exchange-alt"
+							style={{ fontSize: '8rem', color: '#007bff' }}>
 						</div>
-					}
-					{
-						resendStore ? (
-							<ResendModal
-								open={resendStore !== undefined}
-								onClose={handleResendClose}
-								store={resendStore}
+					</div>
+				}
+				{
+					messageQueueStore.getMessages().length > 0 &&
+					<div className="response__container"
+						style={{ width: responseContainerLayout.width, height: responseContainerLayout.height }}
+					>
+						{activeRequestIndex < messageQueueStore.getMessages().length ?
+							<Response
+								store={messageQueueStore.getMessages()[activeRequestIndex]}
+								message={messageQueueStore.getMessages()[activeRequestIndex].getMessage()}
+								vertical={layout.isVertical()}
+								onSync={() => messageQueueStore.setScrollToSeqNum(selectedReqSeqNum)}
+								onClose={() => {
+									setClickPendingSeqNum(selectedReqSeqNum);
+								}}
 							/>
-						) : null}
-					{
-						messageStore !== null &&
-						<BreakpointResponseModal
-							open={breakpointStore.getMessageStore() !== null}
-							onClose={handleCloseBreakpointResponseModal}
-							store={messageStore}
+							:
+							<Fade in={true}>
+								<>
+									<IconButton style={{ marginRight: '.5rem' }} onClick={() => {
+										setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+									}} title="Close">
+										<CloseIcon />
+									</IconButton>
+									<div className="center">
+										{filterStore.getFilter().length > 0 ? 'Request is filtered' : 'Select request from left column'}
+									</div>
+								</>
+							</Fade>
+						}
+					</div>
+				}
+				{
+					resendStore ? (
+						<ResendModal
+							open={resendStore !== undefined}
+							onClose={handleResendClose}
+							store={resendStore}
 						/>
-					}
-				</div >
+					) : null}
+				{
+					messageStore !== null &&
+					<BreakpointResponseModal
+						open={breakpointStore.getMessageStore() !== null}
+						onClose={handleCloseBreakpointResponseModal}
+						store={messageStore}
+					/>
+				}
 			</div >
-		</Fade >
+		</div >
 	);
 
 	function handleResend(message: Message) {
@@ -387,7 +392,7 @@ const SnapshotTabContent = observer(({
 						if (!element) break;
 					}
 					if (j % 2 !== stIndex % 2) stIndex--;
-					setScrollTopIndex(renderSet[stIndex].getIndex());
+					setRenderSetTopIndex(renderSet[stIndex].getIndex());
 					break;
 				}
 
@@ -417,8 +422,32 @@ const SnapshotTabContent = observer(({
 			}
 			if (stIndex !== 0 && i % 2 !== stIndex % 2) stIndex++;
 			if (stIndex !== renderSet[0].getIndex()) {
-				setScrollTopIndex(stIndex);
+				setRenderSetTopIndex(stIndex);
 				messageQueueStore.setScrollToSeqNum(stSeqNum);
+			}
+		}
+	}
+
+	function doFilterAction() {
+
+		setScrollTop(0);
+		setRenderSetTopIndex(0);
+
+		for (const messageStore of messageQueueStore.getMessages()) {
+			if (messageQueueStore.getHighlightSeqNum() === messageStore.getMessage().sequenceNumber) {
+				let backup = 1;
+				let stIndex = messageStore.getIndex();
+				for (let i = messageStore.getIndex(); i >= 0; --i) {
+					const messageStore = messageQueueStore.getMessages()[i];
+					if (!messageStore.isFiltered()) {
+						if (++backup === Math.round(minRenderCount / 2)) {
+							break;
+						}
+						stIndex = i;
+					}
+				}
+				setRenderSetTopIndex(stIndex);
+				messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
 			}
 		}
 	}
@@ -463,10 +492,17 @@ const SnapshotTabContent = observer(({
 				if (offset < parent.scrollTop // above
 					|| offset + entryHeight > parent.scrollTop + parent.clientHeight // below
 				) {
-					// Place entry at bottom
-					if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !vertical) {
+					let belowSize = 0;
+					for (let i = elementIndex + 1; i < renderSet.length; ++i) {
+						const element = (children[i] as Element);
+						if (!element) break;
+						belowSize += element.clientHeight;
+					}
+					// Place entry at bottom?
+					if (belowSize < parent.clientHeight - entryHeight || (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !vertical)) {
 						offset -= (parent.clientHeight - entryHeight);
 					}
+
 					parent.scrollTop = offset;
 					setScrollTop(offset);
 					scrollChanged = true;
