@@ -13,7 +13,7 @@ class Snapshots {
 	private names: string[] = [];
 	private selectedReqSeqNumbers: number[] = [];
 	private scrollTop: number[] = [];
-	private scrollTopIndex: number[] = [];
+	private renderSetTopIndex: number[] = [];
 	private highlightSeqNum: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
 	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
@@ -37,13 +37,13 @@ class Snapshots {
 		jsonFields: { name: string, count: number, selected: boolean }[] = [],
 		layout: LayoutStore = new LayoutStore(),
 		highlightSeqNum = Number.MAX_SAFE_INTEGER,
-		scrollTopIndex = 0
+		renderSetTopIndex = 0
 	) {
 		this.snapshots.set(key, snapshot);
 		this.names.push(key);
 		this.selectedReqSeqNumbers.push(selectedReqSeqNumber);
 		this.scrollTop.push(scrollTop);
-		this.scrollTopIndex.push(scrollTopIndex);
+		this.renderSetTopIndex.push(renderSetTopIndex);
 		this.highlightSeqNum.push(highlightSeqNum);
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
@@ -58,7 +58,7 @@ class Snapshots {
 		this.names.splice(index, 1);
 		this.selectedReqSeqNumbers.splice(index, 1);
 		this.scrollTop.splice(index, 1);
-		this.scrollTopIndex.splice(index, 1);
+		this.renderSetTopIndex.splice(index, 1);
 		this.highlightSeqNum.splice(index, 1);
 		this.fileNameMap.delete(key);
 		this.jsonPrimaryFieldsMap.delete(key);
@@ -81,8 +81,8 @@ class Snapshots {
 		return this.scrollTop;
 	}
 
-	public getScrollTopIndex(): number[] {
-		return this.scrollTopIndex;
+	public getRenderSetTopIndex(): number[] {
+		return this.renderSetTopIndex;
 	}
 
 	public getHighlightSeqNum(): number[] {
@@ -173,8 +173,8 @@ export default class SnapshotStore {
 		return this.snapshots.getScrollTop();
 	}
 
-	public getScrollTopIndex(): number[] {
-		return this.snapshots.getScrollTopIndex();
+	public getRenderSetTopIndex(): number[] {
+		return this.snapshots.getRenderSetTopIndex();
 	}
 
 	public getHightlightSeqNum(): number[] {
