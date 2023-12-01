@@ -111,6 +111,10 @@ body {
 	}
 }
 
+.link-opacity:hover {
+	opacity: .5;
+}
+
 .header__filter-input,
 .header__filter-input input {
 	color: rgba(232, 230, 227);
@@ -175,6 +179,10 @@ td input {
 
 .MuiAccordion-root {
 	margin: 0 0 0 -1rem !important;
+}
+
+.MuiAccordionSummary-root.Mui-expanded {
+	min-height: 0 !important;
 }
 
 .MuiAccordionSummary-content {
@@ -389,6 +397,15 @@ td input {
 	height: calc(100vh - 3rem);
 	width: 11rem;
 	white-space: nowrap;
+}
+
+.side-bar-header {
+	height: calc(54px * 3);
+}
+
+.side-bar-scroll {
+	overflow-y: auto;
+	height: calc(100vh - 54px * 3 - 6rem);
 }
 
 .side-bar-item {

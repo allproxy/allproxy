@@ -55,7 +55,7 @@ const logFields = [
 	},
 ];
 
-const SortBy = observer((): JSX.Element => {
+const SideBarSortBy = observer((): JSX.Element => {
 	const fields = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0 ? logFields.slice() : httpFields.slice();
 	for (const key of filterStore.getSortByKeys()) {
 		fields.unshift({
@@ -121,4 +121,4 @@ export function sortOrderHandler(fieldName: string) {
 	messageQueueStore.sortOrderChanged();
 }
 
-export default SortBy;
+export default SideBarSortBy;
