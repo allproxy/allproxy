@@ -11,6 +11,7 @@ import DeleteDialog from './DeleteDialog';
 import { urlPathStore } from '../store/UrlPathStore';
 
 type Props = {
+
 };
 const FilterBar = observer(({ }: Props): JSX.Element => {
 	const [filter, setFilter] = React.useState('');
@@ -20,6 +21,15 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	const [queryToDelete, setQueryToDelete] = React.useState("");
 
 	const inputRef = React.useRef<HTMLInputElement>(null);
+
+	React.useLayoutEffect(() => {
+		if (queryStore.getApplyFilter() !== '') {
+			console.log('effect');
+			const query = queryStore.getApplyFilter();
+			applyFilter(query);
+			queryStore.setApplyFilter('');
+		}
+	});
 
 	function handleAddEntry() {
 		queryStore.extend();
@@ -42,6 +52,10 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 				queries.splice(i, 1);
 			queries.unshift(query);
 		}
+	}
+
+	if (queryStore.getApplyFilter() !== '') {
+		// This if is needed to cause a re-render.  See apply filter is don in useLayoutEffect
 	}
 
 	return (

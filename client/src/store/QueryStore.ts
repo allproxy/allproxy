@@ -12,6 +12,7 @@ type Query = {
 
 export default class QueryStore {
 	private queries: Query[] = [];
+	private applyFilter: string = '';
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -30,6 +31,13 @@ export default class QueryStore {
 			this.queries.push({ query, dirName });
 		}
 		this.queries.sort();
+	}
+
+	public getApplyFilter() {
+		return this.applyFilter;
+	}
+	@action setApplyFilter(filter: string) {
+		this.applyFilter = filter;
 	}
 
 	public getQueries() {

@@ -163,12 +163,14 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						style={{
 							opacity: mainTabStore.getTabCount() > 1 ? undefined : 0.3,
 							pointerEvents: mainTabStore.getTabCount() > 1 ? undefined : 'none'
-						}}>
+						}}
+						onClick={() => {
+							mainTabStore.deleteAllTabs();
+							setMoreMenuIcon(null);
+						}}
+					>
 						<div className="header__folder-minus fa fa-folder-minus" title="Delete all tabs"
-							onClick={() => {
-								mainTabStore.deleteAllTabs();
-								setMoreMenuIcon(null);
-							}}
+
 						>
 							&nbsp;Delete Tabs
 						</div>
@@ -180,12 +182,13 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 									? undefined : 0.3,
 								pointerEvents: !mainTabStore.isProxyTabSelected() || messageQueueStore.getStopped()
 									? undefined : 'none'
-							}}>
+							}}
+								onClick={() => {
+									setOpenExportDialog(true);
+									setMoreMenuIcon(null);
+								}}
+							>
 								<div className="header__export fa fa-download" title="Export tab to file"
-									onClick={() => {
-										setOpenExportDialog(true);
-										setMoreMenuIcon(null);
-									}}
 								>
 									&nbsp;Export Tab to file
 								</div>
@@ -202,12 +205,11 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							</MenuItem>
 						</>
 					}
-					<MenuItem>
+					<MenuItem onClick={() => {
+						setOpenImportJSONFileDialog(true);
+						setMoreMenuIcon(null);
+					}}>
 						<div className="header__import fa fa-file" title="Import JSON log from file"
-							onClick={() => {
-								setOpenImportJSONFileDialog(true);
-								setMoreMenuIcon(null);
-							}}
 						>
 							&nbsp;Import JSON Log
 						</div>
@@ -215,22 +217,24 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					<MenuItem style={{
 						opacity: !mainTabStore.isProxyTabSelected() ? undefined : 0.3,
 						pointerEvents: !mainTabStore.isProxyTabSelected() ? undefined : 'none'
-					}}>
+					}}
+						onClick={() => {
+							navigator.clipboard.writeText(mainTabStore.copySelectedTab());
+							setMoreMenuIcon(null);
+						}}
+					>
 						<div className="header__export fa fa-copy" title="Copy to clipboard"
-							onClick={() => {
-								navigator.clipboard.writeText(mainTabStore.copySelectedTab());
-								setMoreMenuIcon(null);
-							}}
 						>
 							&nbsp;Copy to Clipboard
 						</div>
 					</MenuItem>
-					<MenuItem>
+					<MenuItem
+						onClick={() => {
+							mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleVertical();
+							setMoreMenuIcon(null);
+						}}
+					>
 						<div className="header__import fa fa-image" title="Layout"
-							onClick={() => {
-								mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleVertical();
-								setMoreMenuIcon(null);
-							}}
 						>
 							&nbsp;{mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isVertical() ?
 								'Set Horizontal Layout' : 'Set Vertical Layout'}
@@ -275,64 +279,61 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				>
 					{!urlPathStore.isLogViewer() &&
 						<>
-							<MenuItem>
+							<MenuItem onClick={() => {
+								setSettingsMenuIcon(null);
+								settingsStore.toggleOpenSettingsModal();
+								settingsStore.reset();
+								if (!messageQueueStore.getStopped()) {
+									messageQueueStore.setStopped(true);
+									filterWasStopped = true;
+								}
+							}}>
 								<div className="fa fa-network-wired"
-									onClick={() => {
-										setSettingsMenuIcon(null);
-										settingsStore.toggleOpenSettingsModal();
-										settingsStore.reset();
-										if (!messageQueueStore.getStopped()) {
-											messageQueueStore.setStopped(true);
-											filterWasStopped = true;
-										}
-									}}
 								>
 									&nbsp;Proxy Configuration
 								</div>
 							</MenuItem>
-							<MenuItem>
+							<MenuItem onClick={() => {
+								setSettingsMenuIcon(null);
+								setShowBreakpointModal(true);
+								breakpointStore.init();
+							}}>
 								<div className="fa fa-bug" title="Breakpoints"
-									onClick={() => {
-										setSettingsMenuIcon(null);
-										setShowBreakpointModal(true);
-										breakpointStore.init();
-									}}>
+								>
 									&nbsp;Breakpoints
 								</div>
 							</MenuItem>
-							<MenuItem>
+							<MenuItem> onClick={() => {
+								setSettingsMenuIcon(null);
+								setShowNoCaptureModal(true);
+								noCaptureStore.init();
+							}}
 								<div className="fa fa-ban" title="No Capture List"
-									onClick={() => {
-										setSettingsMenuIcon(null);
-										setShowNoCaptureModal(true);
-										noCaptureStore.init();
-									}}>
+								>
 									&nbsp;No Capture List
 								</div>
 							</MenuItem>
 						</>
 					}
 					{window.darkMode &&
-						<MenuItem>
+						<MenuItem onClick={() => {
+							setSettingsMenuIcon(null);
+							setShowDarkModeDialog(true);
+						}}>
 							<div className="header__import fa fa-image" title="Theme"
-								onClick={() => {
-									setSettingsMenuIcon(null);
-									setShowDarkModeDialog(true);
-								}}
 							>
 								&nbsp;Appearance
 							</div>
 						</MenuItem>
 					}
 
-					<MenuItem>
+					<MenuItem onClick={async () => {
+						setSettingsMenuIcon(null);
+						await jsonLogStore.init();
+						setJsonFields(getJSONFields());
+						setShowJSONFieldsModal(true);
+					}}>
 						<div className="header__import fa fa-file" title="Theme"
-							onClick={async () => {
-								setSettingsMenuIcon(null);
-								await jsonLogStore.init();
-								setJsonFields(getJSONFields());
-								setShowJSONFieldsModal(true);
-							}}
 						>
 							&nbsp;JSON Log Viewer Settings
 						</div>

@@ -19,9 +19,6 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		// console.log('handleTabChange', value);
 		mainTabStore.setSelectedTabName(value);
-		for (const messageStore of mainTabStore.getSelectedMessages()) {
-			messageStore.setFiltered(undefined);
-		}
 	}
 
 	function handleCopyProxyTab(_value: string) {

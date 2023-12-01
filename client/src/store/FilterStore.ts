@@ -6,6 +6,7 @@ import { dateToHHMMSS } from "../components/Request";
 import { getJSONValue } from "./JSONLogStore";
 
 export default class FilterStore {
+    private name = '';
     private enabled = true;
     private filter = '';
     private searchFilter = '';
@@ -27,6 +28,13 @@ export default class FilterStore {
 
     public constructor() {
         makeAutoObservable(this);
+    }
+
+    public getName() {
+        return this.name;
+    }
+    @action public setName(name: string) {
+        this.name = name;
     }
 
     public getSortByKeys() {

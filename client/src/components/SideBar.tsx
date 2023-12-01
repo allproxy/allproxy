@@ -2,7 +2,7 @@ import { Checkbox, CircularProgress, ListItemText, Menu, MenuItem, Select } from
 import { observer } from "mobx-react-lite";
 import { filterStore } from "../store/FilterStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
-import SortBy from "./SortBy";
+import SideBarSortBy from "./SideBarSortBy";
 import SessionModal from './SessionModal';
 import { sessionStore } from '../store/SessionStore';
 import ExportDialog from "./ExportDialog";
@@ -12,7 +12,13 @@ import { mainTabStore } from "../store/MainTabStore";
 import { useFilePicker } from "use-file-picker";
 import ImportJSONFileDialog from "./ImportJSONFileDialog";
 import { urlPathStore } from "../store/UrlPathStore";
-import { jsonLogStore, updateJSONRequestLabels } from "../store/JSONLogStore";
+import NamedQueries from "./SideBarQueries";
+import SideBarSettings from "./SideBarSettings";
+import SideBarJsonSettings from "./SideBarJsonSettings";
+
+export const isJsonLogTab = () => {
+	return mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0;
+};
 
 const SideBar = observer(() => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
@@ -32,10 +38,6 @@ const SideBar = observer(() => {
 		tabClear();
 		mainTabStore.setUpdating(false);
 	}
-
-	const isJsonLogViewer = () => {
-		return mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0;
-	};
 
 	const areAllDomainsSelected = (): boolean => {
 		const allDomains = filterStore.getSideBarDomains();
@@ -80,31 +82,6 @@ const SideBar = observer(() => {
 		} else {
 			statuses.forEach((status) => filterStore.setSideBarStatusChecked(status, true));
 		}
-	};
-
-	const handleJsonMethodChange = (e: any) => {
-		jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced');
-		mainTabStore.setUpdating(true);
-		setTimeout(() => {
-			updateJSONRequestLabels();
-			mainTabStore.setUpdating(false);
-			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
-		});
-	};
-	const getJSONParsingMethodDisplayName = () => {
-		const method = jsonLogStore.getParsingMethod();
-		return method.substring(0, 1).toUpperCase() + method.substring(1);
-	};
-
-	const handleJsonMaxFieldLevelChange = (e: any) => {
-		const level = e.target.value === '1' ? 1 : 2;
-		jsonLogStore.setAutoMaxFieldLevel(level);
-		mainTabStore.setUpdating(true);
-		setTimeout(() => {
-			updateJSONRequestLabels();
-			mainTabStore.setUpdating(false);
-			messageQueueStore.setScrollToSeqNum(messageQueueStore.getHighlightSeqNum());
-		});
 	};
 
 	let countsByIconClassMap: Map<string, number> = new Map();
@@ -189,332 +166,226 @@ const SideBar = observer(() => {
 	const buttonWidth = '142.29px';
 
 	return (
-		<><div className="side-bar">
-			<div className="side-bar-item">
-				<button className="btn btn-success"
-					disabled={disableSaveSession || !urlPathStore.isLocalhost()}
-					onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
-					<div style={{ width: '7.25rem' }}>Save Session</div>
-				</button>
-				{disableSaveSession &&
-					<div style={{ zIndex: 99, position: 'absolute', marginLeft: '5ch' }}>
-						<CircularProgress />
-					</div>
-				}
-			</div>
-			<div className="side-bar-item">
-				<button className="btn btn-primary"
-					style={{ width: buttonWidth }}
-					onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
-					<div style={{ width: '7.25rem' }}>Restore Session</div>
-				</button>
-			</div>
-			<div className="side-bar-item">
-				<button className="btn btn-secondary"
-					style={{ width: buttonWidth }}
-					onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-						setAnchorEl(event.currentTarget);
-					}}>
-					<div style={{ width: '7.25rem' }}>Import</div>
-				</button>
-				<Menu
-					anchorEl={anchorEl}
-					open={Boolean(anchorEl)}
-					onClose={() => { setAnchorEl(null); }}
-				>
-					<MenuItem>
-						<div className="header__import fa fa-file" title="Import JSON file"
-							onClick={() => {
-								setAnchorEl(null);
-								setOpenImportJSONFileDialog(true);
-							}}
-						>
-							&nbsp;Import JSON Log from file
-						</div>
-					</MenuItem>
-					<MenuItem hidden={urlPathStore.isLogViewer()}>
-						<div className="header__import fa fa-upload" title="Import tab from file"
-							onClick={() => {
-								setAnchorEl(null);
-								openTabFileSelector();
-							}}
-						>
-							&nbsp;Import Tab from file
-						</div>
-					</MenuItem>
-					<MenuItem>
-						<div className="header__import fa fa-upload" title="Import session from zip file"
-							onClick={() => {
-								setAnchorEl(null);
-								sessionStore.importSession();
-							}}
-						>
-							&nbsp;Import Session from zip file
-						</div>
-					</MenuItem>
-				</Menu>
-			</div>
-			<hr className="side-bar-divider" hidden={!isJsonLogViewer() || !urlPathStore.isLocalhost()}></hr>
-			{isJsonLogViewer() && urlPathStore.isLocalhost() &&
-				<div>
-					<div style={{ paddingLeft: '.5rem' }}>JSON SETTINGS</div>
-					<div>
-						<div className="side-bar-item">
-							<div>
-								<div>Parsing Method:</div>
-								<div style={{ paddingLeft: '.5rem' }}>
-									<Select className="side-bar-select"
-										value={jsonLogStore.getParsingMethod()}
-										renderValue={() => getJSONParsingMethodDisplayName()}
-										onChange={handleJsonMethodChange}
-									>
-										<MenuItem
-											value="auto"
-										>
-											<ListItemText primary="Auto" />
-										</MenuItem>
-										<MenuItem
-											value="simple"
-										>
-											<ListItemText primary="Simple" />
-										</MenuItem>
-										<MenuItem
-											value="advanced"
-										>
-											<ListItemText primary="Advanced" />
-										</MenuItem>
-									</Select>
-								</div>
-							</div>
-						</div>
-						{jsonLogStore.getParsingMethod() === 'auto' &&
-							<div style={{ paddingLeft: '.5rem' }}>
-								<div>
-									<div>Max Field Level:</div>
-									<div style={{ marginLeft: '.5rem' }}>
-										<Select className="side-bar-select"
-											value={jsonLogStore.getAutoMaxFieldLevel()}
-											renderValue={() => jsonLogStore.getAutoMaxFieldLevel()}
-											onChange={handleJsonMaxFieldLevelChange}
-										>
-											<MenuItem
-												value="1"
-											>
-												<ListItemText primary="1" />
-											</MenuItem>
-											<MenuItem
-												value="2"
-											>
-												<ListItemText primary="2" />
-											</MenuItem>
-										</Select>
-									</div>
-								</div>
-							</div>}
-					</div>
-				</div>}
-			<hr className="side-bar-divider" hidden={isJsonLogViewer()}></hr>
-			<div className="side-bar-item" hidden={isJsonLogViewer()}>
-				<div>
-					<div hidden style={{ display: 'flex' }}>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							checked={messageQueueStore.getSaveQueriesFeature()}
-							value={messageQueueStore.getSaveQueriesFeature()}
-							onChange={() => messageQueueStore.toggleSaveQueriesFeature()} />
-						Save Queries
-					</div>
-					<div style={{ display: 'flex' }} hidden>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							checked={messageQueueStore.getFullPageSearch()}
-							value={messageQueueStore.getFullPageSearch()}
-							onChange={() => messageQueueStore.toggleFullPageSearch()} />
-						Full Page Search
-					</div>
-					{!urlPathStore.isLogViewer() &&
-						<>
-							<div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
-								<Checkbox className="side-bar-checkbox"
-									size="small"
-									checked={messageQueueStore.getShowAPI()}
-									value={messageQueueStore.getShowAPI()}
-									onChange={() => messageQueueStore.toggleShowAPI()} />
-								Show API
-							</div>
-							<div hidden style={{ display: 'flex' }}>
-								<Checkbox className="side-bar-checkbox"
-									size="small"
-									value={messageQueueStore.getShowTooltip()}
-									onChange={() => messageQueueStore.toggleShowTooltip()} />
-								Show Tooltip
-							</div><div hidden={isJsonLogViewer()} style={{ display: 'flex' }}>
-								<Checkbox className="side-bar-checkbox"
-									size="small"
-									value={messageQueueStore.getShowUserAgent()}
-									onChange={() => messageQueueStore.toggleShowRequestUA()} />
-								Show User Agent
-							</div>
-						</>
-					}
-				</div>
-			</div>
-
-			{/* {visitedMessages.length > 0 && (
-				<><hr className="side-bar-divider"></hr><div>
+		<>
+			<div className="side-bar">
+				<div className="side-bar-header">
 					<div className="side-bar-item">
-						<Select className="side-bar-select"
-							value={visitedMessages}
-							renderValue={() => "Visited"}
-						>
-							{visitedMessages.map((message) => (
-								<MenuItem onClick={() => messageQueueStore.setScrollToSeqNum(message.getMessage().sequenceNumber)}>
-									{getRequestLine(message)}
-								</MenuItem>
-							))}
-						</Select>
+						<button className="btn btn-success"
+							disabled={disableSaveSession || !urlPathStore.isLocalhost()}
+							onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
+							<div style={{ width: '7.25rem' }}>Save Session</div>
+						</button>
+						{disableSaveSession &&
+							<div style={{ zIndex: 99, position: 'absolute', marginLeft: '5ch' }}>
+								<CircularProgress />
+							</div>
+						}
 					</div>
-				</div></>
-			)} */}
-
-			{noteMessages.length > 0 && (
-				<div className="side-bar-item">
-					<Select className="side-bar-select"
-						value={noteMessages}
-						renderValue={() => "Notes"}
-					>
-						{noteMessages.map((message) => (
-							<MenuItem onClick={() => messageQueueStore.setScrollToSeqNum(message.getMessage().sequenceNumber)}>
-								{message.getNote()}
+					<div className="side-bar-item">
+						<button className="btn btn-primary"
+							style={{ width: buttonWidth }}
+							onClick={() => { sessionStore.init(); setShowSessionModal(true); }}>
+							<div style={{ width: '7.25rem' }}>Restore Session</div>
+						</button>
+					</div>
+					<div className="side-bar-item">
+						<button className="btn btn-secondary"
+							style={{ width: buttonWidth }}
+							onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+								setAnchorEl(event.currentTarget);
+							}}>
+							<div style={{ width: '7.25rem' }}>Import</div>
+						</button>
+						<Menu
+							anchorEl={anchorEl}
+							open={Boolean(anchorEl)}
+							onClose={() => { setAnchorEl(null); }}
+						>
+							<MenuItem>
+								<div className="header__import fa fa-file" title="Import JSON file"
+									onClick={() => {
+										setAnchorEl(null);
+										setOpenImportJSONFileDialog(true);
+									}}
+								>
+									&nbsp;Import JSON Log from file
+								</div>
 							</MenuItem>
-						))}
-					</Select>
+							<MenuItem hidden={urlPathStore.isLogViewer()}>
+								<div className="header__import fa fa-upload" title="Import tab from file"
+									onClick={() => {
+										setAnchorEl(null);
+										openTabFileSelector();
+									}}
+								>
+									&nbsp;Import Tab from file
+								</div>
+							</MenuItem>
+							<MenuItem>
+								<div className="header__import fa fa-upload" title="Import session from zip file"
+									onClick={() => {
+										setAnchorEl(null);
+										sessionStore.importSession();
+									}}
+								>
+									&nbsp;Import Session from zip file
+								</div>
+							</MenuItem>
+						</Menu>
+					</div>
 				</div>
-			)}
+				<div className="side-bar-scroll">
+					<div>
+						<SideBarSettings />
+					</div>
 
-			{filterStore.getSideBarProtocolIconClasses().length > 0 && (
-				<>
+					<div>
+						<SideBarJsonSettings />
+					</div>
+
+					<div style={{ marginTop: '.5rem' }}>
+						<NamedQueries />
+					</div>
+
 					<hr className="side-bar-divider"></hr>
-					{
-						filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => {
-							return getIconClassCountByIconClass(iconClass) > 0 ?
-								<div key={iconClass}>
-									<div className="side-bar-item">
-										<div className="side-bar-checkbox-icon">
-											<div style={{ display: 'flex' }}>
-												<Checkbox className="side-bar-checkbox"
-													size="small"
-													defaultChecked
-													value={filterStore.isSideBarProtocolChecked(iconClass)}
-													onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
-												<div className={`${iconClass} side-bar-icon`} />
-												<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
+
+					<div>
+						<SideBarSortBy></SideBarSortBy>
+					</div>
+
+					{noteMessages.length > 0 && (
+						<div className="side-bar-item">
+							<Select className="side-bar-select"
+								value={noteMessages}
+								renderValue={() => "Notes"}
+							>
+								{noteMessages.map((message) => (
+									<MenuItem onClick={() => messageQueueStore.setScrollToSeqNum(message.getMessage().sequenceNumber)}>
+										{message.getNote()}
+									</MenuItem>
+								))}
+							</Select>
+						</div>
+					)}
+
+					{filterStore.getSideBarProtocolIconClasses().length > 0 && (
+						<>
+							<hr className="side-bar-divider"></hr>
+							{
+								filterStore.getSideBarProtocolIconClasses().sort().map((iconClass) => {
+									return getIconClassCountByIconClass(iconClass) > 0 ?
+										<div key={iconClass}>
+											<div className="side-bar-item">
+												<div className="side-bar-checkbox-icon">
+													<div style={{ display: 'flex' }}>
+														<Checkbox className="side-bar-checkbox"
+															size="small"
+															defaultChecked
+															value={filterStore.isSideBarProtocolChecked(iconClass)}
+															onChange={() => filterStore.toggleSideBarProtocolChecked(iconClass)} />
+														<div className={`${iconClass} side-bar-icon`} />
+														<div className="side-bar-small-count">{getIconClassCountByIconClass(iconClass)}</div>
+													</div>
+												</div>
 											</div>
 										</div>
-									</div>
-								</div>
-								:
-								null;
-						})
-					}
-				</>
-			)}
+										:
+										null;
+								})
+							}
+						</>
+					)}
 
-			<hr className="side-bar-divider"></hr>
+					{!isJsonLogTab() && filterStore.getSideBarDomains().length > 0 &&
+						<div>
+							<div className="side-bar-item">
+								<Select className="side-bar-select"
+									multiple
+									value={domains.concat('all')}
+									renderValue={() => "Host Names"}
+								>
+									<MenuItem
+										value="all"
+									>
+										<Checkbox className="side-bar-domain-checkbox"
+											checked={areAllDomainsSelected()}
+											onChange={handleAllDomainChange} />
+										<ListItemText
+											primary="Select All" />
+									</MenuItem>
+									{domains.sort().map((domain) => (
+										<MenuItem key={domain} value={domain}>
+											<Checkbox className="side-bar-domain-checkbox"
+												checked={filterStore.isSideBarDomainChecked(domain)}
+												onChange={() => filterStore.toggleSideBarDomainChecked(domain)} />
+											<ListItemText primary={domain} />
+										</MenuItem>
+									))}
+								</Select>
+							</div>
+						</div>}
+					{!isJsonLogTab() && filterStore.getSideBarUserAgents().length > 0 &&
+						<div>
+							<div className="side-bar-item">
+								<Select className="side-bar-select"
+									multiple
+									value={userAgents.concat('all')}
+									renderValue={() => "User Agents"}
+								>
+									<MenuItem
+										value="all"
+									>
+										<Checkbox className="side-bar-domain-checkbox"
+											checked={areAllUserAgentsSelected()}
+											onChange={handleAllUserAgentChange} />
+										<ListItemText
+											primary="Select All" />
+									</MenuItem>
+									{userAgents.sort().map((userAgent) => (
+										<MenuItem key={userAgent} value={userAgent}>
+											<Checkbox className="side-bar-domain-checkbox"
+												checked={filterStore.isSideBarUserAgentChecked(userAgent)}
+												onChange={() => filterStore.toggleSideBarUserAgentChecked(userAgent)} />
+											<ListItemText primary={userAgent} />
+										</MenuItem>
+									))}
+								</Select>
+							</div>
+						</div>}
 
-			<div>
-				<SortBy></SortBy>
-			</div>
+					{!isJsonLogTab() && (filterStore.getSideBarStatuses().length > 0) && (
+						<hr className="side-bar-divider"></hr>
+					)}
 
-			{!isJsonLogViewer() && filterStore.getSideBarDomains().length > 0 &&
-				<div>
-					<div className="side-bar-item">
-						<Select className="side-bar-select"
-							multiple
-							value={domains.concat('all')}
-							renderValue={() => "Host Names"}
-						>
-							<MenuItem
-								value="all"
-							>
-								<Checkbox className="side-bar-domain-checkbox"
-									checked={areAllDomainsSelected()}
-									onChange={handleAllDomainChange} />
-								<ListItemText
-									primary="Select All" />
-							</MenuItem>
-							{domains.sort().map((domain) => (
-								<MenuItem key={domain} value={domain}>
-									<Checkbox className="side-bar-domain-checkbox"
-										checked={filterStore.isSideBarDomainChecked(domain)}
-										onChange={() => filterStore.toggleSideBarDomainChecked(domain)} />
-									<ListItemText primary={domain} />
-								</MenuItem>
-							))}
-						</Select>
-					</div>
-				</div>}
-			{!isJsonLogViewer() && filterStore.getSideBarUserAgents().length > 0 &&
-				<div>
-					<div className="side-bar-item">
-						<Select className="side-bar-select"
-							multiple
-							value={userAgents.concat('all')}
-							renderValue={() => "User Agents"}
-						>
-							<MenuItem
-								value="all"
-							>
-								<Checkbox className="side-bar-domain-checkbox"
-									checked={areAllUserAgentsSelected()}
-									onChange={handleAllUserAgentChange} />
-								<ListItemText
-									primary="Select All" />
-							</MenuItem>
-							{userAgents.sort().map((userAgent) => (
-								<MenuItem key={userAgent} value={userAgent}>
-									<Checkbox className="side-bar-domain-checkbox"
-										checked={filterStore.isSideBarUserAgentChecked(userAgent)}
-										onChange={() => filterStore.toggleSideBarUserAgentChecked(userAgent)} />
-									<ListItemText primary={userAgent} />
-								</MenuItem>
-							))}
-						</Select>
-					</div>
-				</div>}
-
-			{!isJsonLogViewer() && (filterStore.getSideBarStatuses().length > 0) && (
-				<hr className="side-bar-divider"></hr>
-			)}
-
-			{!isJsonLogViewer() && (filterStore.getSideBarStatuses().length > 0) && (
-				<div className="side-bar-item">
-					<div>
-						<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
-						<div style={{ display: 'flex' }}>
-							<Checkbox className="side-bar-checkbox"
-								size="small"
-								checked={areAllStatusesSelected()}
-								onChange={handleAllStatusChange} />
-							<div>All</div>
-						</div>
-						{filterStore.getSideBarStatuses().sort().map((status) => (
-							<div key={status} hidden={getStatusCount(status) === 0}>
+					{!isJsonLogTab() && (filterStore.getSideBarStatuses().length > 0) && (
+						<div className="side-bar-item">
+							<div>
+								<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
 								<div style={{ display: 'flex' }}>
 									<Checkbox className="side-bar-checkbox"
 										size="small"
-										checked={filterStore.isSideBarStatusChecked(status)}
-										onChange={() => filterStore.toggleSideBarStatusChecked(status)} />
-									<div className="side-bar-status">{status}</div>
-									<div className="side-bar-small-count">{getStatusCount(status)}</div>
+										checked={areAllStatusesSelected()}
+										onChange={handleAllStatusChange} />
+									<div>All</div>
 								</div>
+								{filterStore.getSideBarStatuses().sort().map((status) => (
+									<div key={status} hidden={getStatusCount(status) === 0}>
+										<div style={{ display: 'flex' }}>
+											<Checkbox className="side-bar-checkbox"
+												size="small"
+												checked={filterStore.isSideBarStatusChecked(status)}
+												onChange={() => filterStore.toggleSideBarStatusChecked(status)} />
+											<div className="side-bar-status">{status}</div>
+											<div className="side-bar-small-count">{getStatusCount(status)}</div>
+										</div>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
-				</div>
-			)}
+						</div>
+					)}
 
-		</div >
+				</div >
+			</div>
 			<ExportDialog
 				open={openSaveSessionDialog}
 				heading={"Enter Session Name"}
