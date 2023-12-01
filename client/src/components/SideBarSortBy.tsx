@@ -73,32 +73,35 @@ const SideBarSortBy = observer((): JSX.Element => {
 		if (!found) messageQueueStore.setSortByField(undefined);
 	}
 	return (
-		< Accordion >
-			<AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: 'whitesmoke' }} />} style={{ backgroundColor: '#333', color: 'whitesmoke' }}>
-				<div className="side-bar-item">Sort By</div>
-			</AccordionSummary>
-			<AccordionDetails style={{ backgroundColor: '#333' }}>
-				<div style={{ backgroundColor: '#333' }}>
-					{
-						fields.map(field => (
-							<div className="side-bar-item">
-								<button className={"btn btn-xs " + (messageQueueStore.getSortByField() === field.name ? "btn-warning" : "btn-secondary")}
-									style={{ width: "7rem", marginLeft: "1rem", textAlign: "left" }}
-									key={field.displayName}
-									onClick={() => sortOrderHandler(field.name)}
-								>
-									<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
-										direction={messageQueueStore.getSortOrder()}
+		<>
+			<hr className="side-bar-divider"></hr>
+			< Accordion >
+				<AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: 'whitesmoke' }} />} style={{ backgroundColor: '#333', color: 'whitesmoke' }}>
+					<div className="side-bar-item">Sort By</div>
+				</AccordionSummary>
+				<AccordionDetails style={{ backgroundColor: '#333' }}>
+					<div style={{ backgroundColor: '#333' }}>
+						{
+							fields.map(field => (
+								<div className="side-bar-item">
+									<button className={"btn btn-xs " + (messageQueueStore.getSortByField() === field.name ? "btn-warning" : "btn-secondary")}
+										style={{ width: "7rem", marginLeft: "1rem", textAlign: "left" }}
+										key={field.displayName}
+										onClick={() => sortOrderHandler(field.name)}
 									>
-										{field.displayName}
-									</TableSortLabel>
-								</button>
-							</div>
-						))
-					}
-				</div>
-			</AccordionDetails>
-		</Accordion>
+										<TableSortLabel active={messageQueueStore.getSortByField() === field.name}
+											direction={messageQueueStore.getSortOrder()}
+										>
+											{field.displayName}
+										</TableSortLabel>
+									</button>
+								</div>
+							))
+						}
+					</div>
+				</AccordionDetails>
+			</Accordion>
+		</>
 	);
 });
 

@@ -20,7 +20,6 @@ export default class NamedQueriesStore {
 	}
 	@action public setLogType(logType: 'proxy' | 'json') {
 		if (this.logType !== logType) {
-			console.log(logType);
 			this.logType = logType;
 			this.filePath = logType === 'proxy' ? proxyQueriesFile : jsonQueriesFile;
 			this.init();
@@ -47,7 +46,6 @@ export default class NamedQueriesStore {
 			});
 			this.queryList.push(...queries);
 		}
-		console.log(this.queryList);
 	}
 
 	@action private save() {

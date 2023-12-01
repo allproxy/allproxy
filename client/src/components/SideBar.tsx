@@ -12,7 +12,7 @@ import { mainTabStore } from "../store/MainTabStore";
 import { useFilePicker } from "use-file-picker";
 import ImportJSONFileDialog from "./ImportJSONFileDialog";
 import { urlPathStore } from "../store/UrlPathStore";
-import NamedQueries from "./SideBarQueries";
+import SideBarNamedQueries from "./SideBarQueries";
 import SideBarSettings from "./SideBarSettings";
 import SideBarJsonSettings from "./SideBarJsonSettings";
 
@@ -244,10 +244,8 @@ const SideBar = observer(() => {
 					</div>
 
 					<div style={{ marginTop: '.5rem' }}>
-						<NamedQueries />
+						<SideBarNamedQueries />
 					</div>
-
-					<hr className="side-bar-divider"></hr>
 
 					<div>
 						<SideBarSortBy></SideBarSortBy>

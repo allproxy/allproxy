@@ -22,7 +22,7 @@ const SideBarQueries = observer((): JSX.Element => {
 	const queries = namedQueriesStore.getQueries();
 	return (
 		<div>
-			<hr className="side-bar-divider"></hr>
+			<hr className="side-bar-divider" hidden={!urlPathStore.isLocalhost() && queries.length === 0}></hr>
 			<div className="link-opacity" style={{ cursor: 'pointer', marginLeft: '.5rem' }}
 				hidden={!urlPathStore.isLocalhost()}
 				onClick={handleAddQueries}
