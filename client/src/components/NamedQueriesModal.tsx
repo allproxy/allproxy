@@ -28,7 +28,7 @@ const NamedQueriesModal = observer(({ open, onClose, store }: Props) => {
 	}
 
 	function handleQueryChange(e: any, query: FilterStore) {
-		query.setFilterNoDebounce(e.currentTarget.value);
+		query.setFilter(e.currentTarget.value);
 		store.changed();
 	}
 
@@ -74,7 +74,7 @@ const NamedQueriesModal = observer(({ open, onClose, store }: Props) => {
 							</button>
 							<List>
 								{store.getAllQueries().map((query, i) => (
-									<ListItem key={query.getName()}
+									<ListItem key={i}
 										style={{
 											display: 'flex', alignItems: 'center',
 										}}>

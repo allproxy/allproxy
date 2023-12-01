@@ -230,6 +230,12 @@ export default class FilterStore {
         messageQueueStore.setFreeze(false);
     }
 
+    @action public setFilter(filter: string) {
+        this.filter = filter;
+        this.searchFilter = this.filter;
+        this.updateBoolString();
+    }
+
     @action public filterUpdated() {
         for (const messageStore of messageQueueStore.getMessages()) {
             messageStore.setFiltered(undefined);
