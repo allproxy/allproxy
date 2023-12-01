@@ -35,7 +35,8 @@ const SideBarJsonSettings = observer((): JSX.Element => {
 
 	return (
 		<>
-			<hr className="side-bar-divider" hidden={!isJsonLogTab() || !urlPathStore.isLocalhost}></hr>
+			<hr className="side-bar-divider"
+				hidden={!isJsonLogTab() || !urlPathStore.isLocalhost()}></hr>
 			<div hidden={!isJsonLogTab() || !urlPathStore.isLocalhost()}>
 				{/* <div style={{ paddingLeft: '.5rem' }}>JSON SETTINGS</div> */}
 				<div>
