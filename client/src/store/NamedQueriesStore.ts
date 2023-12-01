@@ -53,7 +53,7 @@ export default class NamedQueriesStore {
 	@action private save() {
 		const queries = this.queryList.filter(query => query.getName().length > 0 && query.getFilter().length > 0);
 		queries.sort((a, b) => a.getName().localeCompare(b.getName()));
-		apFileSystem.writeFile(proxyQueriesFile, JSON.stringify(queries));
+		apFileSystem.writeFile(this.filePath, JSON.stringify(queries));
 	}
 
 	public getAllQueries() {

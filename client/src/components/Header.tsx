@@ -303,13 +303,12 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 									&nbsp;Breakpoints
 								</div>
 							</MenuItem>
-							<MenuItem> onClick={() => {
+							<MenuItem onClick={() => {
 								setSettingsMenuIcon(null);
 								setShowNoCaptureModal(true);
 								noCaptureStore.init();
-							}}
-								<div className="fa fa-ban" title="No Capture List"
-								>
+							}}>
+								<div className="fa fa-ban" title="No Capture List">
 									&nbsp;No Capture List
 								</div>
 							</MenuItem>
