@@ -401,6 +401,10 @@ export default class FilterStore {
             this.sortByKeys.push(key);
         }
 
+        return this.isKeyValueMatch(value, operator, jsonValue);
+    }
+
+    private isKeyValueMatch(value: string, operator: string, jsonValue: any) {
         if (value === '*' && (operator === '==' || operator === '===')) {
             return true;
         }
@@ -515,6 +519,7 @@ export default class FilterStore {
                 if (key === 'app' && (operator === '==' || operator === '===')) {
                     if (messageStore.getLogEntry().appName.startsWith(value)) return false;
                 }
+
                 if (typeof message.requestBody !== 'string') {
                     if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
                         return false;
@@ -527,6 +532,48 @@ export default class FilterStore {
                         return false;
                     } else {
                         if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
+                    }
+                }
+                if (typeof message.requestHeaders !== 'string') {
+                    if (key === '*' && JSON.stringify(message.requestHeaders).indexOf(`:"${value}"`) !== -1) {
+                        return false;
+                    } else {
+                        if (this.isJsonKeyValueMatch(key, value, operator, message.requestHeaders as { [key: string]: any })) return false;
+                    }
+                }
+                if (typeof message.responseHeaders !== 'string') {
+                    if (key === '*' && JSON.stringify(message.responseHeaders).indexOf(`:"${value}"`) !== -1) {
+                        return false;
+                    } else {
+                        if (this.isJsonKeyValueMatch(key, value, operator, message.responseHeaders as { [key: string]: any })) return false;
+                    }
+                }
+                if (message.status !== undefined) {
+                    if (key === 'status') {
+                        if (this.isKeyValueMatch(value, operator, message.status)) {
+                            return false;
+                        }
+                    }
+                }
+                if (message.method !== undefined) {
+                    if (key === 'method') {
+                        if (this.isKeyValueMatch(value, operator, message.method)) {
+                            return false;
+                        }
+                    }
+                }
+                if (message.serverHost.length > 0) {
+                    if (key === 'host') {
+                        if (this.isKeyValueMatch(value, operator, message.serverHost)) {
+                            return false;
+                        }
+                    }
+                }
+                if (message.url) {
+                    if (key === 'url') {
+                        if (this.isKeyValueMatch(value, operator, message.url)) {
+                            return false;
+                        }
                     }
                 }
                 if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;

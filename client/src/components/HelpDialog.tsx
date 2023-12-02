@@ -260,6 +260,27 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							</div>
 							<h3>Parenthesis</h3>
 							Parenthesis can be used to group related search terms together.
+							<p></p>
+							<h3>HTTP Filters</h3>
+							These HTTP field filters are supported:
+							<dl>
+								<dt>host</dt>
+								<dd>HTTP request host name (e.g., host:my.host.name).</dd>
+								<dt>status</dt>
+								<dd>HTTP response status code (e.g., status:&gt;=500).</dd>
+								<dt>method</dt>
+								<dd>HTTP request method (e.g., method:post).</dd>
+								<dt>url</dt>
+								<dd>HTTP request URL string (e.g., utl:my/url/path)</dd>
+							</dl>
+							Any field may be filtered in the:
+							<ul>
+								<li>Request Headers</li>
+								<li>Response Headers</li>
+								<li>Request Body</li>
+								<li>Response Body</li>
+							</ul>
+							A full text search is used by default.
 						</div>
 					</TabPanel>
 					<TabPanel value="4" key="4">
