@@ -14,7 +14,7 @@ if (!fs.existsSync('./client/build')) {
 
 process.env.NODE_ENV = 'production';
 process.env.HEADLESS = 1;
-run('node ./build/main.js');
+run('node ./build/main.js ' + process.argv.slice(2).join(' '));
 
 function run(command) {
   console.log(command);

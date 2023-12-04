@@ -90,7 +90,7 @@ if (listen.length === 0) {
 function usage() {
   console.log('\nUsage: npm start [--hostname name] [--listen port] [--debug]');
   console.log('\nOptions:');
-  console.log('\t--hostname - Optional host name associated with SSL certificate.');
+  console.log('\t--hostname - Optional hostname associated with SSL certificate.');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
   console.log('\t--http2 - Enable HTTP/2 for https connections. (Experimental)');
   console.log('\nExample: npm start -- --listen 8888');
@@ -134,6 +134,10 @@ async function startServers() {
   for (const entry of listen) {
     const protocol = entry.protocol;
     const port = entry.port;
+
+    if (hostname !== '') {
+      console.log(`Using hostname ${hostname} for SSL certificate.`);
+    }
 
     switch (protocol) {
       case 'httpx:':
