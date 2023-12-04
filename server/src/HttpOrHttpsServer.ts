@@ -91,7 +91,7 @@ export default class HttpOrHttpsServer {
 
   private async onRequest(clientReq: IncomingMessage, clientRes: http.ServerResponse) {
     clientReq.on('error', function (error) {
-      console.error(sequenceNumber, 'HttpOrHttpsServer clientReq error', JSON.stringify(error, null, 2));
+      console.error('HttpOrHttpsServer clientReq error', JSON.stringify(error, null, 2));
     });
 
     // eslint-disable-next-line node/no-deprecated-api
