@@ -6,6 +6,7 @@ import HttpOrHttpsServer from './HttpOrHttpsServer';
 import Global from './Global';
 import Https2Server from './Https2Server';
 import ConsoleLog from './ConsoleLog';
+import isLocalHost from 'is-localhost-ip';
 
 // const GRPC_PORT = 11111;
 
@@ -46,7 +47,7 @@ export default class HttpXProxy {
     await HttpConnectHandler.start(Global.useHttp2 ? HttpVersion.HTTP2 : HttpVersion.HTTP1);
   }
 
-  private onConnect(httpXSocket: net.Socket) {
+  private async onConnect(httpXSocket: net.Socket) {
     ConsoleLog.debug('HttpXProxy onConnect');
     let done = false;
     const onData = async (data: Buffer) => {
@@ -54,6 +55,9 @@ export default class HttpXProxy {
         const line1 = data.toString().split('\r\n')[0];
         if (line1.startsWith('CONNECT')) {
           ConsoleLog.info(line1);
+          if (await isLocalHost(httpXSocket.localAddress)) {
+            console.log('Discarding CONNECT request from remote host ' + httpXSocket.localAddress);
+          }
           HttpConnectHandler.doConnect(httpXSocket, data);
         } else if (this.isClientHello(data)) {
           ConsoleLog.debug('HttpXProxy client hello:\n', HexFormatter.format(data));

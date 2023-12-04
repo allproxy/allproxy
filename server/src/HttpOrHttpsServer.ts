@@ -12,6 +12,7 @@ import { compressResponse, decompressResponse } from './Zlib';
 import InterceptJsonResponse from '../../intercept';
 import AllProxyApp from './AllProxyApp';
 import ConsoleLog from './ConsoleLog';
+import isLocalHost from 'is-localhost-ip';
 
 // Hop-by-hop headers. These are removed when sent to the backend.
 // As of RFC 7230, hop-by-hop headers are required to appear in the
@@ -100,6 +101,11 @@ export default class HttpOrHttpsServer {
     // Request is from AllProxy app?
     if (AllProxyApp(clientReq, clientRes, reqUrl)) {
       return;
+    }
+
+    const localAddress = clientReq.socket.localAddress;
+    if (await isLocalHost(localAddress)) {
+      console.log('Discarding HTTP request from remote host ' + localAddress);
     }
 
     ConsoleLog.info('HttpOrHttpsServer onRequest', reqUrl.path);
