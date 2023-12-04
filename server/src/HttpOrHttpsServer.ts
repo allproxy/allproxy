@@ -68,6 +68,7 @@ export default class HttpOrHttpsServer {
         certKey,
         this.onRequest.bind(this)
       );
+      Global.socketIoManager.addHttpServer(this.server);
     } else {
       this.server = http.createServer(this.onRequest.bind(this));
       this.server.keepAliveTimeout = 0;
@@ -97,7 +98,7 @@ export default class HttpOrHttpsServer {
     const reqUrl = url.parse(clientReq.url ? clientReq.url : '');
 
     // Request is from AllProxy app?
-    if (this.protocol === 'http:' && AllProxyApp(clientReq, clientRes, reqUrl)) {
+    if (AllProxyApp(clientReq, clientRes, reqUrl)) {
       return;
     }
 

@@ -11,17 +11,21 @@ import ConsoleLog from './ConsoleLog';
 
 export default class HttpXProxy {
   private server: net.Server;
-  private httpsServer = Global.useHttp2
-    ? new Https2Server('allproxy', 443, 'forward')
-    : new HttpOrHttpsServer('forward', 'https:', 'allproxy', 443);
+  private httpsServer: Https2Server | HttpOrHttpsServer;
 
   private httpPort = 0; // ephemeral port for HTTP connections
 
-  public static start(port: number, hostname?: string): HttpXProxy {
+  public static start(port: number, hostname: string): HttpXProxy {
     return new HttpXProxy(port, hostname);
   }
 
-  constructor(port: number, hostname?: string) {
+  constructor(port: number, hostname: string) {
+    if (hostname.length === 0) {
+      hostname = 'localhost';
+    }
+    this.httpsServer = Global.useHttp2
+      ? new Https2Server(hostname, 443, 'forward')
+      : new HttpOrHttpsServer('forward', 'https:', hostname, 443);
     this.startServers();
     this.httpsServer.start(0);
 
@@ -34,7 +38,7 @@ export default class HttpXProxy {
       })
 
     this.server = net.createServer(this.onConnect.bind(this));
-    listen('HttpXProxy', this.server, port, hostname, 0);
+    listen('HttpXProxy', this.server, port, undefined, 0);
     // GrpcProxy.forwardProxy(GRPC_PORT, false);
   }
 

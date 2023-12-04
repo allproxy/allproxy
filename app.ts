@@ -14,9 +14,10 @@ import BrowserLauncher from './server/src/BrowserLauncher';
 
 const listen: {
   protocol: string,
-  host?: string,
   port: number
 }[] = [];
+
+let hostname = '';
 
 console.log('app.ts', process.argv);
 
@@ -25,6 +26,13 @@ for (let i = 2; i < process.argv.length; ++i) {
     case '--help':
       usage();
       exit(1);
+      break;
+    case '--hostname':
+      if (i + 1 >= process.argv.length) {
+        usage();
+        console.error('\nMissing host name for ' + process.argv[i]);
+      }
+      hostname = process.argv[++i];
       break;
     case '--listen':
     case '--listenGrpc':
@@ -46,18 +54,11 @@ for (let i = 2; i < process.argv.length; ++i) {
           protocol = 'securegrpc:';
           break;
       }
-      let host;
       let port = process.argv[++i];
-      const tokens = port.split(':');
-      if (tokens.length > 1) {
-        host = tokens[0];
-        port = tokens[1];
-      }
 
       const portNum: number = +port;
       listen.push({
         protocol,
-        host,
         port: portNum
       });
 
@@ -87,8 +88,9 @@ if (listen.length === 0) {
 }
 
 function usage() {
-  console.log('\nUsage: npm start [--listen [host:]port] [--debug]');
+  console.log('\nUsage: npm start [--hostname name] [--listen port] [--debug]');
   console.log('\nOptions:');
+  console.log('\t--hostname - Optional host name associated with SSL certificate.');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
   console.log('\t--http2 - Enable HTTP/2 for https connections. (Experimental)');
   console.log('\nExample: npm start -- --listen 8888');
@@ -131,23 +133,22 @@ async function startServers() {
 
   for (const entry of listen) {
     const protocol = entry.protocol;
-    const host = entry.host;
     const port = entry.port;
 
     switch (protocol) {
       case 'httpx:':
-        console.log(`Listening on ${protocol} ${host || ''} ${port}`);
-        HttpXProxy.start(port);
+        console.log(`Listening on ${protocol} ${port}`);
+        HttpXProxy.start(port, hostname);
         Global.portConfig.httpXPort = port;
         break;
       case 'grpc:':
         GrpcProxy.forwardProxy(port, false);
-        console.log(`Listening on gRPC ${host || ''} ${port}`);
+        console.log(`Listening on gRPC ${port}`);
         Global.portConfig.grpcPort = port;
         break;
       case 'securegrpc:':
         GrpcProxy.forwardProxy(port, true);
-        console.log(`Listening on secure gRPC ${host || ''} ${port}`);
+        console.log(`Listening on secure gRPC ${port}`);
         Global.portConfig.grpcSecurePort = port;
         break;
     }
