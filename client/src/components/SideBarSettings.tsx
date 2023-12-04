@@ -13,7 +13,7 @@ const SideBarSettings = observer((): JSX.Element => {
 					<div className="side-bar-item">Settings</div>
 				</AccordionSummary>
 				<AccordionDetails style={{ backgroundColor: '#333' }}>
-					<div className="side-bar-item" style={{ backgroundColor: '#333' }}>
+					<div className="side-bar-item" style={{ backgroundColor: '#333', color: 'whitesmoke' }}>
 						<div className="side-bar-item">
 							<div>
 								<div hidden style={{ display: 'flex' }}>
