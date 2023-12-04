@@ -90,7 +90,7 @@ if (listen.length === 0) {
 function usage() {
   console.log('\nUsage: npm start [--hostname name] [--listen port] [--debug]');
   console.log('\nOptions:');
-  console.log('\t--hostname - Optional hostname associated with SSL certificate.');
+  console.log('\t--hostname - Public host name used to access AllProxy from the web.  The proxy is blocked.');
   console.log('\t--listen - listen for incoming http connections.  Default is 8888.');
   console.log('\t--http2 - Enable HTTP/2 for https connections. (Experimental)');
   console.log('\nExample: npm start -- --listen 8888');
@@ -136,7 +136,9 @@ async function startServers() {
     const port = entry.port;
 
     if (hostname !== '') {
-      console.log(`Using hostname ${hostname} for SSL certificate.`);
+      console.log(`Using public hostname ${hostname}.`);
+      console.log("The proxy is blocked.");
+      Global.proxyIsBlocked = true;
     }
 
     switch (protocol) {

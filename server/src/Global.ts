@@ -10,6 +10,7 @@ export default class Global {
   static dupCount: number = 0;
   static inDockerContainer: boolean = false;
   static renderLogView: boolean = false;
+  static proxyIsBlocked = false;
 
   static nextSequenceNumber(): number {
     const now = Date.now();
