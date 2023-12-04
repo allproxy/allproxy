@@ -55,11 +55,7 @@ export default class HttpXProxy {
         const line1 = data.toString().split('\r\n')[0];
         if (line1.startsWith('CONNECT')) {
           ConsoleLog.info(line1);
-          if (!Global.proxyIsBlocked) {
-            HttpConnectHandler.doConnect(httpXSocket, data);
-          } else {
-            console.log('Discarding CONNECT request from ' + httpXSocket.localAddress);
-          }
+          HttpConnectHandler.doConnect(httpXSocket, data);
         } else if (this.isClientHello(data)) {
           ConsoleLog.debug('HttpXProxy client hello:\n', HexFormatter.format(data));
           const httpsServerSocket = net.connect(this.httpsServer.getEphemeralPort(), undefined, () => {
