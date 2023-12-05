@@ -48,7 +48,7 @@ export default class HttpXProxy {
 
   private async onConnect(httpXSocket: net.Socket) {
     ConsoleLog.debug('HttpXProxy onConnect');
-    console.log('onconnect', httpXSocket.localAddress);
+
     let done = false;
     const onData = async (data: Buffer) => {
       if (!done) {
