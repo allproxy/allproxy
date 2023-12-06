@@ -24,7 +24,6 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 
 	React.useLayoutEffect(() => {
 		if (queryStore.getApplyFilter() !== '') {
-			console.log('effect');
 			const query = queryStore.getApplyFilter();
 			applyFilter(query);
 			queryStore.setApplyFilter('');

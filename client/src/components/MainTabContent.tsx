@@ -329,7 +329,7 @@ const MainTabContent = observer(({
 		if (parent && parent.childNodes.length > 0) {
 			const up = e.deltaY < 0;
 			const scrollBottom = findScrollBottom();
-			//console.log(parent.scrollTop, scrollTop, scrollBottom, renderSet[0].getIndex());
+			//console.log(up, parent.scrollTop + parent.clientHeight + minEntryHeight, scrollBottom);
 			if (messageQueueStore.getScrollAction() === undefined) {
 				const now = Date.now();
 				const elapsed = now - lastScrollTime;
@@ -343,8 +343,7 @@ const MainTabContent = observer(({
 							}
 						}
 					} else if (!up &&
-						parent.scrollTop + 1 >= scrollBottom - parent.clientHeight &&
-						parent.scrollTop === scrollTop &&
+						parent.scrollTop + parent.clientHeight + minEntryHeight >= scrollBottom &&
 						renderSet[renderSet.length - 1].getIndex() < messageQueueStore.getMessages().length - 1) {
 						for (let i = renderSet[renderSet.length - 1].getIndex() + 1; i < messageQueueStore.getMessages().length; ++i) {
 							if (!messageQueueStore.getMessages()[i].isFiltered()) {
@@ -377,8 +376,8 @@ const MainTabContent = observer(({
 			for (let i = 0; i < renderSet.length; ++i) {
 				let element = (children[i] as Element);
 				if (!element) break;
+				console.log('pagedown', parent.scrollTop, offset);
 				if (offset >= parent.scrollTop || offset + parent.clientHeight >= bottom) {
-
 					const seqNum = messageQueueStore.getMessages()[renderSet[i].getIndex()].getMessage().sequenceNumber;
 					messageQueueStore.setScrollToSeqNum(seqNum);
 
