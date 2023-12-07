@@ -24,6 +24,10 @@ export default class FilterStore {
     private sideBarUserAgents: Map<string, boolean> = new Map();
     private sideBarStatuses: Map<number, boolean> = new Map();
 
+    private dedup = false;
+    private dedupMap: { [key: string]: string | number | boolean } = {};
+    private pendingDedupMap: { [key: string]: string | number | boolean } = {};
+
     private sortByKeys: string[] = [];
 
     public constructor() {
@@ -220,6 +224,18 @@ export default class FilterStore {
         this.filterUpdated();
     }
 
+    public isDedupChecked() {
+        return this.dedup;
+    }
+    public toggleDedupChecked() {
+        this.dedup = !this.dedup;
+        this.filterUpdated();
+    }
+
+    public canDedup() {
+        return Object.keys(this.dedupMap).length > 0;
+    }
+
     @action public setFilterNoDebounce(filter: string) {
         this.sortByKeys = [];
 
@@ -241,6 +257,13 @@ export default class FilterStore {
             messageStore.setFiltered(undefined);
         }
         messageQueueStore.setScrollAction('filter');
+
+        this.dedupMap = {};
+        if (this.dedup) {
+            for (const messageStore of messageQueueStore.getMessages()) {
+                messageStore.isFiltered();
+            }
+        }
     }
 
     public isInvalidFilterSyntax(): boolean {
@@ -329,6 +352,12 @@ export default class FilterStore {
     public isFilteredNoCache(messageStore: MessageStore, isBreakpoint?: boolean): boolean {
         const doReturn = (filtered: boolean): boolean => {
             if (!isBreakpoint) messageStore.setFiltered(filtered);
+            for (const key in this.pendingDedupMap) {
+                if (!filtered) {
+                    this.dedupMap[key] = this.pendingDedupMap[key];
+                }
+                delete this.pendingDedupMap[key];
+            }
             return filtered;
         };
 
@@ -401,11 +430,16 @@ export default class FilterStore {
             this.sortByKeys.push(key);
         }
 
-        return this.isKeyValueMatch(value, operator, jsonValue);
+        return this.isKeyValueMatch(key, value, operator, jsonValue);
     }
 
-    private isKeyValueMatch(value: string, operator: string, jsonValue: any) {
+    private isKeyValueMatch(key: string, value: string, operator: string, jsonValue: any) {
         if (value === '*' && (operator === '==' || operator === '===')) {
+            if (this.dedup && this.dedupMap[key] === jsonValue) {
+                //console.log(key, jsonValue);
+                return false; // filter duplicate
+            }
+            this.pendingDedupMap[key] = jsonValue;
             return true;
         }
 
@@ -423,7 +457,6 @@ export default class FilterStore {
             if (operator === '==') {
                 return jsonValue.toLowerCase().includes(value.toLowerCase());
             } else if (operator === '===') {
-                console.log(jsonValue, value);
                 return jsonValue === value;
             } else {
                 // const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
@@ -489,6 +522,27 @@ export default class FilterStore {
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
         const message = messageStore.getMessage();
 
+        if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
+        if (this.isMatch(needle, message.protocol)) return false;
+        if (message.protocol !== 'log:') {
+            if (this.isMatch(needle,
+                message.status + ' ' + message.method
+                + ' '
+                + message.clientIp! + '->' + message.serverHost
+                + ' '
+                + messageStore.getUrl())) return false;
+            if (this.isMatch(needle, message.endpoint)) return false;
+            if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
+            if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
+            if (this.isMatch(needle, messageStore.getRequestBody())) return false;
+        } else {
+            try {
+                if (this.isMatch(needle, dateToHHMMSS(messageStore.getLogEntry().date))) return false;
+            } catch (e) { }
+        }
+        if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
+        if (messageStore.hasNote() && this.isMatch(needle, messageStore.getNote())) return false;
+
         // Check for JSON key:value syntax
         const keyValues = this.parseKeyValue(needle);
         for (const keyValue of keyValues) {
@@ -513,20 +567,7 @@ export default class FilterStore {
                 } else {
                     operator = '==';
                 }
-                if (key === 'cat' && (operator === '==' || operator === '===')) {
-                    if (messageStore.getLogEntry().category.startsWith(value)) return false;
-                }
-                if (key === 'app' && (operator === '==' || operator === '===')) {
-                    if (messageStore.getLogEntry().appName.startsWith(value)) return false;
-                }
 
-                if (typeof message.requestBody !== 'string') {
-                    if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
-                        return false;
-                    } else {
-                        if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
-                    }
-                }
                 if (typeof message.responseBody !== 'string') {
                     if (key === '*' && JSON.stringify(message.responseBody).indexOf(`:"${value}"`) !== -1) {
                         return false;
@@ -534,73 +575,72 @@ export default class FilterStore {
                         if (this.isJsonKeyValueMatch(key, value, operator, message.responseBody as { [key: string]: any })) return false;
                     }
                 }
-                if (typeof message.requestHeaders !== 'string') {
-                    if (key === '*' && JSON.stringify(message.requestHeaders).indexOf(`:"${value}"`) !== -1) {
-                        return false;
-                    } else {
-                        if (this.isJsonKeyValueMatch(key, value, operator, message.requestHeaders as { [key: string]: any })) return false;
+
+                if (message.protocol === 'log:') {
+                    if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;
+
+                    if (key === 'cat' && (operator === '==' || operator === '===')) {
+                        if (messageStore.getLogEntry().category.startsWith(value)) return false;
                     }
-                }
-                if (typeof message.responseHeaders !== 'string') {
-                    if (key === '*' && JSON.stringify(message.responseHeaders).indexOf(`:"${value}"`) !== -1) {
-                        return false;
-                    } else {
-                        if (this.isJsonKeyValueMatch(key, value, operator, message.responseHeaders as { [key: string]: any })) return false;
+                    if (key === 'app' && (operator === '==' || operator === '===')) {
+                        if (messageStore.getLogEntry().appName.startsWith(value)) return false;
                     }
-                }
-                if (message.status !== undefined) {
-                    if (key === 'status') {
-                        if (this.isKeyValueMatch(value, operator, message.status)) {
+                } else {
+                    if (typeof message.requestBody !== 'string') {
+                        if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
                             return false;
+                        } else {
+                            if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
+                        }
+                    }
+                    if (typeof message.requestHeaders !== 'string') {
+                        if (key === '*' && JSON.stringify(message.requestHeaders).indexOf(`:"${value}"`) !== -1) {
+                            return false;
+                        } else {
+                            if (this.isJsonKeyValueMatch(key, value, operator, message.requestHeaders as { [key: string]: any })) return false;
+                        }
+                    }
+                    if (typeof message.responseHeaders !== 'string') {
+                        if (key === '*' && JSON.stringify(message.responseHeaders).indexOf(`:"${value}"`) !== -1) {
+                            return false;
+                        } else {
+                            if (this.isJsonKeyValueMatch(key, value, operator, message.responseHeaders as { [key: string]: any })) return false;
+                        }
+                    }
+                    if (message.status !== undefined) {
+                        if (key === 'status') {
+                            if (this.isKeyValueMatch(key, value, operator, message.status)) {
+                                return false;
+                            }
+                        }
+                    }
+                    if (message.method !== undefined) {
+                        if (key === 'method') {
+                            if (this.isKeyValueMatch(key, value, operator, message.method)) {
+                                return false;
+                            }
+                        }
+                    }
+                    if (message.serverHost && message.serverHost.length > 0) {
+                        if (key === 'host') {
+                            if (this.isKeyValueMatch(key, value, operator, message.serverHost)) {
+                                return false;
+                            }
+                        }
+                    }
+                    if (message.url) {
+                        if (key === 'url') {
+                            if (this.isKeyValueMatch(key, value, operator, message.url)) {
+                                return false;
+                            }
                         }
                     }
                 }
-                if (message.method !== undefined) {
-                    if (key === 'method') {
-                        if (this.isKeyValueMatch(value, operator, message.method)) {
-                            return false;
-                        }
-                    }
-                }
-                if (message.serverHost.length > 0) {
-                    if (key === 'host') {
-                        if (this.isKeyValueMatch(value, operator, message.serverHost)) {
-                            return false;
-                        }
-                    }
-                }
-                if (message.url) {
-                    if (key === 'url') {
-                        if (this.isKeyValueMatch(value, operator, message.url)) {
-                            return false;
-                        }
-                    }
-                }
-                if (this.isJsonKeyValueMatch(key, value, operator, messageStore.getLogEntry().additionalJSON)) return false;
+
                 return true;
             }
         }
 
-        if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
-        if (this.isMatch(needle, message.protocol)) return false;
-        if (message.protocol !== 'log:') {
-            if (this.isMatch(needle,
-                message.status + ' ' + message.method
-                + ' '
-                + message.clientIp! + '->' + message.serverHost
-                + ' '
-                + messageStore.getUrl())) return false;
-            if (this.isMatch(needle, message.endpoint)) return false;
-            if (this.isMatch(needle, JSON.stringify(message.requestHeaders))) return false;
-            if (this.isMatch(needle, JSON.stringify(message.responseHeaders))) return false;
-            if (this.isMatch(needle, messageStore.getRequestBody())) return false;
-        } else {
-            try {
-                if (this.isMatch(needle, dateToHHMMSS(messageStore.getLogEntry().date))) return false;
-            } catch (e) { }
-        }
-        if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
-        if (messageStore.hasNote() && this.isMatch(needle, messageStore.getNote())) return false;
         return true;
     }
 

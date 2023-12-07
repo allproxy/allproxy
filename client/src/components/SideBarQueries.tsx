@@ -1,8 +1,8 @@
-import { Accordion, AccordionDetails, AccordionSummary, MenuItem } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, MenuItem } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { namedQueriesStore } from '../store/NamedQueriesStore';
-import FilterStore from '../store/FilterStore';
+import FilterStore, { filterStore } from '../store/FilterStore';
 import NamedQueriesModal from './NamedQueriesModal';
 import React from 'react';
 import { queryStore } from '../store/QueryStore';
@@ -23,6 +23,18 @@ const SideBarQueries = observer((): JSX.Element => {
 	return (
 		<div>
 			<hr className="side-bar-divider" hidden={!urlPathStore.isLocalhost() && queries.length === 0}></hr>
+			<div className="side-bar-item" hidden={!filterStore.canDedup()}>
+				<div className="side-bar-checkbox-icon">
+					<div style={{ display: 'flex' }}>
+						<Checkbox className="side-bar-checkbox"
+							size="small"
+							defaultChecked={false}
+							value={filterStore.isDedupChecked()}
+							onChange={() => filterStore.toggleDedupChecked()} />
+						<div>Dedup</div>
+					</div>
+				</div>
+			</div>
 			<div className="link-opacity" style={{ cursor: 'pointer', marginLeft: '.5rem' }}
 				hidden={!urlPathStore.isLocalhost()}
 				onClick={handleAddQueries}
