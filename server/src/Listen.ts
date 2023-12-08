@@ -29,10 +29,12 @@ export default async function listen(
         setTimeout(() => _listen(), backOff *= 2);
       } else {
         console.error(`${serverName} listen error on port ${port}`, err);
-        const electron = require("electron");
-        if (electron && electron.dialog && electron.dialog.showErrorBox) {
-          electron.dialog.showErrorBox(`AllProxy Port Error`, `${err}`);
-        }
+        try {
+          const electron = require("electron");
+          if (electron && electron.dialog && electron.dialog.showErrorBox) {
+            electron.dialog.showErrorBox(`AllProxy Port Error`, `${err}`);
+          }
+        } catch (e) { }
       }
     }
   });
