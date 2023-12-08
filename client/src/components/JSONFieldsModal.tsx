@@ -1,4 +1,4 @@
-import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
+import { Checkbox, FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
 import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR, jsonLogStore } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
@@ -218,12 +218,23 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																	>
 																		<input className="form-control"
 																			style={{
+																				width: '32rem',
 																				background: jsonField.isValidName()
 																					? undefined
 																					: 'lightCoral'
 																			}}
 																			value={jsonField.getName()}
 																			onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
+																		<div>
+																			<div style={{ display: 'flex' }}>
+																				<Checkbox
+																					size="small"
+																					defaultChecked={false}
+																					value={jsonField.shouldShowWnenBriefChecked()}
+																					onChange={() => jsonField.toggleBriefChecked()} />
+																				<div style={{ lineHeight: '38px' }}>Show when brief is checked</div>
+																			</div>
+																		</div>
 																	</div>
 																</ListItem>
 															))}

@@ -3,7 +3,7 @@ import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
-import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels as findMatchingJsonFields } from "./JSONLogStore";
+import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels } from "./JSONLogStore";
 import { compressJSON, mainTabStore } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 
@@ -98,7 +98,7 @@ export default class MessageStore {
             }
             this.setJsonFields(newFields);
         } else {
-            const newJsonFields = findMatchingJsonFields(json, mainTabStore.getJsonFieldNames(mainTabStore.getSelectedTabName()), jsonLogStore.getJSONFieldNames());
+            const newJsonFields = formatJSONRequestLabels(json, mainTabStore.getJsonFieldNames(mainTabStore.getSelectedTabName()), jsonLogStore.getJSONFieldNames());
 
             const oldJsonFields = this.getJsonFields();
             let updateRequired = true;

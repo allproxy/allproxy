@@ -7,6 +7,7 @@ import { urlPathStore } from "./UrlPathStore";
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
 const jsonLogScriptFileName = 'jsonLogScript';
+const BRIEF_JSON_FIELDS_FILE = 'briefJsonFields.json';
 
 export type JsonField = { name: string; value: string | number | boolean }
 
@@ -14,10 +15,25 @@ export class JSONLogField {
 	private dir = "";
 	private name = "";
 	private valid = true;
+	private brief = false;
 
 	public constructor(dir: string) {
 		this.dir = dir;
 		makeAutoObservable(this);
+	}
+
+	public shouldShowWnenBriefChecked() {
+		return this.brief;
+	}
+	@action public toggleBriefChecked() {
+		this.brief = !this.brief;
+		const briefMap = jsonLogStore.getBriefMap();
+		if (this.brief) {
+			briefMap[this.name] = true;
+		} else {
+			delete briefMap[this.name];
+		}
+		apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, JSON.stringify(briefMap));
 	}
 
 	public getName() {
@@ -110,6 +126,9 @@ export default class JSONLogStore {
 	private autoMaxFieldLevel: 1 | 2 = 1;
 	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '' };
 
+	private briefChecked = false;
+	private briefMap: { [key: string]: boolean } = {};
+
 	private script = defaultScript;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
@@ -160,6 +179,19 @@ export default class JSONLogStore {
 		} else {
 			this.hiddenFields.splice(i, 1);
 		}
+	}
+
+	public isBriefChecked() {
+		return this.briefChecked;
+	}
+	@action public toggleBriefChecked() {
+		this.briefChecked = !this.briefChecked;
+	}
+	public getBriefMap() {
+		return this.briefMap;
+	}
+	public isBriefField(name: string) {
+		return this.briefMap[name] === true;
 	}
 
 	@action public resetScriptToDefault() {
@@ -325,11 +357,21 @@ export default class JSONLogStore {
 	}
 
 	public async init() {
+		if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE)) {
+			const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE);
+			if (briefJsonFields.length > 0) {
+				this.briefMap = JSON.parse(briefJsonFields);
+			}
+		}
+
 		const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
 		this.fields = [];
 		for (const fileName of fileNames) {
 			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
 			jsonField.setName(fileName);
+			if (this.briefMap[fileName]) {
+				jsonField.toggleBriefChecked();
+			}
 			this.fields.push(jsonField);
 			this.fields.sort((a, b) => a.getName().localeCompare(b.getName()));
 		}
