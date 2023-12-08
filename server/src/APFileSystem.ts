@@ -65,7 +65,7 @@ export default class APFileSystem {
                 ConsoleLog.debug('ApFileSystem.writeFile', file);
                 fs.writeFileSync(file, data, { flag: 'a' });
             } catch (e) {
-                console.log(e);
+                console.log('afFileSystem.writeFile', e);
             }
             ack();
         })
@@ -78,7 +78,7 @@ export default class APFileSystem {
                 ConsoleLog.debug('ApFileSystem.deleteFile', file);
                 fs.rmSync(file);
             } catch (e) {
-                console.log(e);
+                console.log('afFileSystem.deleteFile', e);
             }
             ack();
         })
@@ -92,7 +92,7 @@ export default class APFileSystem {
                 ConsoleLog.debug('ApFileSystem.renameFile', oldFile, newFile);
                 fs.renameSync(oldFile, newFile);
             } catch (e) {
-                console.log(e);
+                console.log('afFileSystem.renameFile', e);
             }
             ack();
         })
@@ -118,7 +118,7 @@ export default class APFileSystem {
                 ConsoleLog.debug('ApFileSystem.readDir', platformPath, files);
                 callback(files);
             } catch (e) {
-                console.log(e);
+                console.log('afFileSystem.readDir', e);
             }
         })
 
@@ -140,7 +140,7 @@ export default class APFileSystem {
                 ConsoleLog.debug('ApFileSystem.grepDir', subDir, match, files);
                 callback(files);
             } catch (e) {
-                console.log(e);
+                console.log('afFileSystem.grepDir', e);
             }
         })
 
@@ -159,7 +159,7 @@ export default class APFileSystem {
                 callback(data.subarray(0, read).toString(), eof);
                 ConsoleLog.debug('ApFileSystem.readFile', file, offset, chunkSize, eof, data.toString());
             } catch (e) {
-                console.log(e);
+                console.log('afFileSystem.readFile', e);
             }
         })
     }
