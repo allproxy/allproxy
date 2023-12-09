@@ -376,7 +376,7 @@ const MainTabContent = observer(({
 			for (let i = 0; i < renderSet.length; ++i) {
 				let element = (children[i] as Element);
 				if (!element) break;
-				console.log('pagedown', parent.scrollTop, offset);
+				//console.log('pagedown', parent.scrollTop, offset);
 				if (offset >= parent.scrollTop || offset + parent.clientHeight >= bottom) {
 					const seqNum = messageQueueStore.getMessages()[renderSet[i].getIndex()].getMessage().sequenceNumber;
 					messageQueueStore.setScrollToSeqNum(seqNum);

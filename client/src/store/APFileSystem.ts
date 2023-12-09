@@ -21,14 +21,28 @@ export default class APFileSystem {
 
     // writeFile
     public async writeFile(path: string, data: string): Promise<void> {
-        if (await this.exists(path)) {
-            await this.deleteFile(path);
-        }
         return new Promise<void>(async (resolve1) => {
             for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
                 await new Promise((resolve2) => {
                     const chunk = data.substring(offset, Math.min(offset + CHUNKSIZE, data.length));
                     this.socket?.emit('writeFile',
+                        path,
+                        chunk,
+                        () => resolve2(0)
+                    );
+                });
+            }
+            resolve1();
+        });
+    }
+
+    // appendFile
+    public async appendFile(path: string, data: string): Promise<void> {
+        return new Promise<void>(async (resolve1) => {
+            for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
+                await new Promise((resolve2) => {
+                    const chunk = data.substring(offset, Math.min(offset + CHUNKSIZE, data.length));
+                    this.socket?.emit('appendFile',
                         path,
                         chunk,
                         () => resolve2(0)

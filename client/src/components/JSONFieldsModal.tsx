@@ -229,8 +229,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																			<div style={{ display: 'flex' }}>
 																				<Checkbox
 																					size="small"
-																					defaultChecked={false}
-																					value={jsonField.shouldShowWnenBriefChecked()}
+																					checked={jsonField.shouldShowWnenBriefChecked()}
 																					onChange={() => jsonField.toggleBriefChecked()} />
 																				<div style={{ lineHeight: '38px' }}>Show when brief is checked</div>
 																			</div>

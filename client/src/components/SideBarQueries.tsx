@@ -25,27 +25,27 @@ const SideBarQueries = observer((): JSX.Element => {
 	return (
 		<div>
 			<hr className="side-bar-divider" hidden={!urlPathStore.isLocalhost() && queries.length === 0}></hr>
-			<div className="side-bar-item" hidden={!isJsonLogTab() || jsonLogStore.getParsingMethod() === 'auto'}>
-				<div className="side-bar-checkbox-icon">
-					<div style={{ display: 'flex' }}>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							defaultChecked={false}
-							value={jsonLogStore.isBriefChecked()}
-							onChange={() => jsonLogStore.toggleBriefChecked()} />
-						<div>Brief</div>
+			<div className="side-bar-item" hidden={!filterStore.canDedup() && (!isJsonLogTab() || jsonLogStore.getParsingMethod() === 'auto')}>
+				<div>
+					<div className="side-bar-checkbox-icon" hidden={!isJsonLogTab() || jsonLogStore.getParsingMethod() === 'auto'}>
+						<div style={{ display: 'flex' }}>
+							<Checkbox className="side-bar-checkbox"
+								size="small"
+								defaultChecked={false}
+								value={jsonLogStore.isBriefChecked()}
+								onChange={() => jsonLogStore.toggleBriefChecked()} />
+							<div>Brief</div>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div className="side-bar-item" hidden={!filterStore.canDedup()}>
-				<div className="side-bar-checkbox-icon">
-					<div style={{ display: 'flex' }}>
-						<Checkbox className="side-bar-checkbox"
-							size="small"
-							defaultChecked={false}
-							value={filterStore.isDedupChecked()}
-							onChange={() => filterStore.toggleDedupChecked()} />
-						<div>Dedup</div>
+					<div className="side-bar-checkbox-icon" hidden={!filterStore.canDedup()}>
+						<div style={{ display: 'flex' }}>
+							<Checkbox className="side-bar-checkbox"
+								size="small"
+								defaultChecked={false}
+								value={filterStore.isDedupChecked()}
+								onChange={() => filterStore.toggleDedupChecked()} />
+							<div>Dedup</div>
+						</div>
 					</div>
 				</div>
 			</div>

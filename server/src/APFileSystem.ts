@@ -58,12 +58,25 @@ export default class APFileSystem {
         })
 
         // writeFile
+        this.socket.on('appendFile', (path: string, data: string, ack: () => void) => {
+            this.log('appendFile', path);
+            try {
+                const file = this.toPlatformPath(path);
+                ConsoleLog.debug('ApFileSystem.appendFile', file);
+                fs.writeFileSync(file, data, { flag: 'a' });
+            } catch (e) {
+                console.log('afFileSystem.appendFile', e);
+            }
+            ack();
+        })
+
+        // writeFile
         this.socket.on('writeFile', (path: string, data: string, ack: () => void) => {
             this.log('writeFile', path);
             try {
                 const file = this.toPlatformPath(path);
                 ConsoleLog.debug('ApFileSystem.writeFile', file);
-                fs.writeFileSync(file, data, { flag: 'a' });
+                fs.writeFileSync(file, data, { flag: 'w' });
             } catch (e) {
                 console.log('afFileSystem.writeFile', e);
             }

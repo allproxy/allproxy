@@ -15,7 +15,6 @@ export class JSONLogField {
 	private dir = "";
 	private name = "";
 	private valid = true;
-	private brief = false;
 
 	public constructor(dir: string) {
 		this.dir = dir;
@@ -23,15 +22,15 @@ export class JSONLogField {
 	}
 
 	public shouldShowWnenBriefChecked() {
-		return this.brief;
+		const checked = jsonLogStore.getBriefMap()[this.name] === true;
+		return checked;
 	}
 	@action public toggleBriefChecked() {
-		this.brief = !this.brief;
 		const briefMap = jsonLogStore.getBriefMap();
-		if (this.brief) {
-			briefMap[this.name] = true;
-		} else {
+		if (briefMap[this.name] === true) {
 			delete briefMap[this.name];
+		} else {
+			briefMap[this.name] = true;
 		}
 		apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, JSON.stringify(briefMap));
 	}
@@ -369,9 +368,6 @@ export default class JSONLogStore {
 		for (const fileName of fileNames) {
 			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
 			jsonField.setName(fileName);
-			if (this.briefMap[fileName]) {
-				jsonField.toggleBriefChecked();
-			}
 			this.fields.push(jsonField);
 			this.fields.sort((a, b) => a.getName().localeCompare(b.getName()));
 		}
@@ -430,7 +426,7 @@ export default class JSONLogStore {
 
 	@action public deleteEntry(index: number) {
 		const jsonField = this.fields[index];
-		if (jsonField.getName() != "") {
+		if (jsonField.getName() !== "") {
 			apFileSystem.deleteFile(jsonField.getDir() + '/' + jsonField.getName());
 		}
 		this.fields.splice(index, 1);
