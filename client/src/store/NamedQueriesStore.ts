@@ -32,19 +32,21 @@ export default class NamedQueriesStore {
 
 	@action public async init() {
 		this.queryList.splice(0, this.queryList.length);
-		const queryListJson = await apFileSystem.readFile(this.filePath);
-		if (queryListJson) {
-			const json = JSON.parse(queryListJson);
-			const queries = json.map((entry: {
-				name: string,
-				searchFilter: string,
-			}) => {
-				const query = new FilterStore();
-				query.setName(entry.name);
-				query.setFilterNoDebounce(entry.searchFilter);
-				return query;
-			});
-			this.queryList.push(...queries);
+		if (await apFileSystem.exists(this.filePath)) {
+			const queryListJson = await apFileSystem.readFile(this.filePath);
+			if (queryListJson) {
+				const json = JSON.parse(queryListJson);
+				const queries = json.map((entry: {
+					name: string,
+					searchFilter: string,
+				}) => {
+					const query = new FilterStore();
+					query.setName(entry.name);
+					query.setFilterNoDebounce(entry.searchFilter);
+					return query;
+				});
+				this.queryList.push(...queries);
+			}
 		}
 	}
 
