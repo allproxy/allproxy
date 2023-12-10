@@ -34,7 +34,7 @@ const SideBarQueries = observer((): JSX.Element => {
 								defaultChecked={false}
 								value={jsonLogStore.isBriefChecked()}
 								onChange={() => jsonLogStore.toggleBriefChecked()} />
-							<div>Brief</div>
+							<div>Less Detail</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon" hidden={!filterStore.canDedup()}>
