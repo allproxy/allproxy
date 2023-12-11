@@ -31,6 +31,10 @@ To try a `readonly` demo:
 
 > Open `allproxy` in browser;
 >    * [localhost:8888/allproxy](http://localhost:8888/allproxy)
+---
+**NOTE**:
+It is recommended that `Use hardware acceleration when available` is disabled on Chrome.
+---
 
 ### Electron Application
 
