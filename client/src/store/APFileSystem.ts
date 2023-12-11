@@ -25,24 +25,8 @@ export default class APFileSystem {
             for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
                 await new Promise((resolve2) => {
                     const chunk = data.substring(offset, Math.min(offset + CHUNKSIZE, data.length));
-                    this.socket?.emit('writeFile',
-                        path,
-                        chunk,
-                        () => resolve2(0)
-                    );
-                });
-            }
-            resolve1();
-        });
-    }
-
-    // appendFile
-    public async appendFile(path: string, data: string): Promise<void> {
-        return new Promise<void>(async (resolve1) => {
-            for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
-                await new Promise((resolve2) => {
-                    const chunk = data.substring(offset, Math.min(offset + CHUNKSIZE, data.length));
-                    this.socket?.emit('appendFile',
+                    const operation = offset === 0 ? 'writeFile' : 'appendFile';
+                    this.socket?.emit(operation,
                         path,
                         chunk,
                         () => resolve2(0)
