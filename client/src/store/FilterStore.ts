@@ -508,7 +508,14 @@ export default class FilterStore {
             const keyValues = this.parseKeyValue(operand);
             for (const keyValue of keyValues) {
                 if (keyValue.value !== undefined) {
-                    if (jsonFieldLower === keyValue.key.toLowerCase()) return true;
+                    if (jsonFieldLower === keyValue.key.toLowerCase()) {
+                        const c = keyValue.value.substring(1, 1);
+                        if (keyValue.value === '*' || c === '>' || c === '=' || c === '<') {
+                            return true;
+                        } else {
+                            return jsonValueLower.indexOf(keyValue.value.toLowerCase()) !== -1;
+                        }
+                    }
                     if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
                 } else {
                     if (jsonFieldLower.endsWith(operand.toLowerCase())) return true;
