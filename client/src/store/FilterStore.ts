@@ -509,7 +509,8 @@ export default class FilterStore {
             for (const keyValue of keyValues) {
                 if (keyValue.value !== undefined) {
                     if (jsonFieldLower === keyValue.key.toLowerCase()) {
-                        const c = keyValue.value.substring(1, 1);
+                        //console.log(jsonField, jsonValue, keyValue);
+                        const c = keyValue.value.substring(0, 1);
                         if (keyValue.value === '*' || c === '>' || c === '=' || c === '<') {
                             return true;
                         } else {

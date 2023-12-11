@@ -84,7 +84,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		for (const field of messageStore.getJsonFields()) {
 			let highlight = false;
 			if (filterStore.isJSONFieldOperandMatch(
-				field.name, typeof field.value === 'string' ? field.value : '')) {
+				field.name, field.value + '')) {
 				highlight = true;
 			} else {
 				if (jsonLogStore.isBriefChecked() && !jsonLogStore.isBriefField(field.name)) continue;
