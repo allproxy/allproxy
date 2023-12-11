@@ -132,7 +132,7 @@ const SideBarQueries = observer((): JSX.Element => {
 					</MenuItem>
 				</Menu>
 			</div>
-			<Queries orCondition={false} name="New Query" icon="fa fa-search" store={namedQueriesStore} />
+			<Queries orCondition={false} name="Query" icon="fa fa-search" store={namedQueriesStore} />
 			<Queries orCondition={true} name="OR Condition" icon="fa fa-grip-lines-vertical" store={namedSubQueriesStore} />
 			<NamedQueriesModal
 				name={showNamedQueriesModal === namedQueriesStore ? 'Queries' : 'OR Conditions'}
