@@ -110,22 +110,20 @@ const SideBarQueries = observer((): JSX.Element => {
 					open={Boolean(anchorEl)}
 					onClose={() => { setAnchorEl(null); }}
 				>
-					<MenuItem>
+					<MenuItem onClick={() => {
+						setShowNamedQueriesModal(namedQueriesStore);
+						setAnchorEl(null);
+					}}>
 						<div className="link-opacity" style={{ cursor: 'pointer', marginLeft: '.5rem' }}
-							onClick={() => {
-								setShowNamedQueriesModal(namedQueriesStore);
-								setAnchorEl(null);
-							}}
 						>
 							Edit Queries
 						</div>
 					</MenuItem>
-					<MenuItem>
+					<MenuItem onClick={() => {
+						setShowNamedQueriesModal(namedSubQueriesStore);
+						setAnchorEl(null);
+					}}>
 						<div className="link-opacity" style={{ cursor: 'pointer', marginLeft: '.5rem' }}
-							onClick={() => {
-								setShowNamedQueriesModal(namedSubQueriesStore);
-								setAnchorEl(null);
-							}}
 						>
 							Edit OR Conditions
 						</div>
@@ -133,7 +131,7 @@ const SideBarQueries = observer((): JSX.Element => {
 				</Menu>
 			</div>
 			<Queries orCondition={false} name="Query" icon="fa fa-search" store={namedQueriesStore} />
-			<Queries orCondition={true} name="OR Condition" icon="fa fa-grip-lines-vertical" store={namedSubQueriesStore} />
+			<Queries orCondition={true} name="Add OR Condition" icon="fa fa-grip-lines-vertical" store={namedSubQueriesStore} />
 			<NamedQueriesModal
 				name={showNamedQueriesModal === namedQueriesStore ? 'Queries' : 'OR Conditions'}
 				open={showNamedQueriesModal !== undefined}
