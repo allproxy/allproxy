@@ -3,6 +3,7 @@ import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { compressJSON, mainTabStore } from "./MainTabStore";
 import { urlPathStore } from "./UrlPathStore";
+import { filterStore } from "./FilterStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -185,6 +186,7 @@ export default class JSONLogStore {
 	}
 	@action public toggleBriefChecked() {
 		this.briefChecked = !this.briefChecked;
+		filterStore.filterUpdated();
 	}
 	public getBriefMap() {
 		return this.briefMap;
