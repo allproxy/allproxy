@@ -282,10 +282,10 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							</ul>
 							A full text search is used by default.
 							<p></p>
-							<h3>Dedup Filters</h3>
-							A <b>dedup</b> filter is a special type of field filter used to remove consecutive records having duplicate values (state).  When the <b>Dedup</b> checkbox is checked, duplicate records are removed, and only the state transitions or value change are shown.
+							<h3>Deduplication Filters</h3>
+							A <b>deduplication</b> filter is a special type of field filter used to remove consecutive records having duplicate values (state).  When the <b>Deduplication</b> checkbox is checked, duplicate records are removed, and only the state transitions or value change are shown.
 							<p></p>
-							A <b>dedup</b> filter is of the form <b>field:*</b>.  The removal of duplicate records can be toggled on and off using the <b>Dedup</b> checkbox.  Here is an example <b>dedub</b> filter.
+							A <b>deduplication</b> filter is of the form <b>field:*</b>.  The removal of duplicate records can be toggled on and off using the <b>Dedup</b> checkbox.  Here is an example <b>deduplication</b> filter.
 							<ul>
 								<li><code>(id:12345 AND state:*)</code></li>
 							</ul>

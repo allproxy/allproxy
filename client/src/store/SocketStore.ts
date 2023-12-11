@@ -16,7 +16,7 @@ import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
 import { urlPathStore } from "./UrlPathStore";
-import { namedQueriesStore } from "./NamedQueriesStore";
+import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -63,6 +63,7 @@ export default class SocketStore {
 			proxyConfigStore.load(); // send to server
 			breakpointStore.init();
 			namedQueriesStore.init();
+			namedSubQueriesStore.init();
 		});
 
 		this.socket.on('port config', (portConfig: PortConfig) => {

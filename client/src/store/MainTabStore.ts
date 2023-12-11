@@ -5,7 +5,7 @@ import LayoutStore from "./LayoutStore";
 import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
 import fetchToCurl from 'fetch-to-curl';
-import { namedQueriesStore } from "./NamedQueriesStore";
+import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { isJsonLogTab } from "../components/SideBar";
 
 export const PROXY_TAB_NAME = 'Proxy';
@@ -228,7 +228,10 @@ export default class MainTabStore {
 		for (const messageStore of mainTabStore.getSelectedMessages()) {
 			messageStore.setFiltered(undefined);
 		}
-		setTimeout(() => namedQueriesStore.setLogType(isJsonLogTab() ? 'json' : 'proxy'));
+		setTimeout(() => {
+			namedQueriesStore.setLogType(isJsonLogTab() ? 'json' : 'proxy');
+			namedSubQueriesStore.setLogType(isJsonLogTab() ? 'json' : 'proxy');
+		});
 	}
 
 	public getSelectedTabIndex(): number {

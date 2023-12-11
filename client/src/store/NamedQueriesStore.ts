@@ -3,16 +3,26 @@ import FilterStore from "./FilterStore";
 import { apFileSystem } from "./APFileSystem";
 import { urlPathStore } from "./UrlPathStore";
 
-const proxyQueriesFile = 'proxyQueries.json';
-const jsonQueriesFile = 'jsonQueries.json';
-
 export default class NamedQueriesStore {
+	private isSubQuery: boolean;
 	private logType: 'proxy' | 'json' = urlPathStore.isLogViewer() ? 'json' : 'proxy';
 	private queryList: FilterStore[] = [];
-	private filePath: string = urlPathStore.isLogViewer() ? jsonQueriesFile : proxyQueriesFile;
 
-	public constructor() {
+	public constructor(isSubQuery: boolean) {
+		this.isSubQuery = isSubQuery;
 		makeAutoObservable(this);
+	}
+
+	public isSubQueries() {
+		return this.isSubQueries;
+	}
+
+	private getFileName() {
+		if (this.isSubQuery) {
+			return this.logType === 'json' ? 'jsonSubQueries.json' : 'proxySubQueries.json';
+		} else {
+			return this.logType === 'json' ? 'jsonQueries.json' : 'proxyQueries.json';
+		}
 	}
 
 	public getLogType(): 'proxy' | 'json' {
@@ -21,7 +31,6 @@ export default class NamedQueriesStore {
 	@action public setLogType(logType: 'proxy' | 'json') {
 		if (this.logType !== logType) {
 			this.logType = logType;
-			this.filePath = logType === 'proxy' ? proxyQueriesFile : jsonQueriesFile;
 			this.init();
 		}
 	}
@@ -32,8 +41,8 @@ export default class NamedQueriesStore {
 
 	@action public async init() {
 		this.queryList.splice(0, this.queryList.length);
-		if (await apFileSystem.exists(this.filePath)) {
-			const queryListJson = await apFileSystem.readFile(this.filePath);
+		if (await apFileSystem.exists(this.getFileName())) {
+			const queryListJson = await apFileSystem.readFile(this.getFileName());
 			if (queryListJson) {
 				const json = JSON.parse(queryListJson);
 				const queries = json.map((entry: {
@@ -53,7 +62,7 @@ export default class NamedQueriesStore {
 	@action private save() {
 		const queries = this.queryList.filter(query => query.getName().length > 0 && query.getFilter().length > 0);
 		queries.sort((a, b) => a.getName().localeCompare(b.getName()));
-		apFileSystem.writeFile(this.filePath, JSON.stringify(queries));
+		apFileSystem.writeFile(this.getFileName(), JSON.stringify(queries));
 	}
 
 	public getAllQueries() {
@@ -75,4 +84,5 @@ export default class NamedQueriesStore {
 	}
 }
 
-export const namedQueriesStore = new NamedQueriesStore();
+export const namedQueriesStore = new NamedQueriesStore(false);
+export const namedSubQueriesStore = new NamedQueriesStore(true);
