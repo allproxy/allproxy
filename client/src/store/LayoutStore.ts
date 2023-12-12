@@ -53,6 +53,6 @@ export default class LayoutStore {
 	};
 
 	private maxWidth = () => {
-		return `100vw - 11rem`;
+		return `100vw - 13rem`; // must match App.css side-bar {width: 13rem;}
 	}
 }
