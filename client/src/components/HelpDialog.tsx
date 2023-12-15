@@ -15,6 +15,8 @@ import { mainTabStore } from '../store/MainTabStore';
 import { urlPathStore } from '../store/UrlPathStore';
 import JSONSimpleFields from './JSONSimpleFields';
 import JSONFieldsMethods from './JSONParsingMethod';
+import BreakpointModal from './BreakpointModal';
+import { breakpointStore } from '../store/BreakpointStore';
 
 type Props = {
 	open: boolean,
@@ -24,11 +26,13 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(urlPathStore.isLogViewer() ? '4' : '1');
+	const [tabValue, setTabValue] = React.useState(urlPathStore.isLogViewer() ? '3' : '1');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
+
+	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
 
 	const handleClose = () => {
 		onClose();
@@ -102,8 +106,9 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					>
 						{!urlPathStore.isLogViewer() && <Tab value="1" label="Quick Start" />}
 						{!urlPathStore.isLogViewer() && <Tab value="2" label="Certificates" />}
-						{!urlPathStore.isLogViewer() && <Tab value="3" label="Filtering" />}
-						<Tab value="4" label="Log Viewer" />
+						<Tab value="3" label="Log Viewer" />
+						<Tab value="4" label="Filtering" />
+						{!urlPathStore.isLogViewer() && <Tab value="5" label="Breakpoints" />}
 					</Tabs>
 					<TabPanel value="1" key="1">
 						<h4>Quick Start</h4>
@@ -196,6 +201,69 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						</ol>
 					</TabPanel>
 					<TabPanel value="3" key="3">
+						<h3>Define Date, Level, App Name and Message</h3>
+						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
+						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
+							<JSONFieldsMethods />
+							{jsonLogStore.getParsingMethod() === 'auto' ?
+								<div>Automatically select Date, Level, Message, and annotate other JSON fields.</div>
+								: jsonLogStore.getParsingMethod() === 'simple' ?
+									<JSONSimpleFields />
+									:
+									<>
+										Write your own JavaScript to extract the date, level, app name and message fields.
+										<p></p>
+										<button className="btn btn-lg btn-success"
+											style={{ marginBottom: "1rem" }}
+											onClick={async () => {
+												await jsonLogStore.init();
+												setJsonFields(getJSONFields());
+												setJsonFieldsModalTab('scripts');
+												setShowJSONFieldsModal(true);
+											}}>
+											<div className='fa fa-calendar'
+												style={{
+													marginRight: '.5rem'
+												}}
+											/>
+											Edit JavaScript
+										</button>
+									</>
+							}
+						</div>
+						<h3>Annotate Fields and Import Log File</h3>
+						<p></p>
+						<div style={{ marginLeft: '1rem' }}>
+							<button className="btn btn-lg btn-primary"
+								style={{ marginRight: "1rem" }}
+								onClick={async () => {
+									await jsonLogStore.init();
+									setJsonFields(getJSONFields());
+									setJsonFieldsModalTab('jsonFields');
+									setShowJSONFieldsModal(true);
+								}}>
+								<div className='fa fa-code'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Annotate JSON Fields
+							</button>
+							<button className="btn btn-lg btn-success"
+								onClick={() => {
+									setOpenImportJSONFileDialog(true);
+									handleClose();
+								}}>
+								<div className='fa fa-upload'
+									style={{
+										marginRight: '.5rem'
+									}}
+								/>
+								Import JSON Log
+							</button>
+						</div>
+					</TabPanel>
+					<TabPanel value="4" key="4">
 						<h4>Filtering</h4>
 						<div style={{ paddingLeft: "1rem" }}>
 							A search filter criteria can be specified to keep matching lines and remove unmatched lines.  A search term is an operand in a boolean expression.   Boolean operators may be used to more precisely identify matching lines.
@@ -291,68 +359,25 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							</ul>
 						</div>
 					</TabPanel>
-					<TabPanel value="4" key="4">
-						<h3>Define Date, Level, App Name and Message</h3>
-						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
-						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
-							<JSONFieldsMethods />
-							{jsonLogStore.getParsingMethod() === 'auto' ?
-								<div>Automatically select Date, Level, Message, and annotate other JSON fields.</div>
-								: jsonLogStore.getParsingMethod() === 'simple' ?
-									<JSONSimpleFields />
-									:
-									<>
-										Write your own JavaScript to extract the date, level, app name and message fields.
-										<p></p>
-										<button className="btn btn-lg btn-success"
-											style={{ marginBottom: "1rem" }}
-											onClick={async () => {
-												await jsonLogStore.init();
-												setJsonFields(getJSONFields());
-												setJsonFieldsModalTab('scripts');
-												setShowJSONFieldsModal(true);
-											}}>
-											<div className='fa fa-calendar'
-												style={{
-													marginRight: '.5rem'
-												}}
-											/>
-											Edit JavaScript
-										</button>
-									</>
-							}
-						</div>
-						<h3>Annotate Fields and Import Log File</h3>
+					<TabPanel value="5" key="5">
+						<h4>Breakpoints</h4>
 						<p></p>
-						<div style={{ marginLeft: '1rem' }}>
-							<button className="btn btn-lg btn-primary"
-								style={{ marginRight: "1rem" }}
-								onClick={async () => {
-									await jsonLogStore.init();
-									setJsonFields(getJSONFields());
-									setJsonFieldsModalTab('jsonFields');
-									setShowJSONFieldsModal(true);
-								}}>
-								<div className='fa fa-code'
-									style={{
-										marginRight: '.5rem'
-									}}
-								/>
-								Annotate JSON Fields
-							</button>
-							<button className="btn btn-lg btn-success"
+						Set breakpoints to stop the HTTP request and optionally modify it before sending it to the web server.
+						<p></p>
+						<span style={{ marginRight: '1rem' }}>
+							<button className="btn btn-lg btn-secondary"
+								style={{ marginBottom: "1rem", background: 'red' }}
 								onClick={() => {
-									setOpenImportJSONFileDialog(true);
+									setShowBreakpointModal(true);
 									handleClose();
 								}}>
-								<div className='fa fa-upload'
+								<div className="fa fa-bug"
 									style={{
 										marginRight: '.5rem'
-									}}
-								/>
-								Import JSON Log
+									}} />
+								Create Breakpoint
 							</button>
-						</div>
+						</span>
 					</TabPanel>
 				</TabContext>
 			</div>
@@ -382,6 +407,16 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 					store={jsonLogStore}
 					jsonFields={jsonFields}
 					selectTab={jsonFieldsModalTab}
+				/>
+			}
+			{
+				showBreakpointModal &&
+				<BreakpointModal
+					open={showBreakpointModal}
+					onClose={() => {
+						setShowBreakpointModal(false);
+					}}
+					store={breakpointStore}
 				/>
 			}
 		</>

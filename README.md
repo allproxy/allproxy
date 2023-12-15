@@ -31,10 +31,9 @@ To try a `readonly` demo:
 
 > Open `allproxy` in browser;
 >    * [localhost:8888/allproxy](http://localhost:8888/allproxy)
----
+
 **NOTE**:
 It is recommended that `Use hardware acceleration when available` is disabled on Chrome.
----
 
 ### Electron Application
 
@@ -44,8 +43,28 @@ See the [Releases](https://github.com/allproxy/allproxy/releases) to download an
 
 JSON structured logs can be viewed in a human readable format.  See [jlogviewer](https://github.com/allproxy/jlogviewer) for more details.
 
-### Reverse Proxy Support
+### HTTPS Proxy
+AllProxy is a man-in-the-middle server that captures the traffic between your application and web server.   You can inspect the complete HTTP request and response.
+![Alt text](image-3.png)
+
+### Advanced Filtering
+Use advanced filter criteria to find what you're looking for.   Use complex boolean expressions to match the protocol, payload, URL, headers, and just about any part of the request or response message.
+![Alt text](image-4.png)
+
+### Breakpoints
+Set breakpoints to stop the HTTP request and optionally modify it before sending it to the web server.
+![Alt text](image-5.png)
+
+### Modify and Resend Requests
+Modify and resend any captured HTTP requests.
+![Alt text](image-6.png)
+
+### Reverse Proxy
 Resource proxy protocols include: MongoDb, Redis, MySQL, qGRPC, HTTP, HTTPS and TCP.
+![Alt text](image-7.png)
+
+### Integrated Online Help
+AllProxy has a Help modal to help you configure and use the application.
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
