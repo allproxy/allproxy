@@ -732,6 +732,10 @@ td input {
 	margin: .5rem 0;
 }
 
+.request__json-annotations.nowrap {
+	white-space: nowrap;
+}
+
 .request__container.unselected {
 	width: 100%;
 	resize: none;

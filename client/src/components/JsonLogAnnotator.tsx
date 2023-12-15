@@ -6,15 +6,17 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
 import { filterStore } from '../store/FilterStore';
 import { jsonLogStore } from '../store/JSONLogStore';
+import { mainTabStore } from '../store/MainTabStore';
 
 type Props = {
 	message: MessageStore,
 };
 const JsonLogAnnotator = observer(({ message }: Props) => {
 	const highlightColor = 'red';
-	const hightlightWidth = 'medium';
+	const highlightWidth = 'medium';
+	const layout = mainTabStore.getLayout(mainTabStore.getSelectedTabName());
 	return (
-		<div className="request__json-annotations">
+		<div className={'request__json-annotations' + (layout?.isNowrap() ? ' nowrap' : '')}>
 			{makeJSONRequestLabels(message).map((element) => {
 				return element;
 			})}
@@ -92,7 +94,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			const style = pickLabelStyle(field.name);
 			const bg = highlight ? 'yellow' : style.background;
 			const color = highlight ? 'black' : style.color;
-			const keyBorder = highlight ? `${highlightColor} ${hightlightWidth} solid` : `${bg} thin solid`;
+			const keyBorder = highlight ? `${highlightColor} ${highlightWidth} solid` : `${bg} thin solid`;
 			const valueBorder = undefined;
 			const filter = highlight ? '' : style.filter;
 			elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, bg, color, filter, field.value));

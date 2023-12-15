@@ -4,9 +4,17 @@ import { mainTabStore } from "./MainTabStore";
 
 export default class LayoutStore {
 	private verticalLayout = true;
+	private nowrap = false;
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public isNowrap() {
+		return this.nowrap;
+	}
+	@action toggleNowrap() {
+		this.nowrap = !this.nowrap;
 	}
 
 	public isVertical() {

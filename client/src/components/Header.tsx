@@ -240,6 +240,18 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 								'Set Horizontal Layout' : 'Set Vertical Layout'}
 						</div>
 					</MenuItem>
+					<MenuItem
+						onClick={() => {
+							mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleNowrap();
+							setMoreMenuIcon(null);
+						}}
+					>
+						<div className="header__import fa fa-image" title="Layout"
+						>
+							&nbsp;{mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isNowrap() ?
+								'Wrap lines' : 'Do not wrap lines'}
+						</div>
+					</MenuItem>
 				</Menu>
 
 				<div className="header__filter">
