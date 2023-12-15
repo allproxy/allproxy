@@ -53,15 +53,15 @@ Use advanced filter criteria to find what you're looking for.   Use complex bool
 
 ### Breakpoints
 Set breakpoints to stop the HTTP request and optionally modify it before sending it to the web server.
-![Alt text](image-5.png)
+![Alt text](image-8.png)
 
 ### Modify and Resend Requests
 Modify and resend any captured HTTP requests.
-![Alt text](image-6.png)
+![Alt text](image-5.png)
 
 ### Reverse Proxy
 Resource proxy protocols include: MongoDb, Redis, MySQL, qGRPC, HTTP, HTTPS and TCP.
-![Alt text](image-7.png)
+![Alt text](image-6.png)
 
 ### Integrated Online Help
 AllProxy has a Help modal to help you configure and use the application.
