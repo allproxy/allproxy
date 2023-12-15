@@ -104,7 +104,7 @@ export default class HttpOrHttpsServer {
 
     // Proxy is blocked when a public hostname is specified
     if (Global.proxyIsBlocked) {
-      console.log('Discarding HTTP request from ' + clientReq.socket?.remoteAddress + ' ' + clientReq.url);
+      //console.log('Discarding HTTP request from ' + clientReq.socket?.remoteAddress + ' ' + clientReq.url);
       return;
     }
 

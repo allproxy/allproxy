@@ -1,20 +1,40 @@
 import { makeAutoObservable } from "mobx";
 
 export default class UrlPathStore {
-	private logViewer = false;
+	private app: 'allproxy' | 'mitmproxy' | 'jlogviewer' = 'allproxy';
 
 
 	public constructor() {
-		this.logViewer = document.location.pathname === '/jlogviewer';
+		switch (document.location.pathname) {
+			case '/jlogviewer':
+				this.app = 'jlogviewer';
+				break;
+			case '/mitmproxy':
+				this.app = 'mitmproxy';
+				break;
+			default:
+				this.app = 'allproxy';
+				break;
+		}
 		makeAutoObservable(this);
 	}
 
-	public isLogViewer() {
-		return this.logViewer;
+	public getApp() {
+		return this.app;
 	}
 
-	public toggleApp() {
-		document.location.pathname = document.location.pathname === '/jlogviewer' ? '/allproxy' : '/jlogviewer';
+	public setApp(app: 'allproxy' | 'mitmproxy' | 'jlogviewer') {
+		switch (app) {
+			case 'jlogviewer':
+				document.location.pathname = '/jlogviewer';
+				break;
+			case 'mitmproxy':
+				document.location.pathname = '/mitmproxy';
+				break;
+			default:
+				document.location.pathname = '/allproxy';
+				break;
+		}
 	}
 
 	public isLocalhost() {

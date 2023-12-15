@@ -75,20 +75,32 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				</div>
 				<div className="header__title">
 					<Select className="side-bar-select"
-						value={urlPathStore.isLogViewer() ? 'jlogviewer' : 'allproxy'}
+						value={urlPathStore.getApp() === 'jlogviewer'
+							? 'jlogviewer'
+							: urlPathStore.getApp() === 'mitmproxy'
+								? 'mitmproxy'
+								: 'allproxy'}
 						renderValue={() =>
 							<span style={{ fontWeight: 100, fontSize: 'x-large' }}>
-								{urlPathStore.isLogViewer() ?
-									<b><span style={{ color: '#f50057' }}>J</span>LogViewer</b> :
-									<b><span style={{ color: '#f50057' }}>All</span>Proxy</b>}
+								{urlPathStore.getApp() === 'jlogviewer'
+									? <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
+									: urlPathStore.getApp() === 'mitmproxy'
+										? <b><span style={{ color: '#f50057' }}>MITM</span>Proxy</b>
+										: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
+								}
 							</span>
 						}
-						onChange={urlPathStore.toggleApp}
+						onChange={(e) => urlPathStore.setApp(e.target.value as 'allproxy' | 'mitmproxy' | 'jlogviewer')}
 					>
 						<MenuItem
 							value="allproxy"
 						>
 							<ListItemText primary="AllProxy" />
+						</MenuItem>
+						<MenuItem
+							value="mitmproxy"
+						>
+							<ListItemText primary="MitmProxy" />
 						</MenuItem>
 						<MenuItem
 							value="jlogviewer"
@@ -176,7 +188,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							&nbsp;Delete Tabs
 						</div>
 					</MenuItem>
-					{!urlPathStore.isLogViewer() &&
+					{urlPathStore.getApp() !== 'jlogviewer' &&
 						<>
 							<MenuItem style={{
 								opacity: !mainTabStore.isProxyTabSelected() || messageQueueStore.getStopped()
@@ -206,10 +218,12 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							</MenuItem>
 						</>
 					}
-					<MenuItem onClick={() => {
-						setOpenImportJSONFileDialog(true);
-						setMoreMenuIcon(null);
-					}}>
+					<MenuItem
+						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						onClick={() => {
+							setOpenImportJSONFileDialog(true);
+							setMoreMenuIcon(null);
+						}}>
 						<div className="header__import fa fa-file" title="Import JSON log from file"
 						>
 							&nbsp;Import JSON Log
@@ -291,7 +305,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					open={Boolean(settingsMenuIcon)}
 					onClose={() => setSettingsMenuIcon(null)}
 				>
-					{!urlPathStore.isLogViewer() &&
+					{urlPathStore.getApp() !== 'jlogviewer' &&
 						<>
 							<MenuItem onClick={() => {
 								setSettingsMenuIcon(null);
@@ -340,12 +354,14 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						</MenuItem>
 					}
 
-					<MenuItem onClick={async () => {
-						setSettingsMenuIcon(null);
-						await jsonLogStore.init();
-						setJsonFields(getJSONFields());
-						setShowJSONFieldsModal(true);
-					}}>
+					<MenuItem
+						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						onClick={async () => {
+							setSettingsMenuIcon(null);
+							await jsonLogStore.init();
+							setJsonFields(getJSONFields());
+							setShowJSONFieldsModal(true);
+						}}>
 						<div className="header__import fa fa-file" title="Theme"
 						>
 							&nbsp;JSON Log Viewer Settings
@@ -423,7 +439,8 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 			<DarkModeDialog open={showDarkModeDialog} onClose={() => {
 				setShowDarkModeDialog(false);
 			}} />
-			{showJSONFieldsModal &&
+			{
+				showJSONFieldsModal &&
 				<JSONFieldsModal
 					open={showJSONFieldsModal}
 					onClose={() => {

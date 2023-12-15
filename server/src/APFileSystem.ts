@@ -26,7 +26,7 @@ export default class APFileSystem {
         if (process.env.FILE_SYSTEM_LOG === '1') {
             const time = dateToHHMMSS(new Date());
             const u = this.socket.handshake.url;
-            const urlPath = u.includes('allproxy') || u.includes('jlogviewer') ? u : '';
+            const urlPath = u.includes('allproxy') || u.includes('mitmproxy') || u.includes('jlogviewer') ? u : '';
             console.log(time, this.socket.handshake.address, urlPath, method, ...args);
         }
     }

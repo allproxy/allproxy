@@ -52,7 +52,7 @@ const NamedQueriesModal = observer(({ name, open, onClose, store }: Props) => {
 						<h3>{name}</h3>
 						<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 							<div className="no-capture-modal__scroll-container">
-								{!urlPathStore.isLogViewer() &&
+								{urlPathStore.getApp() === 'allproxy' &&
 									<RadioGroup
 										row
 										aria-labelledby="json-log-mode-radio"

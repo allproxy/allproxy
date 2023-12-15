@@ -26,7 +26,7 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(urlPathStore.isLogViewer() ? '3' : '1');
+	const [tabValue, setTabValue] = React.useState(urlPathStore.getApp() === 'jlogviewer' ? '3' : '1');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
@@ -104,15 +104,16 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						indicatorColor="primary"
 						aria-label="help-tabs"
 					>
-						{!urlPathStore.isLogViewer() && <Tab value="1" label="Quick Start" />}
-						{!urlPathStore.isLogViewer() && <Tab value="2" label="Certificates" />}
-						<Tab value="3" label="Log Viewer" />
+						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="1" label="Quick Start" />}
+						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="2" label="Certificates" />}
+						{urlPathStore.getApp() !== 'mitmproxy' && <Tab value="3" label="Log Viewer" />}
 						<Tab value="4" label="Filtering" />
-						{!urlPathStore.isLogViewer() && <Tab value="5" label="Breakpoints" />}
+						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="5" label="Breakpoints" />}
 					</Tabs>
 					<TabPanel value="1" key="1">
 						<h4>Quick Start</h4>
-						<h3>AllProxy started on <a href="http://localhost:8888/allproxy" target="_blank">localhost:8888</a></h3>
+						<h3>URL: <a href={`http://localhost:8888/${urlPathStore.getApp()}`}
+							target="_blank">{'localhost:8888/' + urlPathStore.getApp()}</a></h3>
 						<p></p>
 						<h3>Launch Browser/Terminal:</h3>
 						{

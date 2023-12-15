@@ -201,7 +201,7 @@ const SideBar = observer(() => {
 							open={Boolean(anchorEl)}
 							onClose={() => { setAnchorEl(null); }}
 						>
-							<MenuItem>
+							<MenuItem hidden={urlPathStore.getApp() === 'mitmproxy'}>
 								<div className="header__import fa fa-file" title="Import JSON file"
 									onClick={() => {
 										setAnchorEl(null);
@@ -211,7 +211,7 @@ const SideBar = observer(() => {
 									&nbsp;Import JSON Log from file
 								</div>
 							</MenuItem>
-							<MenuItem hidden={urlPathStore.isLogViewer()}>
+							<MenuItem hidden={urlPathStore.getApp() === 'jlogviewer'}>
 								<div className="header__import fa fa-upload" title="Import tab from file"
 									onClick={() => {
 										setAnchorEl(null);
@@ -383,7 +383,7 @@ const SideBar = observer(() => {
 					)}
 
 				</div >
-			</div>
+			</div >
 			<ExportDialog
 				open={openSaveSessionDialog}
 				heading={"Enter Session Name"}
