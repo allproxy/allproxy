@@ -65,6 +65,7 @@ Resource proxy protocols include: MongoDb, Redis, MySQL, qGRPC, HTTP, HTTPS and 
 
 ### Integrated Online Help
 AllProxy has a Help modal to help you configure and use the application.
+![Alt text](image-7.png)
 
 ![image](https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white)
 ![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
