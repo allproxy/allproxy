@@ -24,6 +24,7 @@ import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
 import { urlPathStore } from '../store/UrlPathStore';
+import { isJsonLogTab } from './SideBar';
 
 let filterWasStopped = false;
 
@@ -241,6 +242,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						</div>
 					</MenuItem>
 					<MenuItem
+						hidden={!isJsonLogTab()}
 						onClick={() => {
 							mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleNowrap();
 							setMoreMenuIcon(null);
