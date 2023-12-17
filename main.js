@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Valid paths are allproxy and logviewer
 let appName = 'allproxy';
@@ -17,9 +17,6 @@ process.env.ALLPROXY_DATA_DIR = dataDir;
 console.log(`Data directory: ${dataDir}`)
 
 let headless = process.env.HEADLESS
-if (headless) {
-  console.log(`Running headless: open http://localhost:8888/${appName} in browser`)
-}
 
 const mkDir = (dir) => {
   if (!fs.existsSync(dir)) {
@@ -44,7 +41,17 @@ const startServer = () => {
 
 startServer();
 
-if (!headless) {
+if (headless) {
+  openBrowser();
+  async function openBrowser() {
+    try {
+      const url = `http://localhost:8888/${appName}`;
+      console.log(`Open ${url} in browser`);
+      const open = await import('open');
+      open.default(url);
+    } catch (e) { }
+  }
+} else {
   const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');
 
   const createWindow = () => {
