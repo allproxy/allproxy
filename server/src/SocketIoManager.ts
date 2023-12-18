@@ -172,10 +172,26 @@ export default class SocketIoManager {
         if (process.env.FILE_SYSTEM_LOG === '1') {
           console.log(urlPath);
           console.log(os);
-          console.log(ipInfo);
+
+          // {
+          //   ipAddress: '64.118.12.153',
+          //   continentCode: 'NA',
+          //   continentName: 'North America',
+          //   countryCode: 'US',
+          //   countryName: 'United States',
+          //   stateProvCode: 'MN',
+          //   stateProv: 'Minnesota',
+          //   city: 'Underwood'
+          // }
+          ipInfo.date = getDateNow();
+          ipInfo.os = os;
+          ipInfo.app = urlPath;
+          console.log(JSON.stringify(ipInfo));
+
           socket.handshake.url = urlPath;
           socket.handshake.address = ipInfo.ipAddress;
         }
+        fs.appendFileSync('', '');
       }
       setOsBinaries(os);
     })
@@ -497,4 +513,14 @@ export default class SocketIoManager {
       }
     })
   }
+}
+
+function getDateNow() {
+  // return json.sequenceNumber; // used for testing only
+  const date = new Date();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const msecs = (date.getMilliseconds() / 1000).toFixed(3).toString().replace('0.', '');
+  return `${date.toDateString()} ${hours}:${minutes}:${seconds}.${msecs}`;
 }
