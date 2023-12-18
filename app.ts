@@ -19,7 +19,7 @@ const listen: {
 
 let hostname = '';
 
-console.log('app.ts', process.argv);
+//console.log('app.ts', process.argv);
 
 for (let i = 2; i < process.argv.length; ++i) {
   switch (process.argv[i]) {
@@ -124,7 +124,7 @@ parseProtoFiles();
 startServers();
 
 async function startServers() {
-  console.log('startServers')
+  //console.log('startServers')
   await createCertificateAuthority();
 
   Paths.copyCaPemToRoot();

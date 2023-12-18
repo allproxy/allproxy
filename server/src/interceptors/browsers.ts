@@ -56,7 +56,7 @@ function getLauncher(configPath: string) {
         await delay(2000);
         try {
             await updateBrowserCache(browserConfig);
-            console.log('Browser cache updated');
+            //console.log('Browser cache updated');
             // Need to reload the launcher after updating the cache:
             launcher = getBrowserLauncher(browserConfig);
         } catch (e) {

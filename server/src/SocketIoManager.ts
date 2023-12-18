@@ -191,7 +191,6 @@ export default class SocketIoManager {
           socket.handshake.url = urlPath;
           socket.handshake.address = ipInfo.ipAddress;
         }
-        fs.appendFileSync('', '');
       }
       setOsBinaries(os);
     })

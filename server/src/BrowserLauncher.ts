@@ -29,7 +29,7 @@ export default class BrowserLauncher {
                             version: 'unknown',
                         });
                     }
-                    console.log(browsers);
+                    //console.log(browsers);
                     resolve(browsers);
                 });
         });
