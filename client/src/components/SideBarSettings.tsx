@@ -39,24 +39,26 @@ const SideBarSettings = observer((): JSX.Element => {
 			<div className="side-bar-item" hidden={!isJsonLogTab()}>
 				<div>
 					<div className="side-bar-checkbox-icon"
-						hidden={jsonLogStore.getParsingMethod() === 'auto' || jsonLogStore.isRawJsonChecked()}>
+						hidden={jsonLogStore.getParsingMethod() === 'auto'}>
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
+								disabled={jsonLogStore.isRawJsonChecked()}
 								size="small"
 								defaultChecked={false}
 								value={jsonLogStore.isBriefChecked()}
 								onChange={() => jsonLogStore.toggleBriefChecked()} />
-							<div>Less Detail</div>
+							<div style={{ opacity: jsonLogStore.isRawJsonChecked() ? .5 : undefined }}>Less Detail</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon">
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
+								disabled={jsonLogStore.isBriefChecked()}
 								size="small"
 								defaultChecked={false}
 								value={jsonLogStore.isRawJsonChecked()}
 								onChange={() => jsonLogStore.toggleRawJsonChecked()} />
-							<div>Show Raw JSON</div>
+							<div style={{ opacity: jsonLogStore.isBriefChecked() ? .5 : undefined }}>Show Raw JSON</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon">
@@ -66,7 +68,7 @@ const SideBarSettings = observer((): JSX.Element => {
 								defaultChecked={false}
 								value={mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isNowrap()}
 								onChange={() => mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleNowrap()} />
-							<div>No line wrap</div>
+							<div>No Line Wrap</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon" hidden={!filterStore.canDedup()}>

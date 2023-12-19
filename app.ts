@@ -100,10 +100,11 @@ function usage() {
  * Exception handler.
  */
 process.on('uncaughtException', (err) => {
-  console.trace('uncaughtException:', err.stack);
   BrowserLauncher.shutdown();
   if (err.stack?.indexOf('Error: This socket has been ended by the other party') !== -1) {
     socketIoManager.clientEndedSocket();
+  } else {
+    console.trace('uncaughtException:', err.stack);
   }
   // process.exit()
 });

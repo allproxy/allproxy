@@ -7,6 +7,7 @@ import MessageStore from './MessageStore';
 import fetchToCurl from 'fetch-to-curl';
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { isJsonLogTab } from "../components/SideBar";
+import { jsonLogStore } from "./JSONLogStore";
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -318,8 +319,16 @@ export default class MainTabStore {
 	public copyMessage(message: Message): string {
 		let json = { ...message.responseBody as { [key: string]: any } };
 		for (const key in json) {
-			if (key === 'PREFIX' || key.startsWith('_')) {
-				delete json[key];
+			if (key === 'PREFIX' ||
+				key.startsWith('_')) {
+				let deleteIt = true;
+				for (const field of jsonLogStore.getJSONFieldNames()) {
+					if (key.toLowerCase() === field.toLowerCase()) {
+						deleteIt = false;
+						break;
+					}
+				}
+				if (deleteIt) delete json[key];
 			}
 		}
 		// message.path is any non-json data before JSON object.  It is called the PREFIX.
