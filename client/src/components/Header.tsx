@@ -24,7 +24,6 @@ import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
 import { urlPathStore } from '../store/UrlPathStore';
-import { isJsonLogTab } from './SideBar';
 
 let filterWasStopped = false;
 
@@ -253,19 +252,6 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						>
 							&nbsp;{mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isVertical() ?
 								'Set Horizontal Layout' : 'Set Vertical Layout'}
-						</div>
-					</MenuItem>
-					<MenuItem
-						hidden={!isJsonLogTab()}
-						onClick={() => {
-							mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleNowrap();
-							setMoreMenuIcon(null);
-						}}
-					>
-						<div className="header__import fa fa-image" title="Layout"
-						>
-							&nbsp;{mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isNowrap() ?
-								'Wrap lines' : 'Do not wrap lines'}
 						</div>
 					</MenuItem>
 				</Menu>

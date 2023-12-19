@@ -129,6 +129,8 @@ export default class JSONLogStore {
 	private briefChecked = false;
 	private briefMap: { [key: string]: boolean } = {};
 
+	private rawJsonChecked = false;
+
 	private script = defaultScript;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
@@ -193,6 +195,14 @@ export default class JSONLogStore {
 	}
 	public isBriefField(name: string) {
 		return this.briefMap[name] === true;
+	}
+
+	public isRawJsonChecked() {
+		return this.rawJsonChecked;
+	}
+	@action public toggleRawJsonChecked() {
+		this.rawJsonChecked = !this.rawJsonChecked;
+		filterStore.filterUpdated();
 	}
 
 	@action public resetScriptToDefault() {

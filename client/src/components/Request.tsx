@@ -46,45 +46,47 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 
 	return (
 		<><div>
-			<div className={"request__msg-container " + className + (highlight ? ' highlight' : '')} >
+			<div className={"request__msg-container"} >
 				<div className="request__msg-header">
 					<div className={`request__msg-twisty fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
 						style={{ minWidth: '1rem', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
 						onClick={handleClick} />
 					<div style={{ display: 'flex' }} onClick={doHighlight}>
-						<div className="request__msg-time-ms">
-							{message.protocol !== 'log:' ?
-								<div style={{ fontFamily: 'monospace', minWidth: '8.5rem' }}
-									title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
-									{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
-								</div>
-								:
-								<div style={{ lineHeight: '1.2' }}>
-									<div style={{ fontFamily: 'monospace', marginTop: '.6rem', minWidth: '8.5rem' }}
-										title={store.getLogEntry().date.toLocaleDateString()}>
-										{dateToHHMMSS(store.getLogEntry().date)}
+						<div className={"request__msg-time-number " + className + (highlight ? ' highlight' : '')}>
+							<div className={"request__msg-time-ms"}>
+								{message.protocol !== 'log:' ?
+									<div style={{ fontFamily: 'monospace', minWidth: '8.5rem' }}
+										title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
+										{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
 									</div>
-									{store.getLogEntry().level !== '' &&
-										<div style={{
-											display: 'inline-block', minWidth: '6ch',
-											marginBottom: '.25rem', borderRadius: '.25rem', lineHeight: '1', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color
-										}}>
-											{store.getLogEntry().level}
+									:
+									<div style={{ lineHeight: '1.2' }}>
+										<div style={{ fontFamily: 'monospace', marginTop: '.6rem', minWidth: '8.5rem' }}
+											title={store.getLogEntry().date.toLocaleDateString()}>
+											{dateToHHMMSS(store.getLogEntry().date)}
 										</div>
-									}
-								</div>
-							}
-						</div>
-						<div style={{ minWidth: '3.5rem' }}>
-							<div
+										{store.getLogEntry().level !== '' &&
+											<div style={{
+												display: 'inline-block', minWidth: '6ch',
+												marginBottom: '.25rem', borderRadius: '.25rem', lineHeight: '1', background: levelColor(store.getLogEntry().level).bg, color: levelColor(store.getLogEntry().level).color
+											}}>
+												{store.getLogEntry().level}
+											</div>
+										}
+									</div>
+								}
+							</div>
+							<div style={{ minWidth: '3.5rem' }}>
+								<div
 
-								style={{
-									fontFamily: 'monospace',
-									margin: message.protocol === 'log:' ? '.5rem 0' : undefined,
-									textAlign: 'right'
-								}}
-							>
-								{store.getIndex() + 1}
+									style={{
+										fontFamily: 'monospace',
+										margin: message.protocol === 'log:' ? '.5rem 0' : undefined,
+										textAlign: 'right'
+									}}
+								>
+									{store.getIndex() + 1}
+								</div>
 							</div>
 						</div>
 						{message.protocol !== 'log:' &&

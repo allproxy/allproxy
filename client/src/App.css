@@ -746,11 +746,6 @@ td input {
 	width: 100%;
 }
 
-.request__msg-container.highlight {
-	background-color: yellow;
-	color: black !important;
-}
-
 .request__msg-twisty:hover {
 	color: rgb(203, 75, 22);
 }
@@ -759,6 +754,15 @@ td input {
 	position: relative;
 	display: flex;
 	flex-wrap: nowrap;
+}
+
+.request__msg-time-number {
+	display: flex;
+}
+
+.request__msg-time-number.highlight {
+	background-color: yellow;
+	color: black !important;
 }
 
 .request__msg-time-bar-container {

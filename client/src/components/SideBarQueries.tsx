@@ -1,4 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, Checkbox, Menu, MenuItem } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Menu, MenuItem } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NamedQueriesStore, { namedQueriesStore, namedSubQueriesStore } from '../store/NamedQueriesStore';
@@ -7,8 +7,6 @@ import NamedQueriesModal from './NamedQueriesModal';
 import React from 'react';
 import { queryStore } from '../store/QueryStore';
 import { urlPathStore } from '../store/UrlPathStore';
-import { jsonLogStore } from '../store/JSONLogStore';
-import { isJsonLogTab } from './SideBar';
 
 type Props = {
 	orCondition: boolean,
@@ -73,30 +71,6 @@ const SideBarQueries = observer((): JSX.Element => {
 	return (
 		<div>
 			<hr className="side-bar-divider" hidden={!urlPathStore.isLocalhost()}></hr>
-			<div className="side-bar-item" hidden={!filterStore.canDedup() && (!isJsonLogTab() || jsonLogStore.getParsingMethod() === 'auto')}>
-				<div>
-					<div className="side-bar-checkbox-icon" hidden={!isJsonLogTab() || jsonLogStore.getParsingMethod() === 'auto'}>
-						<div style={{ display: 'flex' }}>
-							<Checkbox className="side-bar-checkbox"
-								size="small"
-								defaultChecked={false}
-								value={jsonLogStore.isBriefChecked()}
-								onChange={() => jsonLogStore.toggleBriefChecked()} />
-							<div>Less Detail</div>
-						</div>
-					</div>
-					<div className="side-bar-checkbox-icon" hidden={!filterStore.canDedup()}>
-						<div style={{ display: 'flex' }}>
-							<Checkbox className="side-bar-checkbox"
-								size="small"
-								defaultChecked={false}
-								value={filterStore.isDedupChecked()}
-								onChange={() => filterStore.toggleDedupChecked()} />
-							<div>Deduplication</div>
-						</div>
-					</div>
-				</div>
-			</div>
 			<div className="side-bar-item" hidden={!urlPathStore.isLocalhost()}>
 				<div
 					style={{ cursor: 'pointer' }}
