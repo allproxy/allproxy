@@ -26,7 +26,7 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(urlPathStore.getApp() === 'jlogviewer' ? '3' : '1');
+	const [tabValue, setTabValue] = React.useState(urlPathStore.getApp() === 'jlogviewer' ? '3' : urlPathStore.isLocalhost() ? '1' : '4');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
@@ -104,8 +104,8 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						indicatorColor="primary"
 						aria-label="help-tabs"
 					>
-						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="1" label="Quick Start" />}
-						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="2" label="Certificates" />}
+						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="1" label="Quick Start" />}
+						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="2" label="Certificates" />}
 						{urlPathStore.getApp() !== 'mitmproxy' && <Tab value="3" label="Log Viewer" />}
 						<Tab value="4" label="Filtering" />
 						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="5" label="Breakpoints" />}

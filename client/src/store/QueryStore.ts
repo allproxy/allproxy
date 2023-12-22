@@ -21,14 +21,18 @@ export default class QueryStore {
 	public async init() {
 		this.queries.splice(0, this.queries.length);
 
-		const dirNames = await apFileSystem.readDir(QUERIES_DIR + '/');
-		for (const dirName of dirNames) {
-			const exists = await apFileSystem.exists(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`);
-			let query = '';
-			if (exists) {
-				query = await apFileSystem.readFile(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`);
+		for (let fsTypeStr of ['browserFs', 'serverFs']) {
+			const fsType = fsTypeStr as 'browserFs' | 'serverFs';
+			if (fsType === 'serverFs' && !apFileSystem.isConnected()) continue;
+			const dirNames = await apFileSystem.readDir(QUERIES_DIR + '/', fsType);
+			for (const dirName of dirNames) {
+				const exists = await apFileSystem.exists(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`, fsType);
+				let query = '';
+				if (exists) {
+					query = await apFileSystem.readFile(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`, fsType);
+				}
+				this.queries.push({ query, dirName });
 			}
-			this.queries.push({ query, dirName });
 		}
 		this.queries.sort();
 	}
@@ -66,12 +70,14 @@ export default class QueryStore {
 		return -1;
 	}
 
-	@action public deleteEntry(query: string) {
+	@action public async deleteEntry(query: string) {
 		const index = this.queriesIndexOf(query);
 		if (index !== -1) {
-			if (urlPathStore.isLocalhost()) {
-				const dirName = this.queries[index].dirName;
-				apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
+			const dirName = this.queries[index].dirName;
+			if (await apFileSystem.exists(QUERIES_DIR + '/' + dirName), 'browserFs') {
+				apFileSystem.rmdir(QUERIES_DIR + '/' + dirName, 'browserFs');
+			} else {
+				if (urlPathStore.isLocalhost()) apFileSystem.rmdir(QUERIES_DIR + '/' + dirName, 'serverFs');
 			}
 			this.queries.splice(index, 1);
 		}
@@ -89,18 +95,16 @@ export default class QueryStore {
 	public async saveQuery(index: number, query: string): Promise<void> {
 		return new Promise<void>(async (resolve) => {
 			this.queries[index].query = query;
-			if (urlPathStore.isLocalhost()) {
-				const subDir = this.queries[index].dirName;
-				const dir = QUERIES_DIR + '/' + subDir;
-				const path = dir + '/' + QUERY_FILE;
-				if (!await apFileSystem.exists(dir)) {
-					await apFileSystem.mkdir(dir);
-				}
-				if (await apFileSystem.exists(path)) {
-					await apFileSystem.deleteFile(path);
-				}
-				await apFileSystem.writeFile(path, query);
+			const subDir = this.queries[index].dirName;
+			const dir = QUERIES_DIR + '/' + subDir;
+			const path = dir + '/' + QUERY_FILE;
+			if (!await apFileSystem.exists(dir)) {
+				await apFileSystem.mkdir(dir);
 			}
+			if (await apFileSystem.exists(path)) {
+				await apFileSystem.deleteFile(path);
+			}
+			await apFileSystem.writeFile(path, query);
 			resolve();
 		});
 	}

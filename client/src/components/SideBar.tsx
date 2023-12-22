@@ -171,7 +171,7 @@ const SideBar = observer(() => {
 				<div className="side-bar-header">
 					<div className="side-bar-item">
 						<button className="btn btn-success"
-							disabled={disableSaveSession || !urlPathStore.isLocalhost()}
+							disabled={disableSaveSession}
 							onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
 							<div style={{ width: '7.25rem' }}>Save Session</div>
 						</button>

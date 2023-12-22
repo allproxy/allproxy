@@ -8,7 +8,6 @@ import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import _ from 'lodash';
 import DeleteDialog from './DeleteDialog';
-import { urlPathStore } from '../store/UrlPathStore';
 
 type Props = {
 
@@ -125,7 +124,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 									</Link>
 									<Link href="#"
 										onClick={() => queryStore.addAndSaveQuery(query)}
-										hidden={!urlPathStore.isLocalhost() || queryStore.getQueries().indexOf(query) !== -1}
+										hidden={queryStore.getQueries().indexOf(query) !== -1}
 										style={{ marginRight: "0rem", color: 'green' }}>
 										<BookmarkAddIcon />
 									</Link>

@@ -2,7 +2,6 @@ import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { compressJSON, mainTabStore } from "./MainTabStore";
-import { urlPathStore } from "./UrlPathStore";
 import { filterStore } from "./FilterStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
@@ -148,9 +147,7 @@ export default class JSONLogStore {
 	public getParsingMethod() { return this.method; }
 	public async setParsingMethod(method: 'auto' | 'simple' | 'advanced') {
 		this.method = method;
-		if (urlPathStore.isLocalhost()) {
-			await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
-		}
+		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
 	}
 
 	public getAutoFields() { return this.autoFields; }
@@ -407,7 +404,10 @@ export default class JSONLogStore {
 
 		const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
 		if (exists) {
-			this.method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced';
+			const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced';
+			if (method) {
+				this.method = method;
+			}
 		}
 	}
 

@@ -45,7 +45,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
-	const [showHelp, setShowHelp] = React.useState(urlPathStore.isLocalhost());
+	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
@@ -268,10 +268,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				<div hidden className={`header__filter-logical ${filterStore.deleteFiltered() ? 'active' : ''}`}
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div >
-			<div style={{
-				pointerEvents: urlPathStore.isLocalhost() ? undefined : 'none',
-				opacity: urlPathStore.isLocalhost() ? undefined : 0.3,
-			}}>
+			<div>
 				<div className="header__settings fa fa-question" title="Help"
 					onClick={() => { setShowHelp(true); }}>
 				</div>
@@ -293,35 +290,41 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				>
 					{urlPathStore.getApp() !== 'jlogviewer' &&
 						<>
-							<MenuItem onClick={() => {
-								setSettingsMenuIcon(null);
-								settingsStore.toggleOpenSettingsModal();
-								settingsStore.reset();
-								if (!messageQueueStore.getStopped()) {
-									messageQueueStore.setStopped(true);
-									filterWasStopped = true;
-								}
-							}}>
+							<MenuItem
+								hidden={!urlPathStore.isLocalhost()}
+								onClick={() => {
+									setSettingsMenuIcon(null);
+									settingsStore.toggleOpenSettingsModal();
+									settingsStore.reset();
+									if (!messageQueueStore.getStopped()) {
+										messageQueueStore.setStopped(true);
+										filterWasStopped = true;
+									}
+								}}>
 								<div className="fa fa-network-wired"
 								>
 									&nbsp;Proxy Configuration
 								</div>
 							</MenuItem>
-							<MenuItem onClick={() => {
-								setSettingsMenuIcon(null);
-								setShowBreakpointModal(true);
-								breakpointStore.init();
-							}}>
+							<MenuItem
+								hidden={!urlPathStore.isLocalhost()}
+								onClick={() => {
+									setSettingsMenuIcon(null);
+									setShowBreakpointModal(true);
+									breakpointStore.init();
+								}}>
 								<div className="fa fa-bug" title="Breakpoints"
 								>
 									&nbsp;Breakpoints
 								</div>
 							</MenuItem>
-							<MenuItem onClick={() => {
-								setSettingsMenuIcon(null);
-								setShowNoCaptureModal(true);
-								noCaptureStore.init();
-							}}>
+							<MenuItem
+								hidden={!urlPathStore.isLocalhost()}
+								onClick={() => {
+									setSettingsMenuIcon(null);
+									setShowNoCaptureModal(true);
+									noCaptureStore.init();
+								}}>
 								<div className="fa fa-ban" title="No Capture List">
 									&nbsp;No Capture List
 								</div>

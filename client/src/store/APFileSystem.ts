@@ -1,6 +1,30 @@
 import { Socket } from "socket.io-client";
+import FS from '@isomorphic-git/lightning-fs';
+import { urlPathStore } from "./UrlPathStore";
 
 const CHUNKSIZE = 500000;
+
+const fsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || process.env.NODE_ENV !== "production" ? 'browserFs' : 'serverFs';
+const fs = new FS('allproxy').promises;
+
+let once = false;
+async function init() {
+    if (once) return;
+    try {
+        await fs.mkdir(`/intercept`);
+        await fs.mkdir(`/proto`);
+        await fs.mkdir(`/bin`);
+        await fs.mkdir(`/sessions`);
+        await fs.mkdir(`/jsonFields`);
+        await fs.mkdir(`/scripts`);
+        await fs.mkdir(`/queries`);
+        once = true;
+    } catch (e) { }
+}
+
+function log(...args: any[]) {
+    if (false) console.log(...args);
+}
 
 export default class APFileSystem {
     private socket?: Socket = undefined;
@@ -9,18 +33,39 @@ export default class APFileSystem {
         this.socket = socket;
     }
 
+    public isConnected() {
+        return this.socket?.connected;
+    }
+
     // mkdir
-    public mkdir(path: string) {
-        this.socket?.emit('mkdir', path);
+    public async mkdir(path: string, useFsType: 'browserFs' | 'serverFs' = fsType) {
+        log('mkdir', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            fs.mkdir('/' + path);
+        } else {
+            this.socket?.emit('mkdir', path);
+        }
     }
 
     // rmdir
-    public rmdir(path: string) {
-        this.socket?.emit('rmdir', path);
+    public async rmdir(path: string, useFsType: 'browserFs' | 'serverFs' = fsType) {
+        log('rmdir', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            fs.rmdir('/' + path);
+        } else {
+            this.socket?.emit('rmdir', path);
+        }
     }
 
     // writeFile
-    public async writeFile(path: string, data: string): Promise<void> {
+    public async writeFile(path: string, data: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<void> {
+        log('writeFile', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            return fs.writeFile('/' + path, data);
+        }
         return new Promise<void>(async (resolve1) => {
             for (let offset = 0; offset < data.length; offset += CHUNKSIZE) {
                 await new Promise((resolve2) => {
@@ -38,7 +83,12 @@ export default class APFileSystem {
     }
 
     // deleteFile
-    public async deleteFile(path: string): Promise<void> {
+    public async deleteFile(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<void> {
+        log('deleteFile', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            return fs.unlink('/' + path);
+        }
         return new Promise<void>((resolve) => {
             this.socket?.emit('deleteFile', path, () => {
                 resolve();
@@ -47,7 +97,12 @@ export default class APFileSystem {
     }
 
     // renameFile
-    public async renameFile(oldPath: string, newPath: string): Promise<void> {
+    public async renameFile(oldPath: string, newPath: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<void> {
+        log('renameFile', oldPath, newPath);
+        if (useFsType === 'browserFs') {
+            await init();
+            return fs.rename('/' + oldPath, '/' + newPath);
+        }
         return new Promise<void>((resolve) => {
             this.socket?.emit('renameFile', oldPath, newPath, () => {
                 resolve();
@@ -56,7 +111,18 @@ export default class APFileSystem {
     }
 
     // exists
-    public async exists(path: string): Promise<boolean> {
+    public async exists(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<boolean> {
+        log('exists', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            try {
+                await fs.stat('/' + path);
+                log('file exists');
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
         return new Promise<boolean>((resolve) => {
             setTimeout(() => resolve(false), 5000);
             this.socket?.emit('exists', path, (exists: boolean) => {
@@ -66,7 +132,12 @@ export default class APFileSystem {
     }
 
     // readdir
-    public async readDir(path: string): Promise<string[]> {
+    public async readDir(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<string[]> {
+        log('readDir', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            return fs.readdir('/' + path);
+        }
         return new Promise<string[]>((resolve) => {
             this.socket?.emit('readDir', path, (files: string[]) => {
                 resolve(files);
@@ -74,7 +145,11 @@ export default class APFileSystem {
         });
     }
 
-    public async grepDir(path: string, match: string): Promise<string[]> {
+    public async grepDir(path: string, match: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<string[]> {
+        if (useFsType === 'browserFs') {
+            await init();
+            return [];
+        }
         return new Promise<string[]>((resolve) => {
             this.socket?.emit('grepDir', path, match, (files: string[]) => {
                 resolve(files);
@@ -83,7 +158,12 @@ export default class APFileSystem {
     }
 
     // readFile
-    public async readFile(path: string): Promise<string> {
+    public async readFile(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<string> {
+        log('readFile', path);
+        if (useFsType === 'browserFs') {
+            await init();
+            return (await fs.readFile('/' + path)).toString();
+        }
         const chunks: string[] = [];
         return new Promise<string>(async (resolve1) => {
             let done = false;
@@ -92,7 +172,7 @@ export default class APFileSystem {
                     this.socket?.emit('readFile', path, offset, CHUNKSIZE, (chunk: string, eof: boolean) => {
                         chunks.push(chunk);
                         done = eof;
-                        //console.log('readFile', offset, chunk.length, chunks.length, eof);
+                        //log('readFile', offset, chunk.length, chunks.length, eof);
                         resolve2(0);
                     });
                 });

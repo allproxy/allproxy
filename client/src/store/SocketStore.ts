@@ -15,7 +15,6 @@ import { mainTabStore } from "./MainTabStore";
 import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
-import { urlPathStore } from "./UrlPathStore";
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 
 export default class SocketStore {
@@ -48,7 +47,7 @@ export default class SocketStore {
 
 				if (os.length > 0) {
 					let ipInfo = undefined;
-					if (!urlPathStore.isLocalhost()) {
+					if (document.location.host === 'allproxy.ddns.net') {
 						const response = await fetch("https://api.db-ip.com/v2/free/self");
 						ipInfo = await response.json();
 					}

@@ -7,7 +7,6 @@ import React, { useEffect } from 'react';
 import DeleteDialog from './DeleteDialog';
 import { apFileSystem } from '../store/APFileSystem';
 import ExportDialog from './ExportDialog';
-import { urlPathStore } from '../store/UrlPathStore';
 
 type Props = {
 	open: boolean,
@@ -146,14 +145,14 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 											style={{ marginTop: 'calc( 50vh - 72px' }}>
 											No saved sessions found
 										</div>}
-									{store.getSessionList().map((sessionName, i) => (
-										(isFilterValueMatch(sessionName)) &&
+									{store.getSessionList().map((entry, i) => (
+										(isFilterValueMatch(entry.name)) &&
 										<ListItem key={i}
 											style={{
 												display: 'flex', alignItems: 'center',
 											}}>
 											<IconButton
-												hidden={!urlPathStore.isLocalhost()}
+												disabled={!entry.canDelete}
 												onClick={() => handleDeleteSession(i)} title="Delete session">
 												<CloseIcon style={{ color: 'red' }} />
 											</IconButton>
@@ -175,7 +174,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 													width: '100%',
 												}}
 											>
-												{sessionName}
+												{entry.name}
 											</div>
 										</ListItem>
 									))}

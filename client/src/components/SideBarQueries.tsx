@@ -6,7 +6,6 @@ import FilterStore, { filterStore } from '../store/FilterStore';
 import NamedQueriesModal from './NamedQueriesModal';
 import React from 'react';
 import { queryStore } from '../store/QueryStore';
-import { urlPathStore } from '../store/UrlPathStore';
 
 type Props = {
 	orCondition: boolean,
@@ -70,8 +69,8 @@ const SideBarQueries = observer((): JSX.Element => {
 
 	return (
 		<div>
-			<hr className="side-bar-divider" hidden={!urlPathStore.isLocalhost()}></hr>
-			<div className="side-bar-item" hidden={!urlPathStore.isLocalhost()}>
+			<hr className="side-bar-divider"></hr>
+			<div className="side-bar-item">
 				<div
 					style={{ cursor: 'pointer' }}
 					onClick={(event: React.MouseEvent<HTMLDivElement>) => {

@@ -1,7 +1,6 @@
 import { Select, MenuItem, ListItemText } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
 import { jsonLogStore, updateJSONRequestLabels } from "../store/JSONLogStore";
-import { urlPathStore } from "../store/UrlPathStore";
 import { mainTabStore } from "../store/MainTabStore";
 import { messageQueueStore } from "../store/MessageQueueStore";
 import { isJsonLogTab } from "./SideBar";
@@ -19,6 +18,10 @@ const SideBarJsonSettings = observer((): JSX.Element => {
 	};
 	const getJSONParsingMethodDisplayName = () => {
 		const method = jsonLogStore.getParsingMethod();
+		if (method.substring == undefined) {
+			console.log('substring undefined', method);
+			return 'Method undefined';
+		}
 		return method.substring(0, 1).toUpperCase() + method.substring(1);
 	};
 
@@ -36,8 +39,8 @@ const SideBarJsonSettings = observer((): JSX.Element => {
 	return (
 		<>
 			<hr className="side-bar-divider"
-				hidden={!isJsonLogTab() || !urlPathStore.isLocalhost()}></hr>
-			<div hidden={!isJsonLogTab() || !urlPathStore.isLocalhost()}>
+				hidden={!isJsonLogTab()}></hr>
+			<div hidden={!isJsonLogTab()}>
 				{/* <div style={{ paddingLeft: '.5rem' }}>JSON SETTINGS</div> */}
 				<div>
 					<div className="side-bar-item">
