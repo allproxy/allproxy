@@ -108,7 +108,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="2" label="Certificates" />}
 						{urlPathStore.getApp() !== 'mitmproxy' && <Tab value="3" label="Log Viewer" />}
 						<Tab value="4" label="Filtering" />
-						{urlPathStore.getApp() !== 'jlogviewer' && <Tab value="5" label="Breakpoints" />}
+						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="5" label="Breakpoints" />}
 					</Tabs>
 					<TabPanel value="1" key="1">
 						<h4>Quick Start</h4>
