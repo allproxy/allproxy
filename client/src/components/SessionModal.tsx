@@ -154,7 +154,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 											<IconButton
 												disabled={!entry.canDelete}
 												onClick={() => handleDeleteSession(i)} title="Delete session">
-												<CloseIcon style={{ color: 'red' }} />
+												<CloseIcon style={{ color: 'red', opacity: entry.canDelete ? undefined : 0 }} />
 											</IconButton>
 											<button className={`btn btn-success`}
 												style={{ marginRight: '.25rem' }}

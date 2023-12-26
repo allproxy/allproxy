@@ -3,6 +3,7 @@ import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
 import { compressJSON, mainTabStore } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
+import { urlPathStore } from "./UrlPathStore";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -25,14 +26,14 @@ export class JSONLogField {
 		const checked = jsonLogStore.getBriefMap()[this.name] === true;
 		return checked;
 	}
-	@action public toggleBriefChecked() {
+	@action public async toggleBriefChecked() {
 		const briefMap = jsonLogStore.getBriefMap();
 		if (briefMap[this.name] === true) {
 			delete briefMap[this.name];
 		} else {
 			briefMap[this.name] = true;
 		}
-		apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, JSON.stringify(briefMap));
+		await apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, JSON.stringify(briefMap));
 	}
 
 	public getName() {
@@ -202,9 +203,9 @@ export default class JSONLogStore {
 		filterStore.filterUpdated();
 	}
 
-	@action public resetScriptToDefault() {
+	@action public async resetScriptToDefault() {
 		this.script = defaultScript;
-		apFileSystem.deleteFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
+		await apFileSystem.deleteFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
 	}
 	public getScript() {
 		return this.script;
@@ -212,8 +213,8 @@ export default class JSONLogStore {
 	@action public setScript(script: string) {
 		this.script = script;
 	}
-	@action public saveScript() {
-		apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
+	@action public async saveScript() {
+		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
 	}
 	@action public updateScriptFunc() {
 		this.scriptFunc = this.evalScript(this.script);
@@ -370,9 +371,23 @@ export default class JSONLogStore {
 			if (briefJsonFields.length > 0) {
 				this.briefMap = JSON.parse(briefJsonFields);
 			}
+		} else if (!urlPathStore.isLocalhost()) {
+			if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE), 'serverFs') {
+				const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE, 'serverFs');
+				if (briefJsonFields.length > 0) {
+					this.briefMap = JSON.parse(briefJsonFields);
+					await apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, briefJsonFields);
+				}
+			}
 		}
 
-		const fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
+		let fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
+		if (fileNames.length === 0 && !urlPathStore.isLocalhost()) {
+			fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR, 'serverFs');
+			for (const fileName of fileNames) {
+				await apFileSystem.writeFile(JSON_FIELDS_DIR + '/' + fileName, fileName);
+			}
+		}
 		this.fields = [];
 		for (const fileName of fileNames) {
 			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
@@ -381,12 +396,12 @@ export default class JSONLogStore {
 			this.fields.sort((a, b) => a.getName().localeCompare(b.getName()));
 		}
 
-		for (const fileName of await apFileSystem.readDir(SCRIPTS_DIR)) {
-			const script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + fileName);
-			switch (fileName) {
-				case jsonLogScriptFileName:
-					this.script = script;
-					break;
+		if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName)) {
+			this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
+		} else if (!urlPathStore.isLocalhost()) {
+			if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs')) {
+				this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs');
+				await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
 			}
 		}
 
@@ -394,6 +409,12 @@ export default class JSONLogStore {
 			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
 			if (exists) {
 				this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
+			} else if (!urlPathStore.isLocalhost()) {
+				const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field, 'serverFs');
+				if (exists) {
+					this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field, 'serverFs');
+					await apFileSystem.writeFile(SCRIPTS_DIR + '/' + field, this.simpleFields[field]);
+				}
 			}
 		};
 		initSimpleField('date');
@@ -407,6 +428,15 @@ export default class JSONLogStore {
 			const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced';
 			if (method) {
 				this.method = method;
+			}
+		} else if (!urlPathStore.isLocalhost()) {
+			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method', 'serverFs');
+			if (exists) {
+				const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method', 'serverFs') as 'auto' | 'simple' | 'advanced';
+				if (method) {
+					this.method = method;
+					await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+				}
 			}
 		}
 	}
@@ -436,10 +466,10 @@ export default class JSONLogStore {
 		this.fields.unshift(new JSONLogField(JSON_FIELDS_DIR));
 	}
 
-	@action public deleteEntry(index: number) {
+	@action public async deleteEntry(index: number) {
 		const jsonField = this.fields[index];
 		if (jsonField.getName() !== "") {
-			apFileSystem.deleteFile(jsonField.getDir() + '/' + jsonField.getName());
+			await apFileSystem.deleteFile(jsonField.getDir() + '/' + jsonField.getName());
 		}
 		this.fields.splice(index, 1);
 	}

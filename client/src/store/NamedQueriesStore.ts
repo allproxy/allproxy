@@ -39,29 +39,30 @@ export default class NamedQueriesStore {
 		this.save();
 	}
 
-	@action public async init() {
+	@action public async init(fsType?: 'browserFs' | 'serverFs') {
 		this.queryList.splice(0, this.queryList.length);
-		for (let fsTypeStr of ['browserFs', 'serverFs']) {
-			const fsType = fsTypeStr as 'browserFs' | 'serverFs';
-			if (fsType === 'serverFs' && !apFileSystem.isConnected()) continue;
-			if (await apFileSystem.exists(this.getFileName(), fsType)) {
-				const queryListJson = await apFileSystem.readFile(this.getFileName(), fsType);
-				if (queryListJson) {
-					const json = JSON.parse(queryListJson);
-					let queries: FilterStore[] = json.map((entry: {
-						name: string,
-						searchFilter: string,
-					}) => {
-						const query = new FilterStore();
-						query.setName(entry.name);
-						query.setFilterNoDebounce(entry.searchFilter);
-						return query;
-					});
-					// Remove duplicate query names
-					queries = queries.filter(q => this.queryList.filter(q2 => q2.getName() === q.getName()).length === 0);
-					this.queryList.push(...queries);
-				}
+		if (await apFileSystem.exists(this.getFileName(), fsType)) {
+			const queryListJson = await apFileSystem.readFile(this.getFileName(), fsType);
+			if (queryListJson) {
+				const json = JSON.parse(queryListJson);
+				let queries: FilterStore[] = json.map((entry: {
+					name: string,
+					searchFilter: string,
+				}) => {
+					const query = new FilterStore();
+					query.setName(entry.name);
+					query.setFilterNoDebounce(entry.searchFilter);
+					return query;
+				});
+				// Remove duplicate query names
+				queries = queries.filter(q => this.queryList.filter(q2 => q2.getName() === q.getName()).length === 0);
+				this.queryList.push(...queries);
 			}
+		}
+
+		if (this.queryList.length === 0 && fsType !== 'serverFs' && !urlPathStore.isLocalhost()) {
+			this.init('serverFs');
+			this.save();
 		}
 		this.queryList.sort((a, b) => a.getName().localeCompare(b.getName()));
 	}
@@ -69,21 +70,7 @@ export default class NamedQueriesStore {
 	@action private async save() {
 		let queries = this.queryList.filter(query => query.getName().length > 0 && query.getFilter().length > 0);
 		queries.sort((a, b) => a.getName().localeCompare(b.getName()));
-		// Remove queries that are defined on the server, if not locally hosted
-		if (!urlPathStore.isLocalhost()) {
-			const json = JSON.parse(await apFileSystem.readFile(this.getFileName(), 'serverFs'));
-			const serverQueries: FilterStore[] = json.map((entry: {
-				name: string,
-				searchFilter: string,
-			}) => {
-				const query = new FilterStore();
-				query.setName(entry.name);
-				query.setFilterNoDebounce(entry.searchFilter);
-				return query;
-			});
-			queries = queries.filter((q) => serverQueries.filter(q2 => q2.getName() === q.getName()).length === 0);
-		}
-		apFileSystem.writeFile(this.getFileName(), JSON.stringify(queries));
+		await apFileSystem.writeFile(this.getFileName(), JSON.stringify(queries));
 	}
 
 	public getAllQueries() {

@@ -155,7 +155,7 @@ export default class SocketIoManager {
     server.on('connection', (socket: io.Socket) => this._socketConnection(socket));
   }
 
-  _socketConnection(socket: io.Socket) {
+  async _socketConnection(socket: io.Socket) {
     ConsoleLog.debug('SocketIoManager on connection');
     const config = this.getConfig();
 
@@ -260,7 +260,7 @@ export default class SocketIoManager {
     });
 
     const apFileSystem = new APFileSystem(socket);
-    apFileSystem.listen();
+    await apFileSystem.listen();
   }
 
   async activateConfig(proxyConfigs: ProxyConfig[], socket?: io.Socket) {

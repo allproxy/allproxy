@@ -4,26 +4,26 @@ import { urlPathStore } from "./UrlPathStore";
 
 const CHUNKSIZE = 500000;
 
-const fsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || process.env.NODE_ENV !== "production" ? 'browserFs' : 'serverFs';
+const defaultFsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || process.env.NODE_ENV !== "production" ? 'browserFs' : 'serverFs';
 const fs = new FS('allproxy').promises;
 
 let once = false;
 async function init() {
     if (once) return;
     try {
-        await fs.mkdir(`/intercept`);
-        await fs.mkdir(`/proto`);
-        await fs.mkdir(`/bin`);
-        await fs.mkdir(`/sessions`);
-        await fs.mkdir(`/jsonFields`);
-        await fs.mkdir(`/scripts`);
-        await fs.mkdir(`/queries`);
+        await fs.mkdir('/intercept');
+        await fs.mkdir('/proto');
+        await fs.mkdir('/bin');
+        await fs.mkdir('/sessions');
+        await fs.mkdir('/jsonFields');
+        await fs.mkdir('/scripts');
+        await fs.mkdir('/queries');
         once = true;
     } catch (e) { }
 }
 
 function log(...args: any[]) {
-    if (false) console.log(...args);
+    if (true) console.log(...args);
 }
 
 export default class APFileSystem {
@@ -38,9 +38,9 @@ export default class APFileSystem {
     }
 
     // mkdir
-    public async mkdir(path: string, useFsType: 'browserFs' | 'serverFs' = fsType) {
-        log('mkdir', path);
-        if (useFsType === 'browserFs') {
+    public async mkdir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType) {
+        log(fsType, 'mkdir', path);
+        if (fsType === 'browserFs') {
             await init();
             fs.mkdir('/' + path);
         } else {
@@ -49,9 +49,9 @@ export default class APFileSystem {
     }
 
     // rmdir
-    public async rmdir(path: string, useFsType: 'browserFs' | 'serverFs' = fsType) {
-        log('rmdir', path);
-        if (useFsType === 'browserFs') {
+    public async rmdir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType) {
+        log(fsType, 'rmdir', path);
+        if (fsType === 'browserFs') {
             await init();
             fs.rmdir('/' + path);
         } else {
@@ -60,9 +60,9 @@ export default class APFileSystem {
     }
 
     // writeFile
-    public async writeFile(path: string, data: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<void> {
-        log('writeFile', path);
-        if (useFsType === 'browserFs') {
+    public async writeFile(path: string, data: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<void> {
+        log(fsType, 'writeFile', path);
+        if (fsType === 'browserFs') {
             await init();
             return fs.writeFile('/' + path, data);
         }
@@ -83,9 +83,9 @@ export default class APFileSystem {
     }
 
     // deleteFile
-    public async deleteFile(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<void> {
-        log('deleteFile', path);
-        if (useFsType === 'browserFs') {
+    public async deleteFile(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<void> {
+        log(fsType, 'deleteFile', path);
+        if (fsType === 'browserFs') {
             await init();
             return fs.unlink('/' + path);
         }
@@ -97,9 +97,9 @@ export default class APFileSystem {
     }
 
     // renameFile
-    public async renameFile(oldPath: string, newPath: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<void> {
-        log('renameFile', oldPath, newPath);
-        if (useFsType === 'browserFs') {
+    public async renameFile(oldPath: string, newPath: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<void> {
+        log(fsType, 'renameFile', oldPath, newPath);
+        if (fsType === 'browserFs') {
             await init();
             return fs.rename('/' + oldPath, '/' + newPath);
         }
@@ -111,42 +111,45 @@ export default class APFileSystem {
     }
 
     // exists
-    public async exists(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<boolean> {
-        log('exists', path);
-        if (useFsType === 'browserFs') {
+    public async exists(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<boolean> {
+        if (fsType === 'browserFs') {
             await init();
             try {
                 await fs.stat('/' + path);
-                log('file exists');
+                log(fsType, 'exists - true', path);
                 return true;
             } catch (e) {
+                log(fsType, 'exists - false', path);
                 return false;
             }
         }
         return new Promise<boolean>((resolve) => {
             setTimeout(() => resolve(false), 5000);
             this.socket?.emit('exists', path, (exists: boolean) => {
+                log(fsType, 'exists - ' + exists, path);
                 resolve(exists);
             });
         });
     }
 
     // readdir
-    public async readDir(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<string[]> {
-        log('readDir', path);
-        if (useFsType === 'browserFs') {
+    public async readDir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
+        if (fsType === 'browserFs') {
             await init();
-            return fs.readdir('/' + path);
+            const files = fs.readdir('/' + path);
+            log(fsType, 'readDir', path, files);
+            return files;
         }
         return new Promise<string[]>((resolve) => {
             this.socket?.emit('readDir', path, (files: string[]) => {
+                log(fsType, 'readDir', path, files);
                 resolve(files);
             });
         });
     }
 
-    public async grepDir(path: string, match: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<string[]> {
-        if (useFsType === 'browserFs') {
+    public async grepDir(path: string, match: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
+        if (fsType === 'browserFs') {
             await init();
             return [];
         }
@@ -158,11 +161,12 @@ export default class APFileSystem {
     }
 
     // readFile
-    public async readFile(path: string, useFsType: 'browserFs' | 'serverFs' = fsType): Promise<string> {
-        log('readFile', path);
-        if (useFsType === 'browserFs') {
+    public async readFile(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string> {
+        if (fsType === 'browserFs') {
             await init();
-            return (await fs.readFile('/' + path)).toString();
+            const data = (await fs.readFile('/' + path)).toString();
+            log(fsType, 'readFile', path, data);
+            return data;
         }
         const chunks: string[] = [];
         return new Promise<string>(async (resolve1) => {
@@ -172,12 +176,13 @@ export default class APFileSystem {
                     this.socket?.emit('readFile', path, offset, CHUNKSIZE, (chunk: string, eof: boolean) => {
                         chunks.push(chunk);
                         done = eof;
-                        //log('readFile', offset, chunk.length, chunks.length, eof);
+                        //log(fsType,'readFile', offset, chunk.length, chunks.length, eof);
                         resolve2(0);
                     });
                 });
             }
             const data = chunks.join('');
+            log(fsType, 'readFile', path, data);
             resolve1(data);
         });
     }

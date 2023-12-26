@@ -27,7 +27,17 @@ export default class SocketStore {
 
 	public constructor() {
 		makeAutoObservable(this);
-		this.connect();
+		if (process.env.NODE_ENV === 'production') {
+			this.connect();
+		} else {
+			setTimeout(() => this.init());
+		}
+	}
+
+	private init() {
+		breakpointStore.init();
+		namedQueriesStore.init();
+		namedSubQueriesStore.init();
 	}
 
 	@action private connect() {
@@ -38,7 +48,7 @@ export default class SocketStore {
 			//console.log('socket connected');
 			this.setSocketConnected(true);
 			if (this.socket) {
-				apFileSystem.setSocket(this.socket);
+				await apFileSystem.setSocket(this.socket);
 
 				var os = '';
 				if (navigator.userAgent.indexOf('Win') !== -1) os = 'win32';
@@ -60,9 +70,7 @@ export default class SocketStore {
 			//console.log('proxy configs', proxyConfigs);
 			proxyConfigStore.setProxyConfigs(proxyConfigs);
 			proxyConfigStore.load(); // send to server
-			breakpointStore.init();
-			namedQueriesStore.init();
-			namedSubQueriesStore.init();
+			this.init();
 		});
 
 		this.socket.on('port config', (portConfig: PortConfig) => {

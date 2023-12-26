@@ -18,23 +18,27 @@ export default class QueryStore {
 		makeAutoObservable(this);
 	}
 
-	public async init() {
+	public async init(fsType?: 'browserFs' | 'serverFs') {
 		this.queries.splice(0, this.queries.length);
-
-		for (let fsTypeStr of ['browserFs', 'serverFs']) {
-			const fsType = fsTypeStr as 'browserFs' | 'serverFs';
-			if (fsType === 'serverFs' && !apFileSystem.isConnected()) continue;
-			const dirNames = await apFileSystem.readDir(QUERIES_DIR + '/', fsType);
-			for (const dirName of dirNames) {
-				const exists = await apFileSystem.exists(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`, fsType);
-				let query = '';
-				if (exists) {
-					query = await apFileSystem.readFile(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`, fsType);
-				}
-				this.queries.push({ query, dirName });
+		const dirNames = await apFileSystem.readDir(QUERIES_DIR + '/', fsType);
+		for (const dirName of dirNames) {
+			const exists = await apFileSystem.exists(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`, fsType);
+			let query = '';
+			if (exists) {
+				query = await apFileSystem.readFile(`${QUERIES_DIR}/${dirName}/${QUERY_FILE}`, fsType);
 			}
+			this.queries.push({ query, dirName });
 		}
 		this.queries.sort();
+
+		if (this.queries.length === 0) {
+			if (fsType !== 'serverFs' && !urlPathStore.isLocalhost()) {
+				this.init('serverFs');
+				for (let i = 0; i < this.queries.length; ++i) {
+					this.saveQuery(i, this.queries[i].query);
+				}
+			}
+		}
 	}
 
 	public getApplyFilter() {
@@ -74,10 +78,9 @@ export default class QueryStore {
 		const index = this.queriesIndexOf(query);
 		if (index !== -1) {
 			const dirName = this.queries[index].dirName;
-			if (await apFileSystem.exists(QUERIES_DIR + '/' + dirName), 'browserFs') {
-				apFileSystem.rmdir(QUERIES_DIR + '/' + dirName, 'browserFs');
-			} else {
-				if (urlPathStore.isLocalhost()) apFileSystem.rmdir(QUERIES_DIR + '/' + dirName, 'serverFs');
+			if (await apFileSystem.exists(QUERIES_DIR + '/' + dirName)) {
+				await apFileSystem.deleteFile(QUERIES_DIR + '/' + dirName + '/' + QUERY_FILE);
+				await apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
 			}
 			this.queries.splice(index, 1);
 		}
