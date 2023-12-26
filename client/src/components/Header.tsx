@@ -347,7 +347,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						hidden={urlPathStore.getApp() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
-							await jsonLogStore.init();
+							jsonLogStore.init();
 							setJsonFields(getJSONFields());
 							setShowJSONFieldsModal(true);
 						}}>
