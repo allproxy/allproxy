@@ -61,8 +61,8 @@ export default class NamedQueriesStore {
 		}
 
 		if (this.queryList.length === 0 && fsType !== 'serverFs' && !urlPathStore.isLocalhost()) {
-			this.init('serverFs');
-			this.save();
+			await this.init('serverFs');
+			await this.save();
 		}
 		this.queryList.sort((a, b) => a.getName().localeCompare(b.getName()));
 	}

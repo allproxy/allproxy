@@ -33,9 +33,9 @@ export default class QueryStore {
 
 		if (this.queries.length === 0) {
 			if (fsType !== 'serverFs' && !urlPathStore.isLocalhost()) {
-				this.init('serverFs');
+				await this.init('serverFs');
 				for (let i = 0; i < this.queries.length; ++i) {
-					this.saveQuery(i, this.queries[i].query);
+					await this.saveQuery(i, this.queries[i].query);
 				}
 			}
 		}

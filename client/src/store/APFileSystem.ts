@@ -5,11 +5,10 @@ import { urlPathStore } from "./UrlPathStore";
 const CHUNKSIZE = 500000;
 
 const defaultFsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || process.env.NODE_ENV !== "production" ? 'browserFs' : 'serverFs';
-const fs = new FS('allproxy').promises;
+const fs = new FS(urlPathStore.isLocalhost() ? 'allproxy' : document.location.hostname).promises;
 
-let once = false;
-async function init() {
-    if (once) return;
+export async function initApFileSystem() {
+    if (urlPathStore.isLocalhost()) return;
     try {
         await fs.mkdir('/intercept');
         await fs.mkdir('/proto');
@@ -18,7 +17,6 @@ async function init() {
         await fs.mkdir('/jsonFields');
         await fs.mkdir('/scripts');
         await fs.mkdir('/queries');
-        once = true;
     } catch (e) { }
 }
 
@@ -41,7 +39,6 @@ export default class APFileSystem {
     public async mkdir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType) {
         log(fsType, 'mkdir', path);
         if (fsType === 'browserFs') {
-            await init();
             fs.mkdir('/' + path);
         } else {
             this.socket?.emit('mkdir', path);
@@ -52,7 +49,6 @@ export default class APFileSystem {
     public async rmdir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType) {
         log(fsType, 'rmdir', path);
         if (fsType === 'browserFs') {
-            await init();
             fs.rmdir('/' + path);
         } else {
             this.socket?.emit('rmdir', path);
@@ -63,7 +59,6 @@ export default class APFileSystem {
     public async writeFile(path: string, data: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<void> {
         log(fsType, 'writeFile', path);
         if (fsType === 'browserFs') {
-            await init();
             return fs.writeFile('/' + path, data);
         }
         return new Promise<void>(async (resolve1) => {
@@ -86,7 +81,6 @@ export default class APFileSystem {
     public async deleteFile(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<void> {
         log(fsType, 'deleteFile', path);
         if (fsType === 'browserFs') {
-            await init();
             return fs.unlink('/' + path);
         }
         return new Promise<void>((resolve) => {
@@ -100,7 +94,6 @@ export default class APFileSystem {
     public async renameFile(oldPath: string, newPath: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<void> {
         log(fsType, 'renameFile', oldPath, newPath);
         if (fsType === 'browserFs') {
-            await init();
             return fs.rename('/' + oldPath, '/' + newPath);
         }
         return new Promise<void>((resolve) => {
@@ -113,7 +106,6 @@ export default class APFileSystem {
     // exists
     public async exists(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<boolean> {
         if (fsType === 'browserFs') {
-            await init();
             try {
                 await fs.stat('/' + path);
                 log(fsType, 'exists - true', path);
@@ -135,7 +127,6 @@ export default class APFileSystem {
     // readdir
     public async readDir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
         if (fsType === 'browserFs') {
-            await init();
             const files = fs.readdir('/' + path);
             log(fsType, 'readDir', path, files);
             return files;
@@ -150,7 +141,6 @@ export default class APFileSystem {
 
     public async grepDir(path: string, match: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
         if (fsType === 'browserFs') {
-            await init();
             return [];
         }
         return new Promise<string[]>((resolve) => {
@@ -163,7 +153,6 @@ export default class APFileSystem {
     // readFile
     public async readFile(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string> {
         if (fsType === 'browserFs') {
-            await init();
             const data = (await fs.readFile('/' + path)).toString();
             log(fsType, 'readFile', path, data);
             return data;

@@ -15,6 +15,7 @@ import SideBar from './components/SideBar';
 import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
 import { themeStore } from './store/ThemeStore';
+import { initApFileSystem } from './store/APFileSystem';
 
 const theme = localStorage.getItem('allproxy-theme');
 let defaultTheme: 'dark' | 'light' = 'dark';
@@ -57,6 +58,8 @@ function App() {
     themeStore.setTheme(cs);
     setPaletteType(cs);
   }
+
+  initApFileSystem();
 
   return (
     <ThemeProvider theme={theme}>

@@ -103,7 +103,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 											<JSONFieldsMethod />
 											{jsonLogStore.getParsingMethod() === 'simple' ?
 												<JSONSimpleFields />
-												: <>
+												: jsonLogStore.getParsingMethod() === 'advanced' && <>
 													Write your own JavaScript to extract the date, level, category, app name and message fields.
 													<p></p>
 													{error !== '' &&
