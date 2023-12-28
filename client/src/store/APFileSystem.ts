@@ -105,6 +105,7 @@ export default class APFileSystem {
 
     // exists
     public async exists(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<boolean> {
+        log(fsType, 'exists?', path);
         if (fsType === 'browserFs') {
             try {
                 await fs.stat('/' + path);
@@ -126,6 +127,7 @@ export default class APFileSystem {
 
     // readdir
     public async readDir(path: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
+        log(fsType, 'readDir...', path);
         if (fsType === 'browserFs') {
             const files = fs.readdir('/' + path);
             log(fsType, 'readDir', path, files);

@@ -417,7 +417,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 			/>
 			<HelpDialog open={showHelp} onClose={async () => {
 				setShowHelp(false);
-				await jsonLogStore.init();
+				jsonLogStore.init();
 				jsonLogStore.updateScriptFunc();
 				mainTabStore.setUpdating(true);
 				setTimeout(() => {

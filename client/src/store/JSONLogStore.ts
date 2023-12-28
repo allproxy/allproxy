@@ -372,7 +372,7 @@ export default class JSONLogStore {
 				this.briefMap = JSON.parse(briefJsonFields);
 			}
 		} else if (!urlPathStore.isLocalhost()) {
-			if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE), 'serverFs') {
+			if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE, 'serverFs')) {
 				const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE, 'serverFs');
 				if (briefJsonFields.length > 0) {
 					this.briefMap = JSON.parse(briefJsonFields);
@@ -398,7 +398,8 @@ export default class JSONLogStore {
 
 		if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName)) {
 			this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
-		} else if (!urlPathStore.isLocalhost()) {
+		}
+		if (!urlPathStore.isLocalhost() && this.script === defaultScript) {
 			if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs')) {
 				this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs');
 				await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
