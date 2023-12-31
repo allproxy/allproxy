@@ -1,0 +1,344 @@
+{
+  "configs": [
+    {
+      "isSecure": false,
+      "path": "/",
+      "protocol": "browser:",
+      "hostname": "",
+      "port": 0,
+      "recording": true,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
+      "isSecure": false,
+      "path": "/socket.io",
+      "protocol": "browser:",
+      "hostname": "",
+      "port": 0,
+      "recording": false,
+      "hostReachable": true,
+      "comment": "socket.io messages are not recorded"
+    },
+    {
+      "isSecure": false,
+      "path": "24601",
+      "protocol": "grpc:",
+      "hostname": "backend-asset-sharing",
+      "port": 24601,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_ASSET_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "11111",
+      "protocol": "grpc:",
+      "hostname": "backend-company",
+      "port": 50051,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Testing only"
+    },
+    {
+      "isSecure": false,
+      "path": "50051",
+      "protocol": "grpc:",
+      "hostname": "backend-company",
+      "port": 50051,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "BACKEND_COMPANY_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50050",
+      "protocol": "grpc:",
+      "hostname": "backend-crm",
+      "port": 50050,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "BACKEND_CRM_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50070",
+      "protocol": "grpc:",
+      "hostname": "backend-ecommerce",
+      "port": 50070,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_ECOMMERCE_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50058",
+      "protocol": "grpc:",
+      "hostname": "backend-email",
+      "port": 50058,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "BACKEND_EMAIL_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50060",
+      "protocol": "grpc:",
+      "hostname": "backend-facebook-lead-ads",
+      "port": 50060,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "???GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50055",
+      "protocol": "grpc:",
+      "hostname": "backend-full-contact",
+      "port": 50055,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_FULL_CONTACT_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50059",
+      "protocol": "grpc:",
+      "hostname": "backend-guidance",
+      "port": 50059,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_GUIDANCE_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50052",
+      "protocol": "grpc:",
+      "hostname": "backend-report",
+      "port": 50052,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "BACKEND_REPORT_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50053",
+      "protocol": "grpc:",
+      "hostname": "backend-report-dashboard",
+      "port": 50053,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "BACKEND_REPORT_DASH_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50058",
+      "protocol": "grpc:",
+      "hostname": "backend-user",
+      "port": 50058,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "BACKEND_USER_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50058",
+      "protocol": "grpc:",
+      "hostname": "baqckend-forms",
+      "port": 50058,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_FORMS_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50067",
+      "protocol": "grpc:",
+      "hostname": "billing",
+      "port": 50067,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_BILLING_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50056",
+      "protocol": "grpc:",
+      "hostname": "chatbot",
+      "port": 50056,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "BACKEND_CHATBOT_GRPC_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50040",
+      "protocol": "grpc:",
+      "hostname": "meetings",
+      "port": 50040,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "MEETINGS_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "50068",
+      "protocol": "grpc:",
+      "hostname": "search",
+      "port": 50068,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "SEARCH_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "/graphql",
+      "protocol": "http:",
+      "hostname": "api",
+      "port": 80,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "GRAPHQL_INTERNAL_URL=http://allproxy:8888/graphql"
+    },
+    {
+      "isSecure": false,
+      "path": "/toolshedapi",
+      "protocol": "http:",
+      "hostname": "app.sharpspring.localhost.com",
+      "port": 80,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "TOOLSHED_API_URL TOOLSHED_BASEURL TOOLSHED_HOST_URL"
+    },
+    {
+      "isSecure": false,
+      "path": "/",
+      "protocol": "http:",
+      "hostname": "elsearch",
+      "port": 9200,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "backend-search to elsearch"
+    },
+    {
+      "isSecure": false,
+      "path": "backend-db-event-sync/",
+      "protocol": "http:",
+      "hostname": "elsearch",
+      "port": 9200,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Don't record health checks for elsearch"
+    },
+    {
+      "isSecure": false,
+      "path": "/xxx",
+      "protocol": "http:",
+      "hostname": "gcp-emulator",
+      "port": 8283,
+      "recording": true,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
+      "isSecure": false,
+      "path": "/v1/payments/toolshed",
+      "protocol": "http:",
+      "hostname": "payments-nginx",
+      "port": 80,
+      "recording": true,
+      "hostReachable": false,
+      "comment": "PAYMENTS_API_URL=http://allproxy:8888/v1/payments/toolshed/"
+    },
+    {
+      "isSecure": true,
+      "path": "/graphql",
+      "protocol": "https:",
+      "hostname": "api.sharpspring.localhost.com",
+      "port": 80,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "GRAPHQL_INTERNAL_URL=http://allproxy:8888/graphql"
+    },
+    {
+      "isSecure": false,
+      "path": "docker logs -f app",
+      "protocol": "log:",
+      "hostname": "",
+      "port": 0,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Scrap app log"
+    },
+    {
+      "isSecure": false,
+      "path": "docker logs -f backend-report",
+      "protocol": "log:",
+      "hostname": "",
+      "port": 0,
+      "recording": true,
+      "hostReachable": true,
+      "comment": ""
+    },
+    {
+      "isSecure": false,
+      "path": "docker logs -f fpm",
+      "protocol": "log:",
+      "hostname": "",
+      "port": 0,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "Scrap fpm log"
+    },
+    {
+      "isSecure": false,
+      "path": "27017",
+      "protocol": "mongo:",
+      "hostname": "mongodb",
+      "port": 27017,
+      "recording": false,
+      "hostReachable": true,
+      "comment": "MONGO_HOST=allproxy"
+    },
+    {
+      "isSecure": false,
+      "path": "6379",
+      "protocol": "redis:",
+      "hostname": "redis",
+      "port": 6379,
+      "recording": false,
+      "hostReachable": true,
+      "comment": "REDIS_MAIL_V2_SERVICE_HOST, REDIS_PROMETHEUS_SERVICE_HOST "
+    },
+    {
+      "isSecure": false,
+      "path": "3306",
+      "protocol": "mysql:",
+      "hostname": "mariadb",
+      "port": 3306,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "DB_HOST, MYSQL_MASTER_INTERNAL, MYSQL_SLAVE_INTERNAL"
+    },
+    {
+      "isSecure": false,
+      "path": "33306",
+      "protocol": "mysql:",
+      "hostname": "mariadb",
+      "port": 3306,
+      "recording": true,
+      "hostReachable": true,
+      "comment": "DB_HOST, MYSQL_MASTER_INTERNAL, MYSQL_SLAVE_INTERNAL"
+    },
+    {
+      "isSecure": false,
+      "path": "11211",
+      "protocol": "tcp:",
+      "hostname": "memcached",
+      "port": 11211,
+      "recording": false,
+      "hostReachable": true,
+      "comment": ""
+    }
+  ]
+}

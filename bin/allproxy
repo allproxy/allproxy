@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+SYMLINK=$(readlink "${BASH_SOURCE[0]}")
+if [ ! -z "$SYMLINK" ]; then
+  BIN_DIR=$BIN_DIR/$(dirname $SYMLINK)
+fi
+cd $BIN_DIR
+
+npm run headless

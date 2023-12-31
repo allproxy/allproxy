@@ -1,0 +1,12 @@
+/*
+client/*
+client/package.json
+!bin/
+!build/
+!client/build/
+!package.json
+!intercept/
+!proto/README.md
+!main.js
+!preload.js
+!headless.js
