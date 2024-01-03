@@ -5,12 +5,13 @@ import { isJsonLogTab } from './SideBar';
 import { filterStore } from '../store/FilterStore';
 import { jsonLogStore } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
+import { urlPathStore } from '../store/UrlPathStore';
 
 const SideBarSettings = observer((): JSX.Element => {
 	return (
 		<>
-			<hr className="side-bar-divider"></hr>
-			<div className="side-bar-item" hidden={isJsonLogTab()}>
+			<hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getApp() === 'jlogviewer'}></hr>
+			<div className="side-bar-item" hidden={isJsonLogTab() || urlPathStore.getApp() === 'jlogviewer'}>
 				<div>
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"

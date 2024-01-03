@@ -24,7 +24,7 @@ export default class UrlPathStore {
 	}
 
 	public isGitHubPages() {
-		return document.location.hostname.includes('github.io');
+		return document.location.hostname.includes('github.io') || document.location.hostname.includes('pages.github');
 	}
 
 	public getApp() {
