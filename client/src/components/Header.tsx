@@ -109,13 +109,15 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						</MenuItem>
 					</Select>
 				</div>
-				<div className={"header__status " + statusClassName} title="Status"></div>
+				<div className={"header__status " + statusClassName} title="Status" hidden={urlPathStore.isGitHubPages()}></div>
 
-				<div style={{
-					opacity: mainTabStore.isProxyTabSelected() ? undefined : 0.3,
-					pointerEvents: mainTabStore.isProxyTabSelected() ? undefined : 'none',
-				}}>
+				<div hidden={urlPathStore.getApp() === 'jlogviewer'}
+					style={{
+						opacity: mainTabStore.isProxyTabSelected() ? undefined : 0.3,
+						pointerEvents: mainTabStore.isProxyTabSelected() ? undefined : 'none',
+					}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
+						hidden={urlPathStore.getApp() === 'jlogviewer'}
 						onClick={() => {
 							messageQueueStore.clear();
 							// filterStore.setFilter('');
@@ -138,6 +140,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 
 				<div className={'header__show-errors fa-bug fa '
 					+ (filterStore.getShowErrors() ? 'active' : '')}
+					hidden={urlPathStore.getApp() === 'jlogviewer'}
 					onClick={() => filterStore.toggleShowErrors()}
 					title={'Toggle show only errors'}
 				/>
