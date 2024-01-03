@@ -32,7 +32,7 @@ export default class QueryStore {
 		this.queries.sort();
 
 		if (this.queries.length === 0) {
-			if (fsType !== 'serverFs' && !urlPathStore.isLocalhost()) {
+			if (fsType !== 'serverFs' && !urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 				await this.init('serverFs');
 				for (let i = 0; i < this.queries.length; ++i) {
 					await this.saveQuery(i, this.queries[i].query);

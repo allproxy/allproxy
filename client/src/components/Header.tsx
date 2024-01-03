@@ -74,6 +74,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				</div>
 				<div className="header__title">
 					<Select className="side-bar-select"
+						disabled={urlPathStore.isGitHubPages()}
 						value={urlPathStore.getApp() === 'jlogviewer'
 							? 'jlogviewer'
 							: urlPathStore.getApp() === 'mitmproxy'

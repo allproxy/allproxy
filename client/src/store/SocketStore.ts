@@ -16,6 +16,7 @@ import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
+import { urlPathStore } from "./UrlPathStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -27,7 +28,7 @@ export default class SocketStore {
 
 	public constructor() {
 		makeAutoObservable(this);
-		if (process.env.NODE_ENV === 'production') {
+		if (process.env.NODE_ENV === 'production' && !urlPathStore.isGitHubPages()) {
 			this.connect();
 		} else {
 			setTimeout(() => this.init());
@@ -215,7 +216,7 @@ export default class SocketStore {
 	}
 
 	public isConnected(): boolean {
-		return this.socketConnected;
+		return this.socketConnected || urlPathStore.isGitHubPages();
 	}
 
 	public emitConfig(event: string, proxyConfig: ProxyConfig[]) {

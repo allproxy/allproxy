@@ -39,7 +39,9 @@
     -->
 </body>
 <script>
-  if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
+  if (document.location.hostname.includes('github.io')) {
+    document.title = 'JLogViewer';
+  } else if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
     document.title = 'JLogViewer';
   } else if (document.location.pathname === '/mitmproxy') {
     document.title = 'MitmProxy';

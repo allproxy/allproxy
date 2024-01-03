@@ -80,7 +80,7 @@ export class JSONLogField {
 	}
 }
 
-const defaultScript =
+export const defaultScript =
 	`
 	// Function called to extract date, level, app name and message
 	//
@@ -371,7 +371,7 @@ export default class JSONLogStore {
 			if (briefJsonFields.length > 0) {
 				this.briefMap = JSON.parse(briefJsonFields);
 			}
-		} else if (!urlPathStore.isLocalhost()) {
+		} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 			if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE, 'serverFs')) {
 				const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE, 'serverFs');
 				if (briefJsonFields.length > 0) {
@@ -382,7 +382,7 @@ export default class JSONLogStore {
 		}
 
 		let fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
-		if (fileNames.length === 0 && !urlPathStore.isLocalhost()) {
+		if (fileNames.length === 0 && !urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 			fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR, 'serverFs');
 			for (const fileName of fileNames) {
 				await apFileSystem.writeFile(JSON_FIELDS_DIR + '/' + fileName, fileName);
@@ -399,7 +399,7 @@ export default class JSONLogStore {
 		if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName)) {
 			this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
 		}
-		if (!urlPathStore.isLocalhost() && this.script === defaultScript) {
+		if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages() && this.script === defaultScript) {
 			if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs')) {
 				this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs');
 				await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
@@ -410,7 +410,7 @@ export default class JSONLogStore {
 			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
 			if (exists) {
 				this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
-			} else if (!urlPathStore.isLocalhost()) {
+			} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 				const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field, 'serverFs');
 				if (exists) {
 					this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field, 'serverFs');
@@ -430,7 +430,7 @@ export default class JSONLogStore {
 			if (method) {
 				this.method = method;
 			}
-		} else if (!urlPathStore.isLocalhost()) {
+		} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method', 'serverFs');
 			if (exists) {
 				const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method', 'serverFs') as 'auto' | 'simple' | 'advanced';
