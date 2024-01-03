@@ -5,18 +5,26 @@ export default class UrlPathStore {
 
 
 	public constructor() {
-		switch (document.location.pathname) {
-			case '/jlogviewer':
-				this.app = 'jlogviewer';
-				break;
-			case '/mitmproxy':
-				this.app = 'mitmproxy';
-				break;
-			default:
-				this.app = 'allproxy';
-				break;
+		if (this.isGitHubPages()) {
+			this.app = 'jlogviewer';
+		} else {
+			switch (document.location.pathname) {
+				case '/jlogviewer':
+					this.app = 'jlogviewer';
+					break;
+				case '/mitmproxy':
+					this.app = 'mitmproxy';
+					break;
+				default:
+					this.app = 'allproxy';
+					break;
+			}
 		}
 		makeAutoObservable(this);
+	}
+
+	public isGitHubPages() {
+		return document.location.hostname.includes('github.io');
 	}
 
 	public getApp() {

@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import FS from '@isomorphic-git/lightning-fs';
 import { urlPathStore } from "./UrlPathStore";
+import { defaultScript } from "./JSONLogStore";
 
 const CHUNKSIZE = 500000;
 
@@ -18,6 +19,7 @@ export async function initApFileSystem() {
         await fs.mkdir('/scripts');
         await fs.mkdir('/queries');
     } catch (e) { }
+    if (urlPathStore.isGitHubPages()) fetchApFileSystem();
 }
 
 function log(...args: any[]) {
@@ -117,11 +119,15 @@ export default class APFileSystem {
             }
         }
         return new Promise<boolean>((resolve) => {
-            setTimeout(() => resolve(false), 5000);
-            this.socket?.emit('exists', path, (exists: boolean) => {
-                log(fsType, 'exists - ' + exists, path);
-                resolve(exists);
-            });
+            if (!this.isConnected()) {
+                resolve(false);
+            } else {
+                setTimeout(() => resolve(false), 5000);
+                this.socket?.emit('exists', path, (exists: boolean) => {
+                    log(fsType, 'exists - ' + exists, path);
+                    resolve(exists);
+                });
+            }
         });
     }
 
@@ -176,6 +182,49 @@ export default class APFileSystem {
             log(fsType, 'readFile', path, data);
             resolve1(data);
         });
+    }
+}
+
+async function fetchApFileSystem() {
+    const url = document.location.href.split('#')[0] + 'apFileSystem.json';
+    const response = await fetch(url);
+    if (response.status === 200) {
+        const json = await response.json();
+
+        // jsonFields
+        const fields = await apFileSystem.readDir('/jsonFields');
+        if (fields.length === 0) {
+            for (const field of json.jsonFields) {
+                await apFileSystem.writeFile('/jsonFields/' + field, field);
+            }
+            await apFileSystem.writeFile('/briefJsonFields.json', json.briefJsonFields);
+        }
+
+        // scripts
+
+        if (!await apFileSystem.exists('/scripts/method')) await apFileSystem.writeFile('/scripts/method', json.method);
+        if (!await apFileSystem.exists('/scripts/jsonLogScript') || await apFileSystem.readFile('/scripts/jsonLogScript') === defaultScript) await apFileSystem.writeFile('/scripts/jsonLogScript', json.jsonLogScript);
+
+        // Queries
+        const queries = await apFileSystem.readDir('/queries');
+        if (queries.length === 0) {
+            for (const dir in json.queries) {
+                await apFileSystem.mkdir('/queries/' + dir);
+                await apFileSystem.writeFile('/queries/' + dir + '/query.txt', json.queries[dir].query);
+            }
+        }
+
+        let jsonQueries = [];
+        if (await apFileSystem.exists('/jsonQueries.json')) {
+            jsonQueries = JSON.parse(await apFileSystem.readFile('/jsonQueries.json'));
+        }
+        if (jsonQueries.length === 0) await apFileSystem.writeFile('/jsonQueries.json', json.jsonQueries);
+
+        let jsonSubQueries = [];
+        if (await apFileSystem.exists('/jsonSubQueries.json')) {
+            jsonSubQueries = JSON.parse(await apFileSystem.readFile('/jsonSubQueries.json'));
+        }
+        if (jsonSubQueries.length === 0) await apFileSystem.writeFile('/jsonSubQueries.json', json.jsonSubQueries);
     }
 }
 

@@ -60,7 +60,7 @@ export default class NamedQueriesStore {
 			}
 		}
 
-		if (this.queryList.length === 0 && fsType !== 'serverFs' && !urlPathStore.isLocalhost()) {
+		if (this.queryList.length === 0 && fsType !== 'serverFs' && !urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 			await this.init('serverFs');
 			await this.save();
 		}
