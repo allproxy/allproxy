@@ -244,6 +244,7 @@ const MainTabContent = observer(({
 						</div>
 					</div>
 				}
+				{messageQueueStore.getMessages().length > 0 && !vertical && <div style={{ background: '#007bff', height: '0.1rem', marginRight: '4rem' }}></div>}
 				{
 					messageQueueStore.getMessages().length > 0 &&
 					<div className="response__container"
