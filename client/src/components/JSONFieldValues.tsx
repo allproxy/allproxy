@@ -8,6 +8,7 @@ export const JSONFieldButtonsHeight = 40;
 type Props = {
 	jsonFields: { name: string, count: number, selected: boolean }[]
 };
+let order = 0; // order in FIFO order
 const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => {
 	const [jsonFieldValues, setJsonFieldValues] = React.useState<string[]>([]);
 	return (
@@ -22,8 +23,11 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 							key={field.name}
 							style={{ margin: ".5rem .25rem" }}
 							onClick={() => {
+								field.count = ++order; // use count field to order fields in FIFO order
 								field.selected = !field.selected;
-								const selectedFields = jsonFields.map(f => f.selected ? f.name : '').filter(f => f !== '');
+								const sortedFields = [...jsonFields];
+								sortedFields.sort((a, b) => a.count - b.count);
+								const selectedFields = sortedFields.map(f => f.selected ? f.name : '').filter(f => f !== '');
 								setJsonFieldValues(getJsonFieldValues(selectedFields));
 							}}
 						>
@@ -39,7 +43,8 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 				>
 					Remove Duplicates
 				</button>
-			</div><pre>
+			</div>
+			<pre>
 				{jsonFieldValues.map(value => <div style={{ fontFamily: "'Courier New', Courier, monospace" }}>{value}</div>)}
 			</pre>
 		</>

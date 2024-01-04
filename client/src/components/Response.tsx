@@ -38,7 +38,6 @@ const Response = ({ message, store, vertical, onSync, onClose }: Props) => {
 	return (
 		<div>
 			<React.Fragment>
-				{!vertical && <div style={{ background: '#007bff', height: '0.1rem', marginRight: '4rem' }}></div>}
 				<IconButton style={{ marginRight: '.5rem' }} onClick={onClose} title="Close">
 					<CloseIcon />
 				</IconButton>
