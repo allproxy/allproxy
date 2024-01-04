@@ -51,8 +51,8 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 					<div className={`request__msg-twisty fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
 						style={{ minWidth: '1rem', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
 						onClick={handleClick} />
-					<div style={{ display: 'flex' }} onClick={doHighlight}>
-						<div className={"request__msg-time-number " + className + (highlight ? ' highlight' : '')}>
+					<div className={className} style={{ display: 'flex' }} onClick={doHighlight}>
+						<div className={"request__msg-time-number " + (highlight ? ' highlight' : '')}>
 							<div className={"request__msg-time-ms"}>
 								{message.protocol !== 'log:' ?
 									<div style={{ fontFamily: 'monospace', minWidth: '8.5rem' }}
