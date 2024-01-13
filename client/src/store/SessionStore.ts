@@ -1,7 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import Message from "../common/Message";
 import { apFileSystem } from "./APFileSystem";
-import { messageQueueStore } from "./MessageQueueStore";
 import { mainTabStore } from "./MainTabStore";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
@@ -74,7 +73,6 @@ export default class SessionStore {
 
 	public async saveSession(sessionName: string): Promise<void> {
 		return new Promise<void>(async (resolve) => {
-			messageQueueStore.setFreeze(true);
 			const date = new Date().toLocaleString().replaceAll('/', '-');
 			const dir = 'sessions/' + date;
 			await apFileSystem.mkdir(dir);
@@ -97,7 +95,6 @@ export default class SessionStore {
 					await apFileSystem.writeFile(subDir + '/data.txt', data);
 				}
 			}
-			messageQueueStore.setFreeze(false);
 
 			await apFileSystem.writeFile(dir + '/notes.txt', mainTabStore.getNotes());
 			resolve();

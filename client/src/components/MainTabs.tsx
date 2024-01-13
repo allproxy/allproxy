@@ -22,7 +22,6 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 	}
 
 	function handleCopyProxyTab(_value: string) {
-		messageQueueStore.setFreeze(false);
 		setOpenCreateTabDialog(true);
 	}
 

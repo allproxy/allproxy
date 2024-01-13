@@ -8,10 +8,7 @@ import ProxyConfig from '../common/ProxyConfig';
 import PortConfig from '../common/PortConfig';
 import { metricsStore } from './MetricsStore';
 import { mapProtocolToIndex } from './MetricsStore';
-import { noCaptureStore } from "./NoCaptureStore";
-import { filterStore } from "./FilterStore";
 import MessageStore from "./MessageStore";
-import { mainTabStore } from "./MainTabStore";
 import { breakpointStore } from "./BreakpointStore";
 import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
@@ -117,28 +114,6 @@ export default class SocketStore {
 				this.countMetrics(message);
 			}
 
-			// Filter messages:
-			// 1) From clients that are in the No Capture List
-			// 2) If delete filtered (X) is selected, and message doesn't match filter criteria
-			const filteredMessages = messages.filter(
-				message => {
-					if (noCaptureStore.contains(message)) {
-						return false;
-					}
-					const messageStore = new MessageStore(message);
-					if (
-						filterStore.getFilter().length > 0
-						&& filterStore.deleteFiltered()
-						&& messageStore.isFiltered()) {
-						return false;
-					}
-					return true;
-				}
-			);
-
-			if (mainTabStore.getProxyTab().length + filteredMessages.length > messageQueueStore.getLimit()) {
-				messageQueueStore.setFreeze(true);
-			}
 			messageQueueStore.insertBatch(messages);
 
 			if (callback) {
