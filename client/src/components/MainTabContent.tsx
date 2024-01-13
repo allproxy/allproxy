@@ -297,12 +297,10 @@ const MainTabContent = observer(({
 	);
 
 	function handleResend(message: Message) {
-		messageQueueStore.setFreeze(true);
 		setResendStore(new ResendStore(message));
 	}
 
 	function handleResendClose() {
-		messageQueueStore.setFreeze(false);
 		setResendStore(undefined);
 	}
 

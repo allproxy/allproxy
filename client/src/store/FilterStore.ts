@@ -1,9 +1,9 @@
 import { makeAutoObservable, action } from "mobx";
 import MessageStore from './MessageStore';
 import _ from 'lodash';
-import { messageQueueStore } from "./MessageQueueStore";
 import { dateToHHMMSS } from "../components/Request";
 import { getJSONValue } from "./JSONLogStore";
+import { messageQueueStore } from "./MessageQueueStore";
 
 export default class FilterStore {
     private name = '';
@@ -243,7 +243,6 @@ export default class FilterStore {
         this.searchFilter = this.filter;
         this.updateBoolString();
         this.filterUpdated();
-        messageQueueStore.setFreeze(false);
     }
 
     @action public setFilter(filter: string) {

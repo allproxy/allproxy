@@ -14,8 +14,6 @@ export default class MessageQueueStore {
 	private scrollAction: 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined = undefined;
 
 	private sortByReq: boolean = true;
-	private freeze: boolean = false;
-	private freezeQ: Message[] = [];
 
 	private sortOrder: "desc" | "asc" = 'asc';
 	private sortByField: string | undefined;
@@ -132,19 +130,6 @@ export default class MessageQueueStore {
 		this.stopped = stopped;
 	}
 
-	public getFreeze(): boolean {
-		return this.freeze;
-	}
-
-	@action public setFreeze(freeze: boolean) {
-		if (!freeze) {
-			const messages = this.freezeQ.slice();
-			this.freezeQ.splice(0, this.freezeQ.length);
-			setTimeout(() => this.insertBatch(messages), 1000);
-		}
-		this.freeze = freeze;
-	}
-
 	@action public toggleStopped() {
 		this.stopped = !this.stopped;
 	}
@@ -171,10 +156,7 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		this.freezeQ.splice(0, this.freezeQ.length);
-
-		let count = mainTabStore.getProxyTab().length;
-		while (count-- > 0 && mainTabStore.getProxyTab().length > 0) {
+		while (mainTabStore.getProxyTab().length > 0) {
 			mainTabStore.getProxyTab().pop();
 		}
 		this.stopped = false;
@@ -186,9 +168,6 @@ export default class MessageQueueStore {
 
 	public getTotalLength() {
 		let count = this.getMessages().length;
-		if (mainTabStore.isProxyTabSelected()) {
-			count += this.freezeQ.length;
-		}
 		return count;
 	}
 
@@ -332,13 +311,6 @@ export default class MessageQueueStore {
 
 	@action public insertBatch(messages: Message[]) {
 		if (this.stopped) return;
-		if (this.freeze) {
-			this.freezeQ = this.freezeQ.concat(messages);
-			if (this.freezeQ.length > this.limit) {
-				this.setFreeze(false);
-			}
-			return;
-		}
 
 		const proxyTab = mainTabStore.getProxyTab();
 

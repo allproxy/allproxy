@@ -1,7 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import Message from "../common/Message";
 import FilterStore from "./FilterStore";
-import { messageQueueStore } from "./MessageQueueStore";
 import MessageStore from "./MessageStore";
 import { socketStore } from "./SocketStore";
 
@@ -92,7 +91,6 @@ export default class BreakpointStore {
 	@action public openBreakpointResponseModal(messageStore: MessageStore, callback: any) {
 		this.messageStore = messageStore;
 		this.breakpointCallback = callback;
-		messageQueueStore.setFreeze(true);
 	}
 
 	@action public closeBreakpointResponseModal() {
@@ -105,7 +103,6 @@ export default class BreakpointStore {
 		message!.modified = true;
 		this.breakpointCallback(message);
 		this.messageStore = null;
-		messageQueueStore.setFreeze(false);
 	}
 
 	public getMessageStore() {
