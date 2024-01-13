@@ -171,11 +171,13 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		while (mainTabStore.getProxyTab().length > 0) {
+		this.freezeQ.splice(0, this.freezeQ.length);
+
+		let count = mainTabStore.getProxyTab().length;
+		while (count-- > 0 && mainTabStore.getProxyTab().length > 0) {
 			mainTabStore.getProxyTab().pop();
 		}
 		this.stopped = false;
-		this.freezeQ.splice(0, this.freezeQ.length);
 	}
 
 	public getMessages(): MessageStore[] {
