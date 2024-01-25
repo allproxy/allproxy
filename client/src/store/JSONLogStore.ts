@@ -347,6 +347,7 @@ export default class JSONLogStore {
 				if (logEntry.message === undefined) logEntry.message = '';
 				break;
 		}
+		if (typeof logEntry.level === 'number') logEntry.level = logEntry.level + '';
 		return logEntry;
 	}
 

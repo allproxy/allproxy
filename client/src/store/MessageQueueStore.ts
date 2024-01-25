@@ -222,6 +222,16 @@ export default class MessageQueueStore {
 						field = body[this.sortByField.toUpperCase()];
 					}
 				}
+				if (field === undefined && message.protocol == 'log:' && typeof messageStore.getLogEntry().additionalJSON === 'object') {
+					body = messageStore.getLogEntry().additionalJSON as { [key: string]: any; };
+					field = body[this.sortByField];
+					if (field === undefined) {
+						field = body[this.sortByField.toLowerCase()];
+					}
+					if (field === undefined) {
+						field = body[this.sortByField.toUpperCase()];
+					}
+				}
 				if (field === undefined && message.protocol === 'log:') {
 					switch (this.sortByField) {
 						case 'date':
@@ -374,6 +384,10 @@ export default class MessageQueueStore {
 		for (const message of newMessages) {
 			if (message.getMessage().protocol !== 'log:') continue;
 			let json = message.getMessage().responseBody as { [key: string]: any };
+			json = {
+				...message.getLogEntry().additionalJSON,
+				...json
+			};
 			if (json['PREFIX'] === undefined && message.getMessage().path) {
 				const json2: { [key: string]: any } = {};
 				json2['PREFIX'] = message.getMessage().path;
