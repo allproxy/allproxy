@@ -4,7 +4,7 @@ import MessageStore from './MessageStore';
 import { PROXY_TAB_NAME, mainTabStore } from './MainTabStore';
 import { dateToHHMMSS } from "../components/Request";
 
-export const DEFAULT_LIMIT = 100000;
+export const DEFAULT_LIMIT = 50000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 
 export default class MessageQueueStore {

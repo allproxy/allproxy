@@ -3,7 +3,7 @@ import React from 'react';
 import { Dialog, DialogTitle } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
 import { importJSONFile } from '../ImportJSONFile';
-import pako from 'pako';
+import FileReaderStore from '../store/FileReaderStore';
 
 type Props = {
 	open: boolean,
@@ -11,40 +11,16 @@ type Props = {
 };
 const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
-	const [fileContent, setFileContent] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
 	const [submit, setSubmit] = React.useState(false);
+	const [fileReaderStore, setFileReadStore] = React.useState(new FileReaderStore());
 
 	var input = document.createElement('input');
 	input.type = 'file';
 
-	let fileName: string;
-
 	input.onchange = (e: any) => {
 		let file = e.target.files[0];
-
-		// setting up the reader
-		const reader = new FileReader();
-
-		fileName = file.name;
-		const isGzip = file.type.indexOf('gzip') !== -1;
-		if (isGzip) {
-			reader.readAsArrayBuffer(file);
-		} else {
-			reader.readAsText(file, 'UTF-8');
-		}
-
-		let content;
-		// here we tell the reader what to do when it's done reading...
-		reader.onload = (readerEvent: any) => {
-			content = readerEvent.target.result; // this is the content!
-
-			if (isGzip) {
-				setFileContent(pako.ungzip(content, { to: 'string' }));
-			} else {
-				setFileContent(content);
-			}
-		};
+		fileReaderStore.read(file);
 	};
 
 	if (submit) {
@@ -52,16 +28,14 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		setSubmit(false);
 		onClose();
 		setTimeout(() => {
-			if (!!fileContent.length) {
-				if (fileContent.startsWith('[')) {
-					setFileContent(jsonToJsonl(fileContent));
-				}
-				mainTabStore.importTab(tabName, importJSONFile(fileName, fileContent, []));
-				setFileContent('');
-			} else if (pastedJSON.length > 0) {
+			if (pastedJSON.length > 0) {
 				const jsonLines = jsonToJsonl(pastedJSON);
-				mainTabStore.importTab(tabName, importJSONFile(tabName, jsonLines, []));
+				const lines = jsonLines.split('\n');
 				setPastedJSON('');
+				mainTabStore.importTab(tabName, importJSONFile(tabName, lines, []));
+			} else {
+				fileReaderStore.addTab(tabName);
+				setFileReadStore(new FileReaderStore());
 			}
 			setTabName('');
 			mainTabStore.setUpdating(false);
@@ -110,7 +84,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					/>
 				</div>
 				<button className={'btn btn-success'} style={{ float: "right" }}
-					disabled={tabName.length === 0 || (fileContent.length === 0 && pastedJSON.length === 0)}
+					disabled={tabName.length === 0 || (!fileReaderStore.isFileContentLoaded() && pastedJSON.length === 0)}
 					onClick={() => setSubmit(true)}
 				>
 					Submit
@@ -120,7 +94,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	);
 });
 
-function jsonToJsonl(jsonString: string) {
+export function jsonToJsonl(jsonString: string) {
 	const flatten = function (json: object) {
 		let line = JSON.stringify(json);
 		line = line.replace(/\\n/g, '');

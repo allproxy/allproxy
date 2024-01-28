@@ -1,69 +1,74 @@
 import Message, { MessageType } from "./common/Message";
 import { untruncateJson } from "./UntruncateJSON";
 
-export function importJSONFile(fileName: string, jsonContent: string, primaryJsonFields: string[]): Message[] {
+export function importJSONFile(fileName: string, jsonLines: string[], primaryJsonFields: string[]): Message[] {
     const messages: Message[] = [];
-    let sequenceNumber = 0;
+    let sequenceNumber = 1;
     const hostname = primaryJsonFields.join(',');
-    for (let record of jsonContent.split('\n')) {
-        record = record.trim();
-        if (record.length === 0) continue;
-
-        // Look for embedded JSON object
-        let jsonTruncated = false;
-        let nonJson = '';
-        if (!record.startsWith('{') && !record.startsWith('[')) {
-            const q = record.indexOf('"');
-            const p = record.indexOf('{');
-            const a = record.indexOf('[');
-            let i = -1;
-            if (p === -1) i = a;
-            else if (a === -1) i = p;
-            else i = Math.min(p, a);
-            if (i !== -1 && i < q) {
-                try {
-                    const json = JSON.parse(record.substring(i));
-                    nonJson = record.substring(0, i) + ' ';
-                    record = JSON.stringify(json);
-                } catch (e) {
-                    let fixed = '';
-                    try {
-                        fixed = untruncateJson(record.substring(i));
-                        jsonTruncated = true;
-                        const json = JSON.parse(fixed);
-                        nonJson = record.substring(0, i) + ' ';
-                        record = JSON.stringify(json);
-                    } catch (e) {
-                    }
-                }
-            }
-        }
-
-        let json: { [key: string]: any } | undefined;
-        try {
-            json = JSON.parse(record);
-        } catch (e) {
-            try {
-                json = JSON.parse(untruncateJson(record));
-                jsonTruncated = true;
-            } catch (e) {
-            }
-        }
-
+    for (let record of jsonLines) {
         sequenceNumber++;
-        if (json) {
-            const m = newJSONMessage(nonJson, json, sequenceNumber, fileName, hostname);
-            m.jsonTruncated = jsonTruncated;
-            messages.push(m);
-
-        } else {
-            messages.push(newJSONMessage('', record, sequenceNumber, fileName, hostname));
+        const message = newMessage(record, sequenceNumber, fileName, hostname);
+        if (message) {
+            messages.push(message);
+            ++sequenceNumber;
         }
     }
 
     return messages;
+}
 
+export function newMessage(record: string, sequenceNumber: number, fileName: string, hostname: string): Message | undefined {
+    record = record.trim();
+    if (record.length === 0) return;
 
+    // Look for embedded JSON object
+    let jsonTruncated = false;
+    let nonJson = '';
+    if (!record.startsWith('{') && !record.startsWith('[')) {
+        const q = record.indexOf('"');
+        const p = record.indexOf('{');
+        const a = record.indexOf('[');
+        let i = -1;
+        if (p === -1) i = a;
+        else if (a === -1) i = p;
+        else i = Math.min(p, a);
+        if (i !== -1 && i < q) {
+            try {
+                const json = JSON.parse(record.substring(i));
+                nonJson = record.substring(0, i) + ' ';
+                record = JSON.stringify(json);
+            } catch (e) {
+                let fixed = '';
+                try {
+                    fixed = untruncateJson(record.substring(i));
+                    jsonTruncated = true;
+                    const json = JSON.parse(fixed);
+                    nonJson = record.substring(0, i) + ' ';
+                    record = JSON.stringify(json);
+                } catch (e) {
+                }
+            }
+        }
+    }
+
+    let json: { [key: string]: any } | undefined;
+    try {
+        json = JSON.parse(record);
+    } catch (e) {
+        try {
+            json = JSON.parse(untruncateJson(record));
+            jsonTruncated = true;
+        } catch (e) {
+        }
+    }
+
+    if (json) {
+        const m = newJSONMessage(nonJson, json, sequenceNumber, fileName, hostname);
+        m.jsonTruncated = jsonTruncated;
+        return m;
+    } else {
+        return newJSONMessage('', record, sequenceNumber, fileName, hostname);
+    }
 }
 
 export function newJSONMessage(title: string, data: string | {}, sequenceNumber: number = 0, fileName: string = '', hostname: string = ''): Message {
