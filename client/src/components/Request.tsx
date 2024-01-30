@@ -10,6 +10,8 @@ import NoteDialog from "./NoteDialog";
 import { themeStore } from "../store/ThemeStore";
 import RequestURL from "./RequestURL";
 import DeleteDialog from "./DeleteDialog";
+import { jsonLogStore } from "../store/JSONLogStore";
+import { isJsonLogTab } from "./SideBar";
 
 
 type Props = {
@@ -251,8 +253,12 @@ export function dateToHHMMSS(d: Date) {
 	if (isNaN(d.getMonth()) || isNaN(d.getDate())) {
 		return "Invalid Date";
 	}
-	const monthDay = d.getMonth() + 1 + '/' + d.getDate();
-	return monthDay + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
+	if (isJsonLogTab() && jsonLogStore.isShowUtcChecked()) {
+		return d.toISOString().split('T')[1];
+	} else {
+		const monthDay = d.getMonth() + 1 + '/' + d.getDate();
+		return monthDay + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
+	}
 }
 
 export default Request;

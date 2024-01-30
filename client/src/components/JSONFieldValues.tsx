@@ -45,7 +45,11 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 				</button>
 			</div>
 			<pre>
-				{jsonFieldValues.map(value => <div style={{ fontFamily: "'Courier New', Courier, monospace" }}>{value}</div>)}
+				{jsonFieldValues.map(value =>
+					<div style={{ fontFamily: "'Courier New', Courier, monospace" }}>
+						{value}
+					</div>
+				)}
 			</pre>
 		</>
 	);
