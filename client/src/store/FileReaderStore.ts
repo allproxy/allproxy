@@ -44,13 +44,16 @@ export default class FileReaderStore {
 		this.excludeFilters = excludeFilter.split(' ').filter((s) => s !== '');
 	}
 
-	private readChunk(offset: number): Promise<string> {
+	private readChunk(offset: number, startTime: number): Promise<string> {
 		return new Promise<string>((resolve) => {
 			const readEventHandler = (evt: any) => {
 				if (evt.target.error == null) {
 					offset += evt.target.result.length;
 					resolve(evt.target.result); // callback for handling read chunk
 					//console.log(offset, fileSize);
+					const percent = (offset * 100 / this.file.size).toFixed(1);
+					const elapsedTime = (Date.now() - startTime) / 1000;
+					mainTabStore.setUpdating(true, percent + "% Complete, Seconds: " + elapsedTime.toFixed(0));
 				} else {
 					console.log("readChunk error: " + evt.target.error);
 					resolve('');
@@ -90,7 +93,7 @@ export default class FileReaderStore {
 				};
 			} else {
 				for (let offset = 0; offset < this.file.size;) {
-					let chunk = await this.readChunk(offset);
+					let chunk = await this.readChunk(offset, start);
 					const lastNewline = chunk.lastIndexOf('\n');
 					offset += lastNewline + 1;
 
