@@ -14,14 +14,13 @@ function logResponseTime(message: string, start: number) {
 	}
 }
 
-
 export default class FileReaderStore {
 	private file: any;
 	private lines: string[] = [];
 	private nextLineNumber: number = 1;
 	private eof = false;
-	private includeFilter: string = '';
-	private excludeFilter: string = '';
+	private includeFilters: string[] = [];
+	private excludeFilters: string[] = [];
 
 
 	public constructor() {
@@ -41,8 +40,8 @@ export default class FileReaderStore {
 	}
 
 	public setFilters(includeFilter: string, excludeFilter: string) {
-		this.includeFilter = includeFilter;
-		this.excludeFilter = excludeFilter;
+		this.includeFilters = includeFilter.split(' ').filter((s) => s !== '');
+		this.excludeFilters = excludeFilter.split(' ').filter((s) => s !== '');
 	}
 
 	private readChunk(offset: number): Promise<string> {
@@ -90,37 +89,51 @@ export default class FileReaderStore {
 					resolve(true);
 				};
 			} else {
-				let truncated = '';
-				let includeMatches = 0;
 				for (let offset = 0; offset < this.file.size;) {
 					let chunk = await this.readChunk(offset);
-					if (truncated !== '') chunk = truncated + chunk;
+					const lastNewline = chunk.lastIndexOf('\n');
+					offset += lastNewline + 1;
+
+					if (!this.isMatch(chunk)) {
+						continue;
+					}
+
 					const lines = chunk.split('\n');
-					truncated = lines.splice(lines.length - 1, 1)[0];
+					lines.splice(lines.length - 1, 1); // remove last partial line
 					for (let i = 0; i < lines.length; ++i) {
 						const line = lines[i];
-						if (this.includeFilter === '' || line.indexOf(this.includeFilter) !== -1) {
-							++includeMatches;
-							if (this.excludeFilter === '' || line.indexOf(this.excludeFilter) === -1) {
-								this.lines.push(line);
-							}
+						if (this.isMatch(line)) {
+							this.lines.push(line);
 						}
 					}
-					offset += chunk.length;
 
 					if (this.lines.length >= this.nextLineNumber + maxLinesPerTab) break;
 				}
-				if (this.lines.length === 0 && (this.includeFilter !== '' || this.excludeFilter !== '')) {
-					if (this.includeFilter !== '' && includeMatches === 0) {
-						alert(`No lines include: ${this.includeFilter}`);
-					} else {
-						alert(`All lines are excluded by filter: ${this.excludeFilter}`);
-					}
+
+				if (this.lines.length === 0) {
+					alert('No lines match your filter criteria!');
 				}
 				logResponseTime('read file time', start);
 				resolve(true);
 			}
 		});
+	}
+
+	private isMatch(s: string): boolean {
+
+		for (const includeFilter of this.includeFilters) {
+			if (s.indexOf(includeFilter) === -1) {
+				return false;
+			}
+		}
+
+		for (const excludeFilter of this.excludeFilters) {
+			if (s.indexOf(excludeFilter) !== -1) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public addTab(tabName?: string) {

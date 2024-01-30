@@ -50,7 +50,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	}
 
 	return (
-		<Dialog onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
+		<Dialog maxWidth="md" onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
 			<DialogTitle id="simple-dialog-title">Import JSON Log</DialogTitle>
 			<div style={{ padding: " 0 1rem 1rem 1rem" }}>
 				<div className="primary-text-color">Tab Name:</div>
@@ -82,12 +82,12 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					<>
 						<hr></hr><div className="primary-text-color" style={{}}>Include Filter:</div><input className="form-control" style={{ width: '100%' }}
 							type="text"
-							placeholder="Include lines with matching substring"
+							placeholder="Include lines matching all space separated strings"
 							value={includeFilter}
 							onChange={(e) => setIncludeFilter(e.target.value)}
 						></input><div className="primary-text-color" style={{}}>Exclude Filter:</div><input className="form-control" style={{ width: '100%', marginBottom: '1rem' }}
 							type="text"
-							placeholder="Exclude lines with matching substring"
+							placeholder="Exclude lines matching matching all space separated substring"
 							value={excludeFilter}
 							onChange={(e) => setExcludeFilter(e.target.value)}
 						></input>
