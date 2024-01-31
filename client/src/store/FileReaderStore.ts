@@ -21,6 +21,7 @@ export default class FileReaderStore {
 	private eof = false;
 	private includeFilters: string[] = [];
 	private excludeFilters: string[] = [];
+	private operator: 'and' | 'or' = 'and';
 
 
 	public constructor() {
@@ -42,6 +43,11 @@ export default class FileReaderStore {
 	public setFilters(includeFilter: string, excludeFilter: string) {
 		this.includeFilters = includeFilter.split(' ').filter((s) => s !== '');
 		this.excludeFilters = excludeFilter.split(' ').filter((s) => s !== '');
+	}
+
+	public setOperator(operator: 'and' | 'or') {
+		this.operator = operator;
+		//console.log(this.operator);
 	}
 
 	private readChunk(offset: number, startTime: number): Promise<string> {
@@ -114,7 +120,7 @@ export default class FileReaderStore {
 				}
 
 				if (this.lines.length === 0) {
-					alert('No lines match your filter criteria!');
+					alert('No lines match your filter criteria: ' + this.includeFilters.join(' ' + this.operator));
 				}
 				logResponseTime('read file time', start);
 				resolve(true);
@@ -123,17 +129,38 @@ export default class FileReaderStore {
 	}
 
 	private isMatch(s: string): boolean {
-
-		for (const includeFilter of this.includeFilters) {
-			if (s.indexOf(includeFilter) === -1) {
-				return false;
+		if (this.operator === 'and') {
+			for (const includeFilter of this.includeFilters) {
+				if (s.indexOf(includeFilter) === -1) {
+					return false;
+				}
 			}
-		}
 
-		for (const excludeFilter of this.excludeFilters) {
-			if (s.indexOf(excludeFilter) !== -1) {
-				return false;
+			for (const excludeFilter of this.excludeFilters) {
+				if (s.indexOf(excludeFilter) !== -1) {
+					return false;
+				}
 			}
+		} else {
+			let match = false;
+			for (const includeFilter of this.includeFilters) {
+				if (s.indexOf(includeFilter) !== -1) {
+					match = true;
+					break;
+				}
+			}
+			if (!match) return false;
+
+			if (this.excludeFilters.length === 0) {
+				return true;
+			}
+
+			for (const excludeFilter of this.excludeFilters) {
+				if (s.indexOf(excludeFilter) !== -1) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		return true;

@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Dialog, DialogTitle } from '@material-ui/core';
+import { Dialog, DialogTitle, ListItemText, MenuItem, Select } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
 import { importJSONFile } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
@@ -17,6 +17,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [fileReaderStore, setFileReadStore] = React.useState(new FileReaderStore());
 	const [includeFilter, setIncludeFilter] = React.useState<string>("");
 	const [excludeFilter, setExcludeFilter] = React.useState<string>("");
+	const [operator, setOperator] = React.useState<'and' | 'or'>("and");
 
 	var input = document.createElement('input');
 	input.type = 'file';
@@ -36,6 +37,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				setPastedJSON('');
 				mainTabStore.importTab(tabName, importJSONFile(tabName, lines, []));
 			} else {
+				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter, excludeFilter);
 				await fileReaderStore.read(selectedFile);
 				fileReaderStore.addTab(tabName);
@@ -80,12 +82,44 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				</div>
 				{selectedFile ? (
 					<>
-						<hr></hr><div className="primary-text-color" style={{}}>Include Filter:</div><input className="form-control" style={{ width: '100%' }}
+						<hr></hr>
+						<div style={{ display: 'flex' }}>
+							<div className="primary-text-color" style={{}}>Operator:</div>
+							<Select
+								value={operator === 'and'
+									? 'and'
+									: 'or'}
+								renderValue={() =>
+									<span style={{ color: 'black', marginLeft: '.5rem' }}>
+										{operator === 'and'
+											? <span>AND</span>
+											: <span>OR</span>
+										}
+									</span>
+								}
+								onChange={(e) => setOperator(e.target.value as 'and' | 'or')}
+							>
+								<MenuItem
+									value="and"
+								>
+									<ListItemText primary="AND" />
+								</MenuItem>
+								<MenuItem
+									value="or"
+								>
+									<ListItemText primary="OR" />
+								</MenuItem>
+							</Select>
+						</div>
+						<div className="primary-text-color" style={{}}>Include Filter:</div>
+						<input className="form-control" style={{ width: '100%' }}
 							type="text"
 							placeholder="Include lines matching all space separated strings"
 							value={includeFilter}
 							onChange={(e) => setIncludeFilter(e.target.value)}
-						></input><div className="primary-text-color" style={{}}>Exclude Filter:</div><input className="form-control" style={{ width: '100%', marginBottom: '1rem' }}
+						></input>
+						<div className="primary-text-color" style={{}}>Exclude Filter:</div>
+						<input className="form-control" style={{ width: '100%', marginBottom: '1rem' }}
 							type="text"
 							placeholder="Exclude lines matching matching all space separated substring"
 							value={excludeFilter}
