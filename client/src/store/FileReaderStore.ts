@@ -5,7 +5,7 @@ import { importJSONFile, newMessage } from "../ImportJSONFile";
 import MessageStore from "./MessageStore";
 
 const maxLinesPerTab = 10000;
-const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1000 * 1024;
+const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1024 * 1024;
 
 function logResponseTime(message: string, start: number) {
 	const debug = (window as any).debug;
