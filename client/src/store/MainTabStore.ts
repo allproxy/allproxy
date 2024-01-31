@@ -331,8 +331,7 @@ export default class MainTabStore {
 	public copyMessage(message: Message): string {
 		let json = { ...message.responseBody as { [key: string]: any } };
 		for (const key in json) {
-			if (key === 'PREFIX' ||
-				key.startsWith('_')) {
+			if (key === 'PREFIX') {
 				let deleteIt = true;
 				for (const field of jsonLogStore.getJSONFieldNames()) {
 					if (key.toLowerCase() === field.toLowerCase()) {
