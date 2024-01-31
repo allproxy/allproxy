@@ -116,7 +116,7 @@ export default class FileReaderStore {
 						}
 					}
 
-					if (this.lines.length >= this.nextLineNumber + maxLinesPerTab) break;
+					if (this.lines.length >= maxLinesPerTab) break;
 				}
 
 				if (this.lines.length === 0) {
