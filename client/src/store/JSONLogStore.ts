@@ -130,6 +130,7 @@ export default class JSONLogStore {
 	private briefMap: { [key: string]: boolean } = {};
 
 	private rawJsonChecked = false;
+	private showUtcChecked = false;
 
 	private script = defaultScript;
 
@@ -200,6 +201,14 @@ export default class JSONLogStore {
 	}
 	@action public toggleRawJsonChecked() {
 		this.rawJsonChecked = !this.rawJsonChecked;
+		filterStore.filterUpdated();
+	}
+
+	public isShowUtcChecked() {
+		return this.showUtcChecked;
+	}
+	@action public toggleShowUtcChecked() {
+		this.showUtcChecked = !this.showUtcChecked;
 		filterStore.filterUpdated();
 	}
 
@@ -604,7 +613,11 @@ export function getJsonFieldValues(fields: string[]): string[] {
 		const values: Values = [];
 		for (const field of fields) {
 			if (field === 'Time') {
-				values.push(messageStore.getLogEntry().date.toTimeString().split(' ')[0]);
+				if (jsonLogStore.isShowUtcChecked()) {
+					values.push(messageStore.getLogEntry().date.toISOString().split('T')[1]);
+				} else {
+					values.push(messageStore.getLogEntry().date.toTimeString().split(' ')[0]);
+				}
 			} else if (field === 'Level') {
 				values.push(messageStore.getLogEntry().level);
 			} else if (field === 'Message') {

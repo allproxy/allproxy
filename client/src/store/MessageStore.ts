@@ -22,6 +22,23 @@ export default class MessageStore {
     private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
 
     public constructor(message: Message, auto: boolean = false) {
+        let keys = Object.keys(message.requestHeaders);
+        for (const key of keys) {
+            const lkey = key.toLowerCase();
+            if (lkey !== key) {
+                message.requestHeaders[lkey] = message.requestHeaders[key];
+                delete message.requestHeaders[key];
+            }
+        }
+        keys = Object.keys(message.responseHeaders);
+        for (const key of keys) {
+            const lkey = key.toLowerCase();
+            if (lkey !== key) {
+                message.requestHeaders[lkey] = message.responseHeaders[key];
+                delete message.responseHeaders[key];
+            }
+        }
+
         this.message = message;
         this.url = this.formatUrl(message.url!);
         this._isError = this.isErrorResponse(message);
@@ -231,7 +248,7 @@ export default class MessageStore {
     }
 
     private getUserAgent(): string {
-        return this.message.requestHeaders ? this.message.requestHeaders["user-agent"] : "";
+        return this.message.requestHeaders && this.message.requestHeaders["user-agent"] ? this.message.requestHeaders["user-agent"] : "";
     }
 
     public getUserAgentDisplayable(): string | undefined {

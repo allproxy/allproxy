@@ -8,6 +8,7 @@ const StatusBox = observer((props: PropsWithChildren<Props>) => {
 	return (
 		<div hidden={!props.show}
 			style={{
+				fontFamily: 'monospace',
 				display: 'inline-block',
 				position: 'absolute',
 				zIndex: 999999,

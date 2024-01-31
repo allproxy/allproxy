@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Dialog, DialogTitle } from '@material-ui/core';
+import { Dialog, DialogTitle, ListItemText, MenuItem, Select } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
 import { importJSONFile } from '../ImportJSONFile';
-import pako from 'pako';
+import FileReaderStore from '../store/FileReaderStore';
 
 type Props = {
 	open: boolean,
@@ -11,65 +11,48 @@ type Props = {
 };
 const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
-	const [fileContent, setFileContent] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
+	const [selectedFile, setSelectedFile] = React.useState(undefined);
 	const [submit, setSubmit] = React.useState(false);
+	const [fileReaderStore, setFileReadStore] = React.useState(new FileReaderStore());
+	const [includeFilter, setIncludeFilter] = React.useState<string>("");
+	const [excludeFilter, setExcludeFilter] = React.useState<string>("");
+	const [operator, setOperator] = React.useState<'and' | 'or'>("and");
 
 	var input = document.createElement('input');
 	input.type = 'file';
 
-	let fileName: string;
-
 	input.onchange = (e: any) => {
-		let file = e.target.files[0];
-
-		// setting up the reader
-		const reader = new FileReader();
-
-		fileName = file.name;
-		const isGzip = file.type.indexOf('gzip') !== -1;
-		if (isGzip) {
-			reader.readAsArrayBuffer(file);
-		} else {
-			reader.readAsText(file, 'UTF-8');
-		}
-
-		let content;
-		// here we tell the reader what to do when it's done reading...
-		reader.onload = (readerEvent: any) => {
-			content = readerEvent.target.result; // this is the content!
-
-			if (isGzip) {
-				setFileContent(pako.ungzip(content, { to: 'string' }));
-			} else {
-				setFileContent(content);
-			}
-		};
+		setSelectedFile(e.target.files[0]);
 	};
 
 	if (submit) {
 		mainTabStore.setUpdating(true);
 		setSubmit(false);
 		onClose();
-		setTimeout(() => {
-			if (!!fileContent.length) {
-				if (fileContent.startsWith('[')) {
-					setFileContent(jsonToJsonl(fileContent));
-				}
-				mainTabStore.importTab(tabName, importJSONFile(fileName, fileContent, []));
-				setFileContent('');
-			} else if (pastedJSON.length > 0) {
+		setTimeout(async () => {
+			if (pastedJSON.length > 0) {
 				const jsonLines = jsonToJsonl(pastedJSON);
-				mainTabStore.importTab(tabName, importJSONFile(tabName, jsonLines, []));
+				const lines = jsonLines.split('\n');
 				setPastedJSON('');
+				mainTabStore.importTab(tabName, importJSONFile(tabName, lines, []));
+			} else {
+				fileReaderStore.setOperator(operator);
+				fileReaderStore.setFilters(includeFilter, excludeFilter);
+				await fileReaderStore.read(selectedFile);
+				fileReaderStore.addTab(tabName);
+				setFileReadStore(new FileReaderStore());
 			}
+			setSelectedFile(undefined);
 			setTabName('');
+			setIncludeFilter('');
+			setExcludeFilter('');
 			mainTabStore.setUpdating(false);
 		}, 1000);
 	}
 
 	return (
-		<Dialog onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
+		<Dialog maxWidth="md" onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
 			<DialogTitle id="simple-dialog-title">Import JSON Log</DialogTitle>
 			<div style={{ padding: " 0 1rem 1rem 1rem" }}>
 				<div className="primary-text-color">Tab Name:</div>
@@ -80,22 +63,10 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					value={tabName}
 					onChange={(value) => setTabName(value.target.value)}
 				/>
-
-				{/* <div className="primary-text-color">Primary JSON Field Names:</div>
-				<input className={'form-control'}
-					style={{
-						marginBottom: "1rem",
-						width: '500px',
-						height: '48px'
-					}}
-					value={primaryJSONFields}
-					onChange={(value) => setPrimaryJSONFields(value.target.value.split(','))}
-					placeholder="Comma Separated List"
-				/> */}
-
+				<hr></hr>
 				<div className="primary-text-color">Import File or Paste Text:</div>
-				<div style={{ display: "flex", alignItems: "center", margin: ".5rem 0 1rem 0" }}>
-					<button className={'btn btn-primary btn-lg'} style={{ whiteSpace: 'nowrap' }}
+				<div style={{ display: "flex", alignItems: "center", margin: ".5rem 0 .5rem 0" }}>
+					<button className={'btn btn-primary btn-lg'} style={{ whiteSpace: 'nowrap', marginRight: '.5rem' }}
 						onClick={() => input.click()}
 					>
 						Import File
@@ -109,8 +80,56 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 						onChange={(value) => { setPastedJSON(value.target.value); }}
 					/>
 				</div>
-				<button className={'btn btn-success'} style={{ float: "right" }}
-					disabled={tabName.length === 0 || (fileContent.length === 0 && pastedJSON.length === 0)}
+				{selectedFile ? (
+					<>
+						<hr></hr>
+						<div style={{ display: 'flex' }}>
+							<div className="primary-text-color" style={{}}>Operator:</div>
+							<Select
+								value={operator === 'and'
+									? 'and'
+									: 'or'}
+								renderValue={() =>
+									<span style={{ color: 'black', marginLeft: '.5rem' }}>
+										{operator === 'and'
+											? <span>AND</span>
+											: <span>OR</span>
+										}
+									</span>
+								}
+								onChange={(e) => setOperator(e.target.value as 'and' | 'or')}
+							>
+								<MenuItem
+									value="and"
+								>
+									<ListItemText primary="AND" />
+								</MenuItem>
+								<MenuItem
+									value="or"
+								>
+									<ListItemText primary="OR" />
+								</MenuItem>
+							</Select>
+						</div>
+						<div className="primary-text-color" style={{}}>Include Filter:</div>
+						<input className="form-control" style={{ width: '100%' }}
+							type="text"
+							placeholder="Include lines matching all space separated strings"
+							value={includeFilter}
+							onChange={(e) => setIncludeFilter(e.target.value)}
+						></input>
+						<div className="primary-text-color" style={{}}>Exclude Filter:</div>
+						<input className="form-control" style={{ width: '100%', marginBottom: '1rem' }}
+							type="text"
+							placeholder="Exclude lines matching matching all space separated substring"
+							value={excludeFilter}
+							onChange={(e) => setExcludeFilter(e.target.value)}
+						></input>
+					</>
+				) : null}
+				<hr></hr>
+				<button className={'btn btn-success btn-lg'} style={{ width: "100%" }}
+					disabled={tabName.length === 0 || (!selectedFile && pastedJSON.length === 0)}
 					onClick={() => setSubmit(true)}
 				>
 					Submit
@@ -120,7 +139,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	);
 });
 
-function jsonToJsonl(jsonString: string) {
+export function jsonToJsonl(jsonString: string) {
 	const flatten = function (json: object) {
 		let line = JSON.stringify(json);
 		line = line.replace(/\\n/g, '');

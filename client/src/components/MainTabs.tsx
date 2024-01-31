@@ -1,13 +1,14 @@
-import { Tab, Tabs } from '@material-ui/core';
+import { IconButton, Tab, Tabs } from '@material-ui/core';
 import MessageQueueStore from '../store/MessageQueueStore';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import MainTabContent from './MainTabContent';
-import MainTabStore, { PROXY_TAB_NAME } from '../store/MainTabStore';
+import MainTabStore, { PROXY_TAB_NAME, mainTabStore } from '../store/MainTabStore';
 import CreateTabNameDialog from './CreateTabDialog';
 import { urlPathStore } from '../store/UrlPathStore';
 import LayoutStore from '../store/LayoutStore';
+import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
 type Props = {
 	messageQueueStore: MessageQueueStore,
@@ -83,44 +84,54 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 												title="Copy to new tab"
 												onClick={() => handleCopyProxyTab(value)}
 											/>
-											: <div className={'maintab__close fa fa-times'}
-												style={{ marginLeft: '.5rem' }}
-												title="Delete tab"
-												onClick={(e) => handleDeleteTab(e, value)}
-											/>
+											:
+											showReadMoreIcon(i) ?
+												<IconButton style={{ color: 'green' }}
+													title={readMoreIconTooltip(i)}
+													onClick={() => handleReadMore(i)}>
+													<ReadMoreIcon />
+												</IconButton>
+												: <div className={'maintab__close fa fa-times'}
+													style={{ marginLeft: '.5rem' }}
+													title="Delete tab"
+													onClick={(e) => handleDeleteTab(e, value)}
+												/>
+
 										}
 									</div>
 								}>
 							</Tab>
 						))}
 					</Tabs>
-					{mainTabStore.getTabNames().map((value, i) => (
-						(i > 0 || urlPathStore.getApp() !== 'jlogviewer') &&
-						<TabPanel
-							key={value}
-							value={value}>
-							<MainTabContent
-								messageQueueStore={messageQueueStore}
-								selectedReqSeqNum={mainTabStore.getSelectedReqSeqNumbers()[i]}
-								setSelectedReqSeqNum={
-									(num) => mainTabStore.getSelectedReqSeqNumbers()[i] = num
-								}
-								scrollTop={mainTabStore.getScrollTop()[i]}
-								setScrollTop={
-									(scrollTop) => mainTabStore.getScrollTop()[i] = scrollTop
-								}
-								renderSetTopIndex={mainTabStore.getRenderSetTopIndex()[i]}
-								setRenderSetTopIndex={
-									(scrollTop) => mainTabStore.getRenderSetTopIndex()[i] = scrollTop
-								}
-								highlightSeqNum={mainTabStore.getHightlightSeqNum()[i]}
-								setHighlightSeqNum={
-									(seqNum) => mainTabStore.getHightlightSeqNum()[i] = seqNum
-								}
-							/>
-						</TabPanel>
-					))}
-				</TabContext>
+					{
+						mainTabStore.getTabNames().map((value, i) => (
+							(i > 0 || urlPathStore.getApp() !== 'jlogviewer') &&
+							<TabPanel
+								key={value}
+								value={value}>
+								<MainTabContent
+									messageQueueStore={messageQueueStore}
+									selectedReqSeqNum={mainTabStore.getSelectedReqSeqNumbers()[i]}
+									setSelectedReqSeqNum={
+										(num) => mainTabStore.getSelectedReqSeqNumbers()[i] = num
+									}
+									scrollTop={mainTabStore.getScrollTop()[i]}
+									setScrollTop={
+										(scrollTop) => mainTabStore.getScrollTop()[i] = scrollTop
+									}
+									renderSetTopIndex={mainTabStore.getRenderSetTopIndex()[i]}
+									setRenderSetTopIndex={
+										(scrollTop) => mainTabStore.getRenderSetTopIndex()[i] = scrollTop
+									}
+									highlightSeqNum={mainTabStore.getHightlightSeqNum()[i]}
+									setHighlightSeqNum={
+										(seqNum) => mainTabStore.getHightlightSeqNum()[i] = seqNum
+									}
+								/>
+							</TabPanel>
+						))
+					}
+				</TabContext >
 			}
 			<CreateTabNameDialog
 				open={openCreateTapDialog}
@@ -131,8 +142,33 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 					}
 				}}
 			/>
-		</div>
+		</div >
 	);
 });
+
+function showReadMoreIcon(i: number) {
+	const fileReaderStore = mainTabStore.getFileReaderStores()[i];
+	return fileReaderStore && fileReaderStore.moreData() && mainTabStore.getTabCount() - 1 === i;
+}
+
+function readMoreIconTooltip(i: number) {
+	const fileReaderStore = mainTabStore.getFileReaderStores()[i];
+	if (!fileReaderStore) return "Read more lines from file";
+	return "Read more lines from " + fileReaderStore.getFileName() + " - next line is " + fileReaderStore.getNextLineNumber();
+}
+
+async function handleReadMore(i: number) {
+	if (!mainTabStore.isUpdating()) {
+		const fileReaderStore = mainTabStore.getFileReaderStores()[i];
+		if (fileReaderStore) {
+			await fileReaderStore.read(); // read more lines
+			mainTabStore.setUpdating(true);
+			setTimeout(() => {
+				fileReaderStore.addTab();
+				mainTabStore.setUpdating(false);
+			}, 1000);
+		}
+	}
+}
 
 export default MainTabs;

@@ -8,6 +8,7 @@ import fetchToCurl from 'fetch-to-curl';
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { isJsonLogTab } from "../components/SideBar";
 import { jsonLogStore } from "./JSONLogStore";
+import FileReaderStore from "./FileReaderStore";
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -22,6 +23,7 @@ class MainTabs {
 	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
 	private jsonPrimaryFieldNames: Map<string, string[]> = new Map();
 	private layoutMap: Map<string, LayoutStore> = new Map();
+	private fileReaderStores: (FileReaderStore | undefined)[] = [];
 
 	constructor() {
 		makeAutoObservable(this);
@@ -53,6 +55,7 @@ class MainTabs {
 		}
 		this.jsonPrimaryFieldsMap.set(key, jsonFields);
 		this.layoutMap.set(key, layout);
+		this.fileReaderStores.push(undefined);
 	}
 
 	public delete(key: string) {
@@ -66,6 +69,7 @@ class MainTabs {
 		this.fileNameMap.delete(key);
 		this.jsonPrimaryFieldsMap.delete(key);
 		this.layoutMap.delete(key);
+		this.fileReaderStores.splice(index, 1);
 	}
 
 	public count() {
@@ -117,6 +121,10 @@ class MainTabs {
 
 	public getLayout(key: string) {
 		return this.layoutMap.get(key);
+	}
+
+	public getFileReaderStores(): (FileReaderStore | undefined)[] {
+		return this.fileReaderStores;
 	}
 }
 
@@ -209,6 +217,10 @@ export default class MainTabStore {
 
 	public getLayout(name: string) {
 		return this.tabs.getLayout(name);
+	}
+
+	public getFileReaderStores() {
+		return this.tabs.getFileReaderStores();
 	}
 
 	public getTabCount() {
@@ -319,8 +331,7 @@ export default class MainTabStore {
 	public copyMessage(message: Message): string {
 		let json = { ...message.responseBody as { [key: string]: any } };
 		for (const key in json) {
-			if (key === 'PREFIX' ||
-				key.startsWith('_')) {
+			if (key === 'PREFIX') {
 				let deleteIt = true;
 				for (const field of jsonLogStore.getJSONFieldNames()) {
 					if (key.toLowerCase() === field.toLowerCase()) {
@@ -364,7 +375,8 @@ export default class MainTabStore {
 				doDateSort = false; // no need to re-sort
 			} catch (e) {
 				console.log('importJSONFile');
-				parsedBlob = importJSONFile(fileName, data, []);
+				const lines = data.split('\n');
+				parsedBlob = importJSONFile(fileName, lines, []);
 			}
 		} else {
 			parsedBlob = data;
@@ -397,13 +409,11 @@ export default class MainTabStore {
 			});
 		}
 		const chunkSize = DEFAULT_LIMIT;
-		let record = 1;
 		while (messageStores.length > 0) {
 			if (messageStores.length > chunkSize) {
 				const copy = messageStores.splice(0, chunkSize);
 				this.newTab(fileName, copy);
-				fileName = '...' + record;
-				record += chunkSize;
+				fileName = copy[0].getLogEntry().date.toISOString().split("T")[1];
 			} else {
 				this.newTab(fileName, messageStores);
 				messageStores.splice(0, messageStores.length);

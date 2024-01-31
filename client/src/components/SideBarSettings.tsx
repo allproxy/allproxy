@@ -43,6 +43,17 @@ const SideBarSettings = observer((): JSX.Element => {
 						hidden={jsonLogStore.getParsingMethod() === 'auto'}>
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
+								size="small"
+								defaultChecked={false}
+								value={jsonLogStore.isShowUtcChecked()}
+								onChange={() => jsonLogStore.toggleShowUtcChecked()} />
+							<div>UTC Time</div>
+						</div>
+					</div>
+					<div className="side-bar-checkbox-icon"
+						hidden={jsonLogStore.getParsingMethod() === 'auto'}>
+						<div style={{ display: 'flex' }}>
+							<Checkbox className="side-bar-checkbox"
 								disabled={jsonLogStore.isRawJsonChecked()}
 								size="small"
 								defaultChecked={false}

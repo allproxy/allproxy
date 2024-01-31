@@ -166,7 +166,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 												style={{ marginRight: '1rem' }}
 												onClick={() => handleExportSession(i)}
 											>
-												Export
+												Save
 											</button>
 											<div
 												style={{
