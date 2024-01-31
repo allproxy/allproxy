@@ -7,7 +7,7 @@ let colorMap: Map<string, { color: string, iconClass: string }> = new Map();
 
 export default function colorPicker(message: Message): { color: string, iconClass: string } {
 	const protocol = message.protocol;
-	const ua = message.requestHeaders['user-agent'];
+	const ua = message.requestHeaders['user-agent'] || '';
 	if (message.proxyConfig!.protocol === 'browser:') {
 		if (pickIcon(message.proxyConfig!.protocol, ua).indexOf('terminal') === -1) {
 			return { color: getBrowserIconColor(ua) || '#6c757d', iconClass: getBrowserIconColorClass(ua) || 'icon-color-terminal' };
