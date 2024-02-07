@@ -240,7 +240,7 @@ export default class FilterStore {
         this.sortByKeys = [];
 
         this.filter = filter;
-        this.searchFilter = this.filter;
+        this.searchFilter = this.filter.trim();
         this.updateBoolString();
         this.filterUpdated();
     }
