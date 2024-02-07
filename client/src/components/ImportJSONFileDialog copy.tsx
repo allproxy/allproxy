@@ -3,7 +3,7 @@ import React from 'react';
 import { Dialog, DialogTitle, ListItemText, MenuItem, Select } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
 import { importJSONFile } from '../ImportJSONFile';
-import FileReaderStore from '../store/FileReaderStore';
+import FileReaderStore, { maxLinesPerTab } from '../store/FileReaderStore';
 
 type Props = {
 	open: boolean,
@@ -15,6 +15,9 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [selectedFile, setSelectedFile] = React.useState<any>(undefined);
 	const [submit, setSubmit] = React.useState(false);
 	const [fileReaderStore, setFileReadStore] = React.useState(new FileReaderStore());
+	const [maxLines, setMaxLines] = React.useState<number>(maxLinesPerTab);
+	const [startTime, setStartTime] = React.useState<string>("");
+	const [endTime, setEndTime] = React.useState<string>("");
 	const [includeFilter, setIncludeFilter] = React.useState<string>("");
 	const [excludeFilter, setExcludeFilter] = React.useState<string>("");
 	const [operator, setOperator] = React.useState<'and' | 'or'>("and");
@@ -37,6 +40,8 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				setPastedJSON('');
 				mainTabStore.importTab(tabName, importJSONFile(tabName, lines, []));
 			} else {
+				//fileReaderStore.setMaxLines(maxLines);
+				//fileReaderStore.setTimeFilter('msg_timestamp', d1, d2);
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter, excludeFilter);
 				await fileReaderStore.read(selectedFile);
@@ -45,6 +50,9 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 			}
 			//setSelectedFile(undefined);
 			setTabName('');
+			//setMaxLines(maxLinesPerTab);
+			//setStartTime("");
+			//setEndTime("");
 			setIncludeFilter('');
 			setExcludeFilter('');
 			mainTabStore.setUpdating(false);
@@ -83,8 +91,37 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				{selectedFile ? (
 					<>
 						<hr></hr>
-						<span style={{ marginRight: '1rem' }}>{selectedFile.name}</span>
-						<span className="primary-text-color">{selectedFileSize(selectedFile)}</span>
+						{selectedFile && (
+							<>
+								<span style={{ marginRight: '1rem' }}>{selectedFile.name}</span>
+								<span className="primary-text-color">{selectedFileSize(selectedFile)}</span>
+								<hr></hr>
+							</>
+						)}
+						<div className="primary-text-color">Time Filter - is rounded down to nearest second:</div>
+						<div style={{ display: 'flex' }}>
+							<input className="form-control" style={{ width: '100%', color: getDateColor(startTime) }}
+								type="text"
+								placeholder="Start time - (e.g., 2024-02-02T12:48:42.125Z)"
+								value={startTime}
+								onChange={(e) => setStartTime(e.target.value)}
+							/>
+							<div className="primary-text-color" style={{ margin: '0 .5rem', lineHeight: '38px' }}>to</div>
+							<input className="form-control" style={{ width: '100%', color: getDateColor(endTime) }}
+								type="text"
+								placeholder="End time - (e.g., 2024-02-02T12:48:43.356Z)"
+								value={endTime}
+								onChange={(e) => setEndTime(e.target.value)}
+							/>
+						</div>
+						< div title="Maximum number of lines to read">
+							<div className="primary-text-color">Maximum lines to read:</div>
+							<input className="form-control" style={{ width: '100%' }}
+								type="number"
+								value={maxLines}
+								onChange={(e) => setMaxLines(parseInt(e.target.value))}
+							/>
+						</div>
 						<hr></hr>
 						<div style={{ display: 'flex' }}>
 							<div className="primary-text-color" style={{}}>Operator:</div>
@@ -114,21 +151,20 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 								</MenuItem>
 							</Select>
 						</div>
-						<div className="primary-text-color" style={{}}>Filter:</div>
+						<div className="primary-text-color" style={{}}>Include Filter:</div>
 						<input className="form-control" style={{ width: '100%' }}
 							type="text"
+							placeholder="Include lines matching all space separated strings"
 							value={includeFilter}
 							onChange={(e) => setIncludeFilter(e.target.value)}
 						></input>
-						<div hidden>
-							<div className="primary-text-color" style={{}}>Exclude Filter:</div>
-							<input className="form-control" style={{ width: '100%', marginBottom: '1rem' }}
-								type="text"
-								placeholder="Exclude lines"
-								value={excludeFilter}
-								onChange={(e) => setExcludeFilter(e.target.value)}
-							></input>
-						</div>
+						<div className="primary-text-color" style={{}}>Exclude Filter:</div>
+						<input className="form-control" style={{ width: '100%', marginBottom: '1rem' }}
+							type="text"
+							placeholder="Exclude lines matching matching all space separated substring"
+							value={excludeFilter}
+							onChange={(e) => setExcludeFilter(e.target.value)}
+						></input>
 					</>
 				) : null}
 				<hr></hr>
@@ -142,6 +178,14 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		</Dialog >
 	);
 });
+
+function getDateColor(s: string) {
+	const d = new Date(s);
+	if (d.toString() === "Invalid Date") {
+		return 'red';
+	}
+	return undefined;
+}
 
 function selectedFileSize(selectedFile: any): string {
 	if (selectedFile.size >= 1024 * 1024 * 1024) {
