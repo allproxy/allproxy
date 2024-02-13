@@ -518,7 +518,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJso
 }
 
 export function getJSONValue(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
-	if (Object.keys(json).length > 0) {
+	if (json && Object.keys(json).length > 0) {
 		let value: string | number | undefined = undefined;
 		value = eval('json');
 		if (value !== undefined) {

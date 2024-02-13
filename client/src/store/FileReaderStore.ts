@@ -4,7 +4,7 @@ import { mainTabStore } from "./MainTabStore";
 import { importJSONFile, newMessage } from "../ImportJSONFile";
 import MessageStore from "./MessageStore";
 
-const maxLinesPerTab = 10000;
+export const maxLinesPerTab = 10000;
 const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1024 * 1024;
 
 function logResponseTime(message: string, start: number) {
@@ -116,7 +116,7 @@ export default class FileReaderStore {
 						}
 					}
 
-					if (this.lines.length >= this.nextLineNumber + maxLinesPerTab) break;
+					if (this.lines.length >= maxLinesPerTab) break;
 				}
 
 				if (this.lines.length === 0) {

@@ -240,7 +240,7 @@ export default class FilterStore {
         this.sortByKeys = [];
 
         this.filter = filter;
-        this.searchFilter = this.filter;
+        this.searchFilter = this.filter.trim();
         this.updateBoolString();
         this.filterUpdated();
     }
@@ -593,21 +593,21 @@ export default class FilterStore {
                         if (messageStore.getLogEntry().appName.startsWith(value)) return false;
                     }
                 } else {
-                    if (typeof message.requestBody !== 'string') {
+                    if (message.requestBody && typeof message.requestBody === 'object') {
                         if (key === '*' && JSON.stringify(message.requestBody).indexOf(`:"${value}"`) !== -1) {
                             return false;
                         } else {
                             if (this.isJsonKeyValueMatch(key, value, operator, message.requestBody as { [key: string]: any })) return false;
                         }
                     }
-                    if (typeof message.requestHeaders !== 'string') {
+                    if (typeof message.requestHeaders === 'object') {
                         if (key === '*' && JSON.stringify(message.requestHeaders).indexOf(`:"${value}"`) !== -1) {
                             return false;
                         } else {
                             if (this.isJsonKeyValueMatch(key, value, operator, message.requestHeaders as { [key: string]: any })) return false;
                         }
                     }
-                    if (typeof message.responseHeaders !== 'string') {
+                    if (typeof message.responseHeaders === 'object') {
                         if (key === '*' && JSON.stringify(message.responseHeaders).indexOf(`:"${value}"`) !== -1) {
                             return false;
                         } else {

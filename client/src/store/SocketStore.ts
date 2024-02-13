@@ -217,6 +217,22 @@ export default class SocketStore {
 	public emitLaunchBrowser(browser: Browser) {
 		this.socket?.emit('launch browser', browser);
 	}
+
+	public emitIsFileInDownloads(fileName: string): Promise<boolean> {
+		return new Promise((resolve) => {
+			this.socket?.emit('is file in downloads', fileName, (result: boolean) => {
+				resolve(result);
+			});
+		});
+	}
+
+	public emitReadFile(fileName: string, operator: 'and' | 'or', filters: string[], maxLines: number): Promise<string[]> {
+		return new Promise((resolve) => {
+			this.socket?.emit('read file', fileName, operator, filters, maxLines, (lines: string[]) => {
+				resolve(lines);
+			});
+		});
+	}
 }
 
 export const socketStore = new SocketStore();

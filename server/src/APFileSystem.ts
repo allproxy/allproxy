@@ -5,6 +5,7 @@ import Paths from './Paths';
 import { commandExists } from './interceptors/util/fs';
 const spawn = require('child_process').spawn;
 const rmdir = require('rimraf');
+const { rgPath } = require('@vscode/ripgrep');
 
 export function dateToHHMMSS(d: Date) {
     if (isNaN(d.getMonth()) || isNaN(d.getDate())) {
@@ -141,11 +142,12 @@ export default class APFileSystem {
             try {
                 const subDir = Paths.platform(path);
 
+                const dontUseParallel = true;
                 let output: string;
-                if (await commandExists('parallel')) {
-                    output = await run(`find ${subDir} -type f -print0 | parallel -0 grep -l -m 1 ${match} {}`, Paths.getDataDir());
+                if (!dontUseParallel && await commandExists('parallel')) {
+                    output = await run(`find ${subDir} -type f -print0 | parallel -0 ${rgPath} -l -m 1 "${match}" {}`, Paths.getDataDir());
                 } else {
-                    output = await run(`find ${subDir} -type f -exec grep -l -m 1 ${match} {} +`, Paths.getDataDir());
+                    output = await run(`find ${subDir} -type f -exec ${rgPath} -l -m 1 "${match}" {} +`, Paths.getDataDir());
                 }
 
                 const files = output.toString().split('\n')
@@ -178,10 +180,10 @@ export default class APFileSystem {
     }
 }
 
-async function run(command: string, cwd: string): Promise<string> {
+export async function run(command: string, cwd: string): Promise<string> {
     //console.log(command);
     let response = ''
-    await new Promise(resolve => {
+    return await new Promise<string>(resolve => {
         const tokens = command.split(' ');
         const p = spawn(tokens[0], tokens.slice(1), { cwd, shell: true })
         p.stdout.on('data', (data: Buffer) => {
@@ -191,8 +193,8 @@ async function run(command: string, cwd: string): Promise<string> {
         p.stderr.on('data', (data: Buffer) => {
             console.error(data.toString());
         })
-        p.on('exit', resolve)
+        p.on('exit', () => {
+            resolve(response);
+        })
     })
-    //console.log(response)
-    return response;
 }

@@ -9,17 +9,23 @@ const defaultFsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || p
 const fs = new FS(urlPathStore.isLocalhost() ? 'allproxy' : document.location.hostname).promises;
 
 export async function initApFileSystem() {
+    log(defaultFsType, 'initApFileSystem');
+    await mkdirIfRequired('/intercept');
+    await mkdirIfRequired('/proto');
+    await mkdirIfRequired('/bin');
+    await mkdirIfRequired('/sessions');
+    await mkdirIfRequired('/jsonFields');
+    await mkdirIfRequired('/scripts');
+    await mkdirIfRequired('/queries');
     if (urlPathStore.isLocalhost()) return;
-    try {
-        await fs.mkdir('/intercept');
-        await fs.mkdir('/proto');
-        await fs.mkdir('/bin');
-        await fs.mkdir('/sessions');
-        await fs.mkdir('/jsonFields');
-        await fs.mkdir('/scripts');
-        await fs.mkdir('/queries');
-    } catch (e) { }
     if (urlPathStore.isGitHubPages()) fetchApFileSystem();
+}
+
+async function mkdirIfRequired(dir: string) {
+    try {
+        log(defaultFsType, 'mkdirIfRequired', dir);
+        await fs.mkdir(dir);
+    } catch (e) { }
 }
 
 function log(...args: any[]) {

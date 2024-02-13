@@ -16,6 +16,8 @@ import BrowserLauncher from './BrowserLauncher';
 import Launcher from '@httptoolkit/browser-launcher';
 import APFileSystem from './APFileSystem';
 import { setOsBinaries } from '../../app';
+import { spawn } from 'child_process';
+const { rgPath } = require('@vscode/ripgrep');
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -246,6 +248,40 @@ export default class SocketIoManager {
 
     socket.on('launch browser', (browser: Launcher.Browser) => {
       BrowserLauncher.launch(browser);
+    })
+
+    socket.on('is file in downloads', (fileName: string, callback: (result: boolean) => void) => {
+      callback(fs.existsSync(process.env.HOME + '/Downloads/' + fileName));
+    })
+
+    socket.on('read file', async (fileName: string, operator: 'and' | 'or', filters: string[], maxLines: number, callback: (lines: string[]) => void) => {
+
+      const downloads = process.env.HOME + '/Downloads/';
+      const rg = rgPath;
+      let cmd = '';
+      if (filters.length === 0) {
+        cmd = rg + ' -m ' + maxLines + ' "" ' + fileName;
+      } else {
+        if (operator === 'and') {
+          for (let i = 0; i < filters.length; ++i) {
+            if (i === filters.length - 1) {
+              cmd += i === 0
+                ? rg + ' -m ' + maxLines + '  ' + filters[i] + ' ' + fileName :
+                ' | ' + rg + ' -m ' + maxLines + ' ' + filters[i];
+            } else {
+              cmd += i === 0
+                ? rg + ' ' + filters[i] + ' ' + fileName
+                : ' | ' + rg + ' ' + filters[i];
+            }
+          }
+        } else {
+          cmd += rg + ' -m ' + maxLines + ' -e ' + filters.join('|') + ' ' + fileName;
+        }
+      }
+
+      const result = await ripgrep(cmd, downloads);
+
+      callback(result.split('\n'));
     })
 
     socket.on('disconnect', () => {
@@ -512,6 +548,23 @@ export default class SocketIoManager {
       }
     })
   }
+}
+
+async function ripgrep(command: string, cwd: string): Promise<string> {
+  let result: string;
+  return await new Promise<string>(resolve => {
+    const tokens = command.split(' ');
+    const p = spawn(tokens[0], tokens.slice(1), { cwd, shell: true })
+    p.stdout.on('data', (data: Buffer) => {
+      result += data.toString();
+    })
+    p.stderr.on('data', (data: Buffer) => {
+      console.error(data.toString());
+    })
+    p.on('exit', () => {
+      resolve(result);
+    })
+  })
 }
 
 function getDateNow() {

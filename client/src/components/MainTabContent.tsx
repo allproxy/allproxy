@@ -137,25 +137,36 @@ const MainTabContent = observer(({
 	let maxEndpointSize = 0;
 
 	let selectedReqSeqNumAdded = false;
-	const startIndex = messageQueueStore.getFullPageSearch() ? 0 : renderSetTopIndex;
-	for (let i = startIndex; i < messageQueueStore.getMessages().length; ++i) {
-		const messageStore = messageQueueStore.getMessages()[i];
-		messageStore.setIndex(i);
-		maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
-		const method = messageStore.getMessage().method;
-		maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
-		maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
+	let startIndex = messageQueueStore.getFullPageSearch() ? 0 : renderSetTopIndex;
+	for (; ;) {
+		for (let i = startIndex; i < messageQueueStore.getMessages().length; ++i) {
+			const messageStore = messageQueueStore.getMessages()[i];
+			messageStore.setIndex(i);
+			maxStatusSize = Math.max(maxStatusSize, (messageStore.getMessage().status + '').length);
+			const method = messageStore.getMessage().method;
+			maxMethodSize = Math.max(maxMethodSize, method ? method.length : 0);
+			maxEndpointSize = Math.max(maxEndpointSize, messageStore.getMessage().endpoint.length);
 
-		const message = messageStore.getMessage();
-		const seqNum = message.sequenceNumber;
-		const isSelectedRequest = selectedReqSeqNum === seqNum;
-		const isFiltered = messageStore.isFiltered() || renderSet.length >= renderCount && !messageQueueStore.getFullPageSearch();
-		if (isSelectedRequest || !isFiltered) {
-			renderSet.push(messageStore);
+			const message = messageStore.getMessage();
+			const seqNum = message.sequenceNumber;
+			const isSelectedRequest = selectedReqSeqNum === seqNum;
+			const isFiltered = messageStore.isFiltered() || renderSet.length >= renderCount && !messageQueueStore.getFullPageSearch();
+			if (isSelectedRequest || !isFiltered) {
+				renderSet.push(messageStore);
+			}
+			if (isSelectedRequest) selectedReqSeqNumAdded = true;
 		}
-		if (isSelectedRequest) selectedReqSeqNumAdded = true;
+
+		// If the render set is not full, a filter is set and we did start at the top?
+		if (renderSet.length < renderCount && filterStore.getFilter().length > 0 && startIndex > 0) {
+			startIndex = 0; // Restart from the top
+			renderSet = [];
+			continue;
+		}
+		break;
 	}
 
+	// Always add the currently selected request
 	if (selectedReqSeqNum !== Number.MAX_SAFE_INTEGER && !selectedReqSeqNumAdded) {
 		for (let i = 0; i < messageQueueStore.getMessages().length; ++i) {
 			const messageStore = messageQueueStore.getMessages()[i];
