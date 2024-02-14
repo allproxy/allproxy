@@ -14,6 +14,7 @@ import { Browser } from "./BrowserStore";
 import { apFileSystem } from "./APFileSystem";
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { urlPathStore } from "./UrlPathStore";
+import { mainTabStore } from "./MainTabStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -73,6 +74,14 @@ export default class SocketStore {
 
 		this.socket.on('port config', (portConfig: PortConfig) => {
 			portConfigStore.setConfig(portConfig);
+		});
+
+		this.socket.on('status dialog', (message: string) => {
+			mainTabStore.setUpdating(true, message);
+		});
+
+		this.socket.on('error dialog', (message: string) => {
+			alert(message);
 		});
 
 		this.socket.on('disconnect', () => {
@@ -229,6 +238,48 @@ export default class SocketStore {
 	public emitReadFile(fileName: string, operator: 'and' | 'or', filters: string[], maxLines: number): Promise<string[]> {
 		return new Promise((resolve) => {
 			this.socket?.emit('read file', fileName, operator, filters, maxLines, (lines: string[]) => {
+				resolve(lines);
+			});
+		});
+	}
+
+	public emitJsonFieldExists(fileName: string, filterField: string): Promise<boolean> {
+		return new Promise<boolean>((resolve) => {
+			this.socket?.emit('json field exists', fileName, filterField, (exists: boolean) => {
+				resolve(exists);
+			});
+		});
+	}
+
+	public emitNewSubset(fileName: string, filterField: string, filterValues: string[], timeFieldName: string): Promise<{ fileSize: number, startTime: string, endTime: string }> {
+		return new Promise((resolve) => {
+			this.socket?.emit('new subset', fileName, filterField, filterValues, timeFieldName,
+				(fileSize: number, startTime: string, endTime: string) => {
+					resolve({ fileSize, startTime, endTime });
+				});
+		});
+	}
+
+	public emitGetSubsets(fileName: string, timeFieldName: string): Promise<{ filterValue: string, fileSize: number, startTime: string, endTime: string }[]> {
+		return new Promise((resolve) => {
+			this.socket?.emit('get subsets', fileName, timeFieldName,
+				(subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[]) => {
+					resolve(subsets);
+				});
+		});
+	}
+
+	public emitFileLineMatcher(
+		fileName: string,
+		timeFieldName: string,
+		startTime: string,
+		endTime: string,
+		operator: 'and' | 'or',
+		filters: string[],
+		maxLines: number
+	): Promise<string[]> {
+		return new Promise((resolve) => {
+			this.socket?.emit('file line matcher', fileName, timeFieldName, startTime, endTime, operator, filters, maxLines, (lines: string[]) => {
 				resolve(lines);
 			});
 		});

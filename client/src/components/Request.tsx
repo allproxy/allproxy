@@ -254,10 +254,13 @@ export function dateToHHMMSS(d: Date) {
 		return "Invalid Date";
 	}
 	if (isJsonLogTab() && jsonLogStore.isShowUtcChecked()) {
-		return d.toISOString().split('T')[1];
+		return d.toISOString();
 	} else {
-		const monthDay = d.getMonth() + 1 + '/' + d.getDate();
-		return monthDay + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
+		let date = d.getMonth() + 1 + '/' + d.getDate();
+		if (isJsonLogTab()) {
+			date += '/' + d.getFullYear();
+		}
+		return date + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
 	}
 }
 
