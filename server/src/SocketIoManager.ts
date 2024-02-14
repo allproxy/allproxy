@@ -17,6 +17,8 @@ import Launcher from '@httptoolkit/browser-launcher';
 import APFileSystem from './APFileSystem';
 import { setOsBinaries } from '../../app';
 import { spawn } from 'child_process';
+import path from 'path';
+import FileLineMatcher, { parseDateString } from './FileLineMatcher';
 const { rgPath } = require('@vscode/ripgrep');
 
 const USE_HTTP2 = true;
@@ -256,33 +258,150 @@ export default class SocketIoManager {
 
     socket.on('read file', async (fileName: string, operator: 'and' | 'or', filters: string[], maxLines: number, callback: (lines: string[]) => void) => {
 
-      const downloads = process.env.HOME + '/Downloads/';
+      const filePath = "'" + process.env.HOME + "" + path.sep + 'Downloads' + path.sep + fileName + "'";
       const rg = rgPath;
       let cmd = '';
       if (filters.length === 0) {
-        cmd = rg + ' -m ' + maxLines + ' "" ' + fileName;
+        cmd = rg + ' -F -m ' + maxLines + ' "" ' + filePath;
       } else {
         if (operator === 'and') {
           for (let i = 0; i < filters.length; ++i) {
+            const filter = `'${filters[i]}'`;
             if (i === filters.length - 1) {
               cmd += i === 0
-                ? rg + ' -m ' + maxLines + '  ' + filters[i] + ' ' + fileName :
-                ' | ' + rg + ' -m ' + maxLines + ' ' + filters[i];
+                ? rg + ' -F -m ' + maxLines + '  ' + filter + ' ' + filePath :
+                ' | ' + rg + ' -F -m ' + maxLines + ' ' + filter;
             } else {
               cmd += i === 0
-                ? rg + ' ' + filters[i] + ' ' + fileName
-                : ' | ' + rg + ' ' + filters[i];
+                ? rg + ' -F ' + filter + ' ' + filePath
+                : ' | ' + rg + ' -F ' + filter;
             }
           }
         } else {
-          cmd += rg + ' -m ' + maxLines + ' -e ' + filters.join('|') + ' ' + fileName;
+          cmd += rg + ' -F -m ' + maxLines + ' -e ' + filters.join('|') + ' ' + fileName;
         }
       }
 
-      const result = await ripgrep(cmd, downloads);
-
-      callback(result.split('\n'));
+      socketIoManager.emitStatusToBrowser(socket, 'Executing ripgrep: ' + cmd);
+      const result = await ripgrep(cmd, filters, socket);
+      const result2 = Buffer.concat(result);
+      callback(result2.toString().split('\n'));
     })
+
+    socket.on('new subset', async (fileName: string, filterField: string, filters: string[], timeFieldName: string, callback: (fileSize: number, startTime: string, endTime: string) => void) => {
+      //console.log('new subset', fileName, filterField, filters);
+      const downloads = process.env.HOME + "" + path.sep + 'Downloads';
+      const i = fileName.lastIndexOf('.');
+      const subsetFilePath = downloads + path.sep + fileName.substring(0, i) + '-' + filters.join(' ') + fileName.substring(i);
+      const tempFilePath = subsetFilePath + '-unsorted';
+      if (!await fs.existsSync(subsetFilePath) || fs.statSync(subsetFilePath).size === 0) {
+        const rg = rgPath;
+        let cmd = '';
+        if (filters.length > 1) {
+          const fieldValueFilters: string[] = [];
+          for (const filter of filters) {
+            fieldValueFilters.push(`"${filterField}":"${filter}`);
+          }
+          cmd += rg + " -e '" + fieldValueFilters.join('|') + "' " + downloads + path.sep + fileName;
+        } else {
+          const fieldValueFilter = `'"${filterField}":"${filters[0]}'`;
+          cmd = rg + ' -F ' + fieldValueFilter + ' ' + downloads + path.sep + fileName;
+        }
+        socketIoManager.emitStatusToBrowser(socket, 'Executing ripgrep: ' + cmd);
+        const size = await ripgrep2file(cmd, tempFilePath, socket);
+        if (size === 0) {
+          fs.rmSync(tempFilePath);
+          callback(0, new Date(0).toISOString(), new Date(0).toISOString());
+        } else {
+          cmd = `jq -sc 'sort_by( ._source.msg_timestamp )[]' '${tempFilePath}' > '${subsetFilePath}'`;
+          await execCommand(cmd, socket);
+          socketIoManager.emitStatusToBrowser(socket, 'Sorting: ' + cmd);
+          fs.rmSync(tempFilePath);
+          const { startTime, endTime } = getFileDateRange(subsetFilePath, timeFieldName);
+          callback(size, startTime, endTime);
+        }
+      } else {
+        const stat = fs.statSync(subsetFilePath);
+        const { startTime, endTime } = getFileDateRange(subsetFilePath, timeFieldName);
+        callback(stat.size, startTime, endTime);
+      }
+    })
+
+    socket.on('get subsets', (fileName, timeFieldName: string, callback: (subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[]) => void) => {
+      const subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[] = [];
+      const i = fileName.lastIndexOf('.');
+      const prefix = fileName.substring(0, i) + '-';
+      const suffix = fileName.substring(i);
+      const downloads = process.env.HOME + path.sep + 'Downloads';
+      for (const name of fs.readdirSync(downloads)) {
+        if (name !== fileName && name.startsWith(prefix) && name.endsWith(suffix)) {
+          const stat = fs.statSync(downloads + path.sep + name);
+          const { startTime, endTime } = getFileDateRange(downloads + path.sep + name, timeFieldName);
+          subsets.push({ filterValue: name.substring(prefix.length, name.lastIndexOf('.')), fileSize: stat.size, startTime: startTime, endTime: endTime });
+        }
+      }
+      callback(subsets);
+    });
+
+    function getFileDateRange(filePath: string, timeFieldName: string): { startTime: string, endTime: string } {
+      const chunkSize = 10 * 1024 * 1024;
+      const timeFieldColon = `"${timeFieldName}":`;
+      const buffer = Buffer.alloc(chunkSize);
+      const mode = 'win32' ? 'r' : 444;
+      const fd = fs.openSync(filePath, mode);
+      const stat = fs.fstatSync(fd);
+      fs.readSync(fd, buffer, 0, chunkSize, 0);
+      let i = buffer.indexOf(timeFieldColon);
+      let startTime: Date | undefined;
+      let endTime: Date | undefined;
+      if (i === -1) {
+        console.log('Start time ' + timeFieldColon + ' not found!');
+      } else {
+        startTime = parseDateString(buffer, i + timeFieldColon.length);
+      }
+      fs.readSync(fd, buffer, 0, chunkSize, stat.size - chunkSize);
+      i = buffer.lastIndexOf(timeFieldColon);
+      if (i === -1) {
+        console.log('End time ' + timeFieldColon + ' not found!');
+      } else {
+        endTime = parseDateString(buffer, i + timeFieldColon.length);
+      }
+      startTime = startTime ? startTime : new Date(0);
+      endTime = endTime ? endTime : new Date(0);
+      return { startTime: startTime.toISOString(), endTime: endTime.toISOString() };
+    }
+
+    socket.on('json field exists', async (fileName: string, jsonField: string, callback: (exists: boolean) => void) => {
+      const downloads = process.env.HOME + "" + path.sep + 'Downloads';
+      const rg = rgPath;
+      const filter = `'"${jsonField}":"'`;
+      let cmd = rg + ' -F -m 1 ' + filter + ' ' + downloads + path.sep + fileName;
+      const data = await ripgrep(cmd, [], socket, 10 * 1000);
+      //console.log('json field exists?', jsonField, data.length > 0);
+      callback(data.length > 0);
+    })
+
+    socket.on('file line matcher', (
+      fileName: string,
+      timeFieldName: string,
+      startTime: string,
+      endTime: string,
+      operator: 'and' | 'or',
+      filters: string[],
+      maxLines: number,
+      callback: (lines: string[]) => void) => {
+      //console.log('file line matcher', fileName, timeFieldName, startTime, endTime, operator, filters, maxLines);
+      const matcher = new FileLineMatcher(socket);
+      matcher.setTimeFilter(timeFieldName, new Date(startTime), new Date(endTime));
+      matcher.setFilters(filters);
+      matcher.setOperator(operator);
+      matcher.setMaxLines(maxLines);
+
+      const lines = matcher.read(fileName);
+
+      callback(lines);
+    })
+
 
     socket.on('disconnect', () => {
       this.closeAnyServersWithSocket(socket.id);
@@ -548,21 +667,95 @@ export default class SocketIoManager {
       }
     })
   }
+
+  public emitStatusToBrowser(socket: Socket, message: string) {
+    socket.emit('status dialog', message);
+  }
+
+  public emitErrorToBrowser(socket: Socket, message: string) {
+    socket.emit('error dialog', message);
+  }
 }
 
-async function ripgrep(command: string, cwd: string): Promise<string> {
-  let result: string;
-  return await new Promise<string>(resolve => {
+async function execCommand(command: string, socket: Socket): Promise<void> {
+  //console.log(command);
+  return await new Promise<void>(resolve => {
     const tokens = command.split(' ');
-    const p = spawn(tokens[0], tokens.slice(1), { cwd, shell: true })
+    const p = spawn(tokens[0], tokens.slice(1), { shell: true });
+    p.stderr.on('data', (data: Buffer) => {
+      console.error('spawn error', data.toString());
+      socketIoManager.emitErrorToBrowser(socket, command + ': ' + data.toString());
+      resolve();
+    })
+    p.on('exit', () => {
+      resolve();
+    })
+  })
+}
+
+async function ripgrep(command: string, filters: string[], socket: Socket, timeout?: number): Promise<Buffer[]> {
+  //console.log(command);
+  let result: Buffer[] = [];
+  let size = 0;
+  let progressTime = Date.now();
+  return await new Promise<Buffer[]>(resolve => {
+    const tokens = command.split(' ');
+    const p = spawn(tokens[0], tokens.slice(1), { shell: true, timeout })
     p.stdout.on('data', (data: Buffer) => {
-      result += data.toString();
+      result.push(data);
+      if (timeout === undefined) {
+        size += data.length;
+        if (Date.now() - progressTime >= 1000 * 1) {
+          socketIoManager.emitStatusToBrowser(socket, size + ' bytes match filters: ' + filters);
+          progressTime = Date.now();
+        }
+      }
     })
     p.stderr.on('data', (data: Buffer) => {
-      console.error(data.toString());
+      console.error('ripgrep error', data.toString());
+      socketIoManager.emitErrorToBrowser(socket, command + ': ' + data.toString());
+      resolve(result);
     })
     p.on('exit', () => {
       resolve(result);
+    })
+  })
+}
+
+async function ripgrep2file(command: string, fileName: string, socket: Socket): Promise<number> {
+  //console.log(command);
+  let fileCreated = false;
+  let size = 0;
+  let progressTime = Date.now();
+  return await new Promise<number>(resolve => {
+    const tokens = command.split(' ');
+    //console.log('rebgrep2file', tokens);
+    const p = spawn(tokens[0], tokens.slice(1), { shell: true })
+    p.stdout.on('data', (data: Buffer) => {
+      size += data.length;
+      if (Date.now() - progressTime >= 1000 * 1) {
+        socketIoManager.emitStatusToBrowser(socket, size + ' written to ' + fileName);
+        progressTime = Date.now();
+      }
+      if (!fileCreated) {
+        fs.writeFileSync(fileName, data);
+        fileCreated = true;
+      } else {
+        fs.appendFileSync(fileName, data);
+      }
+    })
+    p.stderr.on('data', (data: Buffer) => {
+      console.error('ripgrep error', data.toString());
+      socketIoManager.emitErrorToBrowser(socket, command + ': ' + data.toString());
+      resolve(0);
+    })
+    p.on('exit', () => {
+      if (!fs.existsSync(fileName)) {
+        resolve(0);
+      } else {
+        const stat = fs.statSync(fileName);
+        resolve(stat.size);
+      }
     })
   })
 }

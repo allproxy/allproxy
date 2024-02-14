@@ -16,33 +16,26 @@ function logResponseTime(message: string, start: number) {
 
 export default class FileReaderStore {
 	private file: any;
+	private fileName: string = "";
 	private lines: string[] = [];
 	private nextLineNumber: number = 1;
-	private eof = false;
 	private includeFilters: string[] = [];
-	private excludeFilters: string[] = [];
 	private operator: 'and' | 'or' = 'and';
-
 
 	public constructor() {
 		makeAutoObservable(this);
 	}
 
 	public getFileName() {
-		return this.file.name;
+		return this.fileName;
 	}
 
 	public getNextLineNumber() {
 		return this.nextLineNumber;
 	}
 
-	public moreData() {
-		return !this.eof;
-	}
-
-	public setFilters(includeFilter: string, excludeFilter: string) {
+	public setFilters(includeFilter: string) {
 		this.includeFilters = includeFilter.split(' ').filter((s) => s !== '');
-		this.excludeFilters = excludeFilter.split(' ').filter((s) => s !== '');
 	}
 
 	public setOperator(operator: 'and' | 'or') {
@@ -50,34 +43,32 @@ export default class FileReaderStore {
 		//console.log(this.operator);
 	}
 
-	private readChunk(offset: number, startTime: number): Promise<string> {
-		return new Promise<string>((resolve) => {
-			const readEventHandler = (evt: any) => {
-				if (evt.target.error == null) {
-					offset += evt.target.result.length;
-					resolve(evt.target.result); // callback for handling read chunk
-					//console.log(offset, fileSize);
-					const percent = (offset * 100 / this.file.size).toFixed(1);
-					const elapsedTime = (Date.now() - startTime) / 1000;
-					mainTabStore.setUpdating(true, percent + "% Complete, Seconds: " + elapsedTime.toFixed(0));
-				} else {
-					console.log("readChunk error: " + evt.target.error);
-					resolve('');
-				}
-			};
-
-			var r = new FileReader();
-			var blob = this.file.slice(offset, chunkSize() + offset);
-			r.onload = readEventHandler;
-			r.readAsText(blob, 'UTF-8');
+	public async serverRead(fileName: string): Promise<boolean> {
+		this.fileName = fileName;
+		return new Promise<boolean>(async (resolve) => {
+			const s = await import("./SocketStore");
+			this.lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
+			resolve(true);
 		});
 	}
 
-	public async read(file?: any): Promise<boolean> {
+	public async serverSubsetRead(fileName: string, timeFieldName: string, startTime: string, endTime: string): Promise<boolean> {
+		this.fileName = fileName;
+		//console.log('Time filter: ', startTime + ' to ' + endTime);
+
+		return new Promise<boolean>(async (resolve) => {
+			const s = await import("./SocketStore");
+			this.lines = await s.socketStore.emitFileLineMatcher(fileName, timeFieldName, startTime, endTime, this.operator, this.includeFilters, maxLinesPerTab);
+			resolve(true);
+		});
+	}
+
+	public async clientRead(file?: any): Promise<boolean> {
 		return new Promise<boolean>(async (resolve) => {
 			const start = Date.now();
 			if (file) {
 				this.file = file;
+				this.fileName = file.name;
 			}
 
 			// setting up the reader
@@ -128,16 +119,33 @@ export default class FileReaderStore {
 		});
 	}
 
+	private readChunk(offset: number, startTime: number): Promise<string> {
+		return new Promise<string>((resolve) => {
+			const readEventHandler = (evt: any) => {
+				if (evt.target.error == null) {
+					offset += evt.target.result.length;
+					resolve(evt.target.result); // callback for handling read chunk
+					//console.log(offset, fileSize);
+					const percent = (offset * 100 / this.file.size).toFixed(1);
+					const elapsedTime = (Date.now() - startTime) / 1000;
+					mainTabStore.setUpdating(true, percent + "% Complete, Seconds: " + elapsedTime.toFixed(0));
+				} else {
+					console.log("readChunk error: " + evt.target.error);
+					resolve('');
+				}
+			};
+
+			var r = new FileReader();
+			var blob = this.file.slice(offset, chunkSize() + offset);
+			r.onload = readEventHandler;
+			r.readAsText(blob, 'UTF-8');
+		});
+	}
+
 	private isMatch(s: string): boolean {
 		if (this.operator === 'and') {
 			for (const includeFilter of this.includeFilters) {
 				if (s.indexOf(includeFilter) === -1) {
-					return false;
-				}
-			}
-
-			for (const excludeFilter of this.excludeFilters) {
-				if (s.indexOf(excludeFilter) !== -1) {
 					return false;
 				}
 			}
@@ -150,17 +158,6 @@ export default class FileReaderStore {
 				}
 			}
 			if (!match) return false;
-
-			if (this.excludeFilters.length === 0) {
-				return true;
-			}
-
-			for (const excludeFilter of this.excludeFilters) {
-				if (s.indexOf(excludeFilter) !== -1) {
-					return true;
-				}
-			}
-			return false;
 		}
 
 		return true;
@@ -175,8 +172,6 @@ export default class FileReaderStore {
 		}
 		if (this.lines.length > maxLinesPerTab) {
 			this.lines.splice(maxLinesPerTab, this.lines.length - maxLinesPerTab);
-		} else {
-			this.eof = true;
 		}
 		this.nextLineNumber += maxLinesPerTab;
 
