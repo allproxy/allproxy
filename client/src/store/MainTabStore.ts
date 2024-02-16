@@ -195,7 +195,12 @@ export default class MainTabStore {
 	public getTabName(name: string): string {
 		const fileName = this.tabs.getFileName(name);
 		if (fileName) {
-			return fileName.replace('.allproxy', '');
+			const i = fileName.lastIndexOf('.');
+			let tabName = fileName;
+			if (i !== -1) {
+				tabName = fileName.substring(0, i);
+			}
+			return tabName;
 		} else {
 			return 'TAB';
 		}
@@ -306,7 +311,7 @@ export default class MainTabStore {
 			messages.push(messageStore.getMessage());
 		}
 		let data = "";
-		if (messages[0].protocol === 'log:') {
+		if (isJsonLogTab()) {
 			for (const message of messages) {
 				const messageStore = new MessageStore(message);
 				if (messageStore.isFiltered()) continue;
@@ -361,7 +366,9 @@ export default class MainTabStore {
 		const file = new Blob([data], { type: 'text/plain' });
 		const element = document.createElement("a");
 		element.href = URL.createObjectURL(file);
-		element.download = fileName + '.allproxy';
+
+		const extension = isJsonLogTab() ? '.json' : '.allproxy';
+		element.download = fileName + extension;
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}

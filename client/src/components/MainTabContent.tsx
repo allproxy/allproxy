@@ -158,7 +158,8 @@ const MainTabContent = observer(({
 		}
 
 		// If the render set is not full, a filter is set and we did start at the top?
-		if (renderSet.length < renderCount && filterStore.getFilter().length > 0 && startIndex > 0) {
+		if (renderSet.length < renderCount - 1 && filterStore.getFilter().length > 0 && startIndex > 0) {
+			console.log(renderSet.length, renderCount, startIndex);
 			startIndex = 0; // Restart from the top
 			renderSet = [];
 			continue;

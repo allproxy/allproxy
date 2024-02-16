@@ -17,7 +17,8 @@ import SideBarSettings from "./SideBarSettings";
 import SideBarJsonSettings from "./SideBarJsonSettings";
 
 export const isJsonLogTab = () => {
-	return mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0;
+	const messages = mainTabStore.getSelectedMessages();
+	return messages.length > 0 && messages[0].getMessage().protocol === 'log:';
 };
 
 const SideBar = observer(() => {
