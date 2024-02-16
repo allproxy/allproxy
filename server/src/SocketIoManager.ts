@@ -278,7 +278,8 @@ export default class SocketIoManager {
             }
           }
         } else {
-          cmd += rg + ' -F -m ' + maxLines + ' -e ' + filters.join('|') + ' ' + fileName;
+          cmd += rg + ' -m ' + maxLines + " -e '" + filters.join('|') + "' " + filePath;
+          //console.log(cmd);
         }
       }
 
@@ -302,7 +303,7 @@ export default class SocketIoManager {
           for (const filter of filters) {
             fieldValueFilters.push(`"${filterField}":"${filter}`);
           }
-          cmd += rg + " -F -e '" + fieldValueFilters.join('|') + "' " + downloads + path.sep + fileName;
+          cmd += rg + " -e '" + fieldValueFilters.join('|') + "' " + downloads + path.sep + fileName;
         } else {
           const fieldValueFilter = `'"${filterField}":"${filters[0]}'`;
           cmd = rg + ' -F ' + fieldValueFilter + ' ' + downloads + path.sep + fileName;
