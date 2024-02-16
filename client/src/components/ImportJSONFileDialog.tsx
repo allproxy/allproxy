@@ -7,6 +7,7 @@ import FileReaderStore from '../store/FileReaderStore';
 import FileSubsetStore, { areSubsetsSupported, timeFieldName } from '../store/FileSubsetStore';
 import NewSubsetDialog from './NewSubsetDialog';
 import { dateToHHMMSS } from './Request';
+import CloseIcon from "@material-ui/icons/Close";
 
 const bigFileSize = 1024 * 1024 * 1024; // 1G
 
@@ -20,7 +21,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [selectedFile, setSelectedFile] = React.useState<File | undefined>(undefined);
 	const [submit, setSubmit] = React.useState(false);
 	const [fileReaderStore, setFileReaderStore] = React.useState(new FileReaderStore());
-	const [fileReaderSubsetStore] = React.useState(new FileSubsetStore());
+	const [fileSubsetStore] = React.useState(new FileSubsetStore());
 	const [includeFilter, setIncludeFilter] = React.useState<string>("");
 	const [operator, setOperator] = React.useState<'and' | 'or'>("and");
 	const [selectedSubset, setSelectedSubset] = React.useState<string>("");
@@ -37,9 +38,9 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		setSelectedFile(file);
 		const supported = file.size > bigFileSize && await areSubsetsSupported(file.name);
 		if (supported) {
-			await fileReaderSubsetStore.init(file.name);
-			if (fileReaderSubsetStore.getSubsets().length > 0) {
-				setSelectedSubset(fileReaderSubsetStore.getSubsets()[0].filterValue);
+			await fileSubsetStore.init(file.name);
+			if (fileSubsetStore.getSubsets().length > 0) {
+				setSelectedSubset(fileSubsetStore.getSubsets()[0].filterValue);
 			}
 		}
 		setSubsetSupported(supported);
@@ -69,7 +70,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				mainTabStore.setUpdating(true, 'Importing ' + fileName());
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter);
-				if (selectedSubset !== '') {
+				if (selectedSubset !== '' && selectedSubset !== 'none') {
 					if (startTime !== '') {
 						let endTime2 = endTime;
 						if (endTime2 === '') {
@@ -147,10 +148,23 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 												<RadioGroup aria-label="subset" name="subset1"
 													value={selectedSubset}
 													onChange={(e) => setSelectedSubset(e.target.value)}>
-													{fileReaderSubsetStore.getSubsets().map((subset) => (
+													<FormControlLabel value="none" control={<Radio />}
+														label={
+															<div style={{ display: 'flex' }}>
+																<div style={{ width: '200px', paddingRight: '1rem' }}>
+																	None
+																</div>
+															</div>
+														} style={{ margin: 0 }} />
+													{fileSubsetStore.getSubsets().map((subset) => (
 														<FormControlLabel value={subset.filterValue} control={<Radio />}
 															label={
 																<div style={{ display: 'flex' }}>
+																	<div
+																		style={{ alignSelf: 'center', verticalAlign: 'middle', marginRight: '.5rem' }}
+																		onClick={() => fileSubsetStore.deleteSubset(selectedFile.name, subset)} title="Delete subset">
+																		<CloseIcon style={{ color: 'red' }} />
+																	</div>
 																	<div style={{ width: '200px', paddingRight: '1rem' }}>
 																		{subset.filterValue}
 																	</div>
@@ -169,7 +183,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 												</RadioGroup>
 											</FormControl>
 										</div>
-										{selectedSubset &&
+										{selectedSubset && selectedSubset !== 'none' &&
 											<div>
 												<div className="primary-text-color">Time Filter - is rounded down to nearest second:</div>
 												<div style={{ display: 'flex' }}>
@@ -237,10 +251,11 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 			</Dialog >
 			<NewSubsetDialog open={openNewSubsetDialog}
 				fileName={selectedFile ? selectedFile.name : ''}
+				selectableSubsets={fileSubsetStore.getSelectableSubsets()}
 				onClose={(result: { filterValue: string, fileSize: number, startTime: string, endTime: string } | undefined) => {
 					setOpenNewSubsetDialog(false);
 					if (result) {
-						fileReaderSubsetStore.newSubset(result);
+						fileSubsetStore.newSubset(result);
 						if (selectedSubset === '') {
 							setSelectedSubset(result.filterValue);
 						}

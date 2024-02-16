@@ -193,13 +193,13 @@ export default class FileLineMatcher {
 
 			//console.log('Binary search middle=' + m);
 			if (startTime > chunkTime2) {
-				//const msg = "Binary search " + count + ' update left ' + l + '->' + (m + readSize) + ' ' + startTime.toISOString() + ' > ' + chunkTime2.toISOString();
-				//console.log(msg);
+				const msg = "Binary search " + count + ' update left ' + l + '->' + (m + readSize) + ' ' + startTime.toISOString() + ' > ' + chunkTime2.toISOString();
+				console.log(msg);
 				l = m + readSize;
 				moving = 'right';
 			} else if (startTime < chunkTime1) {
-				//const msg = "Binary search " + count + ' update right ' + r + '->' + (m - readSize) + ' ' + startTime.toISOString() + ' < ' + chunkTime2.toISOString();
-				//console.log(msg);
+				const msg = "Binary search " + count + ' update right ' + r + '->' + (m - readSize) + ' ' + startTime.toISOString() + ' < ' + chunkTime2.toISOString();
+				console.log(msg);
 				r = m - readSize;
 				moving = 'left';
 			} else {
@@ -209,8 +209,8 @@ export default class FileLineMatcher {
 			if (l > r) {
 				const msg = "Starting line by line search at time " + chunkTime1.toISOString();
 				socketIoManager.emitStatusToBrowser(this.socket, msg);
-				//console.log(msg);
-				//console.log('Starting line by line search at offset ' + m);
+				console.log(msg);
+				console.log('Starting line by line search at offset ' + m);
 				moving = undefined;
 				return m;
 			}
@@ -253,7 +253,6 @@ export function parseDateString(chunk: Buffer, offsetToDateString: number): Date
 	if (end < chunk.length) {
 		const s = chunk.slice(begin, end);
 		const d = new Date(s.toString());
-		d.setMilliseconds(0);
 		if (d.toString() === "Invalid Date") {
 			console.log("Invalid Date: " + s);
 			return undefined;

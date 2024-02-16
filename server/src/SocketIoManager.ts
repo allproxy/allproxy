@@ -284,7 +284,7 @@ export default class SocketIoManager {
 
       socketIoManager.emitStatusToBrowser(socket, 'Executing ripgrep: ' + cmd);
       const result = await ripgrep(cmd, filters, socket);
-      const result2 = Buffer.concat(result);
+      const result2 = result.join();
       callback(result2.toString().split('\n'));
     })
 
@@ -302,7 +302,7 @@ export default class SocketIoManager {
           for (const filter of filters) {
             fieldValueFilters.push(`"${filterField}":"${filter}`);
           }
-          cmd += rg + " -e '" + fieldValueFilters.join('|') + "' " + downloads + path.sep + fileName;
+          cmd += rg + " -F -e '" + fieldValueFilters.join('|') + "' " + downloads + path.sep + fileName;
         } else {
           const fieldValueFilter = `'"${filterField}":"${filters[0]}'`;
           cmd = rg + ' -F ' + fieldValueFilter + ' ' + downloads + path.sep + fileName;
@@ -310,12 +310,14 @@ export default class SocketIoManager {
         socketIoManager.emitStatusToBrowser(socket, 'Executing ripgrep: ' + cmd);
         const size = await ripgrep2file(cmd, tempFilePath, socket);
         if (size === 0) {
-          fs.rmSync(tempFilePath);
+          if (await fs.existsSync(tempFilePath)) {
+            fs.rmSync(tempFilePath);
+          }
           callback(0, new Date(0).toISOString(), new Date(0).toISOString());
         } else {
           cmd = `jq -sc 'sort_by( ._source.msg_timestamp )[]' '${tempFilePath}' > '${subsetFilePath}'`;
-          await execCommand(cmd, socket);
           socketIoManager.emitStatusToBrowser(socket, 'Sorting: ' + cmd);
+          await execCommand(cmd, socket);
           fs.rmSync(tempFilePath);
           const { startTime, endTime } = getFileDateRange(subsetFilePath, timeFieldName);
           callback(size, startTime, endTime);
@@ -326,6 +328,16 @@ export default class SocketIoManager {
         callback(stat.size, startTime, endTime);
       }
     })
+
+    socket.on('delete subset', async (fileName: string, filters: string[], callback: () => void) => {
+      const downloads = process.env.HOME + "" + path.sep + 'Downloads';
+      const i = fileName.lastIndexOf('.');
+      const subsetFilePath = downloads + path.sep + fileName.substring(0, i) + '-' + filters.join(' ') + fileName.substring(i);
+      if (fs.existsSync(subsetFilePath)) {
+        fs.unlinkSync(subsetFilePath);
+        callback();
+      }
+    });
 
     socket.on('get subsets', (fileName, timeFieldName: string, callback: (subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[]) => void) => {
       const subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[] = [];
@@ -343,6 +355,34 @@ export default class SocketIoManager {
       callback(subsets);
     });
 
+    socket.on('get selectable subsets', async (fileName: string, filterField: string, maxLines: number, callback: (lines: string[]) => void) => {
+      const grepFilter = `"${filterField}":"`;
+      const filePath = "'" + process.env.HOME + "" + path.sep + 'Downloads' + path.sep + fileName + "'";
+      const rg = rgPath;
+      let cmd = '';
+      cmd = rg + ' -F -m ' + maxLines + " '" + grepFilter + "' " + filePath;
+
+      const result = await ripgrep(cmd, [filterField], socket, 10 * 1000);
+      const result2 = result.join();
+      const values: { [key: string]: boolean } = {};
+      for (const line of result2.toString().split('\n')) {
+        const begin = line.indexOf(grepFilter) + grepFilter.length;
+        let end = begin;
+        for (; end < line.length && line.substring(end, end + 1) != '"'; ++end) { }
+        const app = line.substring(begin, end);
+        if (app === '') continue;
+        let tokens = app.split('-', 3);
+        if (tokens[0] === 'fabcon' && tokens[1] === 'manager') tokens = ['fabcon', 'manager'];
+        values[tokens.join('-')] = true;
+        console.log('app', app);
+      }
+
+      const output = Object.keys(values).sort();
+      console.log(output);
+      callback(output);
+    })
+
+
     function getFileDateRange(filePath: string, timeFieldName: string): { startTime: string, endTime: string } {
       const chunkSize = 10 * 1024 * 1024;
       const timeFieldColon = `"${timeFieldName}":`;
@@ -358,6 +398,9 @@ export default class SocketIoManager {
         console.log('Start time ' + timeFieldColon + ' not found!');
       } else {
         startTime = parseDateString(buffer, i + timeFieldColon.length);
+        if (startTime) {
+          startTime.setMilliseconds(0);
+        }
       }
       fs.readSync(fd, buffer, 0, chunkSize, stat.size - chunkSize);
       i = buffer.lastIndexOf(timeFieldColon);
@@ -693,16 +736,16 @@ async function execCommand(command: string, socket: Socket): Promise<void> {
   })
 }
 
-async function ripgrep(command: string, filters: string[], socket: Socket, timeout?: number): Promise<Buffer[]> {
+async function ripgrep(command: string, filters: string[], socket: Socket, timeout?: number): Promise<string[]> {
   //console.log(command);
-  let result: Buffer[] = [];
+  let result: string[] = [];
   let size = 0;
   let progressTime = Date.now();
-  return await new Promise<Buffer[]>(resolve => {
+  return await new Promise<string[]>(resolve => {
     const tokens = command.split(' ');
-    const p = spawn(tokens[0], tokens.slice(1), { shell: true, timeout })
+    const p = spawn(tokens[0], tokens.slice(1), { shell: true })
     p.stdout.on('data', (data: Buffer) => {
-      result.push(data);
+      result.push(data.toString());
       if (timeout === undefined) {
         size += data.length;
         if (Date.now() - progressTime >= 1000 * 1) {
@@ -722,7 +765,7 @@ async function ripgrep(command: string, filters: string[], socket: Socket, timeo
   })
 }
 
-async function ripgrep2file(command: string, fileName: string, socket: Socket): Promise<number> {
+async function ripgrep2file(command: string, filePath: string, socket: Socket): Promise<number> {
   //console.log(command);
   let fileCreated = false;
   let size = 0;
@@ -734,14 +777,14 @@ async function ripgrep2file(command: string, fileName: string, socket: Socket): 
     p.stdout.on('data', (data: Buffer) => {
       size += data.length;
       if (Date.now() - progressTime >= 1000 * 1) {
-        socketIoManager.emitStatusToBrowser(socket, size + ' written to ' + fileName);
+        socketIoManager.emitStatusToBrowser(socket, size + ' written to ' + filePath);
         progressTime = Date.now();
       }
       if (!fileCreated) {
-        fs.writeFileSync(fileName, data);
+        fs.writeFileSync(filePath, data);
         fileCreated = true;
       } else {
-        fs.appendFileSync(fileName, data);
+        fs.appendFileSync(filePath, data);
       }
     })
     p.stderr.on('data', (data: Buffer) => {
@@ -750,10 +793,10 @@ async function ripgrep2file(command: string, fileName: string, socket: Socket): 
       resolve(0);
     })
     p.on('exit', () => {
-      if (!fs.existsSync(fileName)) {
+      if (!fs.existsSync(filePath)) {
         resolve(0);
       } else {
-        const stat = fs.statSync(fileName);
+        const stat = fs.statSync(filePath);
         resolve(stat.size);
       }
     })

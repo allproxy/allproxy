@@ -53,7 +53,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 
 	const [openTabFileSelector, { filesContent: tabContent, clear: tabClear }] = useFilePicker({
 		multiple: false,
-		accept: ".allproxy"
+		accept: ['.json', '.allproxy']
 	});
 
 	if (!!tabContent.length && tabContent[0].content) {
