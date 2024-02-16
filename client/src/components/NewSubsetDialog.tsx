@@ -11,36 +11,38 @@ type Props = {
 	onClose: (result: { filterValue: string, fileSize: number, startTime: string, endTime: string } | undefined) => void,
 };
 const NewSubsetDialog = observer(({ open, onClose, fileName, selectableSubsets }: Props) => {
-	const [components, setComponents] = React.useState<string[]>([]);
+	const [selectedSubsets, setSelectedSubsets] = React.useState<string[]>([]);
 
 	async function handleCreateSubnet() {
 		const filters: string[] = [];
-		for (const v of components) {
+		for (const v of selectedSubsets) {
 			filters.push(`"${subsetFieldName}":"${v}`);
 		}
 		mainTabStore.setUpdating(true, `Finding lines matching '` + filters.join('|')) + `'`;
-		const { fileSize, startTime, endTime } = await createNewSubset(fileName, components, timeFieldName);
+		const { fileSize, startTime, endTime } = await createNewSubset(fileName, selectedSubsets, timeFieldName);
 		mainTabStore.setUpdating(false);
 		if (fileSize === 0) {
 			alert(`No lines match ${filters.join('|')} in file ${fileName}`);
 		} else {
-			onClose({ filterValue: components.join(' '), fileSize, startTime, endTime });
+			onClose({ filterValue: selectedSubsets.join(' '), fileSize, startTime, endTime });
 		}
-		setComponents([]);
+		setSelectedSubsets([]);
 	}
 
 	function cancel() {
-		setComponents([]);
+		setSelectedSubsets([]);
 		onClose(undefined);
 	}
 
 	const handleChange = (subset: string) => {
-		const i = components.indexOf(subset);
+		const i = selectedSubsets.indexOf(subset);
 		if (i !== -1) {
-			setComponents(components.splice(i, 1));
+			const s = [...selectedSubsets];
+			s.splice(i, 1);
+			setSelectedSubsets(s);
 		} else {
-			setComponents([
-				...components,
+			setSelectedSubsets([
+				...selectedSubsets,
 				subset
 			]);
 		}
@@ -58,11 +60,11 @@ const NewSubsetDialog = observer(({ open, onClose, fileName, selectableSubsets }
 					<Select
 						multiple
 						value={selectableSubsets}
-						renderValue={() => components.length > 0 ? components.join(' ') : "App/Component"}>
+						renderValue={() => selectedSubsets.length > 0 ? selectedSubsets.join(' ') : "App/Component"}>
 						{selectableSubsets.map((subset) => (
 							<MenuItem key={subset} value={subset}>
 								<Checkbox
-									checked={components.includes(subset)}
+									checked={selectedSubsets.includes(subset)}
 									onChange={() => handleChange(subset)} />
 								<ListItemText primary={subset} />
 							</MenuItem>
@@ -78,7 +80,7 @@ const NewSubsetDialog = observer(({ open, onClose, fileName, selectableSubsets }
 					</button>
 					<div style={{ width: '.5rem' }}></div>
 					<button className={'btn btn-sm btn-success'}
-						disabled={components.length === 0 || mainTabStore.isUpdating()}
+						disabled={selectedSubsets.length === 0 || mainTabStore.isUpdating()}
 						onClick={handleCreateSubnet}
 					>
 						Create
