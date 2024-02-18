@@ -20,6 +20,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import FileLineMatcher, { parseDateString } from './FileLineMatcher';
 const { rgPath } = require('@vscode/ripgrep');
+const jqPath = './node_modules/node-jq/bin/jq';
 
 const USE_HTTP2 = true;
 const CONFIG_JSON = Paths.configJson();
@@ -316,7 +317,7 @@ export default class SocketIoManager {
           }
           callback(0, new Date(0).toISOString(), new Date(0).toISOString());
         } else {
-          cmd = `jq -sc 'sort_by( ._source.msg_timestamp )[]' '${tempFilePath}' > '${subsetFilePath}'`;
+          cmd = jqPath + ` -sc 'sort_by( ._source.msg_timestamp )[]' '${tempFilePath}' > '${subsetFilePath}'`;
           socketIoManager.emitStatusToBrowser(socket, 'Sorting: ' + cmd);
           await execCommand(cmd, socket);
           fs.rmSync(tempFilePath);
@@ -375,11 +376,9 @@ export default class SocketIoManager {
         let tokens = app.split('-', 3);
         if (tokens[0] === 'fabcon' && tokens[1] === 'manager') tokens = ['fabcon', 'manager'];
         values[tokens.join('-')] = true;
-        console.log('app', app);
       }
 
       const output = Object.keys(values).sort();
-      console.log(output);
       callback(output);
     })
 

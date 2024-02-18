@@ -34,7 +34,7 @@ The proxy capability of the hosted `AllProxy` app is disabled, and the proxy con
 > 2. Clone repo and run: **npm install && npm run build && npm start**
 > 3. Docker container:
 >    * docker build -t allproxy .
->    * docker run --name allproxy -i -t -v ~/.allproxy:/root/.allproxy —expose 8888 -p 9999:8888  allproxy
+>    * docker run --name allproxy -i -t -v ~/.allproxy:/root/.allproxy -v ~/Downloads:/root/Downloads -p 8888:8888  allproxy
 
 > Open `allproxy` in browser;
 >    * [localhost:8888/allproxy](http://localhost:8888/allproxy)

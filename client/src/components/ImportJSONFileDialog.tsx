@@ -9,7 +9,7 @@ import NewSubsetDialog from './NewSubsetDialog';
 import { dateToHHMMSS } from './Request';
 import CloseIcon from "@material-ui/icons/Close";
 
-const bigFileSize = 1024 * 1024 * 1024; // 1G
+//const bigFileSize = 1024 * 1024 * 1024; // 1G
 
 type Props = {
 	open: boolean,
@@ -36,7 +36,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	input.onchange = async (e: any) => {
 		const file = e.target.files[0] as File;
 		setSelectedFile(file);
-		const supported = file.size > bigFileSize && await areSubsetsSupported(file.name);
+		const supported = await areSubsetsSupported(file.name);
 		if (supported) {
 			await fileSubsetStore.init(file.name);
 			if (fileSubsetStore.getSubsets().length > 0) {
@@ -148,14 +148,18 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 												<RadioGroup aria-label="subset" name="subset1"
 													value={selectedSubset}
 													onChange={(e) => setSelectedSubset(e.target.value)}>
-													<FormControlLabel value="none" control={<Radio />}
+													<FormControlLabel
+														style={{ margin: 0 }}
+														hidden={fileSubsetStore.getSubsets().length === 0}
+														value="none" control={<Radio />}
 														label={
 															<div style={{ display: 'flex' }}>
 																<div style={{ width: '200px', paddingRight: '1rem' }}>
 																	None
 																</div>
 															</div>
-														} style={{ margin: 0 }} />
+														}
+													/>
 													{fileSubsetStore.getSubsets().map((subset) => (
 														<FormControlLabel value={subset.filterValue} control={<Radio />}
 															label={
