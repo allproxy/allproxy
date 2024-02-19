@@ -3,9 +3,6 @@ COPY . /allproxy
 RUN cd allproxy && npm install && npm run install-client && npm run build
 RUN cd allproxy && npm prune --production
 
-RUN apt update
-RUN apt install gcc g++ jq
-
 RUN rm -r allproxy/node_modules/.bin
 RUN find /allproxy/node_modules -type d -name "@electron*" -exec rm -r {} \; || echo ""
 RUN find /allproxy/node_modules -type d -name "electron*" -exec rm -r {} \; || echo ""
@@ -21,9 +18,6 @@ RUN find /allproxy/node_modules -type f -name "*.ts" -exec rm {} \; || echo ""
 
 FROM node:16-alpine
 WORKDIR '/allproxy'
-
-COPY --from=build /usr/bin/jq /usr/bin/jq
-ENV PATH="${PATH}:/usr/bin"
 
 RUN mkdir /allproxy/client
 RUN mkdir /allproxy/proto
