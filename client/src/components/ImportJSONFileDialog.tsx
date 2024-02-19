@@ -19,6 +19,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
 	const [selectedFile, setSelectedFile] = React.useState<File | undefined>(undefined);
+	const [isSorted, setIsSorted] = React.useState<boolean | undefined>(undefined);
 	const [submit, setSubmit] = React.useState(false);
 	const [fileReaderStore, setFileReaderStore] = React.useState(new FileReaderStore());
 	const [fileSubsetStore] = React.useState(new FileSubsetStore());
@@ -38,6 +39,8 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		setSelectedFile(file);
 		const supported = await areSubsetsSupported(file.name);
 		if (supported) {
+			const { socketStore } = await import('../store/SocketStore');
+			setIsSorted(await socketStore.emitIsSorted(file.name, timeFieldName));
 			await fileSubsetStore.init(file.name);
 			if (fileSubsetStore.getSubsets().length > 0) {
 				setSelectedSubset(fileSubsetStore.getSubsets()[0].filterValue);
@@ -133,6 +136,9 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 							<hr></hr>
 							<span style={{ marginRight: '1rem' }}>{selectedFile.name}</span>
 							<span className="primary-text-color">{displayFileSize(selectedFile.size)}</span>
+							<span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
+								{isSorted ? 'Sorted' : 'Unsorted'}
+							</span>
 							{subsetSupported &&
 								<>
 									<hr></hr>
@@ -187,28 +193,32 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 												</RadioGroup>
 											</FormControl>
 										</div>
-										{selectedSubset && selectedSubset !== 'none' &&
-											<div>
-												<div className="primary-text-color">Time Filter - is rounded down to nearest second:</div>
-												<div style={{ display: 'flex' }}>
-													<input className="form-control" style={{ width: '100%', color: getDateColor(startTime) }}
-														type="text"
-														placeholder="Start time - (e.g., 2024-02-02T12:48:42.125Z)"
-														value={startTime}
-														onChange={(e) => setStartTime(e.target.value)}
-													/>
-													<div className="primary-text-color" style={{ margin: '0 .5rem', lineHeight: '38px' }}>to</div>
-													<input className="form-control" style={{ width: '100%', color: getDateColor(endTime) }}
-														type="text"
-														placeholder="End time - (e.g., 2024-02-02T12:48:43.356Z)"
-														value={endTime}
-														onChange={(e) => setEndTime(e.target.value)}
-													/>
-												</div>
-											</div>
-										}
 									</div>
-								</>}
+								</>
+							}
+							{(isSorted || (selectedSubset && selectedSubset !== 'none')) &&
+								<>
+									<hr></hr>
+									<div>
+										<div className="primary-text-color">Time Filter - is rounded down to nearest second:</div>
+										<div style={{ display: 'flex' }}>
+											<input className="form-control" style={{ width: '100%', color: getDateColor(startTime) }}
+												type="text"
+												placeholder="Start time - (e.g., 2024-02-02T12:48:42.125Z)"
+												value={startTime}
+												onChange={(e) => setStartTime(e.target.value)}
+											/>
+											<div className="primary-text-color" style={{ margin: '0 .5rem', lineHeight: '38px' }}>to</div>
+											<input className="form-control" style={{ width: '100%', color: getDateColor(endTime) }}
+												type="text"
+												placeholder="End time - (e.g., 2024-02-02T12:48:43.356Z)"
+												value={endTime}
+												onChange={(e) => setEndTime(e.target.value)}
+											/>
+										</div>
+									</div>
+								</>
+							}
 							<hr></hr>
 							<div style={{ display: 'flex' }}>
 								<div className="primary-text-color" style={{}}>Operator:</div>

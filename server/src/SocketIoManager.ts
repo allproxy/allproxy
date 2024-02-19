@@ -424,6 +424,12 @@ export default class SocketIoManager {
       callback(data.length > 0);
     })
 
+    socket.on('is sorted', (fileName: string, timeFieldName: string, callback: (result: boolean) => void) => {
+      const matcher = new FileLineMatcher(socket, fileName);
+      matcher.setTimeFilter(timeFieldName, new Date(), new Date());
+      callback(matcher.isSorted());
+    })
+
     socket.on('file line matcher', (
       fileName: string,
       timeFieldName: string,
@@ -434,13 +440,13 @@ export default class SocketIoManager {
       maxLines: number,
       callback: (lines: string[]) => void) => {
       //console.log('file line matcher', fileName, timeFieldName, startTime, endTime, operator, filters, maxLines);
-      const matcher = new FileLineMatcher(socket);
+      const matcher = new FileLineMatcher(socket, fileName);
       matcher.setTimeFilter(timeFieldName, new Date(startTime), new Date(endTime));
       matcher.setFilters(filters);
       matcher.setOperator(operator);
       matcher.setMaxLines(maxLines);
 
-      const lines = matcher.read(fileName);
+      const lines = matcher.read();
 
       callback(lines);
     })
