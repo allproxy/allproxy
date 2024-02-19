@@ -151,9 +151,11 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 									<hr></hr>
 									<span style={{ marginRight: '1rem' }}>{selectedFile.name}</span>
 									<span className="primary-text-color">{displayFileSize(selectedFile.size)}</span>
-									<span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
-										{isSorted === true ? 'Sorted' : isSorted === false ? 'Unsorted' : null}
-									</span>
+									{isSorted !== undefined &&
+										< span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
+											{isSorted ? 'Sorted' : 'Unsorted'}
+										</span>
+									}
 									{subsetSupported &&
 										<>
 											<hr></hr>
@@ -201,6 +203,9 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 																				<span>{dateToHHMMSS(new Date(subset.startTime))}</span>
 																				<span className="primary-text-color"> to </span>
 																				<span>{dateToHHMMSS(new Date(subset.endTime))}</span>
+																			</div>
+																			<div style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: 'green', color: 'white', padding: '0 .5rem', height: '19px' }}>
+																				Sorted
 																			</div>
 																		</div>
 																	} style={{ margin: 0 }} />
