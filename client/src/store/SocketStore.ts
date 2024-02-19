@@ -236,6 +236,14 @@ export default class SocketStore {
 		});
 	}
 
+	public emitIsSorted(fileName: string, timeFieldName: string): Promise<boolean> {
+		return new Promise((resolve) => {
+			this.socket?.emit('is sorted', fileName, timeFieldName, (result: boolean) => {
+				resolve(result);
+			});
+		});
+	}
+
 	public emitReadFile(fileName: string, operator: 'and' | 'or', filters: string[], maxLines: number): Promise<string[]> {
 		return new Promise((resolve) => {
 			this.socket?.emit('read file', fileName, operator, filters, maxLines, (lines: string[]) => {

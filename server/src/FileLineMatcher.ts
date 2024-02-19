@@ -28,8 +28,13 @@ export default class FileLineMatcher {
 	private includeFilters: string[] = [];
 	private operator: 'and' | 'or' = 'and';
 
-	constructor(socket: Socket) {
+	constructor(socket: Socket, fileName: string) {
 		this.socket = socket;
+		this.filePath = process.env.HOME + path.sep + 'Downloads' + path.sep + fileName;
+		const stat = fs.statSync(this.filePath);
+		this.fileSize = stat.size;
+		const mode = 'win32' ? 'r' : 444;
+		this.fd = fs.openSync(this.filePath, mode);
 	}
 
 	public setTimeFilter(timeFieldName: string, startTime: Date, endTime: Date) {
@@ -39,7 +44,7 @@ export default class FileLineMatcher {
 		endTime.setMilliseconds(0);
 		this.startTime = startTime;
 		this.endTime = endTime;
-		socketIoManager.emitStatusToBrowser(this.socket, 'Time filter: ' + this.startTime.toISOString() + ' to ' + this.endTime.toISOString());
+		//socketIoManager.emitStatusToBrowser(this.socket, 'Time filter: ' + this.startTime.toISOString() + ' to ' + this.endTime.toISOString());
 	}
 
 	public setMaxLines(maxLines: number) {
@@ -66,15 +71,7 @@ export default class FileLineMatcher {
 		fs.readSync(this.fd, buffer, 0, size, offset);
 	}
 
-	public read(fileName: string): string[] {
-		this.filePath = process.env.HOME + path.sep + 'Downloads' + path.sep + fileName;
-
-		const stat = fs.statSync(this.filePath);
-		this.fileSize = stat.size;
-
-		const mode = 'win32' ? 'r' : 444;
-		this.fd = fs.openSync(this.filePath, mode);
-
+	public read(): string[] {
 		const start = Date.now();
 
 		let offset = this.findStartOffset(); // do binary search to find offset to start time
@@ -136,6 +133,54 @@ export default class FileLineMatcher {
 		return this.lines;
 	}
 
+	public isSorted(): boolean {
+		let readSize = chunkSize;
+		let currentTime: Date | undefined;
+
+		// Check right half
+		let l = 0;
+		let r = this.fileSize - 1;
+		let m: number;
+		for (; l <= r; l = m + readSize) {
+			m = Math.floor((l + r) / 2);
+			const timeFieldAndColon = this.timeFieldAndColon();
+			this.readN(this.chunk, m, chunkSize);
+
+			const i1 = this.chunk.indexOf(timeFieldAndColon);
+			if (i1 === -1) continue;
+
+			const chunkTime1 = parseDateString(this.chunk, i1 + timeFieldAndColon.length);
+			if (!chunkTime1) continue;
+			if (currentTime && currentTime > chunkTime1) {
+				return false; // is not sorted
+			}
+			//if (currentTime) console.log('right', currentTime.toISOString(), chunkTime1.toISOString());
+			currentTime = chunkTime1;
+		}
+
+		// Check left half
+		l = 0;
+		r = this.fileSize - 1;
+		for (; l <= r; r = m - readSize) {
+			m = Math.floor((l + r) / 2);
+			const timeFieldAndColon = this.timeFieldAndColon();
+			this.readN(this.chunk, m, chunkSize);
+
+			const i1 = this.chunk.indexOf(timeFieldAndColon);
+			if (i1 === -1) continue;
+
+			const chunkTime1 = parseDateString(this.chunk, i1 + timeFieldAndColon.length);
+			if (!chunkTime1) continue;
+			if (currentTime && currentTime < chunkTime1) {
+				return false; // is not sorted
+			}
+			//if (currentTime) console.log('left', currentTime.toISOString(), chunkTime1.toISOString());
+			currentTime = chunkTime1;
+		}
+
+		return true; // file is sorted
+	}
+
 	private findStartOffset(): number {
 		if (!this.timeFilterSet) return 0;
 
@@ -156,7 +201,6 @@ export default class FileLineMatcher {
 				socketIoManager.emitErrorToBrowser(this.socket, msg);
 				break;
 			}
-			this.chunk = this.chunk.slice(0, readSize);
 			this.readN(this.chunk, m, readSize);
 
 			const i1 = this.chunk.indexOf(timeFieldAndColon);

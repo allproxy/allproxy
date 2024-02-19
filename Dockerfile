@@ -3,6 +3,9 @@ COPY . /allproxy
 RUN cd allproxy && npm install && npm run install-client && npm run build
 RUN cd allproxy && npm prune --production
 
+RUN apt update
+RUN apt install gcc g++ jq
+
 RUN rm -r allproxy/node_modules/.bin
 RUN find /allproxy/node_modules -type d -name "@electron*" -exec rm -r {} \; || echo ""
 RUN find /allproxy/node_modules -type d -name "electron*" -exec rm -r {} \; || echo ""
@@ -19,10 +22,14 @@ RUN find /allproxy/node_modules -type f -name "*.ts" -exec rm {} \; || echo ""
 FROM node:16-alpine
 WORKDIR '/allproxy'
 
+COPY --from=build /usr/bin/jq /usr/bin/jq
+ENV PATH="${PATH}:/usr/bin"
+
 RUN mkdir /allproxy/client
 RUN mkdir /allproxy/proto
 COPY intercept /allproxy/intercept
 COPY package.json /allproxy/package.json
+COPY headless.js /allproxy/headless.js
 COPY --from=build /allproxy/bin /allproxy/bin
 COPY --from=build /allproxy/node_modules /allproxy/node_modules
 COPY --from=build /allproxy/build /allproxy/build
@@ -31,4 +38,4 @@ COPY client/package.json /allproxy/client/package.json
 COPY scripts /allproxy/scripts
 
 EXPOSE 8888
-CMD ["yarn", "start-headless", "--listen", "8888", "--inDockerContainer"]
+CMD ["yarn", "start", "--listen", "8888", "--inDockerContainer"]
