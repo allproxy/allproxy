@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import ProxyConfig, { ConfigProtocol } from '../common/ProxyConfig';
-import { messageQueueStore } from './MessageQueueStore';
+import { _getLimit, messageQueueStore } from './MessageQueueStore';
 import proxyConfigStore from './ProxyConfigStore';
 
 export type ConfigCategory =
@@ -135,7 +135,7 @@ export default class SettingsStore {
 
 	private statusUpdating = true;
 	private entries: ProxyConfig[] = [];
-	private messageQueueLimit = messageQueueStore.getLimit();
+	private messageQueueLimit = _getLimit();
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -190,7 +190,7 @@ export default class SettingsStore {
 	@action public async reset() {
 		this.changed = false;
 		this.protocol = 'http:';
-		this.messageQueueLimit = messageQueueStore.getLimit();
+		this.messageQueueLimit = _getLimit();
 		this.setConfig();
 	}
 

@@ -1,0 +1,9 @@
+version: '3'
+services:
+  allproxy:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - "~/.allproxy:/root/.allproxy"
+      - "~/Downloads:/root/Downloads"

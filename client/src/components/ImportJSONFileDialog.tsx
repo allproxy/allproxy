@@ -1,16 +1,14 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Dialog, DialogTitle, FormControl, FormControlLabel, ListItemText, MenuItem, Radio, RadioGroup, Select, Tab, Tabs } from '@material-ui/core';
+import { Dialog, DialogTitle, ListItemText, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
 import { importJSONFile } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
-import FileSubsetStore, { areSubsetsSupported, timeFieldName } from '../store/FileSubsetStore';
-import NewSubsetDialog from './NewSubsetDialog';
-import { dateToHHMMSS } from './Request';
-import CloseIcon from "@material-ui/icons/Close";
 import { TabContext, TabPanel } from '@material-ui/lab';
+import { socketStore } from '../store/SocketStore';
 
 //const bigFileSize = 1024 * 1024 * 1024; // 1G
+const timeFieldName = 'ts_millis';
 
 type Props = {
 	open: boolean,
@@ -23,12 +21,10 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [isSorted, setIsSorted] = React.useState<boolean | undefined>(undefined);
 	const [submit, setSubmit] = React.useState(false);
 	const [fileReaderStore, setFileReaderStore] = React.useState(new FileReaderStore());
-	const [fileSubsetStore] = React.useState(new FileSubsetStore());
 	const [includeFilter, setIncludeFilter] = React.useState<string>("");
 	const [operator, setOperator] = React.useState<'and' | 'or'>("and");
-	const [selectedSubset, setSelectedSubset] = React.useState<string>("");
-	const [openNewSubsetDialog, setOpenNewSubsetDialog] = React.useState(false);
-	const [subsetSupported, setSubsetSupported] = React.useState(false);
+	const [timeFilterSupported, setTimeFieldSupported] = React.useState(false);
+	const [serverReadSupported, setServerReadSupported] = React.useState(false);
 	const [startTime, setStartTime] = React.useState<string>("");
 	const [endTime, setEndTime] = React.useState<string>("");
 	const [tabValue, setTabValue] = React.useState<'1' | '2'>('1');
@@ -41,19 +37,23 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		setSelectedFile(file);
 		if (isGzip()) {
 			setIsSorted(undefined);
-			setSubsetSupported(false);
+			setTimeFieldSupported(false);
 		} else {
-			const supported = await areSubsetsSupported(file.name);
-			if (supported) {
-
+			const useServer = socketStore.isConnected() && await socketStore.emitIsFileInDownloads(file.name);
+			setServerReadSupported(useServer);
+			const timeFieldExists = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
+			setTimeFieldSupported(timeFieldExists);
+			if (timeFieldExists && useServer) {
 				const { socketStore } = await import('../store/SocketStore');
-				setIsSorted(await socketStore.emitIsSorted(file.name, timeFieldName));
-				await fileSubsetStore.init(file.name);
-				if (fileSubsetStore.getSubsets().length > 0) {
-					setSelectedSubset(fileSubsetStore.getSubsets()[0].filterValue);
+				const sorted = await socketStore.emitIsSorted(file.name, timeFieldName);
+				setIsSorted(sorted);
+				if (!sorted) {
+					mainTabStore.setUpdating(true, `Sorting ${file.name}`);
+					await socketStore.emitSortFile(file.name);
+					mainTabStore.setUpdating(false);
+					setIsSorted(await socketStore.emitIsSorted(file.name, timeFieldName));
 				}
 			}
-			setSubsetSupported(supported);
 		}
 	};
 
@@ -63,11 +63,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 
 	function fileName(): string {
 		if (selectedFile === undefined) return '';
-		if (selectedSubset !== '') {
-			const fileName = selectedFile.name;
-			const i = fileName.lastIndexOf('.');
-			return fileName.substring(0, i) + '-' + selectedSubset + fileName.substring(i);
-		}
 		return selectedFile.name;
 	}
 
@@ -85,25 +80,15 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				mainTabStore.setUpdating(true, 'Importing ' + fileName());
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter);
-				if (selectedSubset !== '' && selectedSubset !== 'none') {
-					if (startTime !== '') {
-						let endTime2 = endTime;
-						if (endTime2 === '') {
-							endTime2 = new Date().toISOString();
-						}
-						await fileReaderStore.serverSubsetRead(fileName(), timeFieldName, startTime, endTime2);
-					} else {
-						await fileReaderStore.serverRead(fileName());
-					}
+				fileReaderStore.setTimeFilter(timeFieldName, startTime, endTime);
+
+				if (!isGzip() && serverReadSupported) {
+					await fileReaderStore.serverRead(fileName());
 				} else {
-					const { socketStore } = await import('../store/SocketStore');
-					if (!isGzip() && socketStore.isConnected() && await socketStore.emitIsFileInDownloads(fileName())) {
-						await fileReaderStore.serverRead(fileName());
-					} else {
-						await fileReaderStore.clientRead(selectedFile);
-					}
+					await fileReaderStore.clientRead(selectedFile);
 				}
-				fileReaderStore.addTab(tabName);
+
+				fileReaderStore.addTab(tabName, serverReadSupported ? undefined : 'sort');
 				setFileReaderStore(new FileReaderStore());
 			}
 			//setSelectedFile(undefined);
@@ -151,67 +136,12 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 									<hr></hr>
 									<span style={{ marginRight: '1rem' }}>{selectedFile.name}</span>
 									<span className="primary-text-color">{displayFileSize(selectedFile.size)}</span>
-									<span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
-										{isSorted === true ? 'Sorted' : isSorted === false ? 'Unsorted' : null}
-									</span>
-									{subsetSupported &&
-										<>
-											<hr></hr>
-											<div>
-												<button className="btn btn-lg btn-success"
-													onClick={() => setOpenNewSubsetDialog(true)}
-												>
-													+ New Sorted Subset
-												</button>
-												<div>
-													<FormControl component="fieldset">
-														{/* <FormLabel component="legend">Subset</FormLabel> */}
-														<RadioGroup aria-label="subset" name="subset1"
-															value={selectedSubset}
-															onChange={(e) => setSelectedSubset(e.target.value)}>
-															<FormControlLabel
-																style={{ margin: 0 }}
-																hidden={fileSubsetStore.getSubsets().length === 0}
-																value="none" control={<Radio />}
-																label={
-																	<div style={{ display: 'flex' }}>
-																		<div style={{ width: '200px', paddingRight: '1rem' }}>
-																			None
-																		</div>
-																	</div>
-																}
-															/>
-															{fileSubsetStore.getSubsets().map((subset) => (
-																<FormControlLabel value={subset.filterValue} control={<Radio />}
-																	label={
-																		<div style={{ display: 'flex' }}>
-																			<div
-																				style={{ alignSelf: 'center', verticalAlign: 'middle', marginRight: '.5rem' }}
-																				onClick={() => fileSubsetStore.deleteSubset(selectedFile.name, subset)} title="Delete subset">
-																				<CloseIcon style={{ color: 'red' }} />
-																			</div>
-																			<div style={{ width: '200px', paddingRight: '1rem' }}>
-																				{subset.filterValue}
-																			</div>
-																			<div style={{ width: '100px', paddingRight: '1rem' }}
-																				className="primary-text-color">
-																				{displayFileSize(subset.fileSize)}
-																			</div>
-																			<div>
-																				<span>{dateToHHMMSS(new Date(subset.startTime))}</span>
-																				<span className="primary-text-color"> to </span>
-																				<span>{dateToHHMMSS(new Date(subset.endTime))}</span>
-																			</div>
-																		</div>
-																	} style={{ margin: 0 }} />
-															))}
-														</RadioGroup>
-													</FormControl>
-												</div>
-											</div>
-										</>
+									{isSorted !== undefined &&
+										< span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
+											{isSorted ? 'Sorted' : 'Unsorted'}
+										</span>
 									}
-									{(isSorted || (selectedSubset && selectedSubset !== 'none')) &&
+									{timeFilterSupported &&
 										<>
 											<hr></hr>
 											<div>
@@ -287,18 +217,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					</button>
 				</div >
 			</Dialog >
-			<NewSubsetDialog open={openNewSubsetDialog}
-				fileName={selectedFile ? selectedFile.name : ''}
-				selectableSubsets={fileSubsetStore.getSelectableSubsets()}
-				onClose={(result: { filterValue: string, fileSize: number, startTime: string, endTime: string } | undefined) => {
-					setOpenNewSubsetDialog(false);
-					if (result) {
-						fileSubsetStore.newSubset(result);
-						if (selectedSubset === '') {
-							setSelectedSubset(result.filterValue);
-						}
-					}
-				}} />
 		</>
 	);
 });

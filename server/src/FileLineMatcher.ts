@@ -254,7 +254,7 @@ export default class FileLineMatcher {
 				const msg = "Starting line by line search at time " + chunkTime1.toISOString();
 				socketIoManager.emitStatusToBrowser(this.socket, msg);
 				console.log(msg);
-				console.log('Starting line by line search at offset ' + m);
+				console.log('Starting line by line search at offset ' + Math.min(r, m));
 				moving = undefined;
 				return m;
 			}
@@ -291,12 +291,24 @@ export default class FileLineMatcher {
 }
 
 export function parseDateString(chunk: Buffer, offsetToDateString: number): Date | undefined {
-	const begin = offsetToDateString + 1; // after "
+	let begin = offsetToDateString;
+	const c = chunk.slice(begin, begin + 1).toString();
+	if (c === '\\' || c === ' ') begin += 1;
 	let end = begin + 1;
-	for (; end < chunk.length && chunk.slice(end, end + 1).toString() != '"'; ++end) { }
+	for (;
+		end < chunk.length
+		&& chunk.slice(end, end + 1).toString() != '\\'
+		&& chunk.slice(end, end + 1).toString() != ',';
+		++end) { }
 	if (end < chunk.length) {
 		const s = chunk.slice(begin, end);
-		const d = new Date(s.toString());
+		let d;
+		const i = parseInt(s.toString());
+		if (i !== Number.NaN) {
+			d = new Date(i);
+		} else {
+			d = new Date(s.toString());
+		}
 		if (d.toString() === "Invalid Date") {
 			console.log("Invalid Date: " + s);
 			return undefined;

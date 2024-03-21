@@ -8,7 +8,7 @@ export const DEFAULT_LIMIT = 50000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
 
 export default class MessageQueueStore {
-	private limit: number = this._getLimit();
+	private limit: number = _getLimit();
 	private stopped: boolean = false;
 
 	private scrollAction: 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined = undefined;
@@ -98,19 +98,6 @@ export default class MessageQueueStore {
 	}
 	@action public sortOrderChanged() {
 		this.sort();
-	}
-
-	private _getLimit(): number {
-		const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
-		if (limit) {
-			// Ensure limit is at least 20000
-			if (Number(limit) > 20000) {
-				return Number(limit);
-			}
-		}
-
-		localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
-		return DEFAULT_LIMIT;
 	}
 
 	public getLimit(): number {
@@ -421,6 +408,19 @@ export default class MessageQueueStore {
 			mainTabStore.setJsonFields(tabName, fields2);
 		}
 	}
+}
+
+export function _getLimit(): number {
+	const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
+	if (limit) {
+		// Ensure limit is at least 20000
+		if (Number(limit) > 20000) {
+			return Number(limit);
+		}
+	}
+
+	localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
+	return DEFAULT_LIMIT;
 }
 
 export const messageQueueStore = new MessageQueueStore();
