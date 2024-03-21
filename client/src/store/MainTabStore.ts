@@ -373,17 +373,17 @@ export default class MainTabStore {
 		element.click();
 	}
 
-	public importTab(fileName: string, data: string | Message[]) {
-		let doDateSort = true;
+	public importTab(fileName: string, data: string | Message[], sortRequired?: 'sort' | undefined) {
 		let parsedBlob: any;
 		if (typeof data === 'string') {
 			try {
 				parsedBlob = JSON.parse(data);
-				doDateSort = false; // no need to re-sort
+				sortRequired = undefined; // no need to re-sort
 			} catch (e) {
 				console.log('importJSONFile');
 				const lines = data.split('\n');
 				parsedBlob = importJSONFile(fileName, lines, []);
+				sortRequired = 'sort';
 			}
 		} else {
 			parsedBlob = data;
@@ -394,10 +394,10 @@ export default class MainTabStore {
 
 		for (const message of messages) {
 			const ms = new MessageStore(message);
-			if (ms.getMessage().protocol !== 'log:') doDateSort = false;
+			if (ms.getMessage().protocol !== 'log:') sortRequired = undefined;
 			messageStores.push(ms);
 		}
-		if (doDateSort) {
+		if (sortRequired === 'sort') {
 			messageStores.sort((a, b) => {
 				let dateA: Date = a.getLogEntry().date;
 				let dateB: Date = b.getLogEntry().date;

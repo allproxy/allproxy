@@ -15,7 +15,6 @@ import { apFileSystem } from "./APFileSystem";
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { urlPathStore } from "./UrlPathStore";
 import { mainTabStore } from "./MainTabStore";
-import { maxLinesPerTab } from "./FileReaderStore";
 
 export default class SocketStore {
 	private socket?: Socket = undefined;
@@ -260,38 +259,11 @@ export default class SocketStore {
 		});
 	}
 
-	public emitNewSubset(fileName: string, filterField: string, filterValues: string[], timeFieldName: string): Promise<{ fileSize: number, startTime: string, endTime: string }> {
+	public emitSortFile(fileName: string): Promise<void> {
 		return new Promise((resolve) => {
-			this.socket?.emit('new subset', fileName, filterField, filterValues, timeFieldName,
-				(fileSize: number, startTime: string, endTime: string) => {
-					resolve({ fileSize, startTime, endTime });
-				});
-		});
-	}
-
-	public emitDeleteSubset(fileName: string, filterValues: string[]): Promise<void> {
-		return new Promise((resolve) => {
-			this.socket?.emit('delete subset', fileName, filterValues,
+			this.socket?.emit('sort file', fileName,
 				() => {
 					resolve();
-				});
-		});
-	}
-
-	public emitGetSubsets(fileName: string, timeFieldName: string): Promise<{ filterValue: string, fileSize: number, startTime: string, endTime: string }[]> {
-		return new Promise((resolve) => {
-			this.socket?.emit('get subsets', fileName, timeFieldName,
-				(subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[]) => {
-					resolve(subsets);
-				});
-		});
-	}
-
-	public emitGetSelectableSubsets(fileName: string, filterField: string): Promise<string[]> {
-		return new Promise((resolve) => {
-			this.socket?.emit('get selectable subsets', fileName, filterField, maxLinesPerTab,
-				(subsets: string[]) => {
-					resolve(subsets);
 				});
 		});
 	}

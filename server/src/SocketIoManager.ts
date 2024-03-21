@@ -18,7 +18,7 @@ import APFileSystem from './APFileSystem';
 import { setOsBinaries } from '../../app';
 import { spawn } from 'child_process';
 import path from 'path';
-import FileLineMatcher, { parseDateString } from './FileLineMatcher';
+import FileLineMatcher from './FileLineMatcher';
 const { rgPath } = require('@vscode/ripgrep');
 const jqPath = './node_modules/node-jq/bin/jq';
 
@@ -290,134 +290,24 @@ export default class SocketIoManager {
       callback(result2.toString().split('\n'));
     })
 
-    socket.on('new subset', async (fileName: string, filterField: string, filters: string[], timeFieldName: string, callback: (fileSize: number, startTime: string, endTime: string) => void) => {
-      //console.log('new subset', fileName, filterField, filters);
+    socket.on('sort file', async (fileName: string, callback: () => void) => {
       const downloads = process.env.HOME + "" + path.sep + 'Downloads';
-      const i = fileName.lastIndexOf('.');
-      const subsetFilePath = downloads + path.sep + fileName.substring(0, i) + '-' + filters.join(' ') + fileName.substring(i);
-      const tempFilePath = subsetFilePath + '-unsorted';
-      if (!await fs.existsSync(subsetFilePath) || fs.statSync(subsetFilePath).size === 0) {
-        const rg = rgPath;
-        let cmd = '';
-        if (filters.length > 1) {
-          const fieldValueFilters: string[] = [];
-          for (const filter of filters) {
-            fieldValueFilters.push(`"${filterField}":"${filter}`);
-          }
-          cmd += rg + " -e '" + fieldValueFilters.join('|') + "' " + downloads + path.sep + fileName;
-        } else {
-          const fieldValueFilter = `'"${filterField}":"${filters[0]}'`;
-          cmd = rg + ' -F ' + fieldValueFilter + ' ' + downloads + path.sep + fileName;
-        }
-        socketIoManager.emitStatusToBrowser(socket, 'Executing ripgrep: ' + cmd);
-        const size = await ripgrep2file(cmd, tempFilePath, socket);
-        if (size === 0) {
-          if (await fs.existsSync(tempFilePath)) {
-            fs.rmSync(tempFilePath);
-          }
-          callback(0, new Date(0).toISOString(), new Date(0).toISOString());
-        } else {
-          cmd = jqPath + ` -sc 'sort_by( ._source.msg_timestamp )[]' '${tempFilePath}' > '${subsetFilePath}'`;
-          socketIoManager.emitStatusToBrowser(socket, 'Sorting: ' + cmd);
-          await execCommand(cmd, socket);
-          fs.rmSync(tempFilePath);
-          const { startTime, endTime } = getFileDateRange(subsetFilePath, timeFieldName);
-          callback(size, startTime, endTime);
-        }
-      } else {
-        const stat = fs.statSync(subsetFilePath);
-        const { startTime, endTime } = getFileDateRange(subsetFilePath, timeFieldName);
-        callback(stat.size, startTime, endTime);
-      }
-    })
-
-    socket.on('delete subset', async (fileName: string, filters: string[], callback: () => void) => {
-      const downloads = process.env.HOME + "" + path.sep + 'Downloads';
-      const i = fileName.lastIndexOf('.');
-      const subsetFilePath = downloads + path.sep + fileName.substring(0, i) + '-' + filters.join(' ') + fileName.substring(i);
-      if (fs.existsSync(subsetFilePath)) {
-        fs.unlinkSync(subsetFilePath);
-        callback();
-      }
-    });
-
-    socket.on('get subsets', (fileName, timeFieldName: string, callback: (subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[]) => void) => {
-      const subsets: { filterValue: string, fileSize: number, startTime: string, endTime: string }[] = [];
-      const i = fileName.lastIndexOf('.');
-      const prefix = fileName.substring(0, i) + '-';
-      const suffix = fileName.substring(i);
-      const downloads = process.env.HOME + path.sep + 'Downloads';
-      for (const name of fs.readdirSync(downloads)) {
-        if (name !== fileName && name.startsWith(prefix) && name.endsWith(suffix)) {
-          const stat = fs.statSync(downloads + path.sep + name);
-          const { startTime, endTime } = getFileDateRange(downloads + path.sep + name, timeFieldName);
-          subsets.push({ filterValue: name.substring(prefix.length, name.lastIndexOf('.')), fileSize: stat.size, startTime: startTime, endTime: endTime });
-        }
-      }
-      callback(subsets);
-    });
-
-    socket.on('get selectable subsets', async (fileName: string, filterField: string, maxLines: number, callback: (lines: string[]) => void) => {
-      const grepFilter = `"${filterField}":"`;
-      const filePath = "'" + process.env.HOME + "" + path.sep + 'Downloads' + path.sep + fileName + "'";
-      const rg = rgPath;
+      const filePath = downloads + path.sep + fileName;
+      const tempFilePath = downloads + path.sep + fileName + '-temp';
       let cmd = '';
-      cmd = rg + ' -F -m ' + maxLines + " '" + grepFilter + "' " + filePath;
+      cmd = jqPath + ` -sc 'sort_by( .ts_millis )[]' '${filePath}' > '${tempFilePath}'`;
+      socketIoManager.emitStatusToBrowser(socket, 'Sorting: ' + cmd);
+      await execCommand(cmd, socket);
+      fs.rmSync(filePath);
+      fs.renameSync(tempFilePath, filePath);
+      callback();
 
-      const result = await ripgrep(cmd, [filterField], socket, 10 * 1000);
-      const result2 = result.join();
-      const values: { [key: string]: boolean } = {};
-      for (const line of result2.toString().split('\n')) {
-        const begin = line.indexOf(grepFilter) + grepFilter.length;
-        let end = begin;
-        for (; end < line.length && line.substring(end, end + 1) != '"'; ++end) { }
-        const app = line.substring(begin, end);
-        if (app === '') continue;
-        let tokens = app.split('-', 3);
-        if (tokens[0] === 'fabcon' && tokens[1] === 'manager') tokens = ['fabcon', 'manager'];
-        values[tokens.join('-')] = true;
-      }
-
-      const output = Object.keys(values).sort();
-      callback(output);
     })
-
-
-    function getFileDateRange(filePath: string, timeFieldName: string): { startTime: string, endTime: string } {
-      const chunkSize = 10 * 1024 * 1024;
-      const timeFieldColon = `"${timeFieldName}":`;
-      const buffer = Buffer.alloc(chunkSize);
-      const mode = 'win32' ? 'r' : 444;
-      const fd = fs.openSync(filePath, mode);
-      const stat = fs.fstatSync(fd);
-      fs.readSync(fd, buffer, 0, chunkSize, 0);
-      let i = buffer.indexOf(timeFieldColon);
-      let startTime: Date | undefined;
-      let endTime: Date | undefined;
-      if (i === -1) {
-        console.log('Start time ' + timeFieldColon + ' not found!');
-      } else {
-        startTime = parseDateString(buffer, i + timeFieldColon.length);
-        if (startTime) {
-          startTime.setMilliseconds(0);
-        }
-      }
-      fs.readSync(fd, buffer, 0, chunkSize, stat.size - chunkSize);
-      i = buffer.lastIndexOf(timeFieldColon);
-      if (i === -1) {
-        console.log('End time ' + timeFieldColon + ' not found!');
-      } else {
-        endTime = parseDateString(buffer, i + timeFieldColon.length);
-      }
-      startTime = startTime ? startTime : new Date(0);
-      endTime = endTime ? endTime : new Date(0);
-      return { startTime: startTime.toISOString(), endTime: endTime.toISOString() };
-    }
 
     socket.on('json field exists', async (fileName: string, jsonField: string, callback: (exists: boolean) => void) => {
       const downloads = process.env.HOME + "" + path.sep + 'Downloads';
       const rg = rgPath;
-      const filter = `'"${jsonField}":"'`;
+      const filter = `'"${jsonField}":'`;
       let cmd = rg + ' -F -m 1 ' + filter + ' ' + downloads + path.sep + fileName;
       const data = await ripgrep(cmd, [], socket, 10 * 1000);
       //console.log('json field exists?', jsonField, data.length > 0);
@@ -767,44 +657,6 @@ async function ripgrep(command: string, filters: string[], socket: Socket, timeo
     })
     p.on('exit', () => {
       resolve(result);
-    })
-  })
-}
-
-async function ripgrep2file(command: string, filePath: string, socket: Socket): Promise<number> {
-  //console.log(command);
-  let fileCreated = false;
-  let size = 0;
-  let progressTime = Date.now();
-  return await new Promise<number>(resolve => {
-    const tokens = command.split(' ');
-    //console.log('rebgrep2file', tokens);
-    const p = spawn(tokens[0], tokens.slice(1), { shell: true })
-    p.stdout.on('data', (data: Buffer) => {
-      size += data.length;
-      if (Date.now() - progressTime >= 1000 * 1) {
-        socketIoManager.emitStatusToBrowser(socket, size + ' written to ' + filePath);
-        progressTime = Date.now();
-      }
-      if (!fileCreated) {
-        fs.writeFileSync(filePath, data);
-        fileCreated = true;
-      } else {
-        fs.appendFileSync(filePath, data);
-      }
-    })
-    p.stderr.on('data', (data: Buffer) => {
-      console.error('ripgrep error', data.toString());
-      socketIoManager.emitErrorToBrowser(socket, command + ': ' + data.toString());
-      resolve(0);
-    })
-    p.on('exit', () => {
-      if (!fs.existsSync(filePath)) {
-        resolve(0);
-      } else {
-        const stat = fs.statSync(filePath);
-        resolve(stat.size);
-      }
     })
   })
 }

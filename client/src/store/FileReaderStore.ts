@@ -21,6 +21,12 @@ export default class FileReaderStore {
 	private nextLineNumber: number = 1;
 	private includeFilters: string[] = [];
 	private operator: 'and' | 'or' = 'and';
+	private startTime: string = "";
+	private endTime: string = "";
+	private startTimeDate: Date = new Date();
+	private endTimeDate: Date = new Date();
+	private timeFieldName: string = '';
+	private truncated = false;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -43,27 +49,34 @@ export default class FileReaderStore {
 		//console.log(this.operator);
 	}
 
-	public async serverRead(fileName: string): Promise<boolean> {
-		this.fileName = fileName;
-		return new Promise<boolean>(async (resolve) => {
-			const s = await import("./SocketStore");
-			this.lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
-			resolve(true);
-		});
+	public setTimeFilter(timeFieldName: string, startTime: string, endTime: string) {
+		this.timeFieldName = timeFieldName;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		if (startTime !== '') {
+			this.startTimeDate = new Date(startTime);
+		}
+		if (endTime !== '') {
+			this.endTimeDate = new Date(endTime);
+		}
 	}
 
-	public async serverSubsetRead(fileName: string, timeFieldName: string, startTime: string, endTime: string): Promise<boolean> {
+	public async serverRead(fileName: string): Promise<boolean> {
+		this.truncated = false;
 		this.fileName = fileName;
-		//console.log('Time filter: ', startTime + ' to ' + endTime);
-
 		return new Promise<boolean>(async (resolve) => {
 			const s = await import("./SocketStore");
-			this.lines = await s.socketStore.emitFileLineMatcher(fileName, timeFieldName, startTime, endTime, this.operator, this.includeFilters, maxLinesPerTab);
+			if (this.startTime !== "") {
+				this.lines = await s.socketStore.emitFileLineMatcher(fileName, this.timeFieldName, this.startTime, this.endTime, this.operator, this.includeFilters, maxLinesPerTab);
+			} else {
+				this.lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
+			}
 			resolve(true);
 		});
 	}
 
 	public async clientRead(file?: any): Promise<boolean> {
+		this.truncated = false;
 		return new Promise<boolean>(async (resolve) => {
 			const start = Date.now();
 			if (file) {
@@ -107,11 +120,23 @@ export default class FileReaderStore {
 						}
 					}
 
-					if (this.lines.length >= maxLinesPerTab) break;
+					if (this.lines.length >= maxLinesPerTab) {
+						this.truncated = true;
+						break;
+					}
 				}
 
 				if (this.lines.length === 0) {
-					alert('No lines match your filter criteria: ' + this.includeFilters.join(' ' + this.operator));
+					let timeFilter = '';
+					if (this.startTime !== '') {
+						timeFilter += ' ' + this.startTime;
+						if (this.endTime !== '') {
+							timeFilter += ' to ' + this.endTime;
+						} else {
+							timeFilter += ' to eof';
+						}
+					}
+					alert('No lines match your filter criteria: ' + this.includeFilters.join(' ' + this.operator) + timeFilter);
 				}
 				logResponseTime('read file time', start);
 				resolve(true);
@@ -142,17 +167,17 @@ export default class FileReaderStore {
 		});
 	}
 
-	private isMatch(s: string): boolean {
+	private isMatch(line: string): boolean {
 		if (this.operator === 'and') {
 			for (const includeFilter of this.includeFilters) {
-				if (s.indexOf(includeFilter) === -1) {
+				if (line.indexOf(includeFilter) === -1) {
 					return false;
 				}
 			}
 		} else {
 			let match = false;
 			for (const includeFilter of this.includeFilters) {
-				if (s.indexOf(includeFilter) !== -1) {
+				if (line.indexOf(includeFilter) !== -1) {
 					match = true;
 					break;
 				}
@@ -160,10 +185,60 @@ export default class FileReaderStore {
 			if (!match) return false;
 		}
 
+		if (this.startTime !== "") {
+			const d = this.parseDateString(line);
+			if (d === undefined) {
+				console.log('Did not find ' + this.timeFieldName + ' in line: ' + line);
+				return false;
+			}
+
+			if (d > this.endTimeDate) {
+				return false;
+			}
+
+			// Time match?
+			if (d < this.startTimeDate) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
-	public addTab(tabName?: string) {
+	private parseDateString(line: string): Date | undefined {
+		const timeFieldNameAndColon = `"${this.timeFieldName}":`;
+		let begin = line.indexOf(timeFieldNameAndColon);
+		if (begin === -1) {
+			return undefined;
+		}
+		begin += timeFieldNameAndColon.length;
+		const c = line.slice(begin, begin + 1).toString();
+		if (c === '\\' || c === ' ') begin += 1;
+		let end = begin + 1;
+		for (;
+			end < line.length
+			&& line.slice(end, end + 1).toString() != '\\'
+			&& line.slice(end, end + 1).toString() != ',';
+			++end) { }
+		if (end < line.length) {
+			const s = line.slice(begin, end);
+			let d;
+			const i = parseInt(s.toString());
+			if (i !== Number.NaN) {
+				d = new Date(i);
+			} else {
+				d = new Date(s.toString());
+			}
+			if (d.toString() === "Invalid Date") {
+				console.log("Invalid Date: " + s);
+				return undefined;
+			}
+			return d;
+		}
+		return undefined;
+	}
+
+	public addTab(tabName?: string, sortRequired?: 'sort' | undefined) {
 		const start = Date.now();
 
 		const offset = this.nextLineNumber - 1;
@@ -172,6 +247,7 @@ export default class FileReaderStore {
 		}
 		if (this.lines.length > maxLinesPerTab) {
 			this.lines.splice(maxLinesPerTab, this.lines.length - maxLinesPerTab);
+			this.truncated = true;
 		}
 		this.nextLineNumber += maxLinesPerTab;
 
@@ -184,11 +260,15 @@ export default class FileReaderStore {
 				tabName = messageStore.getLogEntry().date.toISOString().split('T')[1];
 			}
 		}
-		mainTabStore.importTab(tabName, importJSONFile(tabName, this.lines, []));
+		mainTabStore.importTab(tabName, importJSONFile(tabName, this.lines, []), sortRequired);
 		mainTabStore.getFileReaderStores()[mainTabStore.getTabCount() - 1] = this; // Save this object
 
 		this.lines.splice(0, this.lines.length - 1);
 
 		logResponseTime('add tab time', start);
+
+		if (this.truncated) {
+			setTimeout(() => alert(`File ${this.fileName} truncated to 10000 lines.  Use time and/or substring filters to select significant lines.`));
+		}
 	}
 }
