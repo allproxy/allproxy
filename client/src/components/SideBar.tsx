@@ -240,16 +240,16 @@ const SideBar = observer(() => {
 						<SideBarSettings />
 					</div>
 
-					<div>
-						<SideBarJsonSettings />
-					</div>
-
 					<div style={{ marginTop: '.5rem' }}>
 						<SideBarNamedQueries />
 					</div>
 
 					<div>
 						<SideBarSortBy></SideBarSortBy>
+					</div>
+
+					<div hidden>
+						<SideBarJsonSettings />
 					</div>
 
 					{noteMessages.length > 0 && (
