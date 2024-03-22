@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { dateToHHMMSS } from "../components/Request";
 import { getJSONValue } from "./JSONLogStore";
 import { messageQueueStore } from "./MessageQueueStore";
+import { isDateValid } from "../components/Footer";
 
 export default class FilterStore {
     private name = '';
@@ -30,8 +31,37 @@ export default class FilterStore {
 
     private sortByKeys: string[] = [];
 
+    private startTime: string = "";
+    private endTime: string = "";
+    private startDate: Date = new Date();
+    private endDate: Date = new Date();
+
     public constructor() {
         makeAutoObservable(this);
+    }
+
+    public getStartTime() {
+        return this.startTime;
+    }
+    public setStartTime(startTime: string) {
+        this.startTime = startTime;
+        if (startTime === '') {
+            this.startDate = new Date();
+        } else {
+            if (isDateValid(this.startTime)) this.startDate = new Date(startTime);
+        }
+    }
+
+    public getEndTime() {
+        return this.endTime;
+    }
+    public setEndTime(endTime: string) {
+        this.endTime = endTime;
+        if (endTime === '') {
+            this.endDate = new Date();
+        } else {
+            if (isDateValid(this.endTime)) this.endDate = new Date(endTime);
+        }
     }
 
     public getName() {
@@ -401,7 +431,7 @@ export default class FilterStore {
         // Check exclude tags
         if (this.excludeTags.length > 0 && this.isMessageExcluded(messageStore)) return doReturn(true);
 
-        if (this.searchFilter.length === 0) return doReturn(false);
+        if (this.searchFilter.length === 0 && this.startTime === '' && this.endTime === '') return doReturn(false);
         if (this._logical && this.boolString.length > 0) {
             let boolString = this.boolString;
             for (let i = 0; i < this.boolOperands.length; ++i) {
@@ -528,6 +558,22 @@ export default class FilterStore {
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
         const message = messageStore.getMessage();
+
+        // Time filter
+        if (this.startTime !== '') {
+            if (message.protocol === 'log:') {
+                if (messageStore.getLogEntry().date < this.startDate) return true;
+            } else {
+                if (new Date(message.timestamp) < this.startDate) return true;
+            }
+        }
+        if (this.endTime !== '') {
+            if (message.protocol === 'log:') {
+                if (messageStore.getLogEntry().date > this.endDate) return true;
+            } else {
+                if (new Date(message.timestamp) > this.endDate) return true;
+            }
+        }
 
         if (message.proxyConfig && this.isMatch(needle, message.proxyConfig.protocol)) return false;
         if (this.isMatch(needle, message.protocol)) return false;

@@ -411,15 +411,17 @@ export default class MessageQueueStore {
 }
 
 export function _getLimit(): number {
-	const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
-	if (limit) {
-		// Ensure limit is at least 20000
-		if (Number(limit) > 20000) {
-			return Number(limit);
+	try {
+		const limit = localStorage.getItem(LOCAL_STORAGE_LIMIT);
+		if (limit) {
+			// Ensure limit is at least 20000
+			if (Number(limit) > 20000) {
+				return Number(limit);
+			}
 		}
-	}
 
-	localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
+		localStorage.setItem(LOCAL_STORAGE_LIMIT, DEFAULT_LIMIT + '');
+	} catch (e) { }
 	return DEFAULT_LIMIT;
 }
 

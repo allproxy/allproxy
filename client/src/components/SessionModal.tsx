@@ -202,7 +202,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 			<ExportDialog
 				open={openExportDialog}
 				heading={"Enter ZIP File Name"}
-				name={''}
+				buttonLabel={'Export'}
 				onClose={async (fileName) => {
 					setOpenExportDialog(false);
 					if (fileName.length > 0) {

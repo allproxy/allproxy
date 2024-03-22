@@ -257,9 +257,7 @@ export function dateToHHMMSS(d: Date) {
 		return d.toISOString();
 	} else {
 		let date = d.getMonth() + 1 + '/' + d.getDate();
-		if (isJsonLogTab()) {
-			date += '/' + d.getFullYear();
-		}
+		date += '/' + d.getFullYear();
 		return date + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ':' + d.getSeconds().toString().padStart(2, '0');
 	}
 }

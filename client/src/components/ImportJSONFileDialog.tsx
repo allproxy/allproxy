@@ -6,9 +6,11 @@ import { importJSONFile } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import { socketStore } from '../store/SocketStore';
+import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 
 //const bigFileSize = 1024 * 1024 * 1024; // 1G
 const timeFieldName = 'ts_millis';
+const disableServerRead = true;
 
 type Props = {
 	open: boolean,
@@ -35,31 +37,22 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	input.onchange = async (e: any) => {
 		const file = e.target.files[0] as File;
 		setSelectedFile(file);
-		if (isGzip()) {
-			setIsSorted(undefined);
-			setTimeFieldSupported(false);
-		} else {
-			const useServer = socketStore.isConnected() && await socketStore.emitIsFileInDownloads(file.name);
-			setServerReadSupported(useServer);
-			const timeFieldExists = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
-			setTimeFieldSupported(timeFieldExists);
-			if (timeFieldExists && useServer) {
-				const { socketStore } = await import('../store/SocketStore');
-				const sorted = await socketStore.emitIsSorted(file.name, timeFieldName);
-				setIsSorted(sorted);
-				if (!sorted) {
-					mainTabStore.setUpdating(true, `Sorting ${file.name}`);
-					await socketStore.emitSortFile(file.name);
-					mainTabStore.setUpdating(false);
-					setIsSorted(await socketStore.emitIsSorted(file.name, timeFieldName));
-				}
+		const useServer = socketStore.isConnected() && await socketStore.emitIsFileInDownloads(file.name) && !disableServerRead;
+		setServerReadSupported(useServer);
+		const timeFieldExists = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
+		setTimeFieldSupported(timeFieldExists);
+		if (timeFieldExists && useServer) {
+			const { socketStore } = await import('../store/SocketStore');
+			const sorted = await socketStore.emitIsSorted(file.name, timeFieldName);
+			setIsSorted(sorted);
+			if (!sorted) {
+				mainTabStore.setUpdating(true, `Sorting ${file.name}`);
+				await socketStore.emitSortFile(file.name);
+				mainTabStore.setUpdating(false);
+				setIsSorted(await socketStore.emitIsSorted(file.name, timeFieldName));
 			}
 		}
 	};
-
-	function isGzip() {
-		return selectedFile && selectedFile.type.indexOf('gzip') !== -1;
-	}
 
 	function fileName(): string {
 		if (selectedFile === undefined) return '';
@@ -82,7 +75,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				fileReaderStore.setFilters(includeFilter);
 				fileReaderStore.setTimeFilter(timeFieldName, startTime, endTime);
 
-				if (!isGzip() && serverReadSupported) {
+				if (serverReadSupported) {
 					await fileReaderStore.serverRead(fileName());
 				} else {
 					await fileReaderStore.clientRead(selectedFile);
@@ -91,12 +84,20 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				fileReaderStore.addTab(tabName, serverReadSupported ? undefined : 'sort');
 				setFileReaderStore(new FileReaderStore());
 			}
+
+			jsonLogStore.init();
+			jsonLogStore.updateScriptFunc();
+			mainTabStore.setUpdating(true, 'Import Completed - updating...');
+			setTimeout(() => {
+				updateJSONRequestLabels();
+				mainTabStore.setUpdating(false);
+			});
+
 			//setSelectedFile(undefined);
 			setTabName('');
 			setStartTime('');
 			setEndTime('');
 			setIncludeFilter('');
-			mainTabStore.setUpdating(false);
 		}, 1000);
 	}
 

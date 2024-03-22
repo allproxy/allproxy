@@ -5,11 +5,11 @@ import { Dialog, DialogContent, DialogTitle } from '@material-ui/core';
 type Props = {
 	open: boolean,
 	heading: string,
-	name: string,
+	buttonLabel: string,
 	onClose: (fileName: string) => void,
 };
-const ExportDialog = observer(({ open, heading: title, name, onClose }: Props) => {
-	const [fileName, setFileName] = React.useState(name);
+const ExportDialog = observer(({ open, heading: title, buttonLabel, onClose }: Props) => {
+	const [fileName, setFileName] = React.useState('');
 
 	const handleClose = () => {
 		onClose(fileName);
@@ -24,7 +24,7 @@ const ExportDialog = observer(({ open, heading: title, name, onClose }: Props) =
 					disabled={fileName.length === 0}
 					onClick={() => onClose(fileName)}
 				>
-					Export
+					{buttonLabel}
 				</button>
 			</DialogContent>
 		</Dialog>

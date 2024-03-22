@@ -45,7 +45,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
-	const [showHelp, setShowHelp] = React.useState(true);
+	const [showHelp, setShowHelp] = React.useState(false);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
@@ -405,7 +405,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 			<ExportDialog
 				open={openExportDialog}
 				heading={"Tab Name"}
-				name={''}
+				buttonLabel={'Export'}
 				onClose={(fileName) => {
 					setOpenExportDialog(false);
 					if (fileName.length > 0) {
