@@ -135,7 +135,7 @@ export default class SettingsStore {
 
 	private statusUpdating = true;
 	private entries: ProxyConfig[] = [];
-	private messageQueueLimit = _getLimit();
+	private messageQueueLimit = 0;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -319,10 +319,12 @@ export default class SettingsStore {
 	}
 
 	public getMessageQueueLimit() {
+		if (this.messageQueueLimit === 0) this.messageQueueLimit = _getLimit();
 		return this.messageQueueLimit;
 	}
 
 	@action setMessageQueueLimit(messageQueueLimit: number) {
+		if (this.messageQueueLimit === 0) this.messageQueueLimit = _getLimit();
 		this.messageQueueLimit = messageQueueLimit;
 		this.changed = true;
 	}

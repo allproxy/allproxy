@@ -388,7 +388,7 @@ const SideBar = observer(() => {
 			<ExportDialog
 				open={openSaveSessionDialog}
 				heading={"Enter Session Name"}
-				name={''}
+				buttonLabel={'Save'}
 				onClose={async (fileName) => {
 					setOpenSaveSessionDialog(false);
 					if (fileName.length > 0) {

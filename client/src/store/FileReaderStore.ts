@@ -23,10 +23,11 @@ export default class FileReaderStore {
 	private operator: 'and' | 'or' = 'and';
 	private startTime: string = "";
 	private endTime: string = "";
-	private startTimeDate: Date = new Date();
+	private startTimeDate: Date = new Date(0);
 	private endTimeDate: Date = new Date();
 	private timeFieldName: string = '';
 	private truncated = false;
+	private readStartTime = 0;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -78,7 +79,7 @@ export default class FileReaderStore {
 	public async clientRead(file?: any): Promise<boolean> {
 		this.truncated = false;
 		return new Promise<boolean>(async (resolve) => {
-			const start = Date.now();
+			this.readStartTime = Date.now();
 			if (file) {
 				this.file = file;
 				this.fileName = file.name;
@@ -97,13 +98,22 @@ export default class FileReaderStore {
 					if (isGzip) {
 						content = pako.ungzip(content, { to: 'string' });
 					}
-					this.lines = content.split('\n');
-					logResponseTime('read file time', start);
+					const lines = content.split('\n');
+					for (let i = 0; i < lines.length; ++i) {
+						const line = lines[i];
+						if (this.isMatch(line)) {
+							this.lines.push(line);
+						}
+					}
+					if (this.lines.length === 0) {
+						this.alertNoMatch();
+					}
+					logResponseTime('read file time', this.readStartTime);
 					resolve(true);
 				};
 			} else {
 				for (let offset = 0; offset < this.file.size;) {
-					let chunk = await this.readChunk(offset, start);
+					let chunk = await this.readChunk(offset);
 					const lastNewline = chunk.lastIndexOf('\n');
 					offset += lastNewline + 1;
 
@@ -127,33 +137,34 @@ export default class FileReaderStore {
 				}
 
 				if (this.lines.length === 0) {
-					let timeFilter = '';
-					if (this.startTime !== '') {
-						timeFilter += ' ' + this.startTime;
-						if (this.endTime !== '') {
-							timeFilter += ' to ' + this.endTime;
-						} else {
-							timeFilter += ' to eof';
-						}
-					}
-					alert('No lines match your filter criteria: ' + this.includeFilters.join(' ' + this.operator) + timeFilter);
+					this.alertNoMatch();
 				}
-				logResponseTime('read file time', start);
+				logResponseTime('read file time', this.readStartTime);
 				resolve(true);
 			}
 		});
 	}
 
-	private readChunk(offset: number, startTime: number): Promise<string> {
+	private alertNoMatch() {
+		let timeFilter = '';
+		if (this.startTime !== '') {
+			timeFilter += ' ' + this.startTime;
+			if (this.endTime !== '') {
+				timeFilter += ' to ' + this.endTime;
+			} else {
+				timeFilter += ' to eof';
+			}
+		}
+		alert('No lines match your filter criteria: ' + this.includeFilters.join(' ' + this.operator) + timeFilter);
+	}
+
+	private readChunk(offset: number): Promise<string> {
 		return new Promise<string>((resolve) => {
 			const readEventHandler = (evt: any) => {
 				if (evt.target.error == null) {
 					offset += evt.target.result.length;
 					resolve(evt.target.result); // callback for handling read chunk
 					//console.log(offset, fileSize);
-					const percent = (offset * 100 / this.file.size).toFixed(1);
-					const elapsedTime = (Date.now() - startTime) / 1000;
-					mainTabStore.setUpdating(true, percent + "% Complete, Seconds: " + elapsedTime.toFixed(0));
 				} else {
 					console.log("readChunk error: " + evt.target.error);
 					resolve('');
@@ -200,6 +211,11 @@ export default class FileReaderStore {
 			if (d < this.startTimeDate) {
 				return false;
 			}
+		}
+
+		if (false && this.lines.length % 100 === 0) {
+			const elapsedTime = (Date.now() - this.readStartTime) / 1000;
+			mainTabStore.setUpdating(true, (this.lines.length + 1) + " Lines read, Seconds: " + elapsedTime.toFixed(0));
 		}
 
 		return true;
@@ -268,7 +284,7 @@ export default class FileReaderStore {
 		logResponseTime('add tab time', start);
 
 		if (this.truncated) {
-			setTimeout(() => alert(`File ${this.fileName} truncated to 10000 lines.  Use time and/or substring filters to select significant lines.`));
+			setTimeout(() => alert(`File ${this.fileName} truncated to 10000 lines.  Use time and/or substring filters to select significant lines.`), 1000);
 		}
 	}
 }
