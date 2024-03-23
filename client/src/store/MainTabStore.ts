@@ -336,22 +336,6 @@ export default class MainTabStore {
 		let line = message.getLogEntry().rawLine;
 		line = line.replace(/\\"/g, '');
 		return line;
-		// let json = { ...message.getMessage().responseBody as { [key: string]: any } };
-		// for (const key in json) {
-		// 	if (key === 'PREFIX') {
-		// 		let deleteIt = true;
-		// 		for (const field of jsonLogStore.getJSONFieldNames()) {
-		// 			if (key.toLowerCase() === field.toLowerCase()) {
-		// 				deleteIt = false;
-		// 				break;
-		// 			}
-		// 		}
-		// 		if (deleteIt) delete json[key];
-		// 	}
-		// }
-		// // message.path is any non-json data before JSON object.  It is called the PREFIX.
-		// let line = message.path + compressJSON(json);
-		// return line;
 	}
 
 	public copyAsCurl(message: Message): string {
