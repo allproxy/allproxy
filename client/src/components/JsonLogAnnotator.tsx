@@ -22,7 +22,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				jsonLogStore.isRawJsonChecked() ?
 					<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
 						{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().appName)}
-						{mainTabStore.copyMessage(message.getMessage())}
+						{mainTabStore.copyMessage(message)}
 					</div>
 					:
 					makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().appName).map((element) => {
