@@ -146,7 +146,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																<div>//</div>
 																<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
 																<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
-																<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string{'}'}</div>
+																<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string, <b>rawLine</b>: string{'}'}</div>
 																<div>//</div>
 																<div>// <b>category</b> e.g., availability zone, processor... </div>
 																<div>// <b>appName</b> is the pod name, process ID... </div>
@@ -157,6 +157,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																<div>  let category = jsonObject.zone;</div>
 																<div>  let appName = jsonObject.pod_name;</div>
 																<div>  let message = jsonObject.message;</div>
+																<div>  let rawLine = JSON.stringify(jsonObject);</div>
 																<div>  let additionalJSON = {'{}'};</div>
 																<div>  return {'{date, level, category, appName, message, additionalJSON}'};</div>
 																<div>{'}'}</div>
