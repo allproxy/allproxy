@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { dateToHHMMSS } from "../components/Request";
 import { getJSONValue } from "./JSONLogStore";
 import { messageQueueStore } from "./MessageQueueStore";
-import { isDateValid } from "../components/Footer";
+import { stringToDate } from "../components/Footer";
 
 export default class FilterStore {
     private name = '';
@@ -48,7 +48,7 @@ export default class FilterStore {
         if (startTime === '') {
             this.startDate = new Date();
         } else {
-            if (isDateValid(this.startTime)) this.startDate = new Date(startTime);
+            this.startDate = stringToDate(this.startTime).date;
         }
     }
 
@@ -60,7 +60,7 @@ export default class FilterStore {
         if (endTime === '') {
             this.endDate = new Date();
         } else {
-            if (isDateValid(this.endTime)) this.endDate = new Date(endTime);
+            this.endDate = stringToDate(this.endTime).date;
         }
     }
 
