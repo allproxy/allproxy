@@ -73,8 +73,9 @@ const SideBarQueries = observer((): JSX.Element => {
 			<div className="side-bar-item">
 				<div
 					style={{ cursor: 'pointer' }}
-					onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-						setAnchorEl(event.currentTarget);
+					onClick={(_event: React.MouseEvent<HTMLDivElement>) => {
+						setShowNamedQueriesModal(namedQueriesStore);
+						//setAnchorEl(event.currentTarget);
 					}}>
 					<span className="fa fa-pen" style={{ fontSize: '.75rem' }} /><span> Queries</span>
 				</div>
@@ -104,7 +105,7 @@ const SideBarQueries = observer((): JSX.Element => {
 				</Menu>
 			</div>
 			<Queries orCondition={false} name="Query" icon="fa fa-search" store={namedQueriesStore} />
-			<Queries orCondition={true} name="Add OR Condition" icon="fa fa-grip-lines-vertical" store={namedSubQueriesStore} />
+			{/* <Queries orCondition={true} name="Add OR Condition" icon="fa fa-grip-lines-vertical" store={namedSubQueriesStore} /> */}
 			<NamedQueriesModal
 				name={showNamedQueriesModal === namedQueriesStore ? 'Queries' : 'OR Conditions'}
 				open={showNamedQueriesModal !== undefined}
