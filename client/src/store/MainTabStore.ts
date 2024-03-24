@@ -8,6 +8,7 @@ import fetchToCurl from 'fetch-to-curl';
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { isJsonLogTab } from "../components/SideBar";
 import FileReaderStore from "./FileReaderStore";
+import { jsonLogStore, updateJSONRequestLabels } from "./JSONLogStore";
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -412,6 +413,9 @@ export default class MainTabStore {
 				messageStores.splice(0, messageStores.length);
 			}
 		}
+
+		jsonLogStore.updateScriptFunc();
+		updateJSONRequestLabels();
 	}
 
 	public getSelectedMessages(): MessageStore[] {

@@ -284,7 +284,7 @@ export default class FileReaderStore {
 		logResponseTime('add tab time', start);
 
 		if (this.truncated) {
-			setTimeout(() => alert(`File ${this.fileName} truncated to 10000 lines.  Use time and/or substring filters to select significant lines.`), 1000);
+			setTimeout(() => alert(`File ${this.fileName} truncated to 10000 lines.  Use time and/or substring filters to select significant lines.`));
 		}
 	}
 }
