@@ -7,8 +7,8 @@ import MessageStore from './MessageStore';
 import fetchToCurl from 'fetch-to-curl';
 import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { isJsonLogTab } from "../components/SideBar";
-import { jsonLogStore } from "./JSONLogStore";
 import FileReaderStore from "./FileReaderStore";
+import { jsonLogStore, updateJSONRequestLabels } from "./JSONLogStore";
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -333,22 +333,9 @@ export default class MainTabStore {
 		return data;
 	}
 
-	public copyMessage(message: Message): string {
-		let json = { ...message.responseBody as { [key: string]: any } };
-		for (const key in json) {
-			if (key === 'PREFIX') {
-				let deleteIt = true;
-				for (const field of jsonLogStore.getJSONFieldNames()) {
-					if (key.toLowerCase() === field.toLowerCase()) {
-						deleteIt = false;
-						break;
-					}
-				}
-				if (deleteIt) delete json[key];
-			}
-		}
-		// message.path is any non-json data before JSON object.  It is called the PREFIX.
-		let line = message.path + compressJSON(json);
+	public copyMessage(message: MessageStore): string {
+		let line = message.getLogEntry().rawLine;
+		line = line.replace(/\\"/g, '');
 		return line;
 	}
 
@@ -426,6 +413,9 @@ export default class MainTabStore {
 				messageStores.splice(0, messageStores.length);
 			}
 		}
+
+		jsonLogStore.updateScriptFunc();
+		updateJSONRequestLabels();
 	}
 
 	public getSelectedMessages(): MessageStore[] {

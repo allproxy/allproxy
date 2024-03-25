@@ -6,7 +6,6 @@ import { importJSONFile } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import { socketStore } from '../store/SocketStore';
-import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 
 //const bigFileSize = 1024 * 1024 * 1024; // 1G
 const timeFieldName = 'ts_millis';
@@ -85,13 +84,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				setFileReaderStore(new FileReaderStore());
 			}
 
-			jsonLogStore.init();
-			jsonLogStore.updateScriptFunc();
-			mainTabStore.setUpdating(true, 'Import Completed - updating...');
-			setTimeout(() => {
-				updateJSONRequestLabels();
-				mainTabStore.setUpdating(false);
-			});
+			mainTabStore.setUpdating(false);
 
 			//setSelectedFile(undefined);
 			setTabName('');

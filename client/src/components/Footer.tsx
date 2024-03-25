@@ -4,6 +4,7 @@ import BreakpointStore from '../store/BreakpointStore';
 import ExcludeTags from './ExcludeTags';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import { urlPathStore } from '../store/UrlPathStore';
+import { dateToHHMMSS as dateToString } from './Request';
 
 /**
  * Footer view
@@ -56,7 +57,7 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 							onChange={(e) => filterStore.setEndTime(e.target.value)}
 						/>
 						<button className="btn btn-success" style={{ marginLeft: '.5rem' }}
-							disabled={!isDateValid(filterStore.getStartTime()) || !isDateValid(filterStore.getEndTime())}
+							disabled={!stringToDate(filterStore.getStartTime()).ok || !stringToDate(filterStore.getEndTime()).ok}
 							onClick={handleSet}
 						>
 							Set Time
@@ -82,17 +83,39 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 	);
 });
 
-export function isDateValid(time: string) {
-	if (time === '') return true;
-	const d = new Date(time);
-	if (d.toString() === "Invalid Date") {
-		return false;
+// Convert string to Date.
+// return ok === true, if date is valid
+export function stringToDate(dateString: string): { date: Date, ok: boolean } {
+	if (dateString === '') return { date: new Date(), ok: true };
+	let d = new Date(dateString);
+	if (d.toString() === "Invalid Date" || dateString.indexOf(':') === -1) {
+		const s = getMonthDayYear() + ' ' + dateString;
+		d = new Date(s);
+		if (d.toString() === 'Invalid Date') {
+			return { date: new Date(), ok: false };
+		}
 	}
-	return true;
+	return { date: d, ok: true };
+}
+
+// Current MM/DD/YYYY for selected tab
+function getMonthDayYear() {
+	const messageStores = messageQueueStore.getMessages();
+	if (messageStores.length > 0) {
+		const messageStore = messageStores[0];
+		let date = new Date();
+		if (messageStore.getMessage().protocol === 'log:') {
+			date = messageStore.getLogEntry().date;
+		} else {
+			date = new Date(messageStore.getMessage().timestamp);
+		}
+		return dateToString(date).split(' ')[0];
+	}
+	return '';
 }
 
 function getDateColor(time: string) {
-	return isDateValid(time) ? 'rgba(232, 230, 227)' : 'red';
+	return stringToDate(time).ok ? 'rgba(232, 230, 227)' : 'red';
 }
 
 export default Footer;

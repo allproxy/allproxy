@@ -19,7 +19,7 @@ export default class MessageStore {
     private note = '';
     private jsonFields: JsonField[] = [];
     private filtered: false | true | undefined = undefined;
-    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', additionalJSON: {} };
+    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', rawLine: '', additionalJSON: {} };
 
     public constructor(message: Message, auto: boolean = false) {
         let keys = Object.keys(message.requestHeaders);

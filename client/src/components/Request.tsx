@@ -128,7 +128,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 									<div className="header__export fa fa-copy" title="Copy to clipboard"
 										style={{ marginRight: '0rem' }}
 										onClick={() => {
-											navigator.clipboard.writeText(mainTabStore.copyMessage(message));
+											navigator.clipboard.writeText(mainTabStore.copyMessage(store));
 										}}
 									>
 									</div>
