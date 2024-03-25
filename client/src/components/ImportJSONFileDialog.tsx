@@ -38,7 +38,12 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		setSelectedFile(file);
 		const useServer = socketStore.isConnected() && await socketStore.emitIsFileInDownloads(file.name) && !disableServerRead;
 		setServerReadSupported(useServer);
-		const timeFieldExists = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
+		let timeFieldExists = false;
+		if (useServer) {
+			timeFieldExists = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
+		} else {
+			timeFieldExists = await FileReaderStore.clientTimeFieldExists(file, timeFieldName);
+		}
 		setTimeFieldSupported(timeFieldExists);
 		if (timeFieldExists && useServer) {
 			const { socketStore } = await import('../store/SocketStore');
