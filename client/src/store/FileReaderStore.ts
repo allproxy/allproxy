@@ -76,6 +76,22 @@ export default class FileReaderStore {
 		});
 	}
 
+	public static async clientTimeFieldExists(file: any, timeField: string): Promise<boolean> {
+		return new Promise<boolean>(async (resolve) => {
+			const r = new FileReader();
+			var blob = file.slice(0, chunkSize());
+			r.readAsText(blob, 'UTF-8');
+			r.onload = (evt: any) => {
+				if (evt.target.error == null) {
+					resolve(evt.target.result.indexOf(timeField) !== -1);
+				} else {
+					console.log("clientTimeFieldExists error: " + evt.target.error);
+					return resolve(false);
+				}
+			};
+		});
+	}
+
 	public async clientRead(file?: any): Promise<boolean> {
 		this.truncated = false;
 		return new Promise<boolean>(async (resolve) => {
