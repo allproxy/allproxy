@@ -18,14 +18,13 @@ export default class FileReaderStore {
 	private file: any;
 	private fileName: string = "";
 	private lines: string[] = [];
-	private nextLineNumber: number = 1;
 	private includeFilters: string[] = [];
 	private operator: 'and' | 'or' = 'and';
 	private startTime: string = "";
 	private endTime: string = "";
 	private startTimeDate: Date = new Date(0);
 	private endTimeDate: Date = new Date();
-	private timeFieldName: string = '';
+	private timeFieldName: string | undefined = undefined;
 	private truncated = false;
 	private readStartTime = 0;
 
@@ -37,10 +36,6 @@ export default class FileReaderStore {
 		return this.fileName;
 	}
 
-	public getNextLineNumber() {
-		return this.nextLineNumber;
-	}
-
 	public setFilters(includeFilter: string) {
 		this.includeFilters = includeFilter.split(' ').filter((s) => s !== '');
 	}
@@ -50,7 +45,7 @@ export default class FileReaderStore {
 		//console.log(this.operator);
 	}
 
-	public setTimeFilter(timeFieldName: string, startTime: string, endTime: string) {
+	public setTimeFilter(timeFieldName: string | undefined, startTime: string, endTime: string) {
 		this.timeFieldName = timeFieldName;
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -67,7 +62,7 @@ export default class FileReaderStore {
 		this.fileName = fileName;
 		return new Promise<boolean>(async (resolve) => {
 			const s = await import("./SocketStore");
-			if (this.startTime !== "") {
+			if (this.timeFieldName) {
 				this.lines = await s.socketStore.emitFileLineMatcher(fileName, this.timeFieldName, this.startTime, this.endTime, this.operator, this.includeFilters, maxLinesPerTab);
 			} else {
 				this.lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
@@ -83,10 +78,12 @@ export default class FileReaderStore {
 			r.readAsText(blob, 'UTF-8');
 			r.onload = (evt: any) => {
 				if (evt.target.error == null) {
-					resolve(evt.target.result.indexOf(timeField) !== -1);
+					const exists = evt.target.result.indexOf(timeField) !== -1;
+					//console.log('clientTimeFieldExists', timeField, exists);
+					resolve(exists);
 				} else {
 					console.log("clientTimeFieldExists error: " + evt.target.error);
-					return resolve(false);
+					resolve(false);
 				}
 			};
 		});
@@ -146,7 +143,7 @@ export default class FileReaderStore {
 						}
 					}
 
-					if (this.lines.length >= maxLinesPerTab) {
+					if (this.startTime === '' && this.endTime === '' && this.lines.length >= maxLinesPerTab) {
 						this.truncated = true;
 						break;
 					}
@@ -212,7 +209,7 @@ export default class FileReaderStore {
 			if (!match) return false;
 		}
 
-		if (this.startTime !== "") {
+		if (this.timeFieldName) {
 			const d = this.parseDateString(line);
 			if (d === undefined) {
 				console.log('Did not find ' + this.timeFieldName + ' in line: ' + line);
@@ -273,17 +270,6 @@ export default class FileReaderStore {
 	public addTab(tabName?: string, sortRequired?: 'sort' | undefined) {
 		const start = Date.now();
 
-		const offset = this.nextLineNumber - 1;
-		if (offset > 0) {
-			this.lines.splice(0, offset);
-		}
-		if (this.lines.length > maxLinesPerTab) {
-			this.lines.splice(maxLinesPerTab, this.lines.length - maxLinesPerTab);
-			this.truncated = true;
-		}
-		this.nextLineNumber += maxLinesPerTab;
-
-		// Add tab
 		if (!tabName) {
 			tabName = 'unknown';
 			const message = newMessage(this.lines[0], 1, tabName, '');
@@ -292,7 +278,24 @@ export default class FileReaderStore {
 				tabName = messageStore.getLogEntry().date.toISOString().split('T')[1];
 			}
 		}
-		mainTabStore.importTab(tabName, importJSONFile(tabName, this.lines, []), sortRequired);
+
+		if (this.startTime === '' && this.endTime === '' && this.lines.length > maxLinesPerTab) {
+			this.lines.splice(maxLinesPerTab, this.lines.length - maxLinesPerTab);
+		}
+
+		const size = mainTabStore.importTab(
+			tabName,
+			importJSONFile(tabName, this.lines, []),
+			sortRequired,
+			maxLinesPerTab,
+			this.startTime,
+			this.endTime,
+		);
+
+		if (size > maxLinesPerTab) {
+			this.truncated = true;
+		}
+
 		mainTabStore.getFileReaderStores()[mainTabStore.getTabCount() - 1] = this; // Save this object
 
 		this.lines.splice(0, this.lines.length - 1);

@@ -24,7 +24,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [fileReaderStore, setFileReaderStore] = React.useState(new FileReaderStore());
 	const [includeFilter, setIncludeFilter] = React.useState<string>("");
 	const [operator, setOperator] = React.useState<'and' | 'or'>("and");
-	const [timeFilterSupported, setTimeFieldSupported] = React.useState(false);
 	const [serverReadSupported, setServerReadSupported] = React.useState(false);
 	const [startTime, setStartTime] = React.useState<string>("");
 	const [endTime, setEndTime] = React.useState<string>("");
@@ -33,19 +32,20 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	var input = document.createElement('input');
 	input.type = 'file';
 
+	let timeFieldFound = false;
+
 	input.onchange = async (e: any) => {
 		const file = e.target.files[0] as File;
 		setSelectedFile(file);
 		const useServer = socketStore.isConnected() && await socketStore.emitIsFileInDownloads(file.name) && !disableServerRead;
 		setServerReadSupported(useServer);
-		let timeFieldExists = false;
+		timeFieldFound = false;
 		if (useServer) {
-			timeFieldExists = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
+			timeFieldFound = await socketStore.emitJsonFieldExists(file.name, timeFieldName);
 		} else {
-			timeFieldExists = await FileReaderStore.clientTimeFieldExists(file, timeFieldName);
+			timeFieldFound = await FileReaderStore.clientTimeFieldExists(file, timeFieldName);
 		}
-		setTimeFieldSupported(timeFieldExists);
-		if (timeFieldExists && useServer) {
+		if (timeFieldFound && useServer) {
 			const { socketStore } = await import('../store/SocketStore');
 			const sorted = await socketStore.emitIsSorted(file.name, timeFieldName);
 			setIsSorted(sorted);
@@ -77,7 +77,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				mainTabStore.setUpdating(true, 'Importing ' + fileName());
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter);
-				fileReaderStore.setTimeFilter(timeFieldName, startTime, endTime);
+				fileReaderStore.setTimeFilter(timeFieldFound ? timeFieldName : undefined, startTime, endTime);
 
 				if (serverReadSupported) {
 					await fileReaderStore.serverRead(fileName());
@@ -140,29 +140,27 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 											{isSorted ? 'Sorted' : 'Unsorted'}
 										</span>
 									}
-									{timeFilterSupported &&
-										<>
-											<hr></hr>
-											<div>
-												<div className="primary-text-color">Time Filter - is rounded down to nearest second:</div>
-												<div style={{ display: 'flex' }}>
-													<input className="form-control" style={{ width: '100%', color: getDateColor(startTime) }}
-														type="text"
-														placeholder="Start time - (e.g., 2024-02-02T12:48:42.125Z)"
-														value={startTime}
-														onChange={(e) => setStartTime(e.target.value)}
-													/>
-													<div className="primary-text-color" style={{ margin: '0 .5rem', lineHeight: '38px' }}>to</div>
-													<input className="form-control" style={{ width: '100%', color: getDateColor(endTime) }}
-														type="text"
-														placeholder="End time - (e.g., 2024-02-02T12:48:43.356Z)"
-														value={endTime}
-														onChange={(e) => setEndTime(e.target.value)}
-													/>
-												</div>
+									<>
+										<hr></hr>
+										<div>
+											<div className="primary-text-color">Time Filter - is rounded down to nearest second:</div>
+											<div style={{ display: 'flex' }}>
+												<input className="form-control" style={{ width: '100%', color: getDateColor(startTime) }}
+													type="text"
+													placeholder="Start time - (e.g., 2024-02-02T12:48:42.125Z)"
+													value={startTime}
+													onChange={(e) => setStartTime(e.target.value)}
+												/>
+												<div className="primary-text-color" style={{ margin: '0 .5rem', lineHeight: '38px' }}>to</div>
+												<input className="form-control" style={{ width: '100%', color: getDateColor(endTime) }}
+													type="text"
+													placeholder="End time - (e.g., 2024-02-02T12:48:43.356Z)"
+													value={endTime}
+													onChange={(e) => setEndTime(e.target.value)}
+												/>
 											</div>
-										</>
-									}
+										</div>
+									</>
 									<hr></hr>
 									<div style={{ display: 'flex' }}>
 										<div className="primary-text-color" style={{}}>Operator:</div>

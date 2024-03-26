@@ -35,7 +35,7 @@ const SideBar = observer(() => {
 
 	if (!!tabContent.length && tabContent[0].content) {
 		mainTabStore.setUpdating(true);
-		mainTabStore.importTab(tabContent[0].name, tabContent[0].content);
+		mainTabStore.importTabFromFile(tabContent[0].name, tabContent[0].content);
 		tabClear();
 		mainTabStore.setUpdating(false);
 	}

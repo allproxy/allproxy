@@ -200,7 +200,7 @@ export default class SocketStore {
 	}
 
 	public isConnected(): boolean {
-		return this.socketConnected || urlPathStore.isGitHubPages();
+		return this.socketConnected;
 	}
 
 	public emitConfig(event: string, proxyConfig: ProxyConfig[]) {

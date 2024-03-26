@@ -120,13 +120,13 @@ export default class SessionStore {
 						tabName = sessionName;
 					}
 					const data = await apFileSystem.readFile(dir + '/' + dirEntry + '/data.txt', fsType);
-					mainTabStore.importTab(tabName, data);
+					mainTabStore.importTabFromFile(tabName, data);
 				} else { // backwards compatibility
 					const data = await apFileSystem.readFile(dir + '/' + dirEntry, fsType);
 					if (dirEntry === sessionDir && sessionName.length > 0) {
 						dirEntry = sessionName;
 					}
-					mainTabStore.importTab(dirEntry, data);
+					mainTabStore.importTabFromFile(dirEntry, data);
 				}
 			}
 			if (await apFileSystem.exists(dir + '/notes.txt', fsType)) {
@@ -207,13 +207,13 @@ export default class SessionStore {
 						const dataFile = archive.files[jzipObject.name + 'data.txt'];
 						const data = await dataFile.async('text');
 						if (orderedTabs[0] === jzipObject.name) {
-							mainTabStore.importTab(tabName, data);
+							mainTabStore.importTabFromFile(tabName, data);
 							orderedTabs.shift();
 							while (orderedTabs.length > 0 && dropOffQ[orderedTabs[0]] !== undefined) {
 								const tab = dropOffQ[orderedTabs[0]];
 								delete dropOffQ[orderedTabs[0]];
 								orderedTabs.shift();
-								mainTabStore.importTab(tab.tabName, tab.data);
+								mainTabStore.importTabFromFile(tab.tabName, tab.data);
 							}
 						} else {
 							dropOffQ[jzipObject.name] = { tabName, data };
