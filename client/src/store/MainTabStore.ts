@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import Message from '../common/Message';
-import { importJSONFile } from "../ImportJSONFile";
+import { importJsonLines } from "../ImportJSONFile";
 import LayoutStore from "./LayoutStore";
 import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
@@ -369,7 +369,7 @@ export default class MainTabStore {
 		} catch (e) {
 			console.log('importJSONFile');
 			const lines = data.split('\n');
-			messages = importJSONFile(tabName, lines, []);
+			messages = importJsonLines(tabName, lines, []);
 			sortRequired = 'sort';
 		}
 		this.importTab(tabName, messages, sortRequired);

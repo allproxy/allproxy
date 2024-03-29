@@ -50,6 +50,7 @@ body {
 	}
 
 	.request__msg-even {
+		width: 100%;
 		background-color: #333333;
 	}
 
@@ -102,6 +103,7 @@ body {
 	}
 
 	.request__msg-even {
+		width: 100%;
 		background-color: #e5e5e5;
 	}
 

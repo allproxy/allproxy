@@ -1,7 +1,7 @@
 import Message, { MessageType } from "./common/Message";
 import { untruncateJson } from "./UntruncateJSON";
 
-export function importJSONFile(fileName: string, jsonLines: string[], primaryJsonFields: string[]): Message[] {
+export function importJsonLines(fileName: string, jsonLines: string[], primaryJsonFields: string[]): Message[] {
     const messages: Message[] = [];
     let sequenceNumber = 1;
     const hostname = primaryJsonFields.join(',');

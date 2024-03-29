@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, DialogTitle, ListItemText, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
-import { importJSONFile } from '../ImportJSONFile';
+import { importJsonLines } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import { socketStore } from '../store/SocketStore';
@@ -72,7 +72,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				const jsonLines = jsonToJsonl(pastedJSON);
 				const lines = jsonLines.split('\n');
 				setPastedJSON('');
-				mainTabStore.importTab(tabName, importJSONFile(tabName, lines, []));
+				mainTabStore.importTab(tabName, importJsonLines(tabName, lines, []));
 			} else {
 				mainTabStore.setUpdating(true, 'Importing ' + fileName());
 				fileReaderStore.setOperator(operator);
@@ -237,6 +237,11 @@ export function jsonToJsonl(jsonString: string) {
 
 	let jsonLines = jsonString;
 	try {
+		// Find start of JSON - ignore random lines before JSON
+		while (jsonString[0] !== '{' && jsonString[0] !== '[') {
+			jsonString = jsonString.split('\n', 2)[1];
+		}
+
 		const json = JSON.parse(jsonString);
 		if (Array.isArray(json)) {
 			jsonLines = "";
@@ -245,7 +250,7 @@ export function jsonToJsonl(jsonString: string) {
 				jsonLines += flatten(obj);
 			}
 		} else {
-			jsonLines = flatten(json);
+			jsonLines = '';
 			for (const field in json) {
 				const value = json[field];
 				if (Array.isArray(value)) {

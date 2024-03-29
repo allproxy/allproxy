@@ -1,8 +1,9 @@
 import { makeAutoObservable } from "mobx";
 import pako from "pako";
 import { mainTabStore } from "./MainTabStore";
-import { importJSONFile, newMessage } from "../ImportJSONFile";
+import { importJsonLines, newMessage } from "../ImportJSONFile";
 import MessageStore from "./MessageStore";
+import { jsonToJsonl } from "../components/ImportJSONFileDialog";
 
 export const maxLinesPerTab = 10000;
 const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1024 * 1024;
@@ -125,27 +126,41 @@ export default class FileReaderStore {
 					resolve(true);
 				};
 			} else {
-				for (let offset = 0; offset < this.file.size;) {
-					let chunk = await this.readChunk(offset);
-					const lastNewline = chunk.lastIndexOf('\n');
-					offset += lastNewline + 1;
+				const chunk1 = await this.readChunk(0);
+				const line1 = chunk1.split('\n')[0];
+				let isJsonLines = true;
+				try {
+					JSON.parse(line1);
+				} catch (e) {
+					isJsonLines = false;
+				}
+				if (!isJsonLines) {
+					const data = await this.readAll();
+					const jsonl = jsonToJsonl(data);
+					this.lines = jsonl.split('\n');
+				} else {
+					for (let offset = 0; offset < this.file.size;) {
+						let chunk = await this.readChunk(offset);
+						const lastNewline = chunk.lastIndexOf('\n');
+						offset += lastNewline + 1;
 
-					if (!this.isMatch(chunk)) {
-						continue;
-					}
-
-					const lines = chunk.split('\n');
-					lines.splice(lines.length - 1, 1); // remove last partial line
-					for (let i = 0; i < lines.length; ++i) {
-						const line = lines[i];
-						if (this.isMatch(line)) {
-							this.lines.push(line);
+						if (!this.isMatch(chunk)) {
+							continue;
 						}
-					}
 
-					if (this.startTime === '' && this.endTime === '' && this.lines.length >= maxLinesPerTab) {
-						this.truncated = true;
-						break;
+						const lines = chunk.split('\n');
+						lines.splice(lines.length - 1, 1); // remove last partial line
+						for (let i = 0; i < lines.length; ++i) {
+							const line = lines[i];
+							if (this.isMatch(line)) {
+								this.lines.push(line);
+							}
+						}
+
+						if (this.startTime === '' && this.endTime === '' && this.lines.length >= maxLinesPerTab) {
+							this.truncated = true;
+							break;
+						}
 					}
 				}
 
@@ -175,7 +190,6 @@ export default class FileReaderStore {
 		return new Promise<string>((resolve) => {
 			const readEventHandler = (evt: any) => {
 				if (evt.target.error == null) {
-					offset += evt.target.result.length;
 					resolve(evt.target.result); // callback for handling read chunk
 					//console.log(offset, fileSize);
 				} else {
@@ -188,6 +202,24 @@ export default class FileReaderStore {
 			var blob = this.file.slice(offset, chunkSize() + offset);
 			r.onload = readEventHandler;
 			r.readAsText(blob, 'UTF-8');
+		});
+	}
+
+	private readAll(): Promise<string> {
+		return new Promise<string>((resolve) => {
+			const readEventHandler = (evt: any) => {
+				if (evt.target.error == null) {
+					resolve(evt.target.result);
+					//console.log(offset, fileSize);
+				} else {
+					console.log("readAll error: " + evt.target.error);
+					resolve('');
+				}
+			};
+
+			var r = new FileReader();
+			r.onload = readEventHandler;
+			r.readAsText(this.file, 'UTF-8');
 		});
 	}
 
@@ -285,7 +317,7 @@ export default class FileReaderStore {
 
 		const size = mainTabStore.importTab(
 			tabName,
-			importJSONFile(tabName, this.lines, []),
+			importJsonLines(tabName, this.lines, []),
 			sortRequired,
 			maxLinesPerTab,
 			this.startTime,
