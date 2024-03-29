@@ -424,8 +424,7 @@ export default class MainTabStore {
 			});
 			messageStores.map((m, i) => {
 				const message = m.getMessage();
-				message.sequenceNumberRes = i;
-				message.sequenceNumber = i;
+				message.sequenceNumber = message.sequenceNumberRes = i;
 			});
 		}
 
