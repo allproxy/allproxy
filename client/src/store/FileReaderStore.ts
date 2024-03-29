@@ -1,8 +1,9 @@
 import { makeAutoObservable } from "mobx";
 import pako from "pako";
 import { mainTabStore } from "./MainTabStore";
-import { importJSONFile, newMessage } from "../ImportJSONFile";
+import { importJsonLines, newMessage } from "../ImportJSONFile";
 import MessageStore from "./MessageStore";
+import { jsonToJsonl } from "../components/ImportJSONFileDialog";
 
 export const maxLinesPerTab = 10000;
 const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1024 * 1024;
@@ -18,14 +19,13 @@ export default class FileReaderStore {
 	private file: any;
 	private fileName: string = "";
 	private lines: string[] = [];
-	private nextLineNumber: number = 1;
 	private includeFilters: string[] = [];
 	private operator: 'and' | 'or' = 'and';
 	private startTime: string = "";
 	private endTime: string = "";
 	private startTimeDate: Date = new Date(0);
 	private endTimeDate: Date = new Date();
-	private timeFieldName: string = '';
+	private timeFieldName: string | undefined = undefined;
 	private truncated = false;
 	private readStartTime = 0;
 
@@ -37,10 +37,6 @@ export default class FileReaderStore {
 		return this.fileName;
 	}
 
-	public getNextLineNumber() {
-		return this.nextLineNumber;
-	}
-
 	public setFilters(includeFilter: string) {
 		this.includeFilters = includeFilter.split(' ').filter((s) => s !== '');
 	}
@@ -50,7 +46,7 @@ export default class FileReaderStore {
 		//console.log(this.operator);
 	}
 
-	public setTimeFilter(timeFieldName: string, startTime: string, endTime: string) {
+	public setTimeFilter(timeFieldName: string | undefined, startTime: string, endTime: string) {
 		this.timeFieldName = timeFieldName;
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -67,7 +63,7 @@ export default class FileReaderStore {
 		this.fileName = fileName;
 		return new Promise<boolean>(async (resolve) => {
 			const s = await import("./SocketStore");
-			if (this.startTime !== "") {
+			if (this.timeFieldName) {
 				this.lines = await s.socketStore.emitFileLineMatcher(fileName, this.timeFieldName, this.startTime, this.endTime, this.operator, this.includeFilters, maxLinesPerTab);
 			} else {
 				this.lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
@@ -83,10 +79,12 @@ export default class FileReaderStore {
 			r.readAsText(blob, 'UTF-8');
 			r.onload = (evt: any) => {
 				if (evt.target.error == null) {
-					resolve(evt.target.result.indexOf(timeField) !== -1);
+					const exists = evt.target.result.indexOf(timeField) !== -1;
+					//console.log('clientTimeFieldExists', timeField, exists);
+					resolve(exists);
 				} else {
 					console.log("clientTimeFieldExists error: " + evt.target.error);
-					return resolve(false);
+					resolve(false);
 				}
 			};
 		});
@@ -128,27 +126,41 @@ export default class FileReaderStore {
 					resolve(true);
 				};
 			} else {
-				for (let offset = 0; offset < this.file.size;) {
-					let chunk = await this.readChunk(offset);
-					const lastNewline = chunk.lastIndexOf('\n');
-					offset += lastNewline + 1;
+				const chunk1 = await this.readChunk(0);
+				const line1 = chunk1.split('\n')[0];
+				let isJsonLines = true;
+				try {
+					JSON.parse(line1);
+				} catch (e) {
+					isJsonLines = false;
+				}
+				if (!isJsonLines) {
+					const data = await this.readAll();
+					const jsonl = jsonToJsonl(data);
+					this.lines = jsonl.split('\n');
+				} else {
+					for (let offset = 0; offset < this.file.size;) {
+						let chunk = await this.readChunk(offset);
+						const lastNewline = chunk.lastIndexOf('\n');
+						offset += lastNewline + 1;
 
-					if (!this.isMatch(chunk)) {
-						continue;
-					}
-
-					const lines = chunk.split('\n');
-					lines.splice(lines.length - 1, 1); // remove last partial line
-					for (let i = 0; i < lines.length; ++i) {
-						const line = lines[i];
-						if (this.isMatch(line)) {
-							this.lines.push(line);
+						if (!this.isMatch(chunk)) {
+							continue;
 						}
-					}
 
-					if (this.lines.length >= maxLinesPerTab) {
-						this.truncated = true;
-						break;
+						const lines = chunk.split('\n');
+						lines.splice(lines.length - 1, 1); // remove last partial line
+						for (let i = 0; i < lines.length; ++i) {
+							const line = lines[i];
+							if (this.isMatch(line)) {
+								this.lines.push(line);
+							}
+						}
+
+						if (this.startTime === '' && this.endTime === '' && this.lines.length >= maxLinesPerTab) {
+							this.truncated = true;
+							break;
+						}
 					}
 				}
 
@@ -178,7 +190,6 @@ export default class FileReaderStore {
 		return new Promise<string>((resolve) => {
 			const readEventHandler = (evt: any) => {
 				if (evt.target.error == null) {
-					offset += evt.target.result.length;
 					resolve(evt.target.result); // callback for handling read chunk
 					//console.log(offset, fileSize);
 				} else {
@@ -191,6 +202,24 @@ export default class FileReaderStore {
 			var blob = this.file.slice(offset, chunkSize() + offset);
 			r.onload = readEventHandler;
 			r.readAsText(blob, 'UTF-8');
+		});
+	}
+
+	private readAll(): Promise<string> {
+		return new Promise<string>((resolve) => {
+			const readEventHandler = (evt: any) => {
+				if (evt.target.error == null) {
+					resolve(evt.target.result);
+					//console.log(offset, fileSize);
+				} else {
+					console.log("readAll error: " + evt.target.error);
+					resolve('');
+				}
+			};
+
+			var r = new FileReader();
+			r.onload = readEventHandler;
+			r.readAsText(this.file, 'UTF-8');
 		});
 	}
 
@@ -212,7 +241,7 @@ export default class FileReaderStore {
 			if (!match) return false;
 		}
 
-		if (this.startTime !== "") {
+		if (this.timeFieldName) {
 			const d = this.parseDateString(line);
 			if (d === undefined) {
 				console.log('Did not find ' + this.timeFieldName + ' in line: ' + line);
@@ -273,17 +302,6 @@ export default class FileReaderStore {
 	public addTab(tabName?: string, sortRequired?: 'sort' | undefined) {
 		const start = Date.now();
 
-		const offset = this.nextLineNumber - 1;
-		if (offset > 0) {
-			this.lines.splice(0, offset);
-		}
-		if (this.lines.length > maxLinesPerTab) {
-			this.lines.splice(maxLinesPerTab, this.lines.length - maxLinesPerTab);
-			this.truncated = true;
-		}
-		this.nextLineNumber += maxLinesPerTab;
-
-		// Add tab
 		if (!tabName) {
 			tabName = 'unknown';
 			const message = newMessage(this.lines[0], 1, tabName, '');
@@ -292,7 +310,24 @@ export default class FileReaderStore {
 				tabName = messageStore.getLogEntry().date.toISOString().split('T')[1];
 			}
 		}
-		mainTabStore.importTab(tabName, importJSONFile(tabName, this.lines, []), sortRequired);
+
+		if (this.startTime === '' && this.endTime === '' && this.lines.length > maxLinesPerTab) {
+			this.lines.splice(maxLinesPerTab, this.lines.length - maxLinesPerTab);
+		}
+
+		const size = mainTabStore.importTab(
+			tabName,
+			importJsonLines(tabName, this.lines, []),
+			sortRequired,
+			maxLinesPerTab,
+			this.startTime,
+			this.endTime,
+		);
+
+		if (size > maxLinesPerTab) {
+			this.truncated = true;
+		}
+
 		mainTabStore.getFileReaderStores()[mainTabStore.getTabCount() - 1] = this; // Save this object
 
 		this.lines.splice(0, this.lines.length - 1);

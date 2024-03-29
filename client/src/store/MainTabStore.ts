@@ -1,6 +1,6 @@
 import { makeAutoObservable, action } from "mobx";
 import Message from '../common/Message';
-import { importJSONFile } from "../ImportJSONFile";
+import { importJsonLines } from "../ImportJSONFile";
 import LayoutStore from "./LayoutStore";
 import { DEFAULT_LIMIT, messageQueueStore } from "./MessageQueueStore";
 import MessageStore from './MessageStore';
@@ -360,30 +360,56 @@ export default class MainTabStore {
 		element.click();
 	}
 
-	public importTab(fileName: string, data: string | Message[], sortRequired?: 'sort' | undefined) {
-		let parsedBlob: any;
-		if (typeof data === 'string') {
-			try {
-				parsedBlob = JSON.parse(data);
-				sortRequired = undefined; // no need to re-sort
-			} catch (e) {
-				console.log('importJSONFile');
-				const lines = data.split('\n');
-				parsedBlob = importJSONFile(fileName, lines, []);
-				sortRequired = 'sort';
-			}
-		} else {
-			parsedBlob = data;
+	public importTabFromFile(tabName: string, data: string) {
+		let messages: Message[] = [];
+		let sortRequired: 'sort' | undefined;
+		try {
+			messages = JSON.parse(data);
+			sortRequired = undefined; // no need to re-sort
+		} catch (e) {
+			console.log('importJSONFile');
+			const lines = data.split('\n');
+			messages = importJsonLines(tabName, lines, []);
+			sortRequired = 'sort';
+		}
+		this.importTab(tabName, messages, sortRequired);
+	}
+
+	public importTab(
+		tabName: string,
+		messages: Message[],
+		sortRequired?: 'sort' | undefined,
+		maxLines = Number.MAX_SAFE_INTEGER,
+		startTime: string = '',
+		endTime: string = '',
+	): number {
+		jsonLogStore.updateScriptFunc();
+		updateJSONRequestLabels();
+
+		let startTimeDate = new Date(0);
+		let endTimeDate = new Date();
+		if (startTime !== '') {
+			startTimeDate = new Date(startTime);
+		}
+		if (endTime !== '') {
+			endTimeDate = new Date(endTime);
 		}
 
 		const messageStores: MessageStore[] = [];
-		let messages = (parsedBlob as Message[]);
-
 		for (const message of messages) {
 			const ms = new MessageStore(message);
-			if (ms.getMessage().protocol !== 'log:') sortRequired = undefined;
-			messageStores.push(ms);
+
+			if (startTime !== '' || endTime !== '') {
+				const date = ms.getLogEntry().date;
+				if (date.toString() === 'Invalid Date') continue;
+				if (date < startTimeDate || date > endTimeDate) continue;
+			}
+
+			if (messageStores.length <= maxLines) {
+				messageStores.push(ms);
+			}
 		}
+
 		if (sortRequired === 'sort') {
 			messageStores.sort((a, b) => {
 				let dateA: Date = a.getLogEntry().date;
@@ -402,20 +428,22 @@ export default class MainTabStore {
 				message.sequenceNumber = i;
 			});
 		}
+
+		const size = messageStores.length;
+
 		const chunkSize = DEFAULT_LIMIT;
 		while (messageStores.length > 0) {
 			if (messageStores.length > chunkSize) {
 				const copy = messageStores.splice(0, chunkSize);
-				this.newTab(fileName, copy);
-				fileName = copy[0].getLogEntry().date.toISOString().split("T")[1];
+				this.newTab(tabName, copy);
+				tabName = copy[0].getLogEntry().date.toISOString().split("T")[1];
 			} else {
-				this.newTab(fileName, messageStores);
+				this.newTab(tabName, messageStores);
 				messageStores.splice(0, messageStores.length);
 			}
 		}
 
-		jsonLogStore.updateScriptFunc();
-		updateJSONRequestLabels();
+		return size;
 	}
 
 	public getSelectedMessages(): MessageStore[] {

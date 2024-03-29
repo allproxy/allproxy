@@ -58,12 +58,12 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 
 	if (!!tabContent.length && tabContent[0].content) {
 		mainTabStore.setUpdating(true);
-		mainTabStore.importTab(tabContent[0].name, tabContent[0].content);
+		mainTabStore.importTabFromFile(tabContent[0].name, tabContent[0].content);
 		tabClear();
 		mainTabStore.setUpdating(false);
 	}
 
-	const statusClassName = 'fa ' + (socketStore.isConnected()
+	const statusClassName = 'fa ' + (socketStore.isConnected() || urlPathStore.isGitHubPages()
 		? 'success fa-circle' : 'error fa-exclamation-triangle');
 	return (
 		<div className="header__container">
