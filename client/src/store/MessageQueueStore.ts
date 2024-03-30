@@ -223,7 +223,7 @@ export default class MessageQueueStore {
 					switch (this.sortByField) {
 						case 'date':
 							try {
-								field = messageStore.getLogEntry().date.toTimeString();
+								field = messageStore.getLogEntry().date.toISOString();
 							} catch (e) {
 								field = '0';
 							}
