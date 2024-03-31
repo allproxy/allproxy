@@ -5,6 +5,7 @@ import { dateToHHMMSS } from "../components/Request";
 import { getJSONValue } from "./JSONLogStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import { stringToDate } from "../components/Footer";
+import { mainTabStore } from "./MainTabStore";
 
 export default class FilterStore {
     private name = '';
@@ -463,41 +464,48 @@ export default class FilterStore {
     }
 
     private isKeyValueMatch(key: string, value: string, operator: string, jsonValue: any) {
+        function exit(rc: boolean) {
+            if (rc) {
+                mainTabStore.addJsonSearchField(mainTabStore.getSelectedTabName(), key);
+            }
+            return rc;
+        }
+
         if (value === '*' && (operator === '==' || operator === '===')) {
             if (this.dedup && this.dedupMap[key] === jsonValue) {
                 //console.log(key, jsonValue);
-                return false; // filter duplicate
+                return exit(false); // filter duplicate
             }
             this.pendingDedupMap[key] = jsonValue;
-            return true;
+            return exit(true);
         }
 
         if (typeof jsonValue === 'number') {
             const float = parseFloat(value);
             if (!isNaN(float)) {
-                return eval(jsonValue + operator + float);
+                return exit(eval(jsonValue + operator + float));
             }
             const int = parseInt(value);
             if (!isNaN(int)) {
-                return eval(jsonValue + operator + int);
+                return exit(eval(jsonValue + operator + int));
             }
-            return false;
+            return exit(false);
         } else if (typeof jsonValue === 'string') {
             if (operator === '==') {
-                return jsonValue.toLowerCase().includes(value.toLowerCase());
+                return exit(jsonValue.toLowerCase().includes(value.toLowerCase()));
             } else if (operator === '===') {
-                return jsonValue === value;
+                return exit(jsonValue === value);
             } else {
                 // const evalString = "'" + jsonValue + "'" + operator + "'" + value + "'";
                 // return eval(evalString);
             }
         } else if (typeof jsonValue === 'boolean') {
             if (operator === '==' || operator === '===') {
-                return jsonValue && value === 'true' ||
-                    !jsonValue && value === 'false';
+                return exit(jsonValue && value === 'true' ||
+                    !jsonValue && value === 'false');
             }
         }
-        return false;
+        return exit(false);
     }
 
     private parseKeyValue(operand: string): { key: string, value: string | undefined }[] {

@@ -1,7 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { messageQueueStore } from "./MessageQueueStore";
-import { compressJSON, mainTabStore } from "./MainTabStore";
+import { compressJSON } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 import { urlPathStore } from "./UrlPathStore";
 
@@ -491,8 +491,6 @@ export default class JSONLogStore {
 }
 
 export async function updateJSONRequestLabels() {
-	const selectedFields = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName());
-	mainTabStore.setJsonFields(mainTabStore.getSelectedTabName(), selectedFields);
 	const messages = messageQueueStore.getMessages();
 	const copy = messages.slice();
 	messages.splice(0, messages.length);
@@ -500,9 +498,9 @@ export async function updateJSONRequestLabels() {
 	messages.push(...copy);
 }
 
-export function formatJSONRequestLabels(json: { [key: string]: any }, primaryJsonFields: string[], customJsonFields: string[]): JsonField[] {
+export function formatJSONRequestLabels(json: { [key: string]: any }, jsonSearchFields: string[], customJsonFields: string[]): JsonField[] {
 	const jsonFields: JsonField[] = [];
-	const fields = primaryJsonFields.concat(customJsonFields);
+	const fields = jsonSearchFields.concat(customJsonFields);
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
 			let value = getJSONValue(json, field);

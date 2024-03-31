@@ -361,13 +361,7 @@ export default class MessageQueueStore {
 		Array.prototype.push.apply(proxyTab, copyMessages);
 	}
 
-	public updateJSONFields(tabName: string, newMessages: MessageStore[]) {
-		const fieldsMap: { [key: string]: { count: number, selected: boolean } } = {};
-		for (const f of mainTabStore.getJsonFields(tabName)) {
-			fieldsMap[f.name] = { count: f.count, selected: f.selected };
-		}
-
-		let newFieldFound = false;
+	public updateJSONFields(_tabName: string, newMessages: MessageStore[]) {
 		for (const message of newMessages) {
 			if (message.getMessage().protocol !== 'log:') continue;
 			let json = message.getMessage().responseBody as { [key: string]: any };
@@ -384,28 +378,6 @@ export default class MessageQueueStore {
 				message.getMessage().responseBody = json2;
 				json = json2;
 			}
-			for (const field of Object.keys(json)) {
-				if (isNaN(parseInt(field))) {
-					if (typeof json[field] === 'string') {
-						const selected = message.getMessage().url?.indexOf('>' + field + '<') !== -1;
-						if (fieldsMap[field]) {
-							fieldsMap[field] = { count: fieldsMap[field].count + 1, selected: fieldsMap[field].selected };
-						} else {
-							fieldsMap[field] = { count: 1, selected };
-							newFieldFound = true;
-						}
-					}
-				}
-			}
-		}
-
-		if (newFieldFound) {
-			const fields2: { name: string, selected: boolean, count: number }[] = [];
-			for (const key of Object.keys(fieldsMap)) {
-				fields2.push({ name: key, selected: fieldsMap[key].selected, count: fieldsMap[key].count });
-			}
-			fields2.sort((a, b) => a.selected ? 1 : b.count - a.count);
-			mainTabStore.setJsonFields(tabName, fields2);
 		}
 	}
 }

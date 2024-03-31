@@ -10,7 +10,6 @@ import Message from '../common/Message';
 import BreakpointResponseModal from './BreakpointResponseModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import { Fade, IconButton } from '@material-ui/core';
-import JSONFieldButtons from './JSONFieldButtons';
 import { mainTabStore } from '../store/MainTabStore';
 import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
@@ -193,9 +192,6 @@ const MainTabContent = observer(({
 		<div style={{
 			opacity: clickPendingSeqNum !== Number.MAX_SAFE_INTEGER || messageQueueStore.getScrollAction() !== undefined ? '.7' : mainTabStore.isUpdating() ? '.3' : undefined
 		}}>
-			<div className="jsonfieldbuttons">
-				{JSONFieldButtons(messageQueueStore)}
-			</div>
 			<div className="request-response__container"
 				style={{ flexDirection: layout.flexDirection() }}
 			>

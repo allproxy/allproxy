@@ -2,8 +2,8 @@ import { Accordion, AccordionDetails, AccordionSummary, TableSortLabel } from '@
 import { observer } from 'mobx-react-lite';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { mainTabStore } from '../store/MainTabStore';
 import { filterStore } from '../store/FilterStore';
+import { isJsonLogTab } from './SideBar';
 
 const httpFields = [
 	{
@@ -56,7 +56,7 @@ const logFields = [
 ];
 
 const SideBarSortBy = observer((): JSX.Element => {
-	const fields = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0 ? logFields.slice() : httpFields.slice();
+	const fields = isJsonLogTab() ? logFields.slice() : httpFields.slice();
 	for (const key of filterStore.getSortByKeys()) {
 		fields.unshift({
 			name: key as string,
