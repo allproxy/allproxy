@@ -1,13 +1,12 @@
 import Message, { MessageType } from "./common/Message";
 import { untruncateJson } from "./UntruncateJSON";
 
-export function importJsonLines(fileName: string, jsonLines: string[], primaryJsonFields: string[]): Message[] {
+export function importJsonLines(fileName: string, jsonLines: string[]): Message[] {
     const messages: Message[] = [];
     let sequenceNumber = 1;
-    const hostname = primaryJsonFields.join(',');
     for (let record of jsonLines) {
         sequenceNumber++;
-        const message = newMessage(record, sequenceNumber, fileName, hostname);
+        const message = newMessage(record, sequenceNumber, fileName);
         if (message) {
             messages.push(message);
             ++sequenceNumber;
@@ -17,7 +16,7 @@ export function importJsonLines(fileName: string, jsonLines: string[], primaryJs
     return messages;
 }
 
-export function newMessage(record: string, sequenceNumber: number, fileName: string, hostname: string): Message | undefined {
+export function newMessage(record: string, sequenceNumber: number, fileName: string): Message | undefined {
     record = record.trim();
     if (record.length === 0) return;
 
@@ -63,15 +62,15 @@ export function newMessage(record: string, sequenceNumber: number, fileName: str
     }
 
     if (json) {
-        const m = newJSONMessage(nonJson, json, sequenceNumber, fileName, hostname);
+        const m = newJSONMessage(nonJson, json, sequenceNumber, fileName);
         m.jsonTruncated = jsonTruncated;
         return m;
     } else {
-        return newJSONMessage('', record, sequenceNumber, fileName, hostname);
+        return newJSONMessage('', record, sequenceNumber, fileName);
     }
 }
 
-export function newJSONMessage(title: string, data: string | {}, sequenceNumber: number = 0, fileName: string = '', hostname: string = ''): Message {
+export function newJSONMessage(title: string, data: string | {}, sequenceNumber: number = 0, fileName: string = ''): Message {
     const message: Message = {
         type: MessageType.REQUEST_AND_RESPONSE,
         modified: false,
@@ -95,7 +94,7 @@ export function newJSONMessage(title: string, data: string | {}, sequenceNumber:
             "isSecure": false,
             "path": fileName,
             "protocol": "log:",
-            "hostname": hostname,
+            "hostname": '',
             "port": 0,
             "recording": true,
             "hostReachable": true,

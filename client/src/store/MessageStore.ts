@@ -115,7 +115,7 @@ export default class MessageStore {
             }
             this.setJsonFields(newFields);
         } else {
-            const newJsonFields = formatJSONRequestLabels(json, mainTabStore.getJsonFieldNames(mainTabStore.getSelectedTabName()), jsonLogStore.getJSONFieldNames());
+            const newJsonFields = formatJSONRequestLabels(json, mainTabStore.getJsonSearchFieldNames(mainTabStore.getSelectedTabName()), jsonLogStore.getJSONFieldNames());
 
             const oldJsonFields = this.getJsonFields();
             let updateRequired = true;

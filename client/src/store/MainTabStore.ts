@@ -20,8 +20,7 @@ class MainTabs {
 	private renderSetTopIndex: number[] = [];
 	private highlightSeqNum: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
-	private jsonPrimaryFieldsMap: Map<string, { name: string, count: number, selected: boolean }[]> = new Map();
-	private jsonPrimaryFieldNames: Map<string, string[]> = new Map();
+	private jsonSearchFieldsMap: Map<string, string[]> = new Map();
 	private layoutMap: Map<string, LayoutStore> = new Map();
 	private fileReaderStores: (FileReaderStore | undefined)[] = [];
 
@@ -39,7 +38,7 @@ class MainTabs {
 		fileName?: string,
 		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
 		scrollTop = 0,
-		jsonFields: { name: string, count: number, selected: boolean }[] = [],
+		jsonSearchFields: string[] = [],
 		layout: LayoutStore = new LayoutStore(),
 		highlightSeqNum = Number.MAX_SAFE_INTEGER,
 		renderSetTopIndex = 0
@@ -53,7 +52,7 @@ class MainTabs {
 		if (fileName) {
 			this.fileNameMap.set(key, fileName);
 		}
-		this.jsonPrimaryFieldsMap.set(key, jsonFields);
+		this.jsonSearchFieldsMap.set(key, jsonSearchFields);
 		this.layoutMap.set(key, layout);
 		this.fileReaderStores.push(undefined);
 	}
@@ -67,7 +66,7 @@ class MainTabs {
 		this.renderSetTopIndex.splice(index, 1);
 		this.highlightSeqNum.splice(index, 1);
 		this.fileNameMap.delete(key);
-		this.jsonPrimaryFieldsMap.delete(key);
+		this.jsonSearchFieldsMap.delete(key);
 		this.layoutMap.delete(key);
 		this.fileReaderStores.splice(index, 1);
 	}
@@ -100,23 +99,13 @@ class MainTabs {
 		return this.fileNameMap.get(key);
 	}
 
-	public getJsonPrimaryFields(key: string) {
-		return this.jsonPrimaryFieldsMap.get(key);
-	}
-
-	public setJsonFields(key: string, jsonPrimaryFields: { name: string, count: number, selected: boolean }[]) {
-		this.jsonPrimaryFieldsMap.set(key, jsonPrimaryFields);
-		const names: string[] = [];
-		for (const field of jsonPrimaryFields) {
-			if (field.selected) {
-				names.push(field.name);
-			}
-			this.jsonPrimaryFieldNames.set(key, names);
+	public getJsonSearchFields(key: string): string[] {
+		let fields = this.jsonSearchFieldsMap.get(key);
+		if (!fields) {
+			fields = [];
+			this.jsonSearchFieldsMap.set(key, fields);
 		}
-	}
-
-	public getJsonPrimaryFieldNames(key: string) {
-		return this.jsonPrimaryFieldNames.get(key);
+		return fields;
 	}
 
 	public getLayout(key: string) {
@@ -206,17 +195,18 @@ export default class MainTabStore {
 		}
 	}
 
-	public getJsonFields(name: string) {
-		const fields = this.tabs.getJsonPrimaryFields(name);
-		return fields ? fields : [];
+	public addJsonSearchField(tabName: string, field: string) {
+		if (!jsonLogStore.getJSONFieldNames().includes(field)) {
+			const fields = this.tabs.getJsonSearchFields(tabName);
+			if (!fields.includes(field)) {
+				fields.push(field);
+				updateJSONRequestLabels();
+			}
+		}
 	}
 
-	public setJsonFields(name: string, fields: { name: string, count: number, selected: boolean }[]) {
-		this.tabs.setJsonFields(name, fields);
-	}
-
-	public getJsonFieldNames(name: string) {
-		const names = this.tabs.getJsonPrimaryFieldNames(name);
+	public getJsonSearchFieldNames(name: string) {
+		const names = this.tabs.getJsonSearchFields(name);
 		return names ? names : [];
 	}
 
@@ -280,7 +270,7 @@ export default class MainTabStore {
 				fileName,
 				this.getSelectedReqSeqNumbers()[0],
 				this.getScrollTop()[0],
-				this.getJsonFields(PROXY_TAB_NAME),
+				[],
 				this.getLayout(PROXY_TAB_NAME),
 				this.getHightlightSeqNum()[0],
 			);
@@ -369,7 +359,7 @@ export default class MainTabStore {
 		} catch (e) {
 			console.log('importJSONFile');
 			const lines = data.split('\n');
-			messages = importJsonLines(tabName, lines, []);
+			messages = importJsonLines(tabName, lines);
 			sortRequired = 'sort';
 		}
 		this.importTab(tabName, messages, sortRequired);

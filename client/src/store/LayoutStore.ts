@@ -1,6 +1,4 @@
 import { makeAutoObservable, action } from "mobx";
-import { JSONFieldButtonsHeight } from "../components/JSONFieldButtons";
-import { mainTabStore } from "./MainTabStore";
 
 export default class LayoutStore {
 	private verticalLayout = true;
@@ -56,8 +54,7 @@ export default class LayoutStore {
 	}
 
 	private maxHeight = () => {
-		const jsonFieldButtonsHeight = mainTabStore.getJsonFields(mainTabStore.getSelectedTabName()).length > 0 ? JSONFieldButtonsHeight + 'px' : '0px';
-		return `100vh - 9rem - ${jsonFieldButtonsHeight}`;
+		return `100vh - 9rem`;
 	};
 
 	private maxWidth = () => {

@@ -304,7 +304,7 @@ export default class FileReaderStore {
 
 		if (!tabName) {
 			tabName = 'unknown';
-			const message = newMessage(this.lines[0], 1, tabName, '');
+			const message = newMessage(this.lines[0], 1, tabName);
 			if (message) {
 				const messageStore = new MessageStore(message);
 				tabName = messageStore.getLogEntry().date.toISOString().split('T')[1];
@@ -317,7 +317,7 @@ export default class FileReaderStore {
 
 		const size = mainTabStore.importTab(
 			tabName,
-			importJsonLines(tabName, this.lines, []),
+			importJsonLines(tabName, this.lines),
 			sortRequired,
 			maxLinesPerTab,
 			this.startTime,
