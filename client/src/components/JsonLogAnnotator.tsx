@@ -5,7 +5,7 @@ import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
 import { filterStore } from '../store/FilterStore';
-import { jsonLogStore } from '../store/JSONLogStore';
+import { JsonField, jsonLogStore } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 };
 const JsonLogAnnotator = observer(({ message }: Props) => {
 	const highlightColor = 'red';
-	const highlightWidth = 'medium';
+	const highlightWidth = 'thin';
 	const layout = mainTabStore.getLayout(mainTabStore.getSelectedTabName());
 
 	return (
@@ -97,16 +97,29 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	function formatJSONRequestLabels(messageStore: MessageStore): JSX.Element[] {
 
 		let elements: JSX.Element[] = [];
-		for (const field of messageStore.getJsonFields()) {
-			let highlight = false;
-			if (filterStore.isJSONFieldOperandMatch(
-				field.name, field.value + '')) {
-				highlight = true;
-			} else {
-				if (jsonLogStore.isBriefChecked() && !jsonLogStore.isBriefField(field.name)) continue;
+		const searchMatches: string[] = [];
+
+		if (filterStore.getFilter().length > 0) {
+			const map = messageStore.getAllJsonFieldsMap();
+			for (const key in map) {
+				const field = map[key];
+				if (filterStore.isJSONFieldOperandMatch(field.name, field.value + '')
+					|| filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"')) {
+					addElement(field, true);
+					searchMatches.push(field.name.toLowerCase());
+				}
 			}
+		}
+
+		for (const field of messageStore.getJsonFields()) {
+			if (jsonLogStore.isBriefChecked() && !jsonLogStore.isBriefField(field.name)) continue;
+			if (searchMatches.indexOf(field.name.toLowerCase()) !== -1) continue;
+			addElement(field, false);
+		}
+
+		function addElement(field: JsonField, highlight: boolean) {
 			const style = pickLabelStyle(field.name);
-			const bg = highlight ? 'yellow' : style.background;
+			const bg = highlight ? '#FFFF00' : style.background;
 			const color = highlight ? 'black' : style.color;
 			const keyBorder = highlight ? `${highlightColor} ${highlightWidth} solid` : `${bg} thin solid`;
 			const valueBorder = undefined;

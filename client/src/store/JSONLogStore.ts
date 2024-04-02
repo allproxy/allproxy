@@ -324,9 +324,9 @@ export default class JSONLogStore {
 			case 'simple':
 				const simpleFields = jsonLogStore.getSimpleFields();
 				if (simpleFields.date !== '') {
-					const value = getJSONValue(jsonData, simpleFields.date);
-					if (typeof value === 'string') {
-						const date = this.parseDate(value);
+					const jsonField = lookupJSONField(jsonData, simpleFields.date);
+					if (jsonField && typeof jsonField.value === 'string') {
+						const date = this.parseDate(jsonField.value);
 						if (date) {
 							logEntry.date = date;
 						}
@@ -334,9 +334,9 @@ export default class JSONLogStore {
 				}
 				const setField = (field: 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
 					if (simpleFields[field] !== '') {
-						const value = getJSONValue(jsonData, simpleFields[field]);
-						if (typeof value === 'string' || typeof value === 'number') {
-							logEntry[field] = value + '';
+						const jsonField = lookupJSONField(jsonData, simpleFields[field]);
+						if (jsonField && typeof jsonField.value === 'string' || typeof jsonField?.value === 'number') {
+							logEntry[field] = jsonField.value + '';
 						}
 					}
 				};
@@ -503,15 +503,15 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, jsonSearch
 	const fields = jsonSearchFields.concat(customJsonFields);
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
-			let value = getJSONValue(json, field);
-			if (value === undefined) return;
+			let jsonField = lookupJSONField(json, field);
+			if (jsonField === undefined) return;
 
 			if (field !== 'PREFIX') {
 				field = field.replaceAll('[.]', '.');
-				if (typeof value === 'string') {
-					value = formatValue(field, value);
+				if (typeof jsonField.value === 'string') {
+					jsonField.value = formatValue(field, jsonField.value);
 				}
-				jsonFields.push({ name: field, value: value });
+				jsonFields.push({ name: field, value: jsonField.value });
 			}
 		}
 	});
@@ -519,7 +519,68 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, jsonSearch
 	return jsonFields;
 }
 
-export function getJSONValue(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
+
+let jsonCacheEntries: { json: { [key: string]: string }, jsonFieldsMap: { [key: string]: JsonField } }[] = [];
+
+export function getJsonFieldsMap(json: { [key: string]: string }): { [key: string]: JsonField } {
+	for (const entry of jsonCacheEntries) {
+		if (json === entry.json) {
+			return entry.jsonFieldsMap;
+		}
+	}
+
+	const jsonFieldsMap: { [key: string]: JsonField } = {};
+	const addJsonFields = (prevField: string, json: { [key: string]: string }) => {
+		for (const curField in json) {
+			const value = json[curField];
+			let name = prevField === '' ? curField : prevField + '.' + curField;
+			if (typeof value === 'object') {
+				if (!Array.isArray(value)) {
+					jsonFieldsMap[name.toLowerCase()] = { name, value: compressJSON(value) };
+					addJsonFields(name, value);
+				} else {
+					const a = value as any;
+					for (let i = 0; i < a.length; ++i) {
+						const name2 = name + '[' + i + ']';
+						if (typeof a[i] === 'object') {
+							addJsonFields(name2, a[i]);
+						} else {
+							jsonFieldsMap[name.toLowerCase()] = { name, value: a[i] };
+						}
+					}
+				}
+			} else {
+				jsonFieldsMap[name.toLowerCase()] = { name, value };
+
+				// Unqualified field name is not defined yet?
+				const unqualified = '*' + curField.toLowerCase();
+				if (jsonFieldsMap[unqualified] === undefined) {
+					jsonFieldsMap[unqualified] = { name, value };
+				}
+			}
+		}
+	};
+
+	addJsonFields('', json);
+
+	if (jsonCacheEntries.length > 5) {
+		jsonCacheEntries.shift();
+	}
+	jsonCacheEntries.push({ json, jsonFieldsMap });
+
+	//console.log(jsonFields);
+	return jsonFieldsMap;
+}
+
+export function lookupJSONField(json: { [key: string]: any }, field: string): undefined | JsonField {
+	if (json && Object.keys(json).length > 0) {
+		const jsonFields = getJsonFieldsMap(json);
+		return jsonFields[field.toLowerCase()];
+	}
+	return undefined;
+}
+
+export function getJSONValueOld(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
 	if (json && Object.keys(json).length > 0) {
 		let value: string | number | undefined = undefined;
 		value = eval('json');
@@ -625,11 +686,11 @@ export function getJsonFieldValues(fields: string[]): string[] {
 			} else if (field === 'Message') {
 				values.push(messageStore.getLogEntry().message);
 			} else {
-				let value = getJSONValue(json, field);
-				if (value === undefined) {
+				let jsonField = lookupJSONField(json, field);
+				if (jsonField === undefined) {
 					values.push('');
 				} else {
-					values.push(value + '');
+					values.push(jsonField.value + '');
 				}
 			}
 		}

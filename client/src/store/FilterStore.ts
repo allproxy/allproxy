@@ -2,10 +2,9 @@ import { makeAutoObservable, action } from "mobx";
 import MessageStore from './MessageStore';
 import _ from 'lodash';
 import { dateToHHMMSS } from "../components/Request";
-import { getJSONValue } from "./JSONLogStore";
+import { lookupJSONField as lookupJSONField } from "./JSONLogStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import { stringToDate } from "../components/Footer";
-import { mainTabStore } from "./MainTabStore";
 
 export default class FilterStore {
     private name = '';
@@ -453,21 +452,22 @@ export default class FilterStore {
     }
 
     private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
-        const jsonValue = getJSONValue(json, key);
-        if (jsonValue === undefined) return false;
+        const jsonField = lookupJSONField(json, key);
+        if (jsonField === undefined) return false;
 
         if (!this.sortByKeys.includes(key)) {
             this.sortByKeys.push(key);
         }
 
-        return this.isKeyValueMatch(key, value, operator, jsonValue);
+        return this.isKeyValueMatch(key, value, operator, jsonField.value);
     }
 
     private isKeyValueMatch(key: string, value: string, operator: string, jsonValue: any) {
         function exit(rc: boolean) {
-            if (rc) {
-                mainTabStore.addJsonSearchField(mainTabStore.getSelectedTabName(), key);
-            }
+            // deprecated
+            // if (rc) {
+            //     mainTabStore.addJsonSearchField(mainTabStore.getSelectedTabName(), key);
+            // }
             return rc;
         }
 
@@ -545,7 +545,13 @@ export default class FilterStore {
             const keyValues = this.parseKeyValue(operand);
             for (const keyValue of keyValues) {
                 if (keyValue.value !== undefined) {
-                    if (jsonFieldLower === keyValue.key.toLowerCase()) {
+                    let match = false;
+                    if (keyValue.key.substring(0, 1) === '*') {
+                        match = jsonField.endsWith(keyValue.key.substring(1));
+                    } else {
+                        match = jsonFieldLower === keyValue.key.toLowerCase();
+                    }
+                    if (match) {
                         //console.log(jsonField, jsonValue, keyValue);
                         const c = keyValue.value.substring(0, 1);
                         if (keyValue.value === '*' || c === '>' || c === '=' || c === '<') {
@@ -556,7 +562,8 @@ export default class FilterStore {
                     }
                     if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
                 } else {
-                    if (jsonFieldLower.endsWith(operand.toLowerCase())) return true;
+                    if (operand.length < 3) continue;
+                    if (jsonValueLower.startsWith(operand.toLowerCase())) return true;
                     if (jsonValueLower === operand.toLowerCase()) return true;
                 }
             }

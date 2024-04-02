@@ -49,7 +49,7 @@ if (headless) {
       console.log(`Open ${url} in browser`);
       const open = await import('open');
       open.default(url);
-    } catch (e) { }
+    } catch (e) { console.log(e); }
   }
 } else {
   const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');

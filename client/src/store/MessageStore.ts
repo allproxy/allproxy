@@ -3,7 +3,7 @@ import colorPicker from '../ColorPicker';
 import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
-import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels } from "./JSONLogStore";
+import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels, getJsonFieldsMap } from "./JSONLogStore";
 import { compressJSON, mainTabStore } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 
@@ -138,6 +138,27 @@ export default class MessageStore {
     }
     @action setJsonFields(jsonFields: JsonField[]) {
         this.jsonFields = jsonFields;
+    }
+
+    public getAllJsonFieldsMap(): { [key: string]: JsonField } {
+        const jsonFields: { [key: string]: JsonField } = {};
+
+        const message = this.getMessage();
+        let json: { [key: string]: string } = {};
+        if (typeof message.responseBody === 'string') {
+            json = this.logEntry.additionalJSON;
+        } else {
+            json = {
+                ...this.logEntry.additionalJSON,
+                ...message.responseBody
+            };
+        }
+
+        const allJsonFieldsMap = getJsonFieldsMap(json);
+        for (const key in allJsonFieldsMap) {
+            jsonFields[allJsonFieldsMap[key].name] = allJsonFieldsMap[key];
+        }
+        return jsonFields;
     }
 
     public hasNote() {

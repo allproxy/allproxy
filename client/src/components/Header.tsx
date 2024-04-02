@@ -83,7 +83,9 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						renderValue={() =>
 							<span style={{ fontWeight: 100, fontSize: 'x-large' }}>
 								{urlPathStore.getApp() === 'jlogviewer'
-									? <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
+									? urlPathStore.isGitHubPages()
+										? <b><span style={{ color: '#f50057' }}>JSON</span>Logs</b>
+										: <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
 									: urlPathStore.getApp() === 'mitmproxy'
 										? <b><span style={{ color: '#f50057' }}>MITM</span>Proxy</b>
 										: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
