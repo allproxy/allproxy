@@ -2,10 +2,9 @@ import { makeAutoObservable, action } from "mobx";
 import MessageStore from './MessageStore';
 import _ from 'lodash';
 import { dateToHHMMSS } from "../components/Request";
-import { getJSONValue } from "./JSONLogStore";
+import { lookupJSONField as lookupJSONField } from "./JSONLogStore";
 import { messageQueueStore } from "./MessageQueueStore";
 import { stringToDate } from "../components/Footer";
-import { mainTabStore } from "./MainTabStore";
 
 export default class FilterStore {
     private name = '';
@@ -453,21 +452,22 @@ export default class FilterStore {
     }
 
     private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
-        const jsonValue = getJSONValue(json, key);
-        if (jsonValue === undefined) return false;
+        const jsonField = lookupJSONField(json, key);
+        if (jsonField === undefined) return false;
 
         if (!this.sortByKeys.includes(key)) {
             this.sortByKeys.push(key);
         }
 
-        return this.isKeyValueMatch(key, value, operator, jsonValue);
+        return this.isKeyValueMatch(key, value, operator, jsonField.value);
     }
 
     private isKeyValueMatch(key: string, value: string, operator: string, jsonValue: any) {
         function exit(rc: boolean) {
-            if (rc) {
-                mainTabStore.addJsonSearchField(mainTabStore.getSelectedTabName(), key);
-            }
+            // deprecated
+            // if (rc) {
+            //     mainTabStore.addJsonSearchField(mainTabStore.getSelectedTabName(), key);
+            // }
             return rc;
         }
 
@@ -542,21 +542,30 @@ export default class FilterStore {
         const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
         for (const operand of operands) {
-            const keyValues = this.parseKeyValue(operand);
-            for (const keyValue of keyValues) {
-                if (keyValue.value !== undefined) {
-                    if (jsonFieldLower === keyValue.key.toLowerCase()) {
+            const operandKeyValues = this.parseKeyValue(operand);
+            for (const operandKeyValue of operandKeyValues) {
+                if (operandKeyValue.value !== undefined) {
+                    let match = false;
+                    if (operandKeyValue.key.substring(0, 1) === '*') {
+                        match = jsonField.endsWith(operandKeyValue.key.substring(1));
+                    } else {
+                        match = jsonFieldLower === operandKeyValue.key.toLowerCase();
+                    }
+                    if (match) {
                         //console.log(jsonField, jsonValue, keyValue);
-                        const c = keyValue.value.substring(0, 1);
-                        if (keyValue.value === '*' || c === '>' || c === '=' || c === '<') {
+                        const c = operandKeyValue.value.substring(0, 1);
+                        if (operandKeyValue.value === '*' || c === '>' || c === '=' || c === '<') {
                             return true;
                         } else {
-                            return jsonValueLower.indexOf(keyValue.value.toLowerCase()) !== -1;
+                            return jsonValueLower.indexOf(operandKeyValue.value.toLowerCase()) !== -1;
                         }
                     }
-                    if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
+                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return true;
                 } else {
-                    if (jsonFieldLower.endsWith(operand.toLowerCase())) return true;
+                    if (operand.length < 3) continue;
+                    if (jsonField === operandKeyValue.key ||
+                        jsonField.endsWith(operandKeyValue.key)) return true;
+                    if (jsonValueLower.startsWith(operand.toLowerCase())) return true;
                     if (jsonValueLower === operand.toLowerCase()) return true;
                 }
             }

@@ -50,6 +50,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
+	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
 
 	const [openTabFileSelector, { filesContent: tabContent, clear: tabClear }] = useFilePicker({
 		multiple: false,
@@ -83,7 +84,9 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						renderValue={() =>
 							<span style={{ fontWeight: 100, fontSize: 'x-large' }}>
 								{urlPathStore.getApp() === 'jlogviewer'
-									? <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
+									? urlPathStore.isGitHubPages()
+										? <b><span style={{ color: '#f50057' }}>JSON</span>Logs</b>
+										: <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
 									: urlPathStore.getApp() === 'mitmproxy'
 										? <b><span style={{ color: '#f50057' }}>MITM</span>Proxy</b>
 										: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
@@ -353,11 +356,42 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							setSettingsMenuIcon(null);
 							jsonLogStore.init();
 							setJsonFields(getJSONFields());
+							setJsonFieldsModalTab('jsonFields');
 							setShowJSONFieldsModal(true);
 						}}>
-						<div className="header__import fa fa-file" title="Theme"
+						<div className="header__import fa fa-code" title="Theme"
 						>
-							&nbsp;JSON Log Viewer Settings
+							&nbsp;JSON Logs: Define JSON Fields
+						</div>
+					</MenuItem>
+
+					<MenuItem
+						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						onClick={async () => {
+							setSettingsMenuIcon(null);
+							jsonLogStore.init();
+							setJsonFields(getJSONFields());
+							setJsonFieldsModalTab('scripts');
+							setShowJSONFieldsModal(true);
+						}}>
+						<div className="header__import fa fa-code" title="Theme"
+						>
+							&nbsp;JSON Logs: Date, Level, App, Message...
+						</div>
+					</MenuItem>
+
+					<MenuItem
+						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						onClick={async () => {
+							setSettingsMenuIcon(null);
+							jsonLogStore.init();
+							setJsonFields(getJSONFields());
+							setJsonFieldsModalTab('showFields');
+							setShowJSONFieldsModal(true);
+						}}>
+						<div className="header__import fa fa-code" title="Theme"
+						>
+							&nbsp;JSON Logs: Spreadsheet
 						</div>
 					</MenuItem>
 				</Menu>
@@ -446,7 +480,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					}}
 					store={jsonLogStore}
 					jsonFields={jsonFields}
-					selectTab='jsonFields'
+					selectTab={jsonFieldsModalTab}
 				/>
 			}
 			<NotesModal
