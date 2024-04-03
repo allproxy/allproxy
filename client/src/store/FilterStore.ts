@@ -563,10 +563,12 @@ export default class FilterStore {
                     if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return true;
                 } else {
                     if (operand.length < 3) continue;
+                    const operandLower = operand.toLowerCase();
                     if (jsonField === operandKeyValue.key ||
                         jsonField.endsWith(operandKeyValue.key)) return true;
-                    if (jsonValueLower.startsWith(operand.toLowerCase())) return true;
-                    if (jsonValueLower === operand.toLowerCase()) return true;
+                    if (jsonValueLower.startsWith(operandLower)) return true;
+                    if (jsonValueLower.endsWith(operandLower)) return true;
+                    if (jsonValueLower === operandLower) return true;
                 }
             }
         }
