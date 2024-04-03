@@ -498,9 +498,8 @@ export async function updateJSONRequestLabels() {
 	messages.push(...copy);
 }
 
-export function formatJSONRequestLabels(json: { [key: string]: any }, jsonSearchFields: string[], customJsonFields: string[]): JsonField[] {
+export function formatJSONRequestLabels(json: { [key: string]: any }, fields: string[]): JsonField[] {
 	const jsonFields: JsonField[] = [];
-	const fields = jsonSearchFields.concat(customJsonFields);
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
 			let jsonField = lookupJSONField(json, field);
@@ -576,60 +575,6 @@ export function lookupJSONField(json: { [key: string]: any }, field: string): un
 	if (json && Object.keys(json).length > 0) {
 		const jsonFields = getJsonFieldsMap(json);
 		return jsonFields[field.toLowerCase()];
-	}
-	return undefined;
-}
-
-export function getJSONValueOld(json: { [key: string]: any }, field: string): undefined | string | number | boolean {
-	if (json && Object.keys(json).length > 0) {
-		let value: string | number | undefined = undefined;
-		value = eval('json');
-		if (value !== undefined) {
-			const parts = field.replaceAll('[.]', '[period]').split('.');
-			for (let key of parts) {
-				key = key.replaceAll('[period]', '.');
-				const keys: string[] = [key];
-				if (parts.length === 1) {
-					const keyLowercase = key.toLowerCase();
-					const keyUppercase = key.toUpperCase();
-					if (key === keyLowercase) {
-						keys.push(key.substring(0, 1).toUpperCase() + keyLowercase.substring(1));
-					} else {
-						keys.push(keyLowercase);
-					}
-					if (key !== keyUppercase) {
-						keys.push(keyUppercase);
-					}
-				}
-
-				let found = false;
-				for (const k of keys) {
-					let value2;
-					try {
-						// Array?
-						if (k.endsWith(']')) {
-							value2 = eval(`value.${k}`);
-						} else {
-							value2 = eval(`value["${k}"]`);
-						}
-					} catch (e) { }
-					if (value2 !== undefined) {
-						value = value2;
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					value = undefined;
-					break;
-				}
-			}
-		}
-		if (typeof value === 'object') {
-			value = compressJSON(value);
-		}
-		if (value === undefined || (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) return undefined;
-		else return value;
 	}
 	return undefined;
 }

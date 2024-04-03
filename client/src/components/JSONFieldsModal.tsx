@@ -10,6 +10,7 @@ import JSONFieldValues from './JSONFieldValues';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import JSONFieldsMethod from './JSONParsingMethod';
 import JSONSimpleFields from './JSONSimpleFields';
+import { filterStore } from '../store/FilterStore';
 
 type Props = {
 	open: boolean,
@@ -20,9 +21,9 @@ type Props = {
 }
 const SHOW_JSON_FIELD_VALUES = 'showFields';
 const TAB_NAMES: { [key: string]: string } = {};
-TAB_NAMES[JSON_FIELDS_DIR] = 'Annotate JSON Fields';
-TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, Category, App Name and Message';
-TAB_NAMES[SHOW_JSON_FIELD_VALUES] = 'Show JSON Field Values';
+TAB_NAMES[JSON_FIELDS_DIR] = 'Define JSON Fields';
+TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, App, Message...';
+TAB_NAMES[SHOW_JSON_FIELD_VALUES] = 'Spreadsheet';
 
 const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab }: Props) => {
 	const TAB_VALUES = [JSON_FIELDS_DIR, SCRIPTS_DIR, SHOW_JSON_FIELD_VALUES];
@@ -264,6 +265,22 @@ export function getJSONFields() {
 	const jsonMap: { [key: string]: number } = { Time: 99999, Level: 99999, Message: 99999 };
 	for (const messageStore of messageQueueStore.getMessages()) {
 		if (messageStore.isFiltered()) continue;
+
+		if (filterStore.getFilter().length > 0) {
+			const fieldsMap = messageStore.getAllJsonFieldsMap();
+			for (const key in fieldsMap) {
+				const field = fieldsMap[key];
+				if (filterStore.isJSONFieldOperandMatch(field.name, field.value + '')
+					|| filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"')) {
+					if (jsonMap[field.name]) {
+						jsonMap[field.name] = ++jsonMap[field.name];
+					} else {
+						jsonMap[field.name] = 1;
+					}
+				}
+			}
+		}
+
 		for (const field of messageStore.getJsonFields()) {
 			if (jsonMap[field.name]) {
 				jsonMap[field.name] = ++jsonMap[field.name];

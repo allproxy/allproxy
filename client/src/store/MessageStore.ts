@@ -4,7 +4,7 @@ import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
 import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels, getJsonFieldsMap } from "./JSONLogStore";
-import { compressJSON, mainTabStore } from "./MainTabStore";
+import { compressJSON } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 
 export default class MessageStore {
@@ -115,7 +115,7 @@ export default class MessageStore {
             }
             this.setJsonFields(newFields);
         } else {
-            const newJsonFields = formatJSONRequestLabels(json, mainTabStore.getJsonSearchFieldNames(mainTabStore.getSelectedTabName()), jsonLogStore.getJSONFieldNames());
+            const newJsonFields = formatJSONRequestLabels(json, jsonLogStore.getJSONFieldNames());
 
             const oldJsonFields = this.getJsonFields();
             let updateRequired = true;

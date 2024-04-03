@@ -100,9 +100,9 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const searchMatches: string[] = [];
 
 		if (filterStore.getFilter().length > 0) {
-			const map = messageStore.getAllJsonFieldsMap();
-			for (const key in map) {
-				const field = map[key];
+			const fieldsMap = messageStore.getAllJsonFieldsMap();
+			for (const key in fieldsMap) {
+				const field = fieldsMap[key];
 				if (filterStore.isJSONFieldOperandMatch(field.name, field.value + '')
 					|| filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"')) {
 					addElement(field, true);

@@ -542,27 +542,29 @@ export default class FilterStore {
         const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
         for (const operand of operands) {
-            const keyValues = this.parseKeyValue(operand);
-            for (const keyValue of keyValues) {
-                if (keyValue.value !== undefined) {
+            const operandKeyValues = this.parseKeyValue(operand);
+            for (const operandKeyValue of operandKeyValues) {
+                if (operandKeyValue.value !== undefined) {
                     let match = false;
-                    if (keyValue.key.substring(0, 1) === '*') {
-                        match = jsonField.endsWith(keyValue.key.substring(1));
+                    if (operandKeyValue.key.substring(0, 1) === '*') {
+                        match = jsonField.endsWith(operandKeyValue.key.substring(1));
                     } else {
-                        match = jsonFieldLower === keyValue.key.toLowerCase();
+                        match = jsonFieldLower === operandKeyValue.key.toLowerCase();
                     }
                     if (match) {
                         //console.log(jsonField, jsonValue, keyValue);
-                        const c = keyValue.value.substring(0, 1);
-                        if (keyValue.value === '*' || c === '>' || c === '=' || c === '<') {
+                        const c = operandKeyValue.value.substring(0, 1);
+                        if (operandKeyValue.value === '*' || c === '>' || c === '=' || c === '<') {
                             return true;
                         } else {
-                            return jsonValueLower.indexOf(keyValue.value.toLowerCase()) !== -1;
+                            return jsonValueLower.indexOf(operandKeyValue.value.toLowerCase()) !== -1;
                         }
                     }
-                    if (keyValue.key === '*' && jsonValueLower === keyValue.value) return true;
+                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return true;
                 } else {
                     if (operand.length < 3) continue;
+                    if (jsonField === operandKeyValue.key ||
+                        jsonField.endsWith(operandKeyValue.key)) return true;
                     if (jsonValueLower.startsWith(operand.toLowerCase())) return true;
                     if (jsonValueLower === operand.toLowerCase()) return true;
                 }
