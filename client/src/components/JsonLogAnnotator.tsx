@@ -77,7 +77,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				const filter = style.filter;
 				elements = elements.concat(makeLabel(label, keyBorder, valueBorder, bg, color, filter, value));
 			} else {
-				elements.push(accordionValue(value));
+				//elements.push(accordionValue(value));
 			}
 		}
 

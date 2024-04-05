@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import FS from '@isomorphic-git/lightning-fs';
 import { urlPathStore } from "./UrlPathStore";
-import { defaultScript } from "./JSONLogStore";
+import { defaultScript, jsonLogStore } from "./JSONLogStore";
 
 const CHUNKSIZE = 500000;
 
@@ -18,7 +18,7 @@ export async function initApFileSystem() {
     await mkdirIfRequired('/scripts');
     await mkdirIfRequired('/queries');
     if (urlPathStore.isLocalhost()) return;
-    if (urlPathStore.isGitHubPages()) fetchApFileSystem();
+    if (urlPathStore.isGitHubPages()) await fetchApFileSystem();
 }
 
 async function mkdirIfRequired(dir: string) {
@@ -207,9 +207,10 @@ async function fetchApFileSystem() {
         }
 
         // scripts
-
         if (!await apFileSystem.exists('/scripts/method')) await apFileSystem.writeFile('/scripts/method', json.method);
-        if (!await apFileSystem.exists('/scripts/jsonLogScript') || await apFileSystem.readFile('/scripts/jsonLogScript') === defaultScript) await apFileSystem.writeFile('/scripts/jsonLogScript', json.jsonLogScript);
+        if (!await apFileSystem.exists('/scripts/jsonLogScript') || await apFileSystem.readFile('/scripts/jsonLogScript') === defaultScript) {
+            await apFileSystem.writeFile('/scripts/jsonLogScript', json.jsonLogScript);
+        }
 
         // Queries
         const queries = await apFileSystem.readDir('/queries');
@@ -231,6 +232,9 @@ async function fetchApFileSystem() {
             jsonSubQueries = JSON.parse(await apFileSystem.readFile('/jsonSubQueries.json'));
         }
         if (jsonSubQueries.length === 0) await apFileSystem.writeFile('/jsonSubQueries.json', json.jsonSubQueries);
+
+        // Update
+        jsonLogStore.init();
     }
 }
 

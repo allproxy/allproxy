@@ -539,6 +539,7 @@ td input {
 .header__trash,
 .header__show-errors,
 .header__auto-scroll,
+.header__filter-history,
 .header__sort-req-res,
 .header__stop,
 .header__save-restore,
@@ -575,7 +576,7 @@ td input {
 .react-tagsinput-input,
 .header__filter-input {
 	margin: 0 0 0 1rem;
-	height: 32px;
+	height: 42px;
 }
 
 .footer-input {
