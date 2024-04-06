@@ -8,7 +8,7 @@ import { isJsonLogTab } from "./SideBar";
 
 const SideBarJsonSettings = observer((): JSX.Element => {
 	const handleJsonMethodChange = (e: any) => {
-		jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced');
+		jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced' | 'plugin');
 		mainTabStore.setUpdating(true);
 		setTimeout(() => {
 			updateJSONRequestLabels();

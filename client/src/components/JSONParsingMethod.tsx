@@ -20,11 +20,14 @@ const JSONFieldsMethods = observer(({ }: Props) => {
                 defaultValue='auto'
                 name="json-log-mode-radio"
                 value={jsonLogStore.getParsingMethod()}
-                onChange={(e) => jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced')}
+                onChange={(e) => jsonLogStore.setParsingMethod(e.target.value as 'auto' | 'simple' | 'advanced' |
+                    'plugin'
+                )}
             >
                 <FormControlLabel value="auto" control={<Radio />} label="Auto" />
                 <FormControlLabel value="simple" control={<Radio />} label="Simple" />
                 <FormControlLabel value="advanced" control={<Radio />} label="Advanced" />
+                <FormControlLabel value="plugin" control={<Radio />} label="Plugin" />
             </RadioGroup>
         </>
     );
