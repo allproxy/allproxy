@@ -81,7 +81,7 @@ export default class MessageStore {
         this.filtered = filtered;
     }
 
-    @action protected async updateJsonLog2(json: { [key: string]: any }, method: 'auto' | 'simple' | 'advanced') {
+    @action protected async updateJsonLog2(json: { [key: string]: any }, method: 'auto' | 'simple' | 'advanced' | 'plugin') {
         if (method === 'auto') {
             let newFields: JsonField[] = [];
             for (const key in json) {
@@ -313,7 +313,7 @@ export default class MessageStore {
             || Util.isGraphQlError(message);
     }
 
-    public async updateJsonLog(method: 'auto' | 'simple' | 'advanced' = jsonLogStore.getParsingMethod()) {
+    public async updateJsonLog(method: 'auto' | 'simple' | 'advanced' | 'plugin' = jsonLogStore.getParsingMethod()) {
         const message = this.getMessage();
         const responseBody = message.responseBody;
         if (typeof responseBody === 'string') {

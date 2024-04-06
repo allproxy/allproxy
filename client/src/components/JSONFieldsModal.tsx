@@ -104,68 +104,72 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 											<JSONFieldsMethod />
 											{jsonLogStore.getParsingMethod() === 'simple' ?
 												<JSONSimpleFields />
-												: jsonLogStore.getParsingMethod() === 'advanced' && <>
-													Write your own JavaScript to extract the date, level, category, app name and message fields.
-													<p></p>
-													{error !== '' &&
-														<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
-													}
-													<div style={{ width: '100%', overflow: 'hidden' }}>
-														<div style={{ display: 'inline-block' }}>
-															<button className="btn btn-sm btn-primary"
-																onClick={() => store.resetScriptToDefault()}
-															>
-																Reset to default
-															</button>
-															<p></p>
-															<div>
-																<textarea
-																	rows={29} cols={80}
-																	value={store.getScript()}
-																	onChange={(e) => {
-																		store.setScript(e.target.value);
-																		setError('');
-																	}}
-																/>
+												: jsonLogStore.getParsingMethod() === 'plugin' ?
+													<div>
+														The date, level, category, app name and message fields are defined by your plugin.  Edit or replace the <code>client/public/plugins/parsejson/plugin.js</code> file, and rebuild the project.
+													</div>
+													: jsonLogStore.getParsingMethod() === 'advanced' && <>
+														Write your own JavaScript to extract the date, level, category, app name and message fields.
+														<p></p>
+														{error !== '' &&
+															<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
+														}
+														<div style={{ width: '100%', overflow: 'hidden' }}>
+															<div style={{ display: 'inline-block' }}>
+																<button className="btn btn-sm btn-primary"
+																	onClick={() => store.resetScriptToDefault()}
+																>
+																	Reset to default
+																</button>
+																<p></p>
+																<div>
+																	<textarea
+																		rows={29} cols={80}
+																		value={store.getScript()}
+																		onChange={(e) => {
+																			store.setScript(e.target.value);
+																			setError('');
+																		}}
+																	/>
+																</div>
+															</div>
+															<div style={{ display: 'inline-block', margin: '2rem 0 0 2rem', verticalAlign: 'top' }}>
+																<h5>Example log message:</h5>
+																<pre>
+																	<div>{'{'}</div>
+																	<div>  "date": "2023-09-12T18:03:33.496Z"</div>
+																	<div>  "level": "info"</div>
+																	<div>  "zone": "zone1"</div>
+																	<div>  "pod_name": "pod-name"</div>
+																	<div>  "message": "This is a test message."</div>
+																	<div>{'}'}</div>
+																</pre>
+																<p></p>
+																<h5>Example extract function:</h5>
+																<pre>
+																	<div>// Function called to extract <b>date</b>, <b>level</b>, <b>app name</b> and <b>message</b></div>
+																	<div>//</div>
+																	<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
+																	<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
+																	<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string, <b>rawLine</b>: string{'}'}</div>
+																	<div>//</div>
+																	<div>// <b>category</b> e.g., availability zone, processor... </div>
+																	<div>// <b>appName</b> is the pod name, process ID... </div>
+																	<div>//</div>
+																	<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
+																	<div>  let date = new Date(jsonObject.date);</div>
+																	<div>  let level = jsonObject.level;</div>
+																	<div>  let category = jsonObject.zone;</div>
+																	<div>  let appName = jsonObject.pod_name;</div>
+																	<div>  let message = jsonObject.message;</div>
+																	<div>  let rawLine = JSON.stringify(jsonObject);</div>
+																	<div>  let additionalJSON = {'{}'};</div>
+																	<div>  return {'{date, level, category, appName, message, additionalJSON}'};</div>
+																	<div>{'}'}</div>
+																</pre>
 															</div>
 														</div>
-														<div style={{ display: 'inline-block', margin: '2rem 0 0 2rem', verticalAlign: 'top' }}>
-															<h5>Example log message:</h5>
-															<pre>
-																<div>{'{'}</div>
-																<div>  "date": "2023-09-12T18:03:33.496Z"</div>
-																<div>  "level": "info"</div>
-																<div>  "zone": "zone1"</div>
-																<div>  "pod_name": "pod-name"</div>
-																<div>  "message": "This is a test message."</div>
-																<div>{'}'}</div>
-															</pre>
-															<p></p>
-															<h5>Example extract function:</h5>
-															<pre>
-																<div>// Function called to extract <b>date</b>, <b>level</b>, <b>app name</b> and <b>message</b></div>
-																<div>//</div>
-																<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
-																<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
-																<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string, <b>rawLine</b>: string{'}'}</div>
-																<div>//</div>
-																<div>// <b>category</b> e.g., availability zone, processor... </div>
-																<div>// <b>appName</b> is the pod name, process ID... </div>
-																<div>//</div>
-																<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
-																<div>  let date = new Date(jsonObject.date);</div>
-																<div>  let level = jsonObject.level;</div>
-																<div>  let category = jsonObject.zone;</div>
-																<div>  let appName = jsonObject.pod_name;</div>
-																<div>  let message = jsonObject.message;</div>
-																<div>  let rawLine = JSON.stringify(jsonObject);</div>
-																<div>  let additionalJSON = {'{}'};</div>
-																<div>  return {'{date, level, category, appName, message, additionalJSON}'};</div>
-																<div>{'}'}</div>
-															</pre>
-														</div>
-													</div>
-												</>
+													</>
 											}
 										</>
 										: tabValue === SHOW_JSON_FIELD_VALUES ?

@@ -5,6 +5,12 @@ import { compressJSON } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 import { urlPathStore } from "./UrlPathStore";
 
+declare global {
+	interface Window {
+		parseJSON: any
+	}
+}
+
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
 const jsonLogScriptFileName = 'jsonLogScript';
@@ -91,14 +97,30 @@ export const defaultScript =
 	// category is the availability zone, processor...
 	// appName is the pod name, process ID...
 	//
-	const jsonLogScript = function (preJSONString, jsonObject) {
-		let date = new Date();
+	const parseJSON = function (preJSONString, jsonObject) {
 		let level = 'info';
-		let category = 'My-Category';
-		let appName = 'My-App';
-		let message = 'This is a test message';
-		let additionalJSON = {};
-		return { date, level, category, appName, message, additionalJSON };
+        let date = new Date();
+        let category = '';
+        let appName = 'App_name_is_not_set';
+        let message = 'Message is not set - Click "?" in upper right to extract fields from JSON';
+        // return raw JSON (optional)
+        let rawLine;
+        // Copy any JSON fields not defined in jsonObject
+        let additionalJSON = {};
+
+        // Set the level
+        // level = jsonObject.m_level;
+
+        // Set the date
+        // date = jsonObject.my_date;
+
+        // Set the app name
+        //appName = jsonObject.my_app;
+
+        // Set message
+        //message = jsonObject.my_message;
+
+        return { date, level, category, appName, message, rawLine, additionalJSON };
 	}
 `;
 
@@ -122,7 +144,7 @@ export type SimpleFields = {
 }
 
 export default class JSONLogStore {
-	private method: 'auto' | 'simple' | 'advanced' = 'simple';
+	private method: 'auto' | 'simple' | 'advanced' | 'plugin' = 'advanced';
 
 	private autoFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '', rawLine: '' };
 	private autoMaxFieldLevel: 1 | 2 = 1;
@@ -149,7 +171,7 @@ export default class JSONLogStore {
 	}
 
 	public getParsingMethod() { return this.method; }
-	public async setParsingMethod(method: 'auto' | 'simple' | 'advanced') {
+	public async setParsingMethod(method: 'auto' | 'simple' | 'advanced' | 'plugin') {
 		this.method = method;
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
 	}
@@ -227,8 +249,12 @@ export default class JSONLogStore {
 	@action public async saveScript() {
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
 	}
-	@action public updateScriptFunc() {
-		this.scriptFunc = this.evalScript(this.script);
+	@action public async updateScriptFunc() {
+		if (this.method === 'plugin') {
+			this.scriptFunc = window.parseJSON;
+		} else {
+			this.scriptFunc = this.evalScript(this.script);
+		}
 	}
 
 	private parseDate(value: string | number): Date | undefined {
@@ -249,7 +275,7 @@ export default class JSONLogStore {
 
 	@action public extractJSONFields(nonJson: string,
 		jsonData: { [key: string]: any },
-		method: 'auto' | 'simple' | 'advanced'
+		method: 'auto' | 'simple' | 'advanced' | 'plugin'
 	): LogEntry {
 
 		const setAutoField = (field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
@@ -347,6 +373,7 @@ export default class JSONLogStore {
 				logEntry.rawLine = JSON.stringify(jsonData);
 				break;
 			case 'advanced':
+			case 'plugin':
 				try {
 					logEntry = this.scriptFunc(nonJson, jsonData);
 				} catch (e) {
@@ -440,14 +467,14 @@ export default class JSONLogStore {
 
 		const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
 		if (exists) {
-			const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced';
+			const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced' | 'plugin';
 			if (method) {
 				this.method = method;
 			}
 		} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
 			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method', 'serverFs');
 			if (exists) {
-				const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method', 'serverFs') as 'auto' | 'simple' | 'advanced';
+				const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method', 'serverFs') as 'auto' | 'simple' | 'advanced' | 'plugin';
 				if (method) {
 					this.method = method;
 					await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);

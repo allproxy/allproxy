@@ -72,7 +72,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				const jsonLines = jsonToJsonl(pastedJSON);
 				const lines = jsonLines.split('\n');
 				setPastedJSON('');
-				mainTabStore.importTab(tabName, importJsonLines(tabName, lines));
+				mainTabStore.importTab(tabName, importJsonLines(tabName, lines), 'sort');
 			} else {
 				mainTabStore.setUpdating(true, 'Importing ' + fileName());
 				fileReaderStore.setOperator(operator);
