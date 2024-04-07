@@ -354,7 +354,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						hidden={urlPathStore.getApp() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
-							jsonLogStore.init();
+							await jsonLogStore.init();
 							setJsonFields(getJSONFields());
 							setJsonFieldsModalTab('jsonFields');
 							setShowJSONFieldsModal(true);
@@ -369,7 +369,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						hidden={urlPathStore.getApp() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
-							jsonLogStore.init();
+							await jsonLogStore.init();
 							setJsonFields(getJSONFields());
 							setJsonFieldsModalTab('scripts');
 							setShowJSONFieldsModal(true);
@@ -384,7 +384,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						hidden={urlPathStore.getApp() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
-							jsonLogStore.init();
+							await jsonLogStore.init();
 							setJsonFields(getJSONFields());
 							setJsonFieldsModalTab('showFields');
 							setShowJSONFieldsModal(true);
@@ -455,7 +455,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 			/>
 			<HelpDialog open={showHelp} onClose={async () => {
 				setShowHelp(false);
-				jsonLogStore.init();
+				await jsonLogStore.init();
 				jsonLogStore.updateScriptFunc();
 				mainTabStore.setUpdating(true);
 				setTimeout(() => {

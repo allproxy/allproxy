@@ -407,97 +407,88 @@ export default class JSONLogStore {
 	}
 
 	public async init() {
-		if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE)) {
-			const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE);
-			if (briefJsonFields.length > 0) {
-				this.briefMap = JSON.parse(briefJsonFields);
-			}
-		} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
-			if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE, 'serverFs')) {
-				const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE, 'serverFs');
+		return new Promise<void>(async (resolve) => {
+			if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE)) {
+				const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE);
 				if (briefJsonFields.length > 0) {
 					this.briefMap = JSON.parse(briefJsonFields);
-					await apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, briefJsonFields);
 				}
-			}
-		}
-
-		let fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
-		if (fileNames.length === 0 && !urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
-			fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR, 'serverFs');
-			for (const fileName of fileNames) {
-				await apFileSystem.writeFile(JSON_FIELDS_DIR + '/' + fileName, fileName);
-			}
-		}
-		this.fields = [];
-		for (const fileName of fileNames) {
-			const jsonField = new JSONLogField(JSON_FIELDS_DIR);
-			jsonField.setName(fileName);
-			this.fields.push(jsonField);
-			this.fields.sort((a, b) => a.getName().localeCompare(b.getName()));
-		}
-
-		if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName)) {
-			this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
-		}
-		if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages() && this.script === defaultScript) {
-			if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs')) {
-				this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs');
-				await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
-			}
-		}
-
-		const initSimpleField = async (field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
-			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
-			if (exists) {
-				this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
 			} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
-				const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field, 'serverFs');
-				if (exists) {
-					this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field, 'serverFs');
-					await apFileSystem.writeFile(SCRIPTS_DIR + '/' + field, this.simpleFields[field]);
+				if (await apFileSystem.exists(BRIEF_JSON_FIELDS_FILE, 'serverFs')) {
+					const briefJsonFields = await apFileSystem.readFile(BRIEF_JSON_FIELDS_FILE, 'serverFs');
+					if (briefJsonFields.length > 0) {
+						this.briefMap = JSON.parse(briefJsonFields);
+						await apFileSystem.writeFile(BRIEF_JSON_FIELDS_FILE, briefJsonFields);
+					}
 				}
 			}
-		};
-		initSimpleField('date');
-		initSimpleField('level');
-		initSimpleField('category');
-		initSimpleField('appName');
-		initSimpleField('message');
 
-		const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
-		if (exists) {
-			const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced' | 'plugin';
-			if (method) {
-				this.method = method;
+			let fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR);
+			if (fileNames.length === 0 && !urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
+				fileNames = await apFileSystem.readDir(JSON_FIELDS_DIR, 'serverFs');
+				for (const fileName of fileNames) {
+					await apFileSystem.writeFile(JSON_FIELDS_DIR + '/' + fileName, fileName);
+				}
 			}
-		} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
-			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method', 'serverFs');
+			const fields: JSONLogField[] = [];
+			for (const fileName of fileNames) {
+				const jsonField = new JSONLogField(JSON_FIELDS_DIR);
+				jsonField.setName(fileName);
+				fields.push(jsonField);
+				fields.sort((a, b) => a.getName().localeCompare(b.getName()));
+			}
+			this.fields = fields;
+
+			if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName)) {
+				this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
+			}
+			if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages() && this.script === defaultScript) {
+				if (await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs')) {
+					this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs');
+					await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
+				}
+			}
+
+			const initSimpleField = async (field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
+				const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
+				if (exists) {
+					this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
+				} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
+					const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field, 'serverFs');
+					if (exists) {
+						this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field, 'serverFs');
+						await apFileSystem.writeFile(SCRIPTS_DIR + '/' + field, this.simpleFields[field]);
+					}
+				}
+			};
+			initSimpleField('date');
+			initSimpleField('level');
+			initSimpleField('category');
+			initSimpleField('appName');
+			initSimpleField('message');
+
+			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
 			if (exists) {
-				const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method', 'serverFs') as 'auto' | 'simple' | 'advanced' | 'plugin';
+				const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method') as 'auto' | 'simple' | 'advanced' | 'plugin';
 				if (method) {
 					this.method = method;
-					await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+				}
+			} else if (!urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
+				const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method', 'serverFs');
+				if (exists) {
+					const method = await apFileSystem.readFile(SCRIPTS_DIR + '/method', 'serverFs') as 'auto' | 'simple' | 'advanced' | 'plugin';
+					if (method) {
+						this.method = method;
+						await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+					}
 				}
 			}
-		}
+			resolve();
+		});
 	}
 
 	public getJSONFields() {
 		return this.fields;
-	}
-
-	@action public setJSONFieldNames(fields: string) {
-		for (; this.fields.length > 0;) {
-			const field = this.fields.pop();
-			if (field) field.setNameAndValidate(''); // Delete
-		}
-		this.fields.splice(0, this.fields.length);
-		for (const field of fields.split('\n')) {
-			const newField = new JSONLogField(JSON_FIELDS_DIR);
-			newField.setNameAndValidate(field); // Create
-			this.fields.push(newField);
-		}
 	}
 
 	public getJSONFieldNames(): string[] {
