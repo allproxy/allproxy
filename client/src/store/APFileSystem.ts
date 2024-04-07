@@ -234,7 +234,7 @@ async function fetchApFileSystem() {
         if (jsonSubQueries.length === 0) await apFileSystem.writeFile('/jsonSubQueries.json', json.jsonSubQueries);
 
         // Update
-        jsonLogStore.init();
+        await jsonLogStore.init();
     }
 }
 

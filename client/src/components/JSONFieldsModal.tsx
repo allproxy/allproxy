@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
+import { Checkbox, IconButton, List, ListItem, Modal, Tab, Tabs } from '@material-ui/core';
 import JSONLogStore, { JSON_FIELDS_DIR, SCRIPTS_DIR, jsonLogStore } from '../store/JSONLogStore';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
@@ -29,7 +29,6 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 	const TAB_VALUES = [JSON_FIELDS_DIR, SCRIPTS_DIR, SHOW_JSON_FIELD_VALUES];
 	const [tabValue, setTabValue] = React.useState(selectTab);
 	const [error, setError] = React.useState('');
-	const [radioValue, setRadioValue] = React.useState('table');
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: 'jsonFields' | 'scripts' | 'showFields') {
 		setTabValue(tabValue);
@@ -176,75 +175,49 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 											<JSONFieldValues jsonFields={jsonFields} />
 											:
 											<>
-												<RadioGroup
-													row
-													aria-labelledby="json-fields-radio-buttons"
-													defaultValue="table"
-													name="json-fields-radio-buttons"
-													value={radioValue}
-													onChange={(e) => setRadioValue(e.target.value)}
+												<button className="btn btn-lg btn-primary"
+													onClick={handleAddEntry}
 												>
-													<FormControlLabel value="table" control={<Radio />} label="Table" />
-													<FormControlLabel value="copypaste" control={<Radio />} label="Copy/Paste" />
-												</RadioGroup>
-												{radioValue === 'copypaste' ?
-													<>
-														<div>One JSON field name per line:</div>
-														<div style={{ marginTop: '.25rem' }} >
-															<textarea
-																rows={29} cols={80}
-																value={store.getJSONFieldNames().join('\n')}
-																onChange={(e) => {
-																	store.setJSONFieldNames(e.target.value);
+													+ New JSON Key
+												</button>
+												<List>
+													{store.getJSONFields().map((jsonField, i) => (
+														<ListItem key={jsonField.getName()}
+															style={{
+																display: 'flex', alignItems: 'center',
+															}}>
+															<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
+																<CloseIcon style={{ color: 'red' }} />
+															</IconButton>
+															<div
+																style={{
+																	display: 'flex', alignItems: 'center',
+																	width: '100%',
 																}}
-															/>
-														</div>
-													</>
-													:
-													<>
-														<button className="btn btn-lg btn-primary"
-															onClick={handleAddEntry}
-														>
-															+ New JSON Key
-														</button>
-														<List>
-															{store.getJSONFields().map((jsonField, i) => (
-																<ListItem key={i}
+															>
+																<input className="form-control"
 																	style={{
-																		display: 'flex', alignItems: 'center',
-																	}}>
-																	<IconButton onClick={() => handleDeleteEntry(i)} title="Delete JSON field">
-																		<CloseIcon style={{ color: 'red' }} />
-																	</IconButton>
-																	<div
-																		style={{
-																			display: 'flex', alignItems: 'center',
-																			width: '100%',
-																		}}
-																	>
-																		<input className="form-control"
-																			style={{
-																				width: '32rem',
-																				background: jsonField.isValidName()
-																					? undefined
-																					: 'lightCoral'
-																			}}
-																			value={jsonField.getName()}
-																			onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
-																		<div>
-																			<div style={{ display: 'flex' }}>
-																				<Checkbox
-																					size="small"
-																					checked={jsonField.shouldShowWnenBriefChecked()}
-																					onChange={() => jsonField.toggleBriefChecked()} />
-																				<div style={{ lineHeight: '38px' }}>Show when <b>Less Detail</b> is checked</div>
-																			</div>
-																		</div>
+																		width: '32rem',
+																		background: jsonField.isValidName()
+																			? undefined
+																			: 'lightCoral'
+																	}}
+																	value={jsonField.getName()}
+																	onChange={(e) => jsonField.setNameAndValidate(e.currentTarget.value)} />
+																<div>
+																	<div style={{ display: 'flex' }}>
+																		<Checkbox
+																			size="small"
+																			checked={jsonField.shouldShowWnenBriefChecked()}
+																			onChange={() => jsonField.toggleBriefChecked()} />
+																		<div style={{ lineHeight: '38px' }}>Show when <b>Less Detail</b> is checked</div>
 																	</div>
-																</ListItem>
-															))}
-														</List>
-													</>}
+																</div>
+															</div>
+														</ListItem>
+													))}
+												</List>
+
 											</>
 									}
 								</div>

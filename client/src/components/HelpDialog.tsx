@@ -217,7 +217,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 										<button className="btn btn-lg btn-success"
 											style={{ marginBottom: "1rem" }}
 											onClick={async () => {
-												jsonLogStore.init();
+												await jsonLogStore.init();
 												setJsonFields(getJSONFields());
 												setJsonFieldsModalTab('scripts');
 												setShowJSONFieldsModal(true);
@@ -238,7 +238,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 							<button className="btn btn-lg btn-primary"
 								style={{ marginRight: "1rem" }}
 								onClick={async () => {
-									jsonLogStore.init();
+									await jsonLogStore.init();
 									setJsonFields(getJSONFields());
 									setJsonFieldsModalTab('jsonFields');
 									setShowJSONFieldsModal(true);
