@@ -61,6 +61,16 @@ function App() {
 
   initApFileSystem();
 
+  if (document.location.hostname.includes('github.io') || document.location.hostname.includes('pages.github')) {
+    document.title = 'JSONLogs';
+  } else if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
+    document.title = 'JLogViewer';
+  } else if (document.location.pathname === '/mitmproxy') {
+    document.title = 'MitmProxy';
+  } else {
+    document.title = 'AllProxy';
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
