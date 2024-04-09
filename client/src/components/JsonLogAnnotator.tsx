@@ -117,6 +117,13 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			addElement(field, false);
 		}
 
+		// Show less is checked and no JSON fields were added?
+		if (jsonLogStore.isBriefChecked() && elements.length === 0 && Object.keys(jsonLogStore.getBriefMap()).length === 0) {
+			for (const field of messageStore.getJsonFields()) {
+				addElement(field, false);
+			}
+		}
+
 		function addElement(field: JsonField, highlight: boolean) {
 			const style = pickLabelStyle(field.name);
 			const bg = highlight ? '#FFFF00' : style.background;

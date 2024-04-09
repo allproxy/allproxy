@@ -9,6 +9,7 @@ import { namedQueriesStore, namedSubQueriesStore } from "./NamedQueriesStore";
 import { isJsonLogTab } from "../components/SideBar";
 import FileReaderStore from "./FileReaderStore";
 import { jsonLogStore, updateJSONRequestLabels } from "./JSONLogStore";
+import { getPluginFunc } from "../Plugins";
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -375,6 +376,17 @@ export default class MainTabStore {
 	): number {
 		jsonLogStore.updateScriptFunc();
 		updateJSONRequestLabels();
+
+		// Call importJSON plugin
+		const jsonObjects: {}[] = [];
+		for (const message of messages) {
+			if (message.protocol === 'log:' && typeof message.responseBody === 'object') {
+				jsonObjects.push(message.responseBody);
+			}
+		}
+		if (jsonObjects.length > 0) {
+			getPluginFunc("importJSON")(jsonObjects);
+		}
 
 		let startTimeDate = new Date(0);
 		let endTimeDate = new Date();

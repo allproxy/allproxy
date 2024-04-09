@@ -3,18 +3,19 @@
 //
 declare global {
     interface Window {
-        parseJSON: any
+        parseJSON: any,
+        importJSON: any,
     }
 }
 
 // Get a plugin function
-export function getPluginFunc(pluginFunc: "parseJSON") {
+export function getPluginFunc(pluginFunc: "parseJSON" | "importJSON") {
     return window[pluginFunc];
 }
 
 // Load all the plugins
 function loadPlugins() {
-    for (const pluginName of ["parsejson"]) {
+    for (const pluginName of ["parsejson", "importjson"]) {
         const script = document.createElement('script');
         script.src = "plugins/" + pluginName + "/plugin.js";
         script.async = true;
