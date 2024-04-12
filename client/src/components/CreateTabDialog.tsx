@@ -16,7 +16,7 @@ const CreateTabNameDialog = observer(({ open, onClose }: Props) => {
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
 			<DialogTitle id="simple-dialog-title">Tab Name</DialogTitle>
-			<input className={'export__input-file-name form-control'} value={tabName} onChange={(value) => setTabName(value.target.value)} />
+			<input autoFocus className={'export__input-file-name form-control'} value={tabName} onChange={(value) => setTabName(value.target.value)} />
 			<button className={'btn btn-success'}
 				disabled={tabName.length === 0}
 				onClick={() => onClose(tabName)}

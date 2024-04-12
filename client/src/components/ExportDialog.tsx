@@ -19,7 +19,7 @@ const ExportDialog = observer(({ open, heading: title, buttonLabel, onClose }: P
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>
 			<DialogTitle id="simple-dialog-title">{title}</DialogTitle>
 			<DialogContent>
-				<input className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)} />
+				<input autoFocus className={'export__input-file-name form-control'} value={fileName} onChange={(value) => setFileName(value.target.value)} />
 				<button className={'btn btn-success'}
 					disabled={fileName.length === 0}
 					onClick={() => onClose(fileName)}
