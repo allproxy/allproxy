@@ -107,6 +107,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					<div style={{ display: 'flex' }}>
 						<div className="primary-text-color" style={{ whiteSpace: 'nowrap', lineHeight: '48px', marginRight: '.5rem' }}>Tab Name:</div>
 						<input
+							autoFocus
 							style={{ height: "48px", marginBottom: "1rem" }}
 							className="form-control"
 							value={tabName}
@@ -199,6 +200,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 						</TabPanel>
 						<TabPanel value="2" key="2">
 							<textarea
+								autoFocus
 								className="form-control"
 								style={{ width: "100%", height: "calc(3 * 48px)" }}
 								placeholder="Paste Text Here"

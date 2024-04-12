@@ -196,6 +196,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																}}
 															>
 																<input className="form-control"
+																	autoFocus={i === 0}
 																	style={{
 																		width: '32rem',
 																		background: jsonField.isValidName()

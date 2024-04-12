@@ -22,6 +22,8 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <title>AllProxy</title>
+  <!-- This is required to import a webpack plugin -->
+  <script>var exports = { "__esModule": true };</script>
 </head>
 
 <body>
@@ -37,18 +39,6 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-  <script src="plugins/parsejson/plugin.js" type="text/javascript" />
 </body>
-<script>
-  if (document.location.hostname.includes('github.io') || document.location.hostname.includes('pages.github')) {
-    document.title = 'JSONLogs';
-  } else if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
-    document.title = 'JLogViewer';
-  } else if (document.location.pathname === '/mitmproxy') {
-    document.title = 'MitmProxy';
-  } else {
-    document.title = 'AllProxy';
-  }
-</script>
 
 </html>

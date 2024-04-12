@@ -4,12 +4,7 @@ import { messageQueueStore } from "./MessageQueueStore";
 import { compressJSON } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 import { urlPathStore } from "./UrlPathStore";
-
-declare global {
-	interface Window {
-		parseJSON: any
-	}
-}
+import { getPluginFunc } from "../Plugins";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -150,7 +145,7 @@ export default class JSONLogStore {
 	private autoMaxFieldLevel: 1 | 2 = 1;
 	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '', rawLine: '' };
 
-	private briefChecked = false;
+	private briefChecked = true;
 	private briefMap: { [key: string]: boolean } = {};
 
 	private rawJsonChecked = false;
@@ -251,7 +246,7 @@ export default class JSONLogStore {
 	}
 	@action public async updateScriptFunc() {
 		if (this.method === 'plugin') {
-			this.scriptFunc = window.parseJSON;
+			this.scriptFunc = getPluginFunc("parseJSON");
 		} else {
 			this.scriptFunc = this.evalScript(this.script);
 		}

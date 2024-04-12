@@ -56,7 +56,7 @@ const SideBarSettings = observer((): JSX.Element => {
 							<Checkbox className="side-bar-checkbox"
 								disabled={jsonLogStore.isRawJsonChecked()}
 								size="small"
-								defaultChecked={false}
+								defaultChecked={true}
 								value={jsonLogStore.isBriefChecked()}
 								onChange={() => jsonLogStore.toggleBriefChecked()} />
 							<div style={{ opacity: jsonLogStore.isRawJsonChecked() ? .5 : undefined }}>Less Detail</div>

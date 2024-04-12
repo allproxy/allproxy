@@ -4,6 +4,7 @@ import { untruncateJson } from "./UntruncateJSON";
 export function importJsonLines(fileName: string, jsonLines: string[]): Message[] {
     const messages: Message[] = [];
     let sequenceNumber = 1;
+
     for (let record of jsonLines) {
         sequenceNumber++;
         const message = newMessage(record, sequenceNumber, fileName);

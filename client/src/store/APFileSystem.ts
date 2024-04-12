@@ -5,7 +5,7 @@ import { defaultScript, jsonLogStore } from "./JSONLogStore";
 
 const CHUNKSIZE = 500000;
 
-const defaultFsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || process.env.NODE_ENV !== "production" ? 'browserFs' : 'serverFs';
+const defaultFsType: 'browserFs' | 'serverFs' = !urlPathStore.isLocalhost() || urlPathStore.isGitHubPages() || process.env.NODE_ENV !== "production" ? 'browserFs' : 'serverFs';
 const fs = new FS(urlPathStore.isLocalhost() ? 'allproxy' : document.location.hostname).promises;
 
 export async function initApFileSystem() {

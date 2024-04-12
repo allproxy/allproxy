@@ -564,11 +564,13 @@ export default class FilterStore {
                 } else {
                     if (operand.length < 3) continue;
                     const operandLower = operand.toLowerCase();
-                    if (jsonField === operandKeyValue.key ||
-                        jsonField.endsWith(operandKeyValue.key)) return true;
+                    if (jsonFieldLower === operandLower ||
+                        jsonFieldLower.startsWith(operandLower) ||
+                        jsonFieldLower.endsWith(operandLower)) return true;
                     if (jsonValueLower.startsWith(operandLower)) return true;
                     if (jsonValueLower.endsWith(operandLower)) return true;
                     if (jsonValueLower === operandLower) return true;
+                    if (jsonValueLower.length <= 64 && jsonValueLower.includes(operandLower)) return true;
                 }
             }
         }

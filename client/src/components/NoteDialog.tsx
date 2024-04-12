@@ -19,7 +19,7 @@ const NoteDialog = observer(({ open, message, onClose }: Props) => {
 	return (
 		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>
 			<DialogTitle id="simple-dialog-title">Note</DialogTitle>
-			<input className={'export__input-file-name form-control'}
+			<input autoFocus className={'export__input-file-name form-control'}
 				value={note}
 				onChange={(value) => setNote(value.target.value)} />
 			<div style={{ display: 'flex', marginBottom: '.5rem' }}>
