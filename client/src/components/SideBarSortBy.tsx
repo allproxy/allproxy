@@ -46,8 +46,8 @@ const logFields = [
 		displayName: 'Category'
 	},
 	{
-		name: 'appName',
-		displayName: 'App Name'
+		name: 'kind',
+		displayName: 'Kind'
 	},
 	{
 		name: 'message',

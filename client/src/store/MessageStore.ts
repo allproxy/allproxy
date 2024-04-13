@@ -19,7 +19,7 @@ export default class MessageStore {
     private note = '';
     private jsonFields: JsonField[] = [];
     private filtered: false | true | undefined = undefined;
-    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', rawLine: '', additionalJSON: {} };
+    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {} };
 
     public constructor(message: Message, auto: boolean = false) {
         let keys = Object.keys(message.requestHeaders);
@@ -88,7 +88,7 @@ export default class MessageStore {
                 // if (key === jsonLogStore.getAutoFields().date) continue;
                 // if (key === jsonLogStore.getAutoFields().level) continue;
                 // if (key === jsonLogStore.getAutoFields().category) continue;
-                // if (key === jsonLogStore.getAutoFields().appName) continue;
+                // if (key === jsonLogStore.getAutoFields().kind) continue;
                 // if (key === jsonLogStore.getAutoFields().message) continue;
                 let value = json[key];
                 if (typeof value === 'object' && jsonLogStore.getAutoMaxFieldLevel() === 2) {

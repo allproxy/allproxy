@@ -22,7 +22,7 @@ type Props = {
 const SHOW_JSON_FIELD_VALUES = 'showFields';
 const TAB_NAMES: { [key: string]: string } = {};
 TAB_NAMES[JSON_FIELDS_DIR] = 'Define JSON Fields';
-TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, App, Message...';
+TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, Kind, Message...';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = 'Spreadsheet';
 
 const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab }: Props) => {
@@ -105,10 +105,10 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 												<JSONSimpleFields />
 												: jsonLogStore.getParsingMethod() === 'plugin' ?
 													<div>
-														The date, level, category, app name and message fields are defined by your plugin.  Edit or replace the <code>client/public/plugins/parsejson/plugin.js</code> file, and rebuild the project.
+														The date, level, category, kind and message fields are defined by your plugin.  Edit or replace the <code>client/public/plugins/parsejson/plugin.js</code> file, and rebuild the project.
 													</div>
 													: jsonLogStore.getParsingMethod() === 'advanced' && <>
-														Write your own JavaScript to extract the date, level, category, app name and message fields.
+														Write your own JavaScript to extract the date, level, category, kind and message fields.
 														<p></p>
 														{error !== '' &&
 															<div style={{ color: 'white', background: 'red', padding: '.25rem' }}>{error}</div>
@@ -146,24 +146,24 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																<p></p>
 																<h5>Example extract function:</h5>
 																<pre>
-																	<div>// Function called to extract <b>date</b>, <b>level</b>, <b>app name</b> and <b>message</b></div>
+																	<div>// Function called to extract <b>date</b>, <b>level</b>, <b>kind</b> and <b>message</b></div>
 																	<div>//</div>
 																	<div>// @param <b>preJSONString</b>: string - optional non-JSON string proceeding JSON object</div>
 																	<div>// @param <b>jsonObject</b>: {'{}'} - JSON log data</div>
-																	<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>appName</b>: string, <b>message</b>: string, <b>rawLine</b>: string{'}'}</div>
+																	<div>// @returns {'{'}<b>date</b>: Date, <b>level</b>: string, <b>kind</b>: string, <b>message</b>: string, <b>rawLine</b>: string{'}'}</div>
 																	<div>//</div>
 																	<div>// <b>category</b> e.g., availability zone, processor... </div>
-																	<div>// <b>appName</b> is the pod name, process ID... </div>
+																	<div>// <b>kind</b> is the object kind, pod name, process ID... </div>
 																	<div>//</div>
 																	<div>const myFunction = function(preJSONString, jsonObject) {'{'}</div>
 																	<div>  let date = new Date(jsonObject.date);</div>
 																	<div>  let level = jsonObject.level;</div>
 																	<div>  let category = jsonObject.zone;</div>
-																	<div>  let appName = jsonObject.pod_name;</div>
+																	<div>  let kind = jsonObject.kind;</div>
 																	<div>  let message = jsonObject.message;</div>
 																	<div>  let rawLine = JSON.stringify(jsonObject);</div>
 																	<div>  let additionalJSON = {'{}'};</div>
-																	<div>  return {'{date, level, category, appName, message, additionalJSON}'};</div>
+																	<div>  return {'{date, level, category, kind, message, additionalJSON}'};</div>
 																	<div>{'}'}</div>
 																</pre>
 															</div>

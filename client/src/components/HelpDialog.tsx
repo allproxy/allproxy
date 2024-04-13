@@ -26,7 +26,7 @@ type Props = {
 const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
 	const [showSessionModal, setShowSessionModal] = React.useState(false);
-	const [tabValue, setTabValue] = React.useState(urlPathStore.getApp() === 'jlogviewer' ? '3' : urlPathStore.isLocalhost() ? '1' : '4');
+	const [tabValue, setTabValue] = React.useState(urlPathStore.getKind() === 'jlogviewer' ? '3' : urlPathStore.isLocalhost() ? '1' : '4');
 
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
 	const [jsonFieldsModalTab, setJsonFieldsModalTab] = React.useState<'jsonFields' | 'scripts' | 'showFields'>('scripts');
@@ -104,16 +104,16 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						indicatorColor="primary"
 						aria-label="help-tabs"
 					>
-						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="1" label="Quick Start" />}
-						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="2" label="Certificates" />}
-						{urlPathStore.getApp() !== 'mitmproxy' && <Tab value="3" label="Log Viewer" />}
+						{urlPathStore.getKind() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="1" label="Quick Start" />}
+						{urlPathStore.getKind() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="2" label="Certificates" />}
+						{urlPathStore.getKind() !== 'mitmproxy' && <Tab value="3" label="Log Viewer" />}
 						<Tab value="4" label="Filtering" />
-						{urlPathStore.getApp() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="5" label="Breakpoints" />}
+						{urlPathStore.getKind() !== 'jlogviewer' && urlPathStore.isLocalhost() && <Tab value="5" label="Breakpoints" />}
 					</Tabs>
 					<TabPanel value="1" key="1">
 						<h4>Quick Start</h4>
-						<h3>URL: <a href={`http://localhost:8888/${urlPathStore.getApp()}`}
-							target="_blank">{'localhost:8888/' + urlPathStore.getApp()}</a></h3>
+						<h3>URL: <a href={`http://localhost:8888/${urlPathStore.getKind()}`}
+							target="_blank">{'localhost:8888/' + urlPathStore.getKind()}</a></h3>
 						<p></p>
 						<h3>Launch Browser/Terminal:</h3>
 						{
@@ -202,8 +202,8 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						</ol>
 					</TabPanel>
 					<TabPanel value="3" key="3">
-						<h3>Define Date, Level, App Name and Message</h3>
-						Use the <b>Simple</b> or <b>Advanced</b> method to identify the date, level, app name and message fields in the JSON log entry.
+						<h3>Define Date, Level, Kind and Message</h3>
+						Select method used to define the date, level, kinds and message fields in the JSON log entry.
 						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
 							<JSONFieldsMethods />
 							{jsonLogStore.getParsingMethod() === 'auto' ?
@@ -212,7 +212,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									<JSONSimpleFields />
 									:
 									<>
-										Write your own JavaScript to extract the date, level, app name and message fields.
+										Write your own JavaScript to extract the date, level, kind and message fields.
 										<p></p>
 										<button className="btn btn-lg btn-success"
 											style={{ marginBottom: "1rem" }}

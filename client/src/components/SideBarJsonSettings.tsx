@@ -63,9 +63,9 @@ const SideBarJsonSettings = observer((): JSX.Element => {
 										<ListItemText primary="Simple" />
 									</MenuItem>
 									<MenuItem
-										value="advanced"
+										value="script"
 									>
-										<ListItemText primary="Advanced" />
+										<ListItemText primary="Script" />
 									</MenuItem>
 								</Select>
 							</div>

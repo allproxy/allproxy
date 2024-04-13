@@ -10,7 +10,7 @@ const JSONFieldsSample = observer(({ }: Props) => {
         level: 'level',
         time: Date.now(),
         category: "category",
-        appName: 'app-name',
+        kind: 'kind',
         message: 'Message text',
         field1: 'value1',
         field2: 'value2',

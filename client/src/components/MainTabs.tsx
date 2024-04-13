@@ -31,7 +31,7 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 			mainTabStore.setSelectedTabName(PROXY_TAB_NAME);
 		}
 		mainTabStore.deleteTab(value);
-		if (urlPathStore.getApp() === 'jlogviewer') {
+		if (urlPathStore.getKind() === 'jlogviewer') {
 			const names = mainTabStore.getTabNames();
 			if (names.length > 1) {
 				mainTabStore.setSelectedTabName(names[1]);
@@ -48,7 +48,7 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 	const dim = new LayoutStore().requestContainer(true);
 	return (
 		<div className="maintab__container">
-			{mainTabStore.getTabNames().length === 1 && urlPathStore.getApp() === 'jlogviewer'
+			{mainTabStore.getTabNames().length === 1 && urlPathStore.getKind() === 'jlogviewer'
 				?
 				<div style={{ height: dim.height, width: dim.width }}>
 					<div className="center">
@@ -64,7 +64,7 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 						textColor="primary"
 						aria-label="MainTabs">
 						{mainTabStore.getTabNames().map((value, i) => (
-							(i > 0 || urlPathStore.getApp() !== 'jlogviewer') &&
+							(i > 0 || urlPathStore.getKind() !== 'jlogviewer') &&
 							<Tab
 								key={value}
 								value={value}
@@ -97,7 +97,7 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 					</Tabs>
 					{
 						mainTabStore.getTabNames().map((value, i) => (
-							(i > 0 || urlPathStore.getApp() !== 'jlogviewer') &&
+							(i > 0 || urlPathStore.getKind() !== 'jlogviewer') &&
 							<TabPanel
 								key={value}
 								value={value}>

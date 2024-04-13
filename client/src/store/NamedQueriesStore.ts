@@ -5,7 +5,7 @@ import { urlPathStore } from "./UrlPathStore";
 
 export default class NamedQueriesStore {
 	private isSubQuery: boolean;
-	private logType: 'proxy' | 'json' = urlPathStore.getApp() === 'jlogviewer' ? 'json' : 'proxy';
+	private logType: 'proxy' | 'json' = urlPathStore.getKind() === 'jlogviewer' ? 'json' : 'proxy';
 	private queryList: FilterStore[] = [];
 
 	public constructor(isSubQuery: boolean) {

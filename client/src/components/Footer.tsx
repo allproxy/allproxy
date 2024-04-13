@@ -32,7 +32,7 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 					<div>Messages: {messageQueueStore.getUnfilteredCount()} of {messageQueueStore.getTotalLength()}</div>
 				</div>
 			</div>
-			{urlPathStore.getApp() !== 'jlogviewer' &&
+			{urlPathStore.getKind() !== 'jlogviewer' &&
 				<div>
 					<div className="footer__item" title="Number of active breakpoints">
 						<div>Breakpoints: {breakpointStore.getBreakpointCount()}</div>
