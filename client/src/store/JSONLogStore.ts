@@ -204,7 +204,7 @@ export default class JSONLogStore {
 	}
 
 	public isBriefChecked() {
-		return this.briefChecked;
+		return this.briefChecked && jsonLogStore.getParsingMethod() !== 'auto' && jsonLogStore.getParsingMethod() !== 'simple';
 	}
 	@action public toggleBriefChecked() {
 		this.briefChecked = !this.briefChecked;
