@@ -234,8 +234,8 @@ export default class MessageQueueStore {
 						case 'category':
 							field = messageStore.getLogEntry().category;
 							break;
-						case 'appName':
-							field = messageStore.getLogEntry().appName;
+						case 'kind':
+							field = messageStore.getLogEntry().kind;
 							break;
 						case 'message':
 							field = messageStore.getLogEntry().message;

@@ -83,20 +83,20 @@ export class JSONLogField {
 
 export const defaultScript =
 	`
-	// Function called to extract date, level, app name and message
+	// Function called to extract date, level, kind and message
 	//
 	// @param preJSONString: string - optional non-JSON string proceeding JSON object
 	// @param jsonObject: {} - JSON log data
-	// @returns {date: Date, level: string, category: string, appName: string, message: string, additionalJSON: {} }
+	// @returns {date: Date, level: string, category: string, kind: string, message: string, additionalJSON: {} }
 	//
 	// category is the availability zone, processor...
-	// appName is the pod name, process ID...
+	// kind is object kind, pod name, process ID...
 	//
 	const parseJSON = function (preJSONString, jsonObject) {
 		let level = 'info';
         let date = new Date();
         let category = '';
-        let appName = 'App_name_is_not_set';
+        let kind= 'Kind_is_not_set';
         let message = 'Message is not set - Click "?" in upper right to extract fields from JSON';
         // return raw JSON (optional)
         let rawLine;
@@ -109,13 +109,13 @@ export const defaultScript =
         // Set the date
         // date = jsonObject.my_date;
 
-        // Set the app name
-        //appName = jsonObject.my_app;
+        // Set the kind
+        //kind = jsonObject.my_app;
 
         // Set message
         //message = jsonObject.my_message;
 
-        return { date, level, category, appName, message, rawLine, additionalJSON };
+        return { date, level, category, kind, message, rawLine, additionalJSON };
 	}
 `;
 
@@ -123,7 +123,8 @@ export type LogEntry = {
 	date: Date,
 	level: string,
 	category: string,
-	appName: string,
+	appName: string, // deprecated
+	kind: string,
 	message: string,
 	rawLine: string,
 	additionalJSON: {}
@@ -133,7 +134,8 @@ export type SimpleFields = {
 	date: string,
 	level: string,
 	category: string,
-	appName: string,
+	appName: string, // deprecated
+	kind: string,
 	message: string,
 	rawLine: string,
 }
@@ -141,9 +143,9 @@ export type SimpleFields = {
 export default class JSONLogStore {
 	private method: 'auto' | 'simple' | 'advanced' | 'plugin' = 'advanced';
 
-	private autoFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '', rawLine: '' };
+	private autoFields: SimpleFields = { date: '', level: '', category: '', appName: '', kind: '', message: '', rawLine: '' };
 	private autoMaxFieldLevel: 1 | 2 = 1;
-	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', message: '', rawLine: '' };
+	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', kind: '', message: '', rawLine: '' };
 
 	private briefChecked = true;
 	private briefMap: { [key: string]: boolean } = {};
@@ -154,7 +156,7 @@ export default class JSONLogStore {
 	private script = defaultScript;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
-		return { date: new Date(), level: '', category: '', appName: '', message: '', rawLine: '', additionalJSON: {} };
+		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {} };
 	};
 
 	private fields: JSONLogField[] = [];
@@ -172,7 +174,7 @@ export default class JSONLogStore {
 	}
 
 	public getAutoFields() { return this.autoFields; }
-	public async setAutoFields(field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine', value: string) {
+	public async setAutoFields(field: 'date' | 'level' | 'category' | 'kind' | 'message' | 'rawLine', value: string) {
 		this.autoFields[field] = value;
 	}
 
@@ -180,7 +182,7 @@ export default class JSONLogStore {
 	public setAutoMaxFieldLevel(level: 1 | 2) { this.autoMaxFieldLevel = level; }
 
 	public getSimpleFields() { return this.simpleFields; }
-	public async setSimpleFields(field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine', value: string) {
+	public async setSimpleFields(field: 'date' | 'level' | 'category' | 'kind' | 'message' | 'rawLine', value: string) {
 		const oldValue = this.simpleFields[field];
 		this.simpleFields[field] = value;
 		if (oldValue !== '') {
@@ -273,7 +275,7 @@ export default class JSONLogStore {
 		method: 'auto' | 'simple' | 'advanced' | 'plugin'
 	): LogEntry {
 
-		const setAutoField = (field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
+		const setAutoField = (field: 'date' | 'level' | 'category' | 'kind' | 'message' | 'rawLine') => {
 			if (this.getAutoFields()[field].length === 0) {
 				if (field === 'date') {
 					let dateKey = '';
@@ -332,13 +334,13 @@ export default class JSONLogStore {
 			}
 		};
 
-		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', message: '', rawLine: '', additionalJSON: {} };
+		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {} };
 		switch (method) {
 			case 'auto':
 				setAutoField('date');
 				setAutoField('level');
 				setAutoField('category');
-				setAutoField('appName');
+				setAutoField('kind');
 				setAutoField('message');
 				logEntry.rawLine = JSON.stringify(jsonData);
 				break;
@@ -353,7 +355,7 @@ export default class JSONLogStore {
 						}
 					}
 				}
-				const setField = (field: 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
+				const setField = (field: 'level' | 'category' | 'kind' | 'message' | 'rawLine') => {
 					if (simpleFields[field] !== '') {
 						const jsonField = lookupJSONField(jsonData, simpleFields[field]);
 						if (jsonField && typeof jsonField.value === 'string' || typeof jsonField?.value === 'number') {
@@ -363,7 +365,7 @@ export default class JSONLogStore {
 				};
 				setField('level');
 				setField('category');
-				setField('appName');
+				setField('kind');
 				setField('message');
 				logEntry.rawLine = JSON.stringify(jsonData);
 				break;
@@ -371,13 +373,17 @@ export default class JSONLogStore {
 			case 'plugin':
 				try {
 					logEntry = this.scriptFunc(nonJson, jsonData);
+					// Deprecated kind is specified?
+					if (logEntry.appName.length > 0) {
+						logEntry.kind = logEntry.appName;
+					}
 				} catch (e) {
 					console.log(e);
 				}
 				if (logEntry.date === undefined) logEntry.date = new Date();
 				if (logEntry.level === undefined) logEntry.level = '';
 				if (logEntry.category === undefined) logEntry.category = '';
-				if (logEntry.appName === undefined) logEntry.appName = 'appName is required';
+				if (logEntry.kind === undefined) logEntry.kind = 'kind is required';
 				if (logEntry.message === undefined) logEntry.message = '';
 				if (logEntry.rawLine === undefined) logEntry.rawLine = JSON.stringify(jsonData);
 				break;
@@ -444,7 +450,7 @@ export default class JSONLogStore {
 				}
 			}
 
-			const initSimpleField = async (field: 'date' | 'level' | 'category' | 'appName' | 'message' | 'rawLine') => {
+			const initSimpleField = async (field: 'date' | 'level' | 'category' | 'appName' | 'kind' | 'message' | 'rawLine') => {
 				const exists = await apFileSystem.exists(SCRIPTS_DIR + '/' + field);
 				if (exists) {
 					this.simpleFields[field] = await apFileSystem.readFile(SCRIPTS_DIR + '/' + field);
@@ -459,8 +465,12 @@ export default class JSONLogStore {
 			initSimpleField('date');
 			initSimpleField('level');
 			initSimpleField('category');
-			initSimpleField('appName');
+			initSimpleField('kind');
+			initSimpleField('appName'); // deprecated
 			initSimpleField('message');
+			if (this.simpleFields.appName !== '' && this.simpleFields.kind === '') {
+				this.simpleFields.kind = this.simpleFields.appName;
+			}
 
 			const exists = await apFileSystem.exists(SCRIPTS_DIR + '/method');
 			if (exists) {

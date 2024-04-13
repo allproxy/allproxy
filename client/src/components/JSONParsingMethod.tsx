@@ -26,7 +26,7 @@ const JSONFieldsMethods = observer(({ }: Props) => {
             >
                 <FormControlLabel value="auto" control={<Radio />} label="Auto" />
                 <FormControlLabel value="simple" control={<Radio />} label="Simple" />
-                <FormControlLabel value="advanced" control={<Radio />} label="Advanced" />
+                <FormControlLabel value="advanced" control={<Radio />} label="Script" />
                 <FormControlLabel value="plugin" control={<Radio />} label="Plugin" />
             </RadioGroup>
         </>

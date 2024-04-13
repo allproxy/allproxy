@@ -657,7 +657,7 @@ export default class FilterStore {
                         if (messageStore.getLogEntry().category.startsWith(value)) return false;
                     }
                     if (key === 'app' && (operator === '==' || operator === '===')) {
-                        if (messageStore.getLogEntry().appName.startsWith(value)) return false;
+                        if (messageStore.getLogEntry().kind.startsWith(value)) return false;
                     }
                 } else {
                     if (message.requestBody && typeof message.requestBody === 'object') {

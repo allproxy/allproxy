@@ -6,7 +6,7 @@ type Props = {};
 const JSONSimpleFields = observer(({ }: Props) => {
     return (
         <>
-            Simply define the field names for the date, level, app name and message field.
+            Simply define the field names for the date, level, kind and message field.
             <p></p>
             < form noValidate autoComplete='off' >
                 <TextField
@@ -39,11 +39,11 @@ const JSONSimpleFields = observer(({ }: Props) => {
                 <TextField
                     id="json-app"
                     style={{ marginBottom: 16 }}
-                    label="Enter App Name Field"
+                    label="Enter Kind Field"
                     variant='outlined'
                     fullWidth
-                    value={jsonLogStore.getSimpleFields().appName}
-                    onChange={(e) => jsonLogStore.setSimpleFields('appName', e.target.value)}
+                    value={jsonLogStore.getSimpleFields().kind}
+                    onChange={(e) => jsonLogStore.setSimpleFields('kind', e.target.value)}
                 />
                 <TextField
                     id="json-message"

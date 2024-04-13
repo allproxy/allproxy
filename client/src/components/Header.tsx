@@ -76,18 +76,18 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				<div className="header__title">
 					<Select className="side-bar-select"
 						disabled={urlPathStore.isGitHubPages()}
-						value={urlPathStore.getApp() === 'jlogviewer'
+						value={urlPathStore.getKind() === 'jlogviewer'
 							? 'jlogviewer'
-							: urlPathStore.getApp() === 'mitmproxy'
+							: urlPathStore.getKind() === 'mitmproxy'
 								? 'mitmproxy'
 								: 'allproxy'}
 						renderValue={() =>
 							<span style={{ fontWeight: 100, fontSize: 'x-large' }}>
-								{urlPathStore.getApp() === 'jlogviewer'
+								{urlPathStore.getKind() === 'jlogviewer'
 									? urlPathStore.isGitHubPages()
 										? <b><span style={{ color: '#f50057' }}>JSON</span>Logs</b>
 										: <b><span style={{ color: '#f50057' }}>J</span>LogViewer</b>
-									: urlPathStore.getApp() === 'mitmproxy'
+									: urlPathStore.getKind() === 'mitmproxy'
 										? <b><span style={{ color: '#f50057' }}>MITM</span>Proxy</b>
 										: <b><span style={{ color: '#f50057' }}>All</span>Proxy</b>
 								}
@@ -114,13 +114,13 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 				</div>
 				<div className={"header__status " + statusClassName} title="Status" hidden={urlPathStore.isGitHubPages()}></div>
 
-				<div hidden={urlPathStore.getApp() === 'jlogviewer'}
+				<div hidden={urlPathStore.getKind() === 'jlogviewer'}
 					style={{
 						opacity: mainTabStore.isProxyTabSelected() ? undefined : 0.3,
 						pointerEvents: mainTabStore.isProxyTabSelected() ? undefined : 'none',
 					}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
-						hidden={urlPathStore.getApp() === 'jlogviewer'}
+						hidden={urlPathStore.getKind() === 'jlogviewer'}
 						onClick={() => {
 							messageQueueStore.clear();
 							// filterStore.setFilter('');
@@ -143,7 +143,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 
 				<div className={'header__show-errors fa-bug fa '
 					+ (filterStore.getShowErrors() ? 'active' : '')}
-					hidden={urlPathStore.getApp() === 'jlogviewer'}
+					hidden={urlPathStore.getKind() === 'jlogviewer'}
 					onClick={() => filterStore.toggleShowErrors()}
 					title={'Toggle show only errors'}
 				/>
@@ -194,7 +194,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							&nbsp;Delete Tabs
 						</div>
 					</MenuItem>
-					{urlPathStore.getApp() !== 'jlogviewer' &&
+					{urlPathStore.getKind() !== 'jlogviewer' &&
 						<>
 							<MenuItem style={{
 								opacity: !mainTabStore.isProxyTabSelected() || messageQueueStore.getStopped()
@@ -225,7 +225,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						</>
 					}
 					<MenuItem
-						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						hidden={urlPathStore.getKind() === 'mitmproxy'}
 						onClick={() => {
 							setOpenImportJSONFileDialog(true);
 							setMoreMenuIcon(null);
@@ -295,7 +295,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					open={Boolean(settingsMenuIcon)}
 					onClose={() => setSettingsMenuIcon(null)}
 				>
-					{urlPathStore.getApp() !== 'jlogviewer' &&
+					{urlPathStore.getKind() !== 'jlogviewer' &&
 						<>
 							<MenuItem
 								hidden={!urlPathStore.isLocalhost()}
@@ -351,7 +351,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					}
 
 					<MenuItem
-						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						hidden={urlPathStore.getKind() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
 							await jsonLogStore.init();
@@ -366,7 +366,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					</MenuItem>
 
 					<MenuItem
-						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						hidden={urlPathStore.getKind() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
 							await jsonLogStore.init();
@@ -376,12 +376,12 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						}}>
 						<div className="header__import fa fa-code" title="Theme"
 						>
-							&nbsp;JSON Logs: Date, Level, App, Message...
+							&nbsp;JSON Logs: Date, Level, Kind, Message...
 						</div>
 					</MenuItem>
 
 					<MenuItem
-						hidden={urlPathStore.getApp() === 'mitmproxy'}
+						hidden={urlPathStore.getKind() === 'mitmproxy'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
 							await jsonLogStore.init();

@@ -10,8 +10,8 @@ import { urlPathStore } from '../store/UrlPathStore';
 const SideBarSettings = observer((): JSX.Element => {
 	return (
 		<>
-			<hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getApp() === 'jlogviewer'}></hr>
-			<div className="side-bar-item" hidden={isJsonLogTab() || urlPathStore.getApp() === 'jlogviewer'}>
+			<hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}></hr>
+			<div className="side-bar-item" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}>
 				<div>
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"

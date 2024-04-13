@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { pickCategoryAppNameStyle as pickCatAppNameStyle, pickLabelStyle } from '../PickButtonStyle';
+import { pickCategoryKindStyle as pickCatKindStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
 import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -21,42 +21,42 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			{
 				jsonLogStore.isRawJsonChecked() ?
 					<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
-						{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().appName)}
+						{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().kind)}
 						{mainTabStore.copyMessage(message)}
 					</div>
 					:
-					makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().appName).map((element) => {
+					makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().kind).map((element) => {
 						return element;
 					})
 			}
 		</div>
 	);
 
-	function makeCatAppElement(category: string, appName: string): JSX.Element {
-		let catAppNames: JSX.Element[] = [];
-		for (const name of [category, appName]) {
+	function makeCatAppElement(category: string, kind: string): JSX.Element {
+		let catKinds: JSX.Element[] = [];
+		for (const name of [category, kind]) {
 			if (name === '') continue;
-			const catAppNameStyle = pickCatAppNameStyle(name);
-			catAppNames = catAppNames.concat(
+			const catKindStyle = pickCatKindStyle(name);
+			catKinds = catKinds.concat(
 				<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
 					<div className="json-label"
-						style={{ lineHeight: '1.2', display: 'inline-block', filter: catAppNameStyle.filter, padding: '0 .25rem', color: catAppNameStyle.color, borderRadius: '.25rem', background: catAppNameStyle.background }}>
+						style={{ lineHeight: '1.2', display: 'inline-block', filter: catKindStyle.filter, padding: '0 .25rem', color: catKindStyle.color, borderRadius: '.25rem', background: catKindStyle.background }}>
 						{name}
 					</div>
 				</div >);
 		}
 
-		if (catAppNames.length === 0) return <></>;
+		if (catKinds.length === 0) return <></>;
 
 		return (
 			<div style={{ display: 'inline-block', marginRight: '2rem' }}>
-				{catAppNames}
+				{catKinds}
 				<b> :</b>
 			</div>
 		);
 	}
 
-	function makeJSONRequestLabels(messageStore: MessageStore, category: string, appName: string): JSX.Element[] {
+	function makeJSONRequestLabels(messageStore: MessageStore, category: string, kind: string): JSX.Element[] {
 		const message = messageStore.getMessage();
 
 		let elements = formatJSONRequestLabels(messageStore);
@@ -67,7 +67,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 
 			const value = nonJson + JSON.stringify(message.responseBody);
-			if (category.length + appName.length === 0) {
+			if (category.length + kind.length === 0) {
 				const label = 'JSON';
 				const style = pickLabelStyle(label);
 				const bg = style.background;
@@ -87,8 +87,8 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border, lineHeight: '1.2' }}> {messageText}</div >);
 		}
 
-		if (category.length + appName.length > 0) {
-			elements.unshift(makeCatAppElement(category, appName));
+		if (category.length + kind.length > 0) {
+			elements.unshift(makeCatAppElement(category, kind));
 		}
 
 		return elements;
