@@ -51,7 +51,7 @@ const SideBarSettings = observer((): JSX.Element => {
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon"
-						hidden={jsonLogStore.getParsingMethod() === 'auto'}>
+						hidden={jsonLogStore.getParsingMethod() === 'auto' || jsonLogStore.getParsingMethod() === 'simple'}>
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
 								disabled={jsonLogStore.isRawJsonChecked()}

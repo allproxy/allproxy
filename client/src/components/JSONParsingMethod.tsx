@@ -8,7 +8,7 @@ const JSONFieldsMethods = observer(({ }: Props) => {
     return (
         <>
             <p />
-            <b>UI Entry Layout:</b>
+            <b>Log Entry Layout:</b>
             <div style={{ marginLeft: '.5rem' }}>
                 <JSONFieldsSample />
             </div>

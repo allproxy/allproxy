@@ -9,11 +9,11 @@ const JSONFieldsSample = observer(({ }: Props) => {
     const json = {
         level: 'level',
         time: Date.now(),
-        category: "category",
-        kind: 'kind',
-        message: 'Message text',
-        field1: 'value1',
-        field2: 'value2',
+        category: "my optional category",
+        kind: 'my kind name',
+        message: 'My message text',
+        my_field1: 'value1',
+        my_field2: 'value2',
     };
     let message = newJSONMessage('', json);
     const messageStore = new MessageStore(message, true);

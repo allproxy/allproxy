@@ -85,11 +85,11 @@ export default class MessageStore {
         if (method === 'auto') {
             let newFields: JsonField[] = [];
             for (const key in json) {
-                // if (key === jsonLogStore.getAutoFields().date) continue;
-                // if (key === jsonLogStore.getAutoFields().level) continue;
-                // if (key === jsonLogStore.getAutoFields().category) continue;
-                // if (key === jsonLogStore.getAutoFields().kind) continue;
-                // if (key === jsonLogStore.getAutoFields().message) continue;
+                if (key === jsonLogStore.getAutoFields().date) continue;
+                if (key === jsonLogStore.getAutoFields().level) continue;
+                if (key === jsonLogStore.getAutoFields().category) continue;
+                if (key === jsonLogStore.getAutoFields().kind) continue;
+                if (key === jsonLogStore.getAutoFields().message) continue;
                 let value = json[key];
                 if (typeof value === 'object' && jsonLogStore.getAutoMaxFieldLevel() === 2) {
                     if (Array.isArray(value)) {
