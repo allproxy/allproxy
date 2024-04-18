@@ -263,6 +263,9 @@ export function jsonToJsonl(jsonString: string) {
 					}
 				}
 			}
+			if (jsonLines.length === 0) {
+				jsonLines = flatten(json);
+			}
 		}
 	} catch (e) {
 		console.log(e);
