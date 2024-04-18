@@ -61,11 +61,11 @@ function App() {
 
   initApFileSystem();
 
-  if (document.location.pathname === '/jsonlogs') {
+  if (document.location.pathname.includes('jsonlogs')) {
     document.title = 'JSONLogs';
-  } else if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
+  } else if (document.location.pathname.includes('logviewer') || document.location.pathname.includes('jlogviewer')) {
     document.title = 'JLogViewer';
-  } else if (document.location.pathname === '/mitmproxy') {
+  } else if (document.location.pathname.includes('mitmproxy')) {
     document.title = 'MitmProxy';
   } else {
     document.title = 'AllProxy';

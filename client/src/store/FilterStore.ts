@@ -546,10 +546,10 @@ export default class FilterStore {
             for (const operandKeyValue of operandKeyValues) {
                 if (operandKeyValue.value !== undefined) {
                     let match = false;
+                    const operandKeyLower = operandKeyValue.key.toLowerCase();
                     if (operandKeyValue.key.substring(0, 1) === '*') {
-                        match = jsonField.endsWith(operandKeyValue.key.substring(1));
+                        match = jsonField.endsWith(operandKeyLower.substring(1));
                     } else {
-                        const operandKeyLower = operandKeyValue.key.toLowerCase();
                         match = jsonFieldLower === operandKeyLower || jsonFieldLower.endsWith('.' + operandKeyLower);
                     }
                     if (match) {

@@ -597,7 +597,8 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 export function lookupJSONField(json: { [key: string]: any }, field: string): undefined | JsonField {
 	if (json && Object.keys(json).length > 0) {
 		const jsonFields = getJsonFieldsMap(json);
-		return jsonFields[field.toLowerCase()];
+		const fieldLower = field.toLowerCase();
+		return jsonFields[fieldLower] || jsonFields['*' + fieldLower];
 	}
 	return undefined;
 }
