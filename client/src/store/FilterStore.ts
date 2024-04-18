@@ -549,7 +549,8 @@ export default class FilterStore {
                     if (operandKeyValue.key.substring(0, 1) === '*') {
                         match = jsonField.endsWith(operandKeyValue.key.substring(1));
                     } else {
-                        match = jsonFieldLower === operandKeyValue.key.toLowerCase();
+                        const operandKeyLower = operandKeyValue.key.toLowerCase();
+                        match = jsonFieldLower === operandKeyLower || jsonFieldLower.endsWith('.' + operandKeyLower);
                     }
                     if (match) {
                         //console.log(jsonField, jsonValue, keyValue);
