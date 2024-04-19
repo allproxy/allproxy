@@ -536,7 +536,7 @@ export default class FilterStore {
         return keyValues;
     }
 
-    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): boolean {
+    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): string | false {
         if (this.searchFilter.length === 0) return false;
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
@@ -556,22 +556,22 @@ export default class FilterStore {
                         //console.log(jsonField, jsonValue, keyValue);
                         const c = operandKeyValue.value.substring(0, 1);
                         if (operandKeyValue.value === '*' || c === '>' || c === '=' || c === '<') {
-                            return true;
+                            return operandKeyValue.value;
                         } else {
-                            return jsonValueLower.indexOf(operandKeyValue.value.toLowerCase()) !== -1;
+                            return jsonValueLower.indexOf(operandKeyValue.value.toLowerCase()) !== -1 ? operandKeyValue.value : false;
                         }
                     }
-                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return true;
+                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return operandKeyValue.value;
                 } else {
                     if (operand.length < 3) continue;
                     const operandLower = operand.toLowerCase();
                     if (jsonFieldLower === operandLower ||
                         jsonFieldLower.startsWith(operandLower) ||
-                        jsonFieldLower.endsWith(operandLower)) return true;
-                    if (jsonValueLower.startsWith(operandLower)) return true;
-                    if (jsonValueLower.endsWith(operandLower)) return true;
-                    if (jsonValueLower === operandLower) return true;
-                    if (jsonValueLower.length <= 64 && jsonValueLower.includes(operandLower)) return true;
+                        jsonFieldLower.endsWith(operandLower)) return operand;
+                    if (jsonValueLower.startsWith(operandLower)) return operand;
+                    if (jsonValueLower.endsWith(operandLower)) return operand;
+                    if (jsonValueLower === operandLower) return operand;
+                    if (jsonValueLower.includes(operandLower)) return operand;
                 }
             }
         }

@@ -100,13 +100,41 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const searchMatches: string[] = [];
 
 		if (filterStore.getFilter().length > 0) {
+			const operandMatchMap: { [key: string]: JsonField } = {};
 			const fieldsMap = messageStore.getAllJsonFieldsMap();
+			let matchInMiddle: JsonField | undefined;
 			for (const key in fieldsMap) {
 				const field = fieldsMap[key];
-				if (filterStore.isJSONFieldOperandMatch(field.name, field.value + '')
-					|| filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"')) {
-					addElement(field, true);
+				let operand: string | false;
+				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + ''))
+					|| (operand = filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"'))) {
+
+					if (typeof field.value === 'string') {
+						const operandLower = operand.toLowerCase();
+						const valueLower = field.value.toLowerCase();
+						if (valueLower.startsWith(operandLower) || valueLower.endsWith(operandLower)) {
+							addElement(field, true);
+							continue;
+						}
+					}
+
+					if (typeof field.value === 'string' && field.value.length > 150) {
+						matchInMiddle = { name: field.name, value: '...' + operand + '...' };
+					} else {
+						operandMatchMap[operand] = field;
+					}
 					searchMatches.push(field.name.toLowerCase());
+				}
+			}
+			if (elements.length === 0) {
+				if (Object.keys(operandMatchMap).length > 0) {
+					for (const key in operandMatchMap) {
+						addElement(operandMatchMap[key], true);
+					}
+				} else {
+					if (matchInMiddle) {
+						addElement(matchInMiddle as JsonField, true);
+					}
 				}
 			}
 		}
