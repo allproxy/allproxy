@@ -63,7 +63,9 @@ function App() {
 
   if (document.location.pathname.includes('jsonlogs')) {
     document.title = 'JSONLogs';
-  } else if (document.location.pathname.includes('logviewer') || document.location.pathname.includes('jlogviewer')) {
+  } else if (document.location.pathname.includes('logviewer')
+    || document.location.pathname.includes('jlogviewer')
+    || document.location.pathname.includes('json-log-viewer')) {
     document.title = 'JLogViewer';
   } else if (document.location.pathname.includes('mitmproxy')) {
     document.title = 'MitmProxy';
