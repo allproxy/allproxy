@@ -557,8 +557,13 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 			const value = json[curField];
 			let name = prevField === '' ? curField : prevField + '.' + curField;
 			if (typeof value === 'object') {
+				const compressed = compressJSON(value);
+				jsonFieldsMap[name.toLowerCase()] = { name, value: compressed };
+				const unqualified = '*' + curField.toLowerCase();
+				if (jsonFieldsMap[unqualified] === undefined) {
+					jsonFieldsMap[unqualified] = { name, value: compressed };
+				}
 				if (!Array.isArray(value)) {
-					jsonFieldsMap[name.toLowerCase()] = { name, value: compressJSON(value) };
 					addJsonFields(name, value);
 				} else {
 					const a = value as any;
@@ -567,7 +572,7 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 						if (typeof a[i] === 'object') {
 							addJsonFields(name2, a[i]);
 						} else {
-							jsonFieldsMap[name.toLowerCase()] = { name, value: a[i] };
+							jsonFieldsMap[name2] = { name: name2, value: a[i] };
 						}
 					}
 				}
