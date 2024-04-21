@@ -156,7 +156,9 @@ export default class MessageStore {
 
         const allJsonFieldsMap = getJsonFieldsMap(json);
         for (const key in allJsonFieldsMap) {
-            jsonFields[allJsonFieldsMap[key].name] = allJsonFieldsMap[key];
+            for (const jsonField of allJsonFieldsMap[key]) {
+                jsonFields[jsonField.name] = jsonField;
+            }
         }
         return jsonFields;
     }

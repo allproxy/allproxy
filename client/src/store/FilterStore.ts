@@ -452,14 +452,16 @@ export default class FilterStore {
     }
 
     private isJsonKeyValueMatch(key: string, value: string, operator: string, json: { [key: string]: any }): boolean {
-        const jsonField = lookupJSONField(json, key);
-        if (jsonField === undefined) return false;
+        for (const jsonField of lookupJSONField(json, key)) {
+            if (!this.sortByKeys.includes(key)) {
+                this.sortByKeys.push(key);
+            }
 
-        if (!this.sortByKeys.includes(key)) {
-            this.sortByKeys.push(key);
+            if (this.isKeyValueMatch(key, value, operator, jsonField.value)) {
+                return true;
+            }
         }
-
-        return this.isKeyValueMatch(key, value, operator, jsonField.value);
+        return false;
     }
 
     private isKeyValueMatch(key: string, value: string, operator: string, jsonValue: any) {

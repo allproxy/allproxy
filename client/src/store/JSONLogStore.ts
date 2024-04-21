@@ -347,19 +347,22 @@ export default class JSONLogStore {
 			case 'simple':
 				const simpleFields = jsonLogStore.getSimpleFields();
 				if (simpleFields.date !== '') {
-					const jsonField = lookupJSONField(jsonData, simpleFields.date);
-					if (jsonField && typeof jsonField.value === 'string') {
-						const date = this.parseDate(jsonField.value);
-						if (date) {
-							logEntry.date = date;
+					for (const jsonField of lookupJSONField(jsonData, simpleFields.date)) {
+						if (jsonField && typeof jsonField.value === 'string') {
+							const date = this.parseDate(jsonField.value);
+							if (date) {
+								logEntry.date = date;
+							}
 						}
 					}
 				}
 				const setField = (field: 'level' | 'category' | 'kind' | 'message' | 'rawLine') => {
 					if (simpleFields[field] !== '') {
-						const jsonField = lookupJSONField(jsonData, simpleFields[field]);
-						if (jsonField && typeof jsonField.value === 'string' || typeof jsonField?.value === 'number') {
-							logEntry[field] = jsonField.value + '';
+						for (const jsonField of lookupJSONField(jsonData, simpleFields[field])) {
+							if (typeof jsonField.value === 'string' || typeof jsonField?.value === 'number') {
+								logEntry[field] = jsonField.value + '';
+								break;
+							}
 						}
 					}
 				};
@@ -525,15 +528,14 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, fields: st
 	const jsonFields: JsonField[] = [];
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
-			let jsonField = lookupJSONField(json, field);
-			if (jsonField === undefined) return;
-
-			if (field !== 'PREFIX') {
-				field = field.replaceAll('[.]', '.');
-				if (typeof jsonField.value === 'string') {
-					jsonField.value = formatValue(field, jsonField.value);
+			for (let jsonField of lookupJSONField(json, field)) {
+				if (field !== 'PREFIX') {
+					field = field.replaceAll('[.]', '.');
+					if (typeof jsonField.value === 'string') {
+						jsonField.value = formatValue(field, jsonField.value);
+					}
+					jsonFields.push({ name: field, value: jsonField.value });
 				}
-				jsonFields.push({ name: field, value: jsonField.value });
 			}
 		}
 	});
@@ -542,26 +544,28 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, fields: st
 }
 
 
-let jsonCacheEntries: { json: { [key: string]: string }, jsonFieldsMap: { [key: string]: JsonField } }[] = [];
+let jsonCacheEntries: { json: { [key: string]: string }, jsonFieldsMap: { [key: string]: JsonField[] } }[] = [];
 
-export function getJsonFieldsMap(json: { [key: string]: string }): { [key: string]: JsonField } {
+export function getJsonFieldsMap(json: { [key: string]: string }): { [key: string]: JsonField[] } {
 	for (const entry of jsonCacheEntries) {
 		if (json === entry.json) {
 			return entry.jsonFieldsMap;
 		}
 	}
 
-	const jsonFieldsMap: { [key: string]: JsonField } = {};
+	const jsonFieldsMap: { [key: string]: JsonField[] } = {};
 	const addJsonFields = (prevField: string, json: { [key: string]: string }) => {
 		for (const curField in json) {
 			const value = json[curField];
 			let name = prevField === '' ? curField : prevField + '.' + curField;
 			if (typeof value === 'object') {
 				const compressed = compressJSON(value);
-				jsonFieldsMap[name.toLowerCase()] = { name, value: compressed };
+				jsonFieldsMap[name.toLowerCase()] = [{ name, value: compressed }];
 				const unqualified = '*' + curField.toLowerCase();
 				if (jsonFieldsMap[unqualified] === undefined) {
-					jsonFieldsMap[unqualified] = { name, value: compressed };
+					jsonFieldsMap[unqualified] = [{ name, value: compressed }];
+				} else {
+					jsonFieldsMap[unqualified].push({ name, value: compressed });
 				}
 				if (!Array.isArray(value)) {
 					addJsonFields(name, value);
@@ -572,17 +576,19 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 						if (typeof a[i] === 'object') {
 							addJsonFields(name2, a[i]);
 						} else {
-							jsonFieldsMap[name2] = { name: name2, value: a[i] };
+							jsonFieldsMap[name2] = [{ name: name2, value: a[i] }];
 						}
 					}
 				}
 			} else {
-				jsonFieldsMap[name.toLowerCase()] = { name, value };
+				jsonFieldsMap[name.toLowerCase()] = [{ name, value }];
 
 				// Unqualified field name is not defined yet?
 				const unqualified = '*' + curField.toLowerCase();
 				if (jsonFieldsMap[unqualified] === undefined) {
-					jsonFieldsMap[unqualified] = { name, value };
+					jsonFieldsMap[unqualified] = [{ name, value }];
+				} else {
+					jsonFieldsMap[unqualified].push({ name, value });
 				}
 			}
 		}
@@ -599,17 +605,19 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 	return jsonFieldsMap;
 }
 
-export function lookupJSONField(json: { [key: string]: any }, field: string): undefined | JsonField {
+export function lookupJSONField(json: { [key: string]: any }, field: string): JsonField[] {
 	if (json && Object.keys(json).length > 0) {
-		const jsonFields = getJsonFieldsMap(json);
+		const jsonFieldsMap = getJsonFieldsMap(json);
 		const fieldLower = field.toLowerCase();
 		//console.log(field);
 		//console.log(jsonFields);
-		const jf = jsonFields[fieldLower] || jsonFields['*' + fieldLower];
+		const jsonFields = jsonFieldsMap[fieldLower] || jsonFieldsMap['*' + fieldLower];
 		//console.log(jf);
-		return jf;
+		if (jsonFields) {
+			return jsonFields;
+		}
 	}
-	return undefined;
+	return [];
 }
 
 function formatValue(_name: string, value: string): string {
@@ -664,10 +672,7 @@ export function getJsonFieldValues(fields: string[]): string[] {
 			} else if (field === 'Message') {
 				values.push(messageStore.getLogEntry().message);
 			} else {
-				let jsonField = lookupJSONField(json, field);
-				if (jsonField === undefined) {
-					values.push('');
-				} else {
+				for (const jsonField of lookupJSONField(json, field)) {
 					values.push(jsonField.value + '');
 				}
 			}
