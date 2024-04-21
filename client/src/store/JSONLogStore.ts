@@ -603,7 +603,11 @@ export function lookupJSONField(json: { [key: string]: any }, field: string): un
 	if (json && Object.keys(json).length > 0) {
 		const jsonFields = getJsonFieldsMap(json);
 		const fieldLower = field.toLowerCase();
-		return jsonFields[fieldLower] || jsonFields['*' + fieldLower];
+		//console.log(field);
+		//console.log(jsonFields);
+		const jf = jsonFields[fieldLower] || jsonFields['*' + fieldLower];
+		//console.log(jf);
+		return jf;
 	}
 	return undefined;
 }

@@ -408,7 +408,7 @@ td input {
 }
 
 .side-bar-header {
-	height: calc(54px * 3);
+	/*height: calc(54px * 3);*/
 }
 
 .side-bar-scroll {
@@ -419,7 +419,7 @@ td input {
 .side-bar-item {
 	display: flex;
 	width: 100%;
-	padding: .5rem;
+	padding: .25rem;
 }
 
 .side-bar-count {
