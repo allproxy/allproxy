@@ -109,7 +109,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + ''))
 					|| (operand = filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"'))) {
 
-					if (operand === '*') {
+					if (operand === '*' || field.name.endsWith(operand)) {
 						addElement(field, true);
 						searchMatches.push(field.name.toLowerCase());
 						continue;
