@@ -471,6 +471,7 @@ export default class FilterStore {
             return rc;
         }
 
+        //console.log(key, value, operator, jsonValue);
         if (value === '*' && (operator === '==' || operator === '===')) {
             if (this.dedup && this.dedupMap[key] === jsonValue) {
                 //console.log(key, jsonValue);
@@ -536,7 +537,7 @@ export default class FilterStore {
         return keyValues;
     }
 
-    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): boolean {
+    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): string | false {
         if (this.searchFilter.length === 0) return false;
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
@@ -546,35 +547,60 @@ export default class FilterStore {
             for (const operandKeyValue of operandKeyValues) {
                 if (operandKeyValue.value !== undefined) {
                     let match = false;
+                    const operandKeyLower = operandKeyValue.key.toLowerCase();
                     if (operandKeyValue.key.substring(0, 1) === '*') {
-                        match = jsonField.endsWith(operandKeyValue.key.substring(1));
+                        match = jsonField.endsWith(operandKeyLower.substring(1));
                     } else {
-                        match = jsonFieldLower === operandKeyValue.key.toLowerCase();
+                        match = jsonFieldLower === operandKeyLower || jsonFieldLower.endsWith('.' + operandKeyLower);
                     }
                     if (match) {
-                        //console.log(jsonField, jsonValue, keyValue);
-                        const c = operandKeyValue.value.substring(0, 1);
-                        if (operandKeyValue.value === '*' || c === '>' || c === '=' || c === '<') {
-                            return true;
+                        const out = this.parseValue(operandKeyValue.value);
+                        const operator = out.operator;
+                        const value = out.value;
+                        if (this.isKeyValueMatch(operandKeyValue.key, value, operator, jsonValue)) {
+                            return value;
                         } else {
-                            return jsonValueLower.indexOf(operandKeyValue.value.toLowerCase()) !== -1;
+                            return false;
                         }
                     }
-                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return true;
+                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return operandKeyValue.value;
                 } else {
                     if (operand.length < 3) continue;
                     const operandLower = operand.toLowerCase();
                     if (jsonFieldLower === operandLower ||
                         jsonFieldLower.startsWith(operandLower) ||
-                        jsonFieldLower.endsWith(operandLower)) return true;
-                    if (jsonValueLower.startsWith(operandLower)) return true;
-                    if (jsonValueLower.endsWith(operandLower)) return true;
-                    if (jsonValueLower === operandLower) return true;
-                    if (jsonValueLower.length <= 64 && jsonValueLower.includes(operandLower)) return true;
+                        jsonFieldLower.endsWith(operandLower)) return operand;
+                    if (jsonValueLower.startsWith(operandLower)) return operand;
+                    if (jsonValueLower.endsWith(operandLower)) return operand;
+                    if (jsonValueLower === operandLower) return operand;
+                    if (jsonValueLower.includes(operandLower)) return operand;
                 }
             }
         }
         return false;
+    }
+
+    // @returns operator
+    private parseValue(value: string): { value: string, operator: string } {
+        let operator: string;
+        if (value.startsWith('>') || value.startsWith('<')) {
+            operator = value.substring(0, 1);
+            value = value.substring(1);
+            if (value.startsWith('=')) {
+                operator += value.substring(0, 1);
+                value = value.substring(1);
+            }
+        } else if (value.startsWith('==')) {
+            operator = value.substring(0, 2);
+            value = value.substring(2);
+            if (value.startsWith('=')) {
+                operator += value.substring(0, 1);
+                value = value.substring(1);
+            }
+        } else {
+            operator = '==';
+        }
+        return { value, operator };
     }
 
     private isMessageFiltered(needle: string, messageStore: MessageStore) {
@@ -623,24 +649,9 @@ export default class FilterStore {
             if (keyValue.value !== undefined) {
                 const key = keyValue.key;
                 let value = keyValue.value;
-                let operator: string;
-                if (value.startsWith('>') || value.startsWith('<')) {
-                    operator = value.substring(0, 1);
-                    value = value.substring(1);
-                    if (value.startsWith('=')) {
-                        operator += value.substring(0, 1);
-                        value = value.substring(1);
-                    }
-                } else if (value.startsWith('==')) {
-                    operator = value.substring(0, 2);
-                    value = value.substring(2);
-                    if (value.startsWith('=')) {
-                        operator += value.substring(0, 1);
-                        value = value.substring(1);
-                    }
-                } else {
-                    operator = '==';
-                }
+                const out = this.parseValue(value);
+                const operator = out.operator;
+                value = out.value;
 
                 if (typeof message.responseBody !== 'string') {
                     if (key === '*' && JSON.stringify(message.responseBody).indexOf(`:"${value}"`) !== -1) {

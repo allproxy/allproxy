@@ -16,7 +16,6 @@ import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
 import { themeStore } from './store/ThemeStore';
 import { initApFileSystem } from './store/APFileSystem';
-import { urlPathStore } from './store/UrlPathStore';
 
 const theme = localStorage.getItem('allproxy-theme');
 let defaultTheme: 'dark' | 'light' = 'dark';
@@ -62,11 +61,13 @@ function App() {
 
   initApFileSystem();
 
-  if (urlPathStore.isGitHubPages()) {
+  if (document.location.pathname.includes('jsonlogs')) {
     document.title = 'JSONLogs';
-  } else if (document.location.pathname === '/logviewer' || document.location.pathname === '/jlogviewer') {
+  } else if (document.location.pathname.includes('logviewer')
+    || document.location.pathname.includes('jlogviewer')
+    || document.location.pathname.includes('json-log-viewer')) {
     document.title = 'JLogViewer';
-  } else if (document.location.pathname === '/mitmproxy') {
+  } else if (document.location.pathname.includes('mitmproxy')) {
     document.title = 'MitmProxy';
   } else {
     document.title = 'AllProxy';
