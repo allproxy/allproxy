@@ -109,16 +109,20 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + ''))
 					|| (operand = filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"'))) {
 
-					if (operand === '*' || field.name.endsWith(operand)) {
+					const operandLower = operand.toLowerCase();
+					const fieldNameLower = (field.name + '').toLowerCase();
+					const fieldValueLower = (field.value + '').toLowerCase();
+
+					//console.log(operandLower, fieldNameLower, fieldValueLower);
+
+					if (operand === '*' || fieldNameLower.endsWith(operandLower) || fieldValueLower === operandLower) {
 						addElement(field, true);
 						searchMatches.push(field.name.toLowerCase());
 						continue;
 					}
 
 					if (typeof field.value === 'string') {
-						const operandLower = operand.toLowerCase();
-						const valueLower = field.value.toLowerCase();
-						if (valueLower.startsWith(operandLower) || valueLower.endsWith(operandLower)) {
+						if (fieldValueLower.startsWith(operandLower) || fieldValueLower.endsWith(operandLower)) {
 							addElement(field, true);
 							searchMatches.push(field.name.toLowerCase());
 							continue;
