@@ -539,7 +539,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, fields: st
 	const jsonFields: JsonField[] = [];
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
-			for (let jsonField of lookupJSONField(json, field)) {
+			for (let jsonField of lookupJSONField(json, field, 'exact')) {
 				if (field !== 'PREFIX') {
 					field = field.replaceAll('[.]', '.');
 					if (typeof jsonField.value === 'string') {
@@ -616,13 +616,14 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 	return jsonFieldsMap;
 }
 
-export function lookupJSONField(json: { [key: string]: any }, field: string): JsonField[] {
+type Exact = 'exact' | 'any';
+export function lookupJSONField(json: { [key: string]: any }, field: string, exact: Exact = 'any'): JsonField[] {
 	if (json && Object.keys(json).length > 0) {
 		const jsonFieldsMap = getJsonFieldsMap(json);
 		const fieldLower = field.toLowerCase();
 		//console.log(field);
 		//console.log(jsonFields);
-		const jsonFields = jsonFieldsMap[fieldLower] || jsonFieldsMap['*' + fieldLower];
+		const jsonFields = jsonFieldsMap[fieldLower] || exact === 'exact' || jsonFieldsMap['*' + fieldLower];
 		//console.log(jf);
 		if (jsonFields) {
 			return jsonFields;
