@@ -279,20 +279,28 @@ export default class JSONLogStore {
 			if (this.getAutoFields()[field].length === 0) {
 				if (field === 'date') {
 					let dateKey = '';
-					for (const key in jsonData) {
-						const keyLc = key.toLowerCase();
-						if (keyLc.indexOf('time') !== -1 || keyLc.indexOf('date') !== -1) {
-							const value = jsonData[key];
-							if (typeof value === 'string' || typeof value === 'number') {
-								const date = this.parseDate(value);
-								if (date) {
-									dateKey = key;
-									break;
+					const findDate = (jsonData: { [key: string]: any }, objectName: string) => {
+						for (const key in jsonData) {
+							if (typeof jsonData[key] === 'object') {
+								const k = objectName ? objectName + '.' + key : key;
+								findDate(jsonData[key], k);
+							} else {
+								const keyLc = key.toLowerCase();
+								if (keyLc.indexOf('time') !== -1 || keyLc.indexOf('date') !== -1) {
+									const value = jsonData[key];
+									if (typeof value === 'string' || typeof value === 'number') {
+										const date = this.parseDate(value);
+										if (date) {
+											dateKey = objectName ? objectName + '.' + key : key;
+											this.setAutoFields(field, dateKey);
+											break;
+										}
+									}
 								}
 							}
 						}
-					}
-					this.setAutoFields(field, dateKey);
+					};
+					findDate(jsonData, '');
 				} else if (field === 'level') {
 					let levelKey = '';
 					for (const key in jsonData) {
@@ -320,15 +328,18 @@ export default class JSONLogStore {
 
 			const key = this.getAutoFields()[field];
 			if (key.length !== 0) {
-				const value = jsonData[key];
+				const jsonFields = lookupJSONField(jsonData, key);
+				const value = jsonFields.length === 0 ? undefined : jsonFields[0].value;
 				if (field === 'date') {
-					const date = this.parseDate(value);
-					if (date) {
-						logEntry.date = date;
+					if (typeof value === 'string' || typeof value === 'number') {
+						const date = this.parseDate(value);
+						if (date) {
+							logEntry.date = date;
+						}
 					}
 				} else {
 					if (value) {
-						logEntry[field] = jsonData[key];
+						logEntry[field] = value + '';
 					}
 				}
 			}
