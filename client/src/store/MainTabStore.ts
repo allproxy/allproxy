@@ -477,10 +477,10 @@ function getSafeHeaders(message: Message) {
 
 export function compressJSON(json: object) {
 	let line = JSON.stringify(json);
-	line = line.replace(/\\n/g, '');
-	line = line.replace(/\\r/g, '');
+	line = line.replace(/\n/g, '');
+	line = line.replace(/\r/g, '');
 	line = line.replace(/\\"/g, '');
-	line = line.replace(/ /g, '');
+	//line = line.replace(/ /g, '');
 	return line;
 }
 
