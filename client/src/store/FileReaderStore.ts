@@ -5,7 +5,7 @@ import { importJsonLines, newMessage } from "../ImportJSONFile";
 import MessageStore from "./MessageStore";
 import { jsonToJsonl } from "../components/ImportJSONFileDialog";
 
-export const maxLinesPerTab = 10000;
+export const maxLinesPerTab = 15000;
 const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1024 * 1024;
 
 function logResponseTime(message: string, start: number) {
@@ -18,16 +18,21 @@ function logResponseTime(message: string, start: number) {
 export default class FileReaderStore {
 	private file: any;
 	private fileName: string = "";
-	private lines: string[] = [];
+
+	// Filters
 	private includeFilters: string[] = [];
 	private operator: 'and' | 'or' = 'and';
 	private startTime: string = "";
 	private endTime: string = "";
 	private startTimeDate: Date = new Date(0);
 	private endTimeDate: Date = new Date();
+
 	private timeFieldName: string | undefined = undefined;
-	private truncated = false;
+
 	private readStartTime = 0;
+
+	private truncated = false;
+	private lines: string[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -63,11 +68,13 @@ export default class FileReaderStore {
 		this.fileName = fileName;
 		return new Promise<boolean>(async (resolve) => {
 			const s = await import("./SocketStore");
+			let lines: string[] = [];
 			if (this.timeFieldName) {
-				this.lines = await s.socketStore.emitFileLineMatcher(fileName, this.timeFieldName, this.startTime, this.endTime, this.operator, this.includeFilters, maxLinesPerTab);
+				lines = await s.socketStore.emitFileLineMatcher(fileName, this.timeFieldName, this.startTime, this.endTime, this.operator, this.includeFilters, maxLinesPerTab);
 			} else {
-				this.lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
+				lines = await s.socketStore.emitReadFile(fileName, this.operator, this.includeFilters, maxLinesPerTab);
 			}
+			this.lines = this.lines.concat(lines);
 			resolve(true);
 		});
 	}
@@ -137,7 +144,7 @@ export default class FileReaderStore {
 				if (!isJsonLines) {
 					const data = await this.readAll();
 					const jsonl = jsonToJsonl(data);
-					this.lines = jsonl.split('\n');
+					this.lines = this.lines.concat(jsonl.split('\n'));
 				} else {
 					for (let offset = 0; offset < this.file.size;) {
 						let chunk = await this.readChunk(offset);
@@ -335,7 +342,7 @@ export default class FileReaderStore {
 		logResponseTime('add tab time', start);
 
 		if (this.truncated) {
-			setTimeout(() => alert(`File ${this.fileName} truncated to 10000 lines.  Use time and/or substring filters to select significant lines.`));
+			setTimeout(() => alert(`File ${this.fileName} truncated to ${maxLinesPerTab} lines.  Use time and/or substring filters to select significant lines.`));
 		}
 	}
 }

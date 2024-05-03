@@ -544,7 +544,7 @@ export default class FilterStore {
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
-        for (const operand of operands) {
+        for (let operand of operands) {
             const operandKeyValues = this.parseKeyValue(operand);
             for (const operandKeyValue of operandKeyValues) {
                 if (operandKeyValue.value !== undefined) {
@@ -567,6 +567,9 @@ export default class FilterStore {
                     }
                     if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return operandKeyValue.value;
                 } else {
+                    if (operand.startsWith('"') && operand.endsWith('"')) {
+                        operand = operand.substring(1, operand.length - 1);
+                    }
                     if (operand.length < 3) continue;
                     const operandLower = operand.toLowerCase();
                     if (jsonFieldLower === operandLower ||

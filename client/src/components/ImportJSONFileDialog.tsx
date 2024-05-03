@@ -18,7 +18,7 @@ type Props = {
 const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [pastedJSON, setPastedJSON] = React.useState<string>("");
 	const [tabName, setTabName] = React.useState<string>("");
-	const [selectedFile, setSelectedFile] = React.useState<File | undefined>(undefined);
+	const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
 	const [isSorted, setIsSorted] = React.useState<boolean | undefined>(undefined);
 	const [submit, setSubmit] = React.useState(false);
 	const [fileReaderStore, setFileReaderStore] = React.useState(new FileReaderStore());
@@ -36,7 +36,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 
 	input.onchange = async (e: any) => {
 		const file = e.target.files[0] as File;
-		setSelectedFile(file);
+		setSelectedFiles([...selectedFiles, file]);
 		const useServer = socketStore.isConnected() && await socketStore.emitIsFileInDownloads(file.name) && !disableServerRead;
 		setServerReadSupported(useServer);
 		timeFieldFound = false;
@@ -58,11 +58,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		}
 	};
 
-	function fileName(): string {
-		if (selectedFile === undefined) return '';
-		return selectedFile.name;
-	}
-
 	if (submit) {
 		setSubmit(false);
 		onClose();
@@ -74,15 +69,17 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				setPastedJSON('');
 				mainTabStore.importTab(tabName, importJsonLines(tabName, lines), 'sort');
 			} else {
-				mainTabStore.setUpdating(true, 'Importing ' + fileName());
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter);
 				fileReaderStore.setTimeFilter(timeFieldFound ? timeFieldName : undefined, startTime, endTime);
 
-				if (serverReadSupported) {
-					await fileReaderStore.serverRead(fileName());
-				} else {
-					await fileReaderStore.clientRead(selectedFile);
+				for (const file of selectedFiles) {
+					mainTabStore.setUpdating(true, 'Importing ' + file.name);
+					if (serverReadSupported) {
+						await fileReaderStore.serverRead(file.name);
+					} else {
+						await fileReaderStore.clientRead(file);
+					}
 				}
 
 				fileReaderStore.addTab(tabName, serverReadSupported ? undefined : 'sort');
@@ -96,6 +93,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 			setStartTime('');
 			setEndTime('');
 			setIncludeFilter('');
+			setSelectedFiles([]);
 		}, 1000);
 	}
 
@@ -131,16 +129,25 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 							>
 								Select File
 							</button>
-							{selectedFile ? (
+							{selectedFiles.length > 0 ? (
 								<>
 									<hr></hr>
-									<span style={{ marginRight: '1rem' }}>{selectedFile.name}</span>
-									<span className="primary-text-color">{displayFileSize(selectedFile.size)}</span>
-									{isSorted !== undefined &&
-										< span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
-											{isSorted ? 'Sorted' : 'Unsorted'}
-										</span>
-									}
+									<table>
+										{selectedFiles.map(file => (
+											<tr>
+												<td style={{ textAlign: 'left' }}><span style={{ marginRight: '1rem' }}>{file.name}</span></td>
+												<td style={{ textAlign: 'left' }}><span className="primary-text-color">{displayFileSize(file.size)}</span></td>
+												{
+													isSorted !== undefined &&
+													<td style={{ textAlign: 'left' }}>
+														< span style={{ marginLeft: '.5rem', borderRadius: '.5rem', background: isSorted ? 'green' : 'red', color: 'white', padding: '0 .5rem' }}>
+															{isSorted ? 'Sorted' : 'Unsorted'}
+														</span>
+													</td>
+												}
+											</tr>
+										))}
+									</table>
 									<>
 										<hr></hr>
 										<div>
@@ -209,7 +216,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 						</TabPanel>
 					</TabContext>
 					<button className={'btn btn-success btn-lg'} style={{ width: "100%" }}
-						disabled={tabName.length === 0 || (!selectedFile && pastedJSON.length === 0)}
+						disabled={tabName.length === 0 || (!selectedFiles && pastedJSON.length === 0)}
 						onClick={() => setSubmit(true)}
 					>
 						Submit
@@ -231,9 +238,9 @@ function displayFileSize(size: number): string {
 export function jsonToJsonl(jsonString: string) {
 	const flatten = function (json: object) {
 		let line = JSON.stringify(json);
-		line = line.replace(/\\n/g, '');
-		line = line.replace(/\\r/g, '');
-		line = line.replace(/\\"/g, '');
+		line = line.replace(/\n/g, '');
+		line = line.replace(/\r/g, '');
+		//line = line.replace(/\\"/g, '');
 		return line;
 	};
 

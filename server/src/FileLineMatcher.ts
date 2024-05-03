@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { socketIoManager } from './SocketIoManager';
 
-export const maxLinesPerTab = 10000;
+export const maxLinesPerTab = 15000;
 const chunkSize = 1024 * 1024;
 
 function logResponseTime(message: string, start: number) {

@@ -100,14 +100,14 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const searchMatches: string[] = [];
 
 		if (filterStore.getFilter().length > 0) {
-			const operandMatchMap: { [key: string]: JsonField } = {};
+			const matchValueMap: { [key: string]: boolean } = {};
+			const matchInMiddleMap: { [key: string]: JsonField } = {};
 			const fieldsMap = messageStore.getAllJsonFieldsMap();
 			let matchInMiddle: JsonField | undefined;
 			for (const key in fieldsMap) {
 				const field = fieldsMap[key];
 				let operand: string | false;
-				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + ''))
-					|| (operand = filterStore.isJSONFieldOperandMatch(field.name, '"' + field.value + '"'))) {
+				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + ''))) {
 
 					const operandLower = operand.toLowerCase();
 					const fieldNameLower = (field.name + '').toLowerCase();
@@ -115,36 +115,33 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 					//console.log(operandLower, fieldNameLower, fieldValueLower);
 
-					if (operand === '*' || fieldNameLower.endsWith(operandLower) || fieldValueLower === operandLower) {
-						addElement(field, true);
-						searchMatches.push(field.name.toLowerCase());
-						continue;
-					}
-
-					if (typeof field.value === 'string') {
-						if (fieldValueLower.startsWith(operandLower) || fieldValueLower.endsWith(operandLower)) {
+					if (operand === '*' || fieldValueLower.startsWith(operandLower) || fieldNameLower.endsWith(operandLower) || fieldValueLower === operandLower) {
+						if (!matchValueMap[fieldValueLower]) {
 							addElement(field, true);
 							searchMatches.push(field.name.toLowerCase());
-							continue;
+							matchValueMap[fieldValueLower] = true;
 						}
+						continue;
 					}
 
 					if (typeof field.value === 'string' && field.value.length > 150) {
 						matchInMiddle = { name: field.name, value: '...' + operand + '...' };
 					} else {
-						operandMatchMap[operand] = field;
+						matchInMiddleMap[operand] = field;
 					}
-					searchMatches.push(field.name.toLowerCase());
 				}
 			}
 			if (elements.length === 0) {
-				if (Object.keys(operandMatchMap).length > 0) {
-					for (const key in operandMatchMap) {
-						addElement(operandMatchMap[key], true);
+				if (Object.keys(matchInMiddleMap).length > 0) {
+					for (const key in matchInMiddleMap) {
+						addElement(matchInMiddleMap[key], true);
+						searchMatches.push(key.toLowerCase());
+
 					}
 				} else {
 					if (matchInMiddle) {
 						addElement(matchInMiddle as JsonField, true);
+						searchMatches.push(matchInMiddle.name.toLowerCase());
 					}
 				}
 			}

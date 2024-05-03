@@ -279,20 +279,28 @@ export default class JSONLogStore {
 			if (this.getAutoFields()[field].length === 0) {
 				if (field === 'date') {
 					let dateKey = '';
-					for (const key in jsonData) {
-						const keyLc = key.toLowerCase();
-						if (keyLc.indexOf('time') !== -1 || keyLc.indexOf('date') !== -1) {
-							const value = jsonData[key];
-							if (typeof value === 'string' || typeof value === 'number') {
-								const date = this.parseDate(value);
-								if (date) {
-									dateKey = key;
-									break;
+					const findDate = (jsonData: { [key: string]: any }, objectName: string) => {
+						for (const key in jsonData) {
+							if (typeof jsonData[key] === 'object') {
+								const k = objectName ? objectName + '.' + key : key;
+								findDate(jsonData[key], k);
+							} else {
+								const keyLc = key.toLowerCase();
+								if (keyLc.indexOf('time') !== -1 || keyLc.indexOf('date') !== -1) {
+									const value = jsonData[key];
+									if (typeof value === 'string' || typeof value === 'number') {
+										const date = this.parseDate(value);
+										if (date) {
+											dateKey = objectName ? objectName + '.' + key : key;
+											this.setAutoFields(field, dateKey);
+											break;
+										}
+									}
 								}
 							}
 						}
-					}
-					this.setAutoFields(field, dateKey);
+					};
+					findDate(jsonData, '');
 				} else if (field === 'level') {
 					let levelKey = '';
 					for (const key in jsonData) {
@@ -320,15 +328,18 @@ export default class JSONLogStore {
 
 			const key = this.getAutoFields()[field];
 			if (key.length !== 0) {
-				const value = jsonData[key];
+				const jsonFields = lookupJSONField(jsonData, key);
+				const value = jsonFields.length === 0 ? undefined : jsonFields[0].value;
 				if (field === 'date') {
-					const date = this.parseDate(value);
-					if (date) {
-						logEntry.date = date;
+					if (typeof value === 'string' || typeof value === 'number') {
+						const date = this.parseDate(value);
+						if (date) {
+							logEntry.date = date;
+						}
 					}
 				} else {
 					if (value) {
-						logEntry[field] = jsonData[key];
+						logEntry[field] = value + '';
 					}
 				}
 			}
@@ -528,7 +539,7 @@ export function formatJSONRequestLabels(json: { [key: string]: any }, fields: st
 	const jsonFields: JsonField[] = [];
 	fields.forEach((field) => {
 		if (Object.keys(json).length > 0) {
-			for (let jsonField of lookupJSONField(json, field)) {
+			for (let jsonField of lookupJSONField(json, field, 'exact')) {
 				if (field !== 'PREFIX') {
 					field = field.replaceAll('[.]', '.');
 					if (typeof jsonField.value === 'string') {
@@ -605,13 +616,14 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 	return jsonFieldsMap;
 }
 
-export function lookupJSONField(json: { [key: string]: any }, field: string): JsonField[] {
+type Exact = 'exact' | 'any';
+export function lookupJSONField(json: { [key: string]: any }, field: string, exact: Exact = 'any'): JsonField[] {
 	if (json && Object.keys(json).length > 0) {
 		const jsonFieldsMap = getJsonFieldsMap(json);
 		const fieldLower = field.toLowerCase();
 		//console.log(field);
 		//console.log(jsonFields);
-		const jsonFields = jsonFieldsMap[fieldLower] || jsonFieldsMap['*' + fieldLower];
+		const jsonFields = jsonFieldsMap[fieldLower] || exact === 'exact' || jsonFieldsMap['*' + fieldLower];
 		//console.log(jf);
 		if (jsonFields) {
 			return jsonFields;
