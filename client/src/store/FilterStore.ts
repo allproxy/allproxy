@@ -572,8 +572,10 @@ export default class FilterStore {
                     }
                     if (operand.length < 3) continue;
                     const operandLower = operand.toLowerCase();
+                    const tokens = jsonFieldLower.split('.');
+                    const lastField = tokens[tokens.length - 1];
                     if (jsonFieldLower === operandLower ||
-                        jsonFieldLower.startsWith(operandLower) ||
+                        lastField.startsWith(operandLower) ||
                         jsonFieldLower.endsWith(operandLower)) return operand;
                     if (jsonValueLower.startsWith(operandLower)) return operand;
                     if (jsonValueLower.endsWith(operandLower)) return operand;
