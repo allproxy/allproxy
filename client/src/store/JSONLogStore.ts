@@ -363,6 +363,7 @@ export default class JSONLogStore {
 							const date = this.parseDate(jsonField.value);
 							if (date) {
 								logEntry.date = date;
+								break;
 							}
 						}
 					}
@@ -394,10 +395,22 @@ export default class JSONLogStore {
 				} catch (e) {
 					console.log(e);
 				}
-				if (logEntry.date === undefined) logEntry.date = new Date();
+				if (logEntry.date === undefined) {
+					logEntry.date = new Date();
+					for (const field in jsonData) {
+						const value = jsonData[field];
+						if (typeof value === 'string' || typeof value === 'number') {
+							const date = this.parseDate(value);
+							if (date) {
+								logEntry.date = date;
+								break;
+							}
+						}
+					}
+				}
 				if (logEntry.level === undefined) logEntry.level = '';
 				if (logEntry.category === undefined) logEntry.category = '';
-				if (logEntry.kind === undefined) logEntry.kind = 'kind is required';
+				if (logEntry.kind === undefined) logEntry.kind = '';
 				if (logEntry.message === undefined) logEntry.message = '';
 				if (logEntry.rawLine === undefined) logEntry.rawLine = JSON.stringify(jsonData);
 				break;

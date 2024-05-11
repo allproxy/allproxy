@@ -114,14 +114,19 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 					const fieldValueLower = (field.value + '').toLowerCase();
 
 					//console.log(operandLower, fieldNameLower, fieldValueLower);
-
-					if (operand === '*' || fieldValueLower.startsWith(operandLower) || fieldNameLower.endsWith(operandLower) || fieldValueLower === operandLower) {
+					const tokens = fieldNameLower.split('.');
+					const lastName = tokens[tokens.length - 1];
+					if (operand === '*' ||
+						fieldValueLower.startsWith(operandLower) || fieldValueLower.endsWith(operandLower) ||
+						fieldValueLower === operandLower) {
 						if (!matchValueMap[fieldValueLower]) {
 							addElement(field, true);
 							searchMatches.push(field.name.toLowerCase());
 							matchValueMap[fieldValueLower] = true;
 						}
 						continue;
+					} else if (lastName.startsWith(operandLower) || lastName.endsWith(operandLower)) {
+						addElement(field, true);
 					}
 
 					if (typeof field.value === 'string' && field.value.length > 150) {
