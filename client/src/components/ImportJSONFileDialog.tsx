@@ -235,7 +235,7 @@ function displayFileSize(size: number): string {
 	}
 }
 
-export function jsonToJsonl(jsonString: string) {
+export function jsonToJsonl(jsonString: string): string {
 	const flatten = function (json: object) {
 		let line = JSON.stringify(json);
 		line = line.replace(/\n/g, '');
@@ -263,6 +263,9 @@ export function jsonToJsonl(jsonString: string) {
 			for (const field in json) {
 				const value = json[field];
 				if (Array.isArray(value)) {
+					if (value.length === 1) {
+						return jsonToJsonl(JSON.stringify(value[0]));
+					}
 					for (const obj of value) {
 						if (typeof obj === 'object') {
 							jsonLines += "\n" + flatten(obj);
