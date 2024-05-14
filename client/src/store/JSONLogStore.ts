@@ -265,6 +265,7 @@ export default class JSONLogStore {
 					date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + tokens[1]);
 				}
 			}
+			if (date.toString() === 'Invalid Date') date = undefined;
 		} catch (e) {
 		}
 		return date;
@@ -395,7 +396,10 @@ export default class JSONLogStore {
 				} catch (e) {
 					console.log(e);
 				}
-				if (logEntry.date === undefined) {
+
+				if (logEntry.date === undefined ||
+					!(logEntry.date instanceof Date) ||
+					logEntry.date.toString() === 'Invalid Date') {
 					logEntry.date = new Date();
 					for (const field in jsonData) {
 						const value = jsonData[field];

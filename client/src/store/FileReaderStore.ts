@@ -139,7 +139,10 @@ export default class FileReaderStore {
 				try {
 					JSON.parse(line1);
 				} catch (e) {
-					isJsonLines = false;
+					const l = line1.trim();
+					if (l.startsWith('{') || l.startsWith('[')) {
+						isJsonLines = false;
+					}
 				}
 				if (!isJsonLines) {
 					const data = await this.readAll();
