@@ -60,15 +60,16 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const message = messageStore.getMessage();
 
 		let elements = formatJSONRequestLabels(messageStore);
-		if (elements.length === 0 && !jsonLogStore.isBriefChecked()) {
+		if (elements.length === 0 &&
+			(!jsonLogStore.isBriefChecked() || messageStore.getJsonFields().length === 0)) {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
 
 			// elements.push(<div style={{ display: 'inline-block', maxHeight: '52px', overflowX: 'hidden', wordBreak: 'break-all', textOverflow: 'ellipsis' }}> {nonJson + JSON.stringify(message.responseBody)}</div>);
 
 			const value = nonJson + JSON.stringify(message.responseBody);
-			if (category.length + kind.length === 0) {
-				const label = 'JSON';
+			if ((category.length + kind.length === 0) || !messageStore.getLogEntry().message) {
+				const label = '';
 				const style = pickLabelStyle(label);
 				const bg = style.background;
 				const color = style.color;
@@ -204,13 +205,15 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const elements: JSX.Element[] = [];
 		const element =
 			<div style={{ display: 'inline-block', paddingLeft: '.25rem' }}>
-				<div style={{ display: 'inline-block' }}>
-					<div className="json-label"
-						style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${keyBorder}` }}
-					>
-						{displayName}
+				{name.length > 0 &&
+					<div style={{ display: 'inline-block' }}>
+						<div className="json-label"
+							style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${keyBorder}` }}
+						>
+							{displayName}
+						</div>
 					</div>
-				</div>
+				}
 				{typeof value === 'string' && value.length > 500 ?
 					accordionValue(value)
 					:
