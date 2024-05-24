@@ -33,6 +33,7 @@ export default class FileReaderStore {
 
 	private truncated = false;
 	private lines: string[] = [];
+	private splitArrays = true;
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -61,6 +62,10 @@ export default class FileReaderStore {
 		if (endTime !== '') {
 			this.endTimeDate = new Date(endTime);
 		}
+	}
+
+	public setSplitArrays(split: boolean) {
+		this.splitArrays = split;
 	}
 
 	public async serverRead(fileName: string): Promise<boolean> {
@@ -146,7 +151,7 @@ export default class FileReaderStore {
 				}
 				if (!isJsonLines) {
 					const data = await this.readAll();
-					const jsonl = jsonToJsonl(data);
+					const jsonl = jsonToJsonl(data, this.splitArrays);
 					this.lines = this.lines.concat(jsonl.split('\n'));
 				} else {
 					for (let offset = 0; offset < this.file.size;) {

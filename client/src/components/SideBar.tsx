@@ -204,13 +204,13 @@ const SideBar = observer(() => {
 							onClose={() => { setAnchorEl(null); }}
 						>
 							<MenuItem hidden={urlPathStore.getKind() === 'mitmproxy'}>
-								<div className="header__import fa fa-file" title="Import JSON file"
+								<div className="header__import fa fa-file" title="Import JSON or JSON Lines"
 									onClick={() => {
 										setAnchorEl(null);
 										setOpenImportJSONFileDialog(true);
 									}}
 								>
-									&nbsp;Import JSON Log from file
+									&nbsp;Import JSON/JSON Lines
 								</div>
 							</MenuItem>
 							<MenuItem hidden={urlPathStore.getKind() === 'jlogviewer'}>

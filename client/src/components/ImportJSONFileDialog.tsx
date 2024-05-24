@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Dialog, DialogTitle, ListItemText, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
+import { Checkbox, Dialog, DialogTitle, ListItemText, MenuItem, Select, Tab, Tabs } from '@material-ui/core';
 import { mainTabStore } from '../store/MainTabStore';
 import { importJsonLines } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
@@ -28,6 +28,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [startTime, setStartTime] = React.useState<string>("");
 	const [endTime, setEndTime] = React.useState<string>("");
 	const [tabValue, setTabValue] = React.useState<'1' | '2'>('1');
+	const [splitArrays, setSplitArrays] = React.useState(false);
 
 	var input = document.createElement('input');
 	input.type = 'file';
@@ -64,7 +65,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 		setTimeout(async () => {
 			if (pastedJSON.length > 0) {
 				mainTabStore.setUpdating(true, 'Importing pasted JSON...');
-				const jsonLines = jsonToJsonl(pastedJSON);
+				const jsonLines = jsonToJsonl(pastedJSON, splitArrays);
 				const lines = jsonLines.split('\n');
 				setPastedJSON('');
 				mainTabStore.importTab(tabName, importJsonLines(tabName, lines), 'sort');
@@ -72,6 +73,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter);
 				fileReaderStore.setTimeFilter(timeFieldFound ? timeFieldName : undefined, startTime, endTime);
+				fileReaderStore.setSplitArrays(splitArrays);
 
 				for (const file of selectedFiles) {
 					mainTabStore.setUpdating(true, 'Importing ' + file.name);
@@ -94,13 +96,14 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 			setEndTime('');
 			setIncludeFilter('');
 			setSelectedFiles([]);
+			setSplitArrays(true);
 		}, 1000);
 	}
 
 	return (
 		<>
 			<Dialog fullWidth={true} maxWidth="lg" onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
-				<DialogTitle id="simple-dialog-title">Import JSON Log</DialogTitle>
+				<DialogTitle id="simple-dialog-title">Import JSON/JSON Lines</DialogTitle>
 				<div style={{ padding: " 0 1rem 1rem 1rem" }}>
 					<div style={{ display: 'flex' }}>
 						<div className="primary-text-color" style={{ whiteSpace: 'nowrap', lineHeight: '48px', marginRight: '.5rem' }}>Tab Name:</div>
@@ -110,6 +113,14 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 							className="form-control"
 							value={tabName}
 							onChange={(value) => setTabName(value.target.value)} />
+					</div>
+					<div style={{ display: 'flex' }}>
+						<Checkbox style={{ paddingTop: 0, paddingBottom: 0 }}
+							size={"small"}
+							defaultChecked
+							value={splitArrays}
+							onChange={() => setSplitArrays(!splitArrays)} />
+						Split JSON into multiple array elements when one large JSON object is imported
 					</div>
 					<TabContext value={tabValue}>
 						<Tabs
@@ -235,7 +246,7 @@ function displayFileSize(size: number): string {
 	}
 }
 
-export function jsonToJsonl(jsonString: string): string {
+export function jsonToJsonl(jsonString: string, splitArrays: boolean): string {
 	const flatten = function (json: object) {
 		let line = JSON.stringify(json);
 		line = line.replace(/\n/g, '');
@@ -252,23 +263,25 @@ export function jsonToJsonl(jsonString: string): string {
 		}
 
 		const json = JSON.parse(jsonString);
-		if (Array.isArray(json)) {
-			jsonLines = "";
-			for (const obj of json) {
-				if (jsonLines.length > 0) jsonLines += '\n';
-				jsonLines += flatten(obj);
-			}
-		} else {
-			jsonLines = '';
-			for (const field in json) {
-				const value = json[field];
-				if (Array.isArray(value)) {
-					if (value.length === 1) {
-						return jsonToJsonl(JSON.stringify(value[0]));
-					}
-					for (const obj of value) {
-						if (typeof obj === 'object') {
-							jsonLines += "\n" + flatten(obj);
+		if (splitArrays) {
+			if (Array.isArray(json)) {
+				jsonLines = "";
+				for (const obj of json) {
+					if (jsonLines.length > 0) jsonLines += '\n';
+					jsonLines += flatten(obj);
+				}
+			} else {
+				jsonLines = '';
+				for (const field in json) {
+					const value = json[field];
+					if (Array.isArray(value)) {
+						if (value.length === 1) {
+							return jsonToJsonl(JSON.stringify(value[0]), splitArrays);
+						}
+						for (const obj of value) {
+							if (typeof obj === 'object') {
+								jsonLines += "\n" + flatten(obj);
+							}
 						}
 					}
 				}
@@ -276,9 +289,12 @@ export function jsonToJsonl(jsonString: string): string {
 			if (jsonLines.length === 0) {
 				jsonLines = flatten(json);
 			}
+		} else {
+			jsonLines = flatten(json);
 		}
+
 	} catch (e) {
-		console.log(e);
+		//console.log(e);
 	}
 	return jsonLines;
 }

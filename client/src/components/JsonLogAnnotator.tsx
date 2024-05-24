@@ -8,6 +8,8 @@ import { filterStore } from '../store/FilterStore';
 import { JsonField, jsonLogStore } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
 
+const maxValueSize = 500;
+
 type Props = {
 	message: MessageStore,
 };
@@ -130,8 +132,17 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						addElement(field, true);
 					}
 
-					if (typeof field.value === 'string' && field.value.length > 150) {
-						matchInMiddle = { name: field.name, value: '...' + operand + '...' };
+					if (typeof field.value === 'string' && field.value.length > maxValueSize) {
+						const i = field.value.indexOf(operand);
+						let value: string;
+						if (i + operand.length < maxValueSize) {
+							value = field.value.substring(0, maxValueSize) + '...';
+						} else if (field.value.length - i > maxValueSize) {
+							value = '...' + field.value.substring(i, i + maxValueSize) + '...';
+						} else {
+							value = '...' + field.value.substring(field.value.length - maxValueSize);
+						}
+						matchInMiddle = { name: field.name, value: value };
 					} else {
 						matchInMiddleMap[operand] = field;
 					}
@@ -141,8 +152,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				if (Object.keys(matchInMiddleMap).length > 0) {
 					for (const key in matchInMiddleMap) {
 						addElement(matchInMiddleMap[key], true);
-						searchMatches.push(key.toLowerCase());
-
+						searchMatches.push(matchInMiddleMap[key].name.toLowerCase());
 					}
 				} else {
 					if (matchInMiddle) {
@@ -214,7 +224,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						</div>
 					</div>
 				}
-				{typeof value === 'string' && value.length > 500 ?
+				{typeof value === 'string' && value.length > maxValueSize + 6 ?
 					accordionValue(value)
 					:
 					<div className="json-value" style={{ display: 'inline-block', marginLeft: '.25rem', minWidth: width, border: valueBorder }}>{value}</div >

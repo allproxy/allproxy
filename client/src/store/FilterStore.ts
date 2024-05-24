@@ -646,6 +646,8 @@ export default class FilterStore {
             try {
                 if (this.isMatch(needle, dateToHHMMSS(messageStore.getLogEntry().date))) return false;
             } catch (e) { }
+            if (this.isMatch(needle, messageStore.getLogEntry().kind)) return false;
+            if (this.isMatch(needle, messageStore.getLogEntry().category)) return false;
         }
         if (message.responseBody && this.isMatch(needle, this.stringify(message.responseBody))) return false;
         if (messageStore.hasNote() && this.isMatch(needle, messageStore.getNote())) return false;
