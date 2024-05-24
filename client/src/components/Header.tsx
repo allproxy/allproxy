@@ -230,9 +230,9 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							setOpenImportJSONFileDialog(true);
 							setMoreMenuIcon(null);
 						}}>
-						<div className="header__import fa fa-file" title="Import JSON log from file"
+						<div className="header__import fa fa-file" title="Import JSON"
 						>
-							&nbsp;Import JSON Log
+							&nbsp;Import JSON/JSON Lines
 						</div>
 					</MenuItem>
 					<MenuItem style={{
