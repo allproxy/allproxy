@@ -70,11 +70,18 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 								value={value}
 								label={
 									<div className={'maintab__tab'} title={title(value, i)}>
+										{value !== PROXY_TAB_NAME &&
+											<div className={'maintab__close fa fa-times'}
+												style={{ marginRight: '.5rem' }}
+												title="Delete tab"
+												onClick={(e) => handleDeleteTab(e, value)}
+											/>
+										}
 										<div className="maintab__tab-name">
 											{title(value, i)}
 										</div>
-										{value === PROXY_TAB_NAME
-											? <div className={'maintab__folder-plus fa fa-arrow-right'}
+										{value === PROXY_TAB_NAME &&
+											<div className={'maintab__folder-plus fa fa-arrow-right'}
 												style={{
 													marginLeft: '.5rem',
 													pointerEvents: mainTabStore.getTabMessageCount(value) === 0 ? 'none' : undefined,
@@ -82,12 +89,6 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 												}}
 												title="Copy to new tab"
 												onClick={() => handleCopyProxyTab(value)}
-											/>
-											:
-											<div className={'maintab__close fa fa-times'}
-												style={{ marginLeft: '.5rem' }}
-												title="Delete tab"
-												onClick={(e) => handleDeleteTab(e, value)}
 											/>
 										}
 									</div>

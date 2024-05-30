@@ -346,7 +346,8 @@ export default class MessageStore {
         if (this.message.protocol === 'log:') {
             if (typeof this.message.responseBody !== 'string') {
                 for (const key in this.message.responseBody) {
-                    if (Array.isArray(this.message.responseBody[key])) return true;
+                    if (Array.isArray(this.message.responseBody[key]) &&
+                        typeof this.message.responseBody[key][0] === 'object') return true;
                 }
             }
         }
@@ -357,7 +358,7 @@ export default class MessageStore {
         function getTabName(json: { [key: string]: any }): string {
             let tabName = '';
             for (const key in json) {
-                if (Array.isArray(json[key])) {
+                if (Array.isArray(json[key] && typeof json[key][0] === 'object')) {
                     tabName = key;
                     if (json[key].length === 1) {
                         tabName += '.' + getTabName(json[key][0]);
