@@ -185,12 +185,7 @@ export default class MainTabStore {
 	public getTabName(name: string): string {
 		const fileName = this.tabs.getFileName(name);
 		if (fileName) {
-			const i = fileName.lastIndexOf('.');
-			let tabName = fileName;
-			if (i !== -1) {
-				tabName = fileName.substring(0, i);
-			}
-			return tabName;
+			return fileName;
 		} else {
 			return 'TAB';
 		}
