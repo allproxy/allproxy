@@ -28,7 +28,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [startTime, setStartTime] = React.useState<string>("");
 	const [endTime, setEndTime] = React.useState<string>("");
 	const [tabValue, setTabValue] = React.useState<'1' | '2'>('1');
-	const [splitArrays, setSplitArrays] = React.useState(false);
+	const [splitArrays, setSplitArrays] = React.useState(true);
 
 	var input = document.createElement('input');
 	input.type = 'file';

@@ -169,11 +169,11 @@ td input {
 }
 
 .MuiTabs-scroller {
-	overflow: auto !important;
+	overflow-x: auto !important;
 }
 
 .MuiTab-root {
-	min-width: 140px !important;
+	/*width: 140px !important;*/
 }
 
 .btn-group-xs>.btn,
@@ -695,12 +695,12 @@ td input {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	white-space: nowrap;
 }
 
 .maintab__tab-name {
-	max-width: 25ch;
-	overflow-x: hidden;
+	max-width: 128px;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .maintab__close,

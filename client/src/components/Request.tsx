@@ -107,6 +107,13 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 							title={messageQueueStore.getShowTooltip() ? store.getRequestTooltip() : undefined}
 						>
 							<div hidden={!isActive} style={{ display: 'flex', height: '26px', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}>
+								<IconButton size="small" hidden={!store.canSplitJsonLogMessage()}>
+									<div className="header__export fa fa-divide" title="Split Array Elements"
+										style={{ marginRight: '0rem' }}
+										onClick={() => store.splitJsonLogMessage()}
+									>
+									</div>
+								</IconButton>
 								<IconButton size="small">
 									<div className="header__export fa fa-trash-alt" title="Delete this entry"
 										style={{ marginRight: '0rem', color: 'rgb(245, 0, 87)' }}

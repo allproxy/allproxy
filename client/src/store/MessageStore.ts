@@ -4,8 +4,10 @@ import Message, { NO_RESPONSE } from '../common/Message';
 import pickIcon, { getDisplayableUserAgent } from '../PickIcon';
 import Util from '../Util';
 import { LogEntry, jsonLogStore, JsonField, formatJSONRequestLabels, getJsonFieldsMap } from "./JSONLogStore";
-import { compressJSON } from "./MainTabStore";
+import { compressJSON, mainTabStore } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
+import { jsonToJsonl } from "../components/ImportJSONFileDialog";
+import { importJsonLines } from "../ImportJSONFile";
 
 export default class MessageStore {
     private index: number = 0;
@@ -338,5 +340,42 @@ export default class MessageStore {
 
     @action public getLogEntry() {
         return this.logEntry;
+    }
+
+    public canSplitJsonLogMessage() {
+        if (this.message.protocol === 'log:') {
+            if (typeof this.message.responseBody !== 'string') {
+                for (const key in this.message.responseBody) {
+                    if (Array.isArray(this.message.responseBody[key]) &&
+                        typeof this.message.responseBody[key][0] === 'object') return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public splitJsonLogMessage() {
+        function getTabName(json: { [key: string]: any }): string {
+            let tabName = '';
+            for (const key in json) {
+                if (Array.isArray(json[key] && typeof json[key][0] === 'object')) {
+                    tabName = key;
+                    if (json[key].length === 1) {
+                        tabName += '.' + getTabName(json[key][0]);
+                    }
+                    break;
+                }
+            }
+            return tabName;
+        }
+
+        if (typeof this.message.responseBody !== 'string') {
+            mainTabStore.setUpdating(true, 'Splitting JSON Message...');
+            const jsonLines = jsonToJsonl(JSON.stringify(this.message.responseBody), true);
+            const lines = jsonLines.split('\n');
+            const tabName = getTabName(this.message.responseBody);
+            mainTabStore.importTab(tabName, importJsonLines(tabName, lines));
+            mainTabStore.setUpdating(false);
+        }
     }
 }

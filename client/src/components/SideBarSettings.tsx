@@ -54,23 +54,21 @@ const SideBarSettings = observer((): JSX.Element => {
 						hidden={jsonLogStore.getParsingMethod() === 'auto' || jsonLogStore.getParsingMethod() === 'simple'}>
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
-								disabled={jsonLogStore.isRawJsonChecked()}
 								size="small"
 								defaultChecked={true}
 								value={jsonLogStore.isBriefChecked()}
 								onChange={() => jsonLogStore.toggleBriefChecked()} />
-							<div style={{ opacity: jsonLogStore.isRawJsonChecked() ? .5 : undefined }}>Less Detail</div>
+							<div>Less Detail</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon">
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
-								disabled={jsonLogStore.isBriefChecked()}
 								size="small"
 								defaultChecked={false}
 								value={jsonLogStore.isRawJsonChecked()}
 								onChange={() => jsonLogStore.toggleRawJsonChecked()} />
-							<div style={{ opacity: jsonLogStore.isBriefChecked() ? .5 : undefined }}>Show Raw JSON</div>
+							<div>Show Raw JSON</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon">
