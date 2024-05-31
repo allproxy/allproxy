@@ -358,7 +358,7 @@ export default class MessageStore {
         function getTabName(json: { [key: string]: any }): string {
             let tabName = '';
             for (const key in json) {
-                if (Array.isArray(json[key] && typeof json[key][0] === 'object')) {
+                if (Array.isArray(json[key]) && typeof json[key][0] === 'object') {
                     tabName = key;
                     if (json[key].length === 1) {
                         tabName += '.' + getTabName(json[key][0]);
@@ -366,6 +366,7 @@ export default class MessageStore {
                     break;
                 }
             }
+            console.log('tabName:', tabName);
             return tabName;
         }
 
