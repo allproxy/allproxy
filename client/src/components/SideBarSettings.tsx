@@ -55,7 +55,7 @@ const SideBarSettings = observer((): JSX.Element => {
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
 								size="small"
-								defaultChecked={true}
+								defaultChecked={false}
 								value={jsonLogStore.isBriefChecked()}
 								onChange={() => jsonLogStore.toggleBriefChecked()} />
 							<div>Less Detail</div>

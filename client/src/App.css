@@ -693,23 +693,27 @@ td input {
 
 .maintab__tab {
 	display: flex;
+	width: 100%;
+	height: 40px;
 	align-items: center;
-	justify-content: space-between;
 }
 
 .maintab__tab-name {
+	font-size: smaller;
 	max-width: 128px;
 	overflow: hidden;
-	white-space: nowrap;
+	max-lines: 2;
+	/*white-space: nowrap;*/
 }
 
 .maintab__close,
 .maintab__folder-plus {
+	font-size: smaller;
 	cursor: pointer;
 }
 
 .maintab__folder-plus {
-	font-size: x-large;
+	font-size: large;
 }
 
 @media screen and (prefers-color-scheme: dark) {
