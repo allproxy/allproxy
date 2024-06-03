@@ -81,7 +81,7 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 											{title(value, i)}
 										</div>
 										{value === PROXY_TAB_NAME &&
-											<div className={'maintab__folder-plus fa fa-arrow-right'}
+											<div className={'maintab__folder-plus fa cccccbjkhnclhcehvdubflrdvlnggebrnlfbtefuudrifa-arrow-right'}
 												style={{
 													marginLeft: '.5rem',
 													pointerEvents: mainTabStore.getTabMessageCount(value) === 0 ? 'none' : undefined,
