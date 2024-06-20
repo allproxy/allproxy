@@ -182,7 +182,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 												</button>
 												<List>
 													{store.getJSONFields().map((jsonField, i) => (
-														<ListItem key={jsonField.getName()}
+														<ListItem key={i + jsonField.getName()}
 															style={{
 																display: 'flex', alignItems: 'center',
 															}}>

@@ -354,7 +354,7 @@ export default class JSONLogStore {
 				setAutoField('category');
 				setAutoField('kind');
 				setAutoField('message');
-				logEntry.rawLine = JSON.stringify(jsonData);
+				logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
 				break;
 			case 'simple':
 				const simpleFields = jsonLogStore.getSimpleFields();
@@ -383,7 +383,7 @@ export default class JSONLogStore {
 				setField('category');
 				setField('kind');
 				setField('message');
-				logEntry.rawLine = JSON.stringify(jsonData);
+				logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
 				break;
 			case 'advanced':
 			case 'plugin':
@@ -416,7 +416,7 @@ export default class JSONLogStore {
 				if (logEntry.category === undefined) logEntry.category = '';
 				if (logEntry.kind === undefined) logEntry.kind = '';
 				if (logEntry.message === undefined) logEntry.message = '';
-				if (logEntry.rawLine === undefined) logEntry.rawLine = JSON.stringify(jsonData);
+				if (logEntry.rawLine === undefined) logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
 				break;
 		}
 		if (typeof logEntry.level === 'number') logEntry.level = logEntry.level + '';

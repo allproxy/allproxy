@@ -140,7 +140,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						} else if (field.value.length - i > maxValueSize) {
 							value = '...' + field.value.substring(i, i + maxValueSize) + '...';
 						} else {
-							value = '...' + field.value.substring(field.value.length - maxValueSize);
+							value = '...' + field.value.substring(i);
 						}
 						matchInMiddle = { name: field.name, value: value };
 					} else {
