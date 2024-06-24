@@ -23,6 +23,7 @@ export default class MessageQueueStore {
 	private showAPI = true;
 	private showTooltip = false;
 	private showUserAgent = false;
+	private layout: 'Default' | 'Search Match' | 'Raw Response' = 'Default';
 
 	private scrollToSeqNum: number | null = null;
 	private highlightSeqNum: number | null = null;
@@ -69,6 +70,14 @@ export default class MessageQueueStore {
 	@action public toggleShowAPI() {
 		this.showAPI = !this.showAPI;
 	}
+
+	public getLayout() {
+		return this.layout;
+	}
+	@action public setLayout(layout: 'Default' | 'Search Match' | 'Raw Response') {
+		this.layout = layout;
+	}
+
 
 	public getShowTooltip() {
 		return this.showTooltip;
