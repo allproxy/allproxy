@@ -51,15 +51,20 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 			<div className={"request__msg-container"} >
 				<div className="request__msg-header">
 					<div className={`request__msg-twisty fa ${isActive ? 'fa-caret-down' : 'fa-caret-right'} request__msg-caret`}
-						style={{ minWidth: '1rem', marginTop: message.protocol === 'log:' ? '.5rem' : undefined }}
+						style={{ minWidth: '1rem', marginTop: message.protocol === 'log:' || messageQueueStore.getLayout() !== 'Default' ? '.5rem' : undefined }}
 						onClick={handleClick} />
 					<div className={className} style={{ display: 'flex' }} onClick={doHighlight}>
 						<div className={"request__msg-time-number " + (highlight ? ' highlight' : '')}>
 							<div className={"request__msg-time-ms"}>
 								{message.protocol !== 'log:' ?
-									<div style={{ fontFamily: 'monospace', minWidth: '8.5rem' }}
-										title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
-										{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
+									<div style={{
+										lineHeight: messageQueueStore.getLayout() !== 'Default' ? '1.2' : undefined,
+										marginTop: messageQueueStore.getLayout() !== 'Default' ? '.6rem' : undefined,
+									}}>
+										<div style={{ fontFamily: 'monospace', minWidth: '8.5rem' }}
+											title={message.elapsedTime + ' ms, ' + formatTimestamp(message.timestamp)}>
+											{store.isNoResponse() ? 'no response' : dateToHHMMSS(messageDate)}
+										</div>
 									</div>
 									:
 									<div style={{ lineHeight: '1.2' }}>
@@ -83,7 +88,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 
 									style={{
 										fontFamily: 'monospace',
-										margin: message.protocol === 'log:' ? '.5rem 0' : undefined,
+										margin: message.protocol === 'log:' || messageQueueStore.getLayout() !== 'Default' ? '.5rem 0' : undefined,
 										textAlign: 'right'
 									}}
 								>
@@ -91,7 +96,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 								</div>
 							</div>
 						</div>
-						{message.protocol !== 'log:' &&
+						{message.protocol !== 'log:' && messageQueueStore.getLayout() === 'Default' &&
 							<div className={`${store.getIconClass()} request__msg-icon`}
 								style={{ cursor: 'pointer', float: 'left', color: store.getColor(), fontSize: '16px', marginRight: '.25rem' }}
 								title={`${message.elapsedTime} ms, ${formatTimestamp(message.timestamp)}, reqSeq=${message.sequenceNumber} resSeq=${message.sequenceNumberRes}`}
@@ -100,7 +105,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 						}
 
 						<div className={`request__msg
-						${message.protocol !== 'log:' ? ' nowrap' : ''}
+						${message.protocol !== 'log:' && messageQueueStore.getLayout() === 'Default' ? ' nowrap' : ''}
 						${isActive ? ' active' : ''}
 						${!store.isHttpOrHttps() && !store.isNoResponse() && store.isError() ? ' error' : ''}
 						`}
@@ -161,7 +166,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 									</div>
 								</IconButton>
 							</div>
-							{store.isHttpOrHttps() &&
+							{store.isHttpOrHttps() && messageQueueStore.getLayout() === 'Default' &&
 								<div className={(store.isError() ? 'error' : '') + ' request__msg-status'} style={{ width: maxStatusSize + 'ch' }}>
 									{message.status}
 								</div>}
@@ -169,15 +174,18 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 							${(store.getVisited() ? ' visited-color' : '') + ' request__msg-request-line'}
 						`}
 								style={{ textDecoration: isFiltered ? "line-through" : undefined }}>
-								{message.method && message.method.length > 0 &&
+								{messageQueueStore.getLayout() === 'Default' &&
+									message.method && message.method.length > 0 &&
 									<div className="request__msg-method" style={{ width: maxMethodSize + 1 + 'ch' }}>
 										{message.method}
-									</div>}
-								{messageQueueStore.getShowAPI() && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
+									</div>
+								}
+								{messageQueueStore.getShowAPI() && messageQueueStore.getLayout() === 'Default' && message.endpoint.length > 0 && <div className="request__msg-endpoint" style={{ width: maxEndpointSize + 'ch' }}>
 									{message.endpoint}
 								</div>}
-								{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>}
-								{message.protocol === 'log:' ?
+								{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>
+								}
+								{message.protocol === 'log:' || messageQueueStore.getLayout() !== 'Default' ?
 									<JsonLogAnnotator message={store} />
 									:
 									<RequestURL message={store} />

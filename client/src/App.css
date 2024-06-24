@@ -201,6 +201,10 @@ td input {
 	padding: 0 8px !important;
 }
 
+.MuiSelect-icon {
+	color: white !important;
+}
+
 .spinner {
 	font-size: 2rem !important;
 	color: #007bff;

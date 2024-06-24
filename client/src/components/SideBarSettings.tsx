@@ -1,4 +1,4 @@
-import { Checkbox } from '@material-ui/core';
+import { Checkbox, MenuItem, Select } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import { isJsonLogTab } from './SideBar';
@@ -10,9 +10,26 @@ import { urlPathStore } from '../store/UrlPathStore';
 const SideBarSettings = observer((): JSX.Element => {
 	return (
 		<>
-			<hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}></hr>
+			{/* <hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}></hr> */}
 			<div className="side-bar-item" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}>
 				<div>
+					<div className="side-bar-item">
+						<Select className="side-bar-select"
+							//IconComponent={""}
+							value={messageQueueStore.getLayout()}
+							renderValue={() => messageQueueStore.getLayout() + ' Layout'}
+						>
+							<MenuItem value="Default" onClick={() => messageQueueStore.setLayout('Default')}>
+								Default Layout
+							</MenuItem>
+							<MenuItem value="Search Match" onClick={() => messageQueueStore.setLayout('Search Match')}>
+								Search Match Layout
+							</MenuItem>
+							<MenuItem value="Raw Response" onClick={() => messageQueueStore.setLayout('Raw Response')}>
+								Raw Response Layout
+							</MenuItem>
+						</Select>
+					</div>
 					<div style={{ display: 'flex' }}>
 						<Checkbox className="side-bar-checkbox"
 							size="small"

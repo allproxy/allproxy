@@ -7,6 +7,7 @@ import { themeStore } from '../store/ThemeStore';
 import { filterStore } from '../store/FilterStore';
 import { JsonField, jsonLogStore } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
+import { messageQueueStore } from '../store/MessageQueueStore';
 
 const maxValueSize = 500;
 
@@ -26,10 +27,21 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().kind)}
 						{mainTabStore.copyMessage(message)}
 					</div>
-					:
-					makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().kind).map((element) => {
-						return element;
-					})
+					: messageQueueStore.getLayout() !== 'Default' ?
+						messageQueueStore.getLayout() === 'Raw Response' ?
+							<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
+								{makeCatAppElement(message.getMessage().status + '', message.getMessage().method + "")}
+								{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2' }}> {message.getUrl()}</div >}
+								{JSON.stringify(message.getMessage().responseBody).replace(/\\"/g, '')}
+							</div>
+							:
+							makeJSONRequestLabels(message, message.getMessage().status + '', message.getMessage().method + '').map((element) => {
+								return element;
+							})
+						:
+						makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().kind).map((element) => {
+							return element;
+						})
 			}
 		</div>
 	);
@@ -62,7 +74,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const message = messageStore.getMessage();
 
 		let elements = formatJSONRequestLabels(messageStore);
-		if (elements.length === 0 &&
+		if (elements.length === 0 && messageQueueStore.getLayout() === 'Default' &&
 			(!jsonLogStore.isBriefChecked() || messageStore.getJsonFields().length === 0)) {
 			// Look for embedded JSON object
 			let nonJson = message.path ? message.path + ' ' : '';
@@ -84,7 +96,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			}
 		}
 
-		let messageText = messageStore.getLogEntry().message;
+		let messageText = messageQueueStore.getLayout() !== 'Default' ? message.url : messageStore.getLogEntry().message;
 		if (messageText !== '') {
 			const border = '';
 			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border, lineHeight: '1.2' }}> {messageText}</div >);

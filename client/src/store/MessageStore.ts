@@ -152,6 +152,9 @@ export default class MessageStore {
         } else {
             json = {
                 ...this.logEntry.additionalJSON,
+                ...message.requestHeaders,
+                ...message.requestHeaders,
+                ...message.responseHeaders,
                 ...message.responseBody
             };
         }
