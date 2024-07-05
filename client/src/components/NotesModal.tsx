@@ -1,6 +1,7 @@
 import { Modal } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import { mainTabStore } from '../store/MainTabStore';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -10,6 +11,7 @@ const NotesModal = observer(({ open, onClose }: Props) => {
 
 	function close() {
 		onClose();
+		GTag.pageView('NotesModal');
 	}
 
 	function handleChange(e: any) {

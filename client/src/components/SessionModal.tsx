@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import DeleteDialog from './DeleteDialog';
 import { apFileSystem } from '../store/APFileSystem';
 import ExportDialog from './ExportDialog';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -32,6 +33,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	function close() {
 		mainTabStore.setUpdating(false);
 		onClose();
+		GTag.pageView('SessionModal count=' + store.getSessionList().length);
 	}
 
 	function handleDeleteSession(i: number) {

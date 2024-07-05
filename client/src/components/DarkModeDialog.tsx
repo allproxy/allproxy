@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
 import { themeStore } from '../store/ThemeStore';
+import GTag from '../GTag';
 
 let once = false;
 
@@ -26,6 +27,7 @@ const DarkModeDialog = observer(({ open, onClose }: Props) => {
 	const handleClose = () => {
 		localStorage.setItem('allproxy-theme', theme);
 		onClose(theme);
+		GTag.pageView('DarkModeDialog ' + theme);
 	};
 
 	function handleDark() {

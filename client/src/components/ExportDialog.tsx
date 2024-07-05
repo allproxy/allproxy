@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@material-ui/core';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -13,6 +14,7 @@ const ExportDialog = observer(({ open, heading: title, buttonLabel, onClose }: P
 
 	const handleClose = () => {
 		onClose(fileName);
+		GTag.pageView('ExportDialog: ' + title);
 	};
 
 	return (

@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import GTag from "../GTag";
 
 export default class UrlPathStore {
 	private app: 'allproxy' | 'mitmproxy' | 'jlogviewer' = 'allproxy';
@@ -20,6 +21,7 @@ export default class UrlPathStore {
 					break;
 			}
 		}
+		GTag.initialize();
 		makeAutoObservable(this);
 	}
 
@@ -44,6 +46,7 @@ export default class UrlPathStore {
 				document.location.pathname = '/allproxy';
 				break;
 		}
+		GTag.initialize();
 	}
 
 	public isLocalhost() {

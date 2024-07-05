@@ -35,6 +35,7 @@ function initTheme() {
 }
 
 function App() {
+
   const [paletteType, setPaletteType] = React.useState<PaletteType>(defaultTheme);
 
   if (colorSchemeQueryList !== undefined) {
