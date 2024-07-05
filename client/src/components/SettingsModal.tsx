@@ -8,6 +8,7 @@ import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
 import { ConfigProtocol } from '../common/ProxyConfig';
 import portConfigStore from '../store/PortConfigStore';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -22,6 +23,7 @@ const SettingsModal = observer(({ open, onClose, store }: Props) => {
 		store.setTabCategory(value as ConfigCategory);
 		store.setProtocol(ConfigCategoryGroups.get(store.getTabCategory())![0].protocol);
 		store.setTabProtocol(store.getProtocol() as ConfigProtocol);
+		GTag.pageView('SettingsModel: ' + value);
 	}
 
 	function handleTabProtocolChange(_e: React.ChangeEvent<{}>, value: string) {

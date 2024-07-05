@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, DialogTitle } from '@material-ui/core';
 import MessageStore from '../store/MessageStore';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -14,6 +15,7 @@ const NoteDialog = observer(({ open, message, onClose }: Props) => {
 	const handleClose = () => {
 		message.setNote(note);
 		onClose();
+		GTag.pageView('NoteDialog');
 	};
 
 	return (

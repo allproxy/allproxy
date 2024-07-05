@@ -6,6 +6,7 @@ import { importJsonLines } from '../ImportJSONFile';
 import FileReaderStore from '../store/FileReaderStore';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import { socketStore } from '../store/SocketStore';
+import GTag from '../GTag';
 
 //const bigFileSize = 1024 * 1024 * 1024; // 1G
 const timeFieldName = 'ts_millis';
@@ -60,6 +61,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	};
 
 	if (submit) {
+		GTag.pageView('ImportJSONFileDialog + ' + (pastedJSON.length > 0 ? 'pasted' : fileReaderStore.getFileName()));
 		setSubmit(false);
 		onClose();
 		setTimeout(async () => {

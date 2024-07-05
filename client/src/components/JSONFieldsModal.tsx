@@ -11,6 +11,7 @@ import { messageQueueStore } from '../store/MessageQueueStore';
 import JSONFieldsMethod from './JSONParsingMethod';
 import JSONSimpleFields from './JSONSimpleFields';
 import { filterStore } from '../store/FilterStore';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -43,6 +44,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 			setError('Syntax syntax.  See console log for more information.');
 			console.log(e);
 		}
+		GTag.pageView('JSONFieldsModal count=' + store.getJSONFields().length);
 	}
 
 	function handleAddEntry() {

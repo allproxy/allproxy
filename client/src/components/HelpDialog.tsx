@@ -17,6 +17,7 @@ import JSONSimpleFields from './JSONSimpleFields';
 import JSONFieldsMethods from './JSONParsingMethod';
 import BreakpointModal from './BreakpointModal';
 import { breakpointStore } from '../store/BreakpointStore';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -36,6 +37,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 
 	const handleClose = () => {
 		onClose();
+		GTag.pageView('HelpDialog');
 	};
 
 	const isMac = navigator.appVersion.indexOf('Mac') !== -1;

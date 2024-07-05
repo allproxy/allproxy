@@ -8,6 +8,7 @@ import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import _ from 'lodash';
 import DeleteDialog from './DeleteDialog';
+import GTag from '../GTag';
 
 type Props = {
 
@@ -43,6 +44,8 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	}
 
 	async function applyFilter(query: string, updateHistory: boolean = true) {
+		GTag.search(query);
+
 		setShowQueries(false);
 		setFilter(query);
 		filterStore.setFilterNoDebounce(query);

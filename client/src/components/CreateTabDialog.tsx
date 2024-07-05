@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Dialog, DialogTitle } from '@material-ui/core';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -11,6 +12,7 @@ const CreateTabNameDialog = observer(({ open, onClose }: Props) => {
 
 	const handleClose = () => {
 		onClose(tabName);
+		GTag.pageView('CreateTabNameDialog ' + tabName);
 	};
 
 	return (

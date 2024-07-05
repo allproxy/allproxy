@@ -4,6 +4,7 @@ import ResendStore from '../store/ResendStore';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import { themeStore } from '../store/ThemeStore';
 import { mainTabStore, PROXY_TAB_NAME } from '../store/MainTabStore';
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -160,6 +161,7 @@ const ResendModal = observer(({ open, onClose, store }: Props) => {
 		store.doResend();
 		onClose();
 		mainTabStore.setSelectedTabName(PROXY_TAB_NAME);
+		GTag.pageView('ResendModal');
 	}
 
 	function handleToggleStrJson() {

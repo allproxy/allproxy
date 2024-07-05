@@ -5,6 +5,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import NamedQueriesStore, { namedQueriesStore } from '../store/NamedQueriesStore';
 import { urlPathStore } from '../store/UrlPathStore';
 import { isJsonLogTab } from './SideBar';
+import GTag from '../GTag';
 
 type Props = {
 	name: string,
@@ -17,6 +18,7 @@ const NamedQueriesModal = observer(({ name, open, onClose, store }: Props) => {
 	function close() {
 		namedQueriesStore.setLogType(isJsonLogTab() ? 'json' : 'proxy');
 		onClose();
+		GTag.pageView('NamedQueriesModal count=' + store.getAllQueries().length);
 	}
 
 	function handleAddQuery() {

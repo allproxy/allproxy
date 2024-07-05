@@ -3,6 +3,7 @@ import NoCaptureStore from '../store/NoCaptureStore';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import CloseIcon from "@material-ui/icons/Close";
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -21,6 +22,7 @@ const NoCaptureModal = observer(({ open, onClose, store }: Props) => {
 	function onSave() {
 		store.save();
 		close();
+		GTag.pageView('NoCaptureModal count=' + store.getClientList().length);
 	}
 
 	function handleAddClient() {

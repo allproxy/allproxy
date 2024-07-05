@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import FilterStore from '../store/FilterStore';
 import CloseIcon from "@material-ui/icons/Close";
+import GTag from '../GTag';
 
 type Props = {
 	open: boolean,
@@ -17,6 +18,7 @@ const BreakpointModal = observer(({ open, onClose, store }: Props) => {
 
 	function close() {
 		onClose();
+		GTag.pageView('BreakpointModal count=' + store.getBreakpointCount());
 	}
 
 	function handleAddBreakpoint() {
