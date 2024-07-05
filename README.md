@@ -12,20 +12,6 @@ Also imports JSON logs to make them human readable.
 
 ![Alt text](image-1.png)
 
-### Try AllProxy Online
-
-To try a `readonly` demo:
-* Click [Try AllProxy](https://allproxy.ddns.net/allproxy)
-* On the left side panel click the `Restore Session` button
-* From the Restore Session Modal click `Restore` to restore a sample session
-
-You may also make some local configuration changes:
-* Edit `Queries`
-* Click the gear icon in the uppert right to change `JSON Settings`
-
-**NOTE**
-The proxy capability of the hosted `AllProxy` app is disabled, and the proxy configuration is disabled.  To try the MITM proxy, the `AllProxy` app must be installed on your computer.
-
 ### Install
 
 > Options:
