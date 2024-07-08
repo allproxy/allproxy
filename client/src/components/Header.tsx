@@ -24,6 +24,7 @@ import { jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
 import { urlPathStore } from '../store/UrlPathStore';
+import GTag from '../GTag';
 
 let filterWasStopped = false;
 
@@ -45,7 +46,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
-	const [showHelp, setShowHelp] = React.useState(false);
+	const [showHelp, setShowHelp] = React.useState(true);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
@@ -93,7 +94,10 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 								}
 							</span>
 						}
-						onChange={(e) => urlPathStore.setApp(e.target.value as 'allproxy' | 'mitmproxy' | 'jlogviewer')}
+						onChange={(e) => {
+							urlPathStore.setApp(e.target.value as 'allproxy' | 'mitmproxy' | 'jlogviewer');
+							GTag.selectItem('Select App', e.target.value as string);
+						}}
 					>
 						<MenuItem
 							value="allproxy"

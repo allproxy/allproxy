@@ -200,6 +200,19 @@ export default class SocketIoManager {
       setOsBinaries(os);
     })
 
+    socket.on('get install type', (callback: (type: string) => void) => {
+      var type = 'Electron';
+      let headless = process.env.HEADLESS;
+      if (headless) {
+        if (process.env.npm_command === 'start') {
+          type = 'GitHub';
+        } else {
+          type = 'NPM';
+        }
+      }
+      callback(type);
+    })
+
     socket.on('proxy config', (proxyConfigs: ProxyConfig[]) => {
       ConsoleLog.info(`${Paths.configJson()}:\n`, proxyConfigs);
       this.saveConfig(proxyConfigs);

@@ -33,6 +33,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, tabValue: 'jsonFields' | 'scripts' | 'showFields') {
 		setTabValue(tabValue);
+		GTag.selectContent('JSONFieldsModal', tabValue);
 	}
 
 	function close() {

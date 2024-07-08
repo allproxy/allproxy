@@ -283,6 +283,15 @@ export default class SocketStore {
 			});
 		});
 	}
+
+	public emitGetInstallType(): Promise<string> {
+		return new Promise((resolve) => {
+			this.socket?.emit('get install type',
+				(type: string) => {
+					resolve(type);
+				});
+		});
+	}
 }
 
 export const socketStore = new SocketStore();
