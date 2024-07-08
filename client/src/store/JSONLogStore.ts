@@ -5,6 +5,7 @@ import { compressJSON } from "./MainTabStore";
 import { filterStore } from "./FilterStore";
 import { urlPathStore } from "./UrlPathStore";
 import { getPluginFunc } from "../Plugins";
+import GTag from "../GTag";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -171,6 +172,7 @@ export default class JSONLogStore {
 	public async setParsingMethod(method: 'auto' | 'simple' | 'advanced' | 'plugin') {
 		this.method = method;
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/method', method);
+		GTag.selectItem('JSON Parse Method', method);
 	}
 
 	public getAutoFields() { return this.autoFields; }
@@ -209,6 +211,7 @@ export default class JSONLogStore {
 	@action public toggleBriefChecked() {
 		this.briefChecked = !this.briefChecked;
 		filterStore.filterUpdated();
+		GTag.selectItem('Less Detail Checked', this.briefChecked + '');
 	}
 	public getBriefMap() {
 		return this.briefMap;
@@ -223,6 +226,7 @@ export default class JSONLogStore {
 	@action public toggleRawJsonChecked() {
 		this.rawJsonChecked = !this.rawJsonChecked;
 		filterStore.filterUpdated();
+		GTag.selectItem('Show Raw JSON Checked', this.rawJsonChecked + '');
 	}
 
 	public isShowUtcChecked() {
@@ -231,6 +235,7 @@ export default class JSONLogStore {
 	@action public toggleShowUtcChecked() {
 		this.showUtcChecked = !this.showUtcChecked;
 		filterStore.filterUpdated();
+		GTag.selectItem('UTC Time Checked', this.showUtcChecked + '');
 	}
 
 	@action public async resetScriptToDefault() {

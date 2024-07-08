@@ -3,6 +3,7 @@ import Message, { NO_RESPONSE } from '../common/Message';
 import MessageStore from './MessageStore';
 import { PROXY_TAB_NAME, mainTabStore } from './MainTabStore';
 import { dateToHHMMSS } from "../components/Request";
+import GTag from "../GTag";
 
 export const DEFAULT_LIMIT = 50000;
 const LOCAL_STORAGE_LIMIT = 'allproxy-limit';
@@ -84,6 +85,7 @@ export default class MessageQueueStore {
 	}
 	@action public toggleShowTooltip() {
 		this.showTooltip = !this.showTooltip;
+		GTag.selectItem('Show Tooltip Checked', this.showTooltip + '');
 	}
 
 	public getShowUserAgent() {
@@ -91,6 +93,7 @@ export default class MessageQueueStore {
 	}
 	@action public toggleShowRequestUA() {
 		this.showUserAgent = !this.showUserAgent;
+		GTag.selectItem('Show User Agent Checked', this.showUserAgent + '');
 	}
 
 	public getSortOrder() {
@@ -98,12 +101,16 @@ export default class MessageQueueStore {
 	}
 	@action public setSortOrder(order: "desc" | "asc") {
 		this.sortOrder = order;
+		GTag.selectItem('Sort Order', this.sortOrder);
 	}
 	public getSortByField() {
 		return this.sortByField;
 	}
 	@action public setSortByField(field: string | undefined) {
 		this.sortByField = field;
+		if (field) {
+			GTag.selectItem('Sort By Field', field);
+		}
 	}
 	@action public sortOrderChanged() {
 		this.sort();
@@ -124,10 +131,12 @@ export default class MessageQueueStore {
 
 	@action public setStopped(stopped: boolean) {
 		this.stopped = stopped;
+		GTag.selectItem('Capture Stopped', this.stopped + '');
 	}
 
 	@action public toggleStopped() {
 		this.stopped = !this.stopped;
+		GTag.selectItem('Capture Stopped', this.stopped + '');
 	}
 
 	public getScrollAction(): 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined {
@@ -136,6 +145,9 @@ export default class MessageQueueStore {
 
 	@action public setScrollAction(action: 'top' | 'bottom' | 'pageup' | 'pagedown' | 'filter' | undefined) {
 		this.scrollAction = action;
+		if (action === 'top' || action === 'bottom') {
+			GTag.selectItem('Scroll', action);
+		}
 	}
 
 	public getSortByReq(): boolean {

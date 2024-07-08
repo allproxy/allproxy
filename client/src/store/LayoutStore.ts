@@ -1,4 +1,5 @@
 import { makeAutoObservable, action } from "mobx";
+import GTag from "../GTag";
 
 export default class LayoutStore {
 	private verticalLayout = true;
@@ -13,6 +14,7 @@ export default class LayoutStore {
 	}
 	@action toggleNowrap() {
 		this.nowrap = !this.nowrap;
+		GTag.selectItem('No Wrap Checked', this.nowrap + '');
 	}
 
 	public isVertical() {
@@ -24,6 +26,7 @@ export default class LayoutStore {
 
 	@action public toggleVertical() {
 		this.verticalLayout = !this.verticalLayout;
+		GTag.selectItem('Layout', this.verticalLayout ? 'vertical' : 'horizontal');
 	}
 
 	public flexDirection() {

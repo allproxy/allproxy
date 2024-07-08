@@ -12,6 +12,17 @@ export default class GTag {
         } else {
             ReactGA.initialize('G-H1NDQRZW8J');
         }
+
+        setTimeout(async () => {
+            const { urlPathStore } = await import('./store/UrlPathStore');
+            if (urlPathStore.isGitHubPages()) {
+                this.pageView('Package: Github Pages App');
+            } else {
+                const { socketStore } = await import('./store/SocketStore');
+                const type = await socketStore.emitGetInstallType();
+                this.pageView('Package: ' + type);
+            }
+        }, 1000);
     }
 
     public static pageView(title: string) {
