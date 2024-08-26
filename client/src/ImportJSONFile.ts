@@ -65,6 +65,24 @@ export function newMessage(record: string, sequenceNumber: number, fileName: str
     if (json) {
         const m = newJSONMessage(nonJson, json, sequenceNumber, fileName);
         m.jsonTruncated = jsonTruncated;
+        // Convert JSON strings to JSON
+        const parseJsonFields = function (json: any) {
+            for (const key in json) {
+                const value = json[key];
+                if (typeof value === 'string') {
+                    if (value.startsWith('{') && value.endsWith('}') || value.startsWith('[') && value.endsWith(']')) {
+                        try {
+                            json[key] = JSON.parse(value);
+                        } catch (e) { }
+                    }
+                } else if (Array.isArray(value)) {
+                    parseJsonFields(value);
+                } else if (typeof value === 'object') {
+                    parseJsonFields(value);
+                }
+            }
+        };
+        parseJsonFields(json);
         return m;
     } else {
         return newJSONMessage('', record, sequenceNumber, fileName);
