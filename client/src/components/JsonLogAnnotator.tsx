@@ -134,7 +134,8 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 					if (operand === '*' ||
 						fieldValueLower.startsWith(operandLower) || fieldValueLower.endsWith(operandLower) ||
 						fieldValueLower === operandLower) {
-						if (!matchValueMap[fieldValueLower]) {
+						// Disable code that only shows one match
+						if (true || !matchValueMap[fieldValueLower]) {
 							addElement(field, true);
 							searchMatches.push(field.name.toLowerCase());
 							matchValueMap[fieldValueLower] = true;
