@@ -164,9 +164,7 @@ export default class MessageQueueStore {
 	}
 
 	@action public clear() {
-		while (mainTabStore.getProxyTab().length > 0) {
-			mainTabStore.getProxyTab().pop();
-		}
+		mainTabStore.getProxyTab().splice(0, mainTabStore.getProxyTab().length);
 		this.stopped = false;
 	}
 
