@@ -31,7 +31,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						messageQueueStore.getLayout() === 'Raw Response' ?
 							<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
 								{makeCatAppElement(message.getMessage().status + '', message.getMessage().method + "")}
-								{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2' }}> {message.getUrl()}</div >}
+								{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2', wordBreak: 'break-all' }}> {message.getUrl()}</div >}
 								{JSON.stringify(message.getMessage().responseBody).replace(/\\"/g, '')}
 							</div>
 							:
@@ -99,7 +99,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		let messageText = messageQueueStore.getLayout() !== 'Default' ? message.url : messageStore.getLogEntry().message;
 		if (messageText !== '') {
 			const border = '';
-			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border, lineHeight: '1.2' }}> {messageText}</div >);
+			elements.unshift(<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', border: border, lineHeight: '1.2', wordBreak: 'break-all' }}> {messageText}</div >);
 		}
 
 		if (category.length + kind.length > 0) {
