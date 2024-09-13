@@ -322,11 +322,10 @@ export default class MessageStore {
 
     public async updateJsonLog(method: 'auto' | 'simple' | 'advanced' | 'plugin' = jsonLogStore.getParsingMethod()) {
         const message = this.getMessage();
-        const responseBody = message.responseBody;
-        if (typeof responseBody === 'string') {
-            this.logEntry = jsonLogStore.extractJSONFields(responseBody, {}, method);
+        if (typeof message.responseBody === 'string') {
+            this.logEntry = jsonLogStore.extractJSONFields(message.responseBody, {}, method);
         } else {
-            this.logEntry = jsonLogStore.extractJSONFields(message.path, responseBody, method);
+            this.logEntry = jsonLogStore.extractJSONFields(message.path, message.responseBody, method);
         }
 
         let json: { [key: string]: string } = {};

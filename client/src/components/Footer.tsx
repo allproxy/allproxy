@@ -1,10 +1,10 @@
 import FilterStore from '../store/FilterStore';
 import { observer } from 'mobx-react-lite';
 import BreakpointStore from '../store/BreakpointStore';
-import ExcludeTags from './ExcludeTags';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import { urlPathStore } from '../store/UrlPathStore';
 import { dateToHHMMSS as dateToString } from './Request';
+import HighlightTags from './HighlightTags';
 
 /**
  * Footer view
@@ -40,7 +40,14 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 				</div>
 			}
 			<div className="footer__item footer__exclude-filter">
-				{true ?
+				{urlPathStore.getKind() === 'jlogviewer' ?
+					<>
+						<div className="footer__exclude-label">Highlight JSON Field:</div>
+						<div>
+							<HighlightTags />
+						</div>
+					</>
+					:
 					<>
 						<div className="footer__exclude-label">Time Filter:</div>
 						<input className="footer-input form-control" style={{ color: getDateColor(filterStore.getStartTime()) }}
@@ -67,15 +74,6 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 						>
 							Clear Time
 						</button>
-					</>
-					:
-					<>
-						<div className="footer__exclude-label">Exclude:</div>
-						<div>
-							<ExcludeTags />
-						</div>
-						<div className={`header__filter-case ${filterStore.excludeMatchCase() ? 'active' : ''}`}
-							title="Match case" onClick={() => filterStore.toggleExcludeMatchCase()}>Aa</div>
 					</>
 				}
 			</div>

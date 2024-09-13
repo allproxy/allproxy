@@ -114,7 +114,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		let elements: JSX.Element[] = [];
 		const searchMatches: string[] = [];
 
-		if (filterStore.getFilter().length > 0) {
+		if (filterStore.getFilter().length > 0 || filterStore.getHighlightTerms().length > 0) {
 			const matchValueMap: { [key: string]: boolean } = {};
 			const matchInMiddleMap: { [key: string]: JsonField } = {};
 			const fieldsMap = messageStore.getAllJsonFieldsMap();
