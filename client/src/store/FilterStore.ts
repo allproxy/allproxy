@@ -13,6 +13,7 @@ export default class FilterStore {
     private searchFilter = '';
     private boolString = '';
     private boolOperands: string[] = [];
+    private highlightTerms: string[] = [];
     private _matchCase = false;
     private _regex = false;
     private _logical = true;
@@ -264,6 +265,13 @@ export default class FilterStore {
 
     public canDedup() {
         return Object.keys(this.dedupMap).length > 0;
+    }
+
+    @action public setHighlightTerms(terms: string[]) {
+        this.highlightTerms = terms;
+    }
+    public getHighlightTerms() {
+        return this.highlightTerms;
     }
 
     @action public setFilterNoDebounce(filter: string) {
@@ -540,10 +548,11 @@ export default class FilterStore {
     }
 
     public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): string | false {
-        if (this.searchFilter.length === 0) return false;
+        if (this.searchFilter.length === 0 && this.highlightTerms.length === 0) return false;
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
+        operands.push(...this.highlightTerms);
         for (let operand of operands) {
             const operandKeyValues = this.parseKeyValue(operand);
             for (const operandKeyValue of operandKeyValues) {

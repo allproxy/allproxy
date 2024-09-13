@@ -247,7 +247,7 @@ export function getJSONFields() {
 	for (const messageStore of messageQueueStore.getMessages()) {
 		if (messageStore.isFiltered()) continue;
 
-		if (filterStore.getFilter().length > 0) {
+		if (filterStore.getFilter().length > 0 || filterStore.getHighlightTerms().length > 0) {
 			const fieldsMap = messageStore.getAllJsonFieldsMap();
 			for (const key in fieldsMap) {
 				const field = fieldsMap[key];
