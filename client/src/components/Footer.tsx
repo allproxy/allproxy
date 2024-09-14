@@ -29,7 +29,7 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 		<div className="footer__container">
 			<div>
 				<div className="footer__item" title="Number of messages">
-					<div>Messages: {messageQueueStore.getUnfilteredCount()} of {messageQueueStore.getTotalLength()}</div>
+					<div> {messageQueueStore.getUnfilteredCount()} of {messageQueueStore.getTotalLength()}</div>
 				</div>
 			</div>
 			{urlPathStore.getKind() !== 'jlogviewer' &&
@@ -42,7 +42,7 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 			<div className="footer__item footer__exclude-filter">
 				{urlPathStore.getKind() === 'jlogviewer' ?
 					<>
-						<div className="footer__exclude-label">Highlight JSON Field:</div>
+						<div className="footer__exclude-label">Highlight JSON:</div>
 						<div>
 							<HighlightTags />
 						</div>

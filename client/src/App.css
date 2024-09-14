@@ -589,7 +589,10 @@ td input {
 	width: 300px !important;
 }
 
-.react-tagsinput,
+.react-tagsinput {
+	width: calc(100vw - 300px) !important;
+}
+
 .header__filter-input,
 .header__filter-input-queries {
 	width: calc(100vw - 732px) !important;
