@@ -61,7 +61,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	};
 
 	if (submit) {
-		GTag.pageView('ImportJSONFileDialog + ' + (pastedJSON.length > 0 ? 'pasted' : fileReaderStore.getFileName()));
+		GTag.pageView('ImportJSONFileDialog + ' + (pastedJSON.length > 0 ? 'pasted' : 'file'));
 		setSubmit(false);
 		onClose();
 		setTimeout(async () => {
