@@ -111,10 +111,11 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	function formatJSONRequestLabels(messageStore: MessageStore): JSX.Element[] {
 
+		const elementsMap: { [key: string]: boolean } = {};
 		let elements: JSX.Element[] = [];
 		const searchMatches: string[] = [];
 
-		if (filterStore.getFilter().length > 0 || filterStore.getHighlightTerms().length > 0) {
+		if (filterStore.getFilter().length > 0 || filterStore.getHighlightJsonFields().length > 0) {
 			const matchValueMap: { [key: string]: boolean } = {};
 			const matchInMiddleMap: { [key: string]: JsonField } = {};
 			const fieldsMap = messageStore.getAllJsonFieldsMap();
@@ -196,7 +197,10 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			const keyBorder = highlight ? `${highlightColor} ${highlightWidth} solid` : `${bg} thin solid`;
 			const valueBorder = undefined;
 			const filter = highlight ? '' : style.filter;
-			elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, bg, color, filter, field.value));
+			if (elementsMap[field.name] === undefined) {
+				elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, bg, color, filter, field.value));
+				elementsMap[field.name] = true;
+			}
 		}
 
 		return elements;

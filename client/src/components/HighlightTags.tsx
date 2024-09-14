@@ -9,7 +9,7 @@ export default function HighlightTags() {
 
 	function handleChange(tags: string[]) {
 		setTags(tags);
-		filterStore.setHighlightTerms(tags);
+		filterStore.setHighlightJsonFields(tags);
 		GTag.search(tags.toString());
 	}
 
