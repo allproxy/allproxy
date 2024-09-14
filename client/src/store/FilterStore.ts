@@ -13,7 +13,7 @@ export default class FilterStore {
     private searchFilter = '';
     private boolString = '';
     private boolOperands: string[] = [];
-    private highlightTerms: string[] = [];
+    private highlightJsonFields: string[] = [];
     private _matchCase = false;
     private _regex = false;
     private _logical = true;
@@ -267,11 +267,11 @@ export default class FilterStore {
         return Object.keys(this.dedupMap).length > 0;
     }
 
-    @action public setHighlightTerms(terms: string[]) {
-        this.highlightTerms = terms;
+    @action public setHighlightJsonFields(terms: string[]) {
+        this.highlightJsonFields = terms;
     }
-    public getHighlightTerms() {
-        return this.highlightTerms;
+    public getHighlightJsonFields() {
+        return this.highlightJsonFields;
     }
 
     @action public setFilterNoDebounce(filter: string) {
@@ -548,11 +548,11 @@ export default class FilterStore {
     }
 
     public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): string | false {
-        if (this.searchFilter.length === 0 && this.highlightTerms.length === 0) return false;
+        if (this.searchFilter.length === 0 && this.highlightJsonFields.length === 0) return false;
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
         const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
-        operands.push(...this.highlightTerms);
+        operands.push(...this.highlightJsonFields);
         for (let operand of operands) {
             const operandKeyValues = this.parseKeyValue(operand);
             for (const operandKeyValue of operandKeyValues) {
