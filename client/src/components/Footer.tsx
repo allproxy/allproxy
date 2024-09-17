@@ -13,17 +13,7 @@ type Props = {
 	filterStore: FilterStore,
 	breakpointStore: BreakpointStore
 };
-const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element => {
-
-	function handleSet() {
-		filterStore.filterUpdated();
-	}
-
-	function handleClear() {
-		filterStore.setStartTime('');
-		filterStore.setEndTime('');
-		filterStore.filterUpdated();
-	}
+const Footer = observer(({ breakpointStore }: Props): JSX.Element => {
 
 	return (
 		<div className="footer__container">
@@ -40,7 +30,7 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 				</div>
 			}
 			<div className="footer__item footer__exclude-filter">
-				{urlPathStore.getKind() === 'jlogviewer' ?
+				{urlPathStore.getKind() === 'jlogviewer' || messageQueueStore.getLayout() === 'Search Match' ?
 					<>
 						<div className="footer__exclude-label">Highlight JSON:</div>
 						<div>
@@ -49,31 +39,6 @@ const Footer = observer(({ filterStore, breakpointStore }: Props): JSX.Element =
 					</>
 					:
 					<>
-						<div className="footer__exclude-label">Time Filter:</div>
-						<input className="footer-input form-control" style={{ color: getDateColor(filterStore.getStartTime()) }}
-							type="text"
-							placeholder="Start Time"
-							value={filterStore.getStartTime()}
-							onChange={(e) => filterStore.setStartTime(e.target.value)}
-						/>
-						<div style={{ margin: '0 .5rem', lineHeight: '32px' }}>to</div>
-						<input className="footer-input form-control" style={{ color: getDateColor(filterStore.getEndTime()) }}
-							type="text"
-							placeholder="End Time"
-							value={filterStore.getEndTime()}
-							onChange={(e) => filterStore.setEndTime(e.target.value)}
-						/>
-						<button className="btn btn-success" style={{ marginLeft: '.5rem' }}
-							disabled={!stringToDate(filterStore.getStartTime()).ok || !stringToDate(filterStore.getEndTime()).ok}
-							onClick={handleSet}
-						>
-							Set Time
-						</button>
-						<button className="btn btn-secondary" style={{ marginLeft: '.5rem' }}
-							onClick={handleClear}
-						>
-							Clear Time
-						</button>
 					</>
 				}
 			</div>
@@ -110,10 +75,6 @@ function getMonthDayYear() {
 		return dateToString(date).split(' ')[0];
 	}
 	return '';
-}
-
-function getDateColor(time: string) {
-	return stringToDate(time).ok ? 'rgba(232, 230, 227)' : 'red';
 }
 
 export default Footer;
