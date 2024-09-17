@@ -15,6 +15,7 @@ import { urlPathStore } from "../store/UrlPathStore";
 import SideBarNamedQueries from "./SideBarQueries";
 import SideBarSettings from "./SideBarSettings";
 import SideBarJsonSettings from "./SideBarJsonSettings";
+import { stringToDate } from "./Footer";
 
 export const isJsonLogTab = () => {
 	const messages = mainTabStore.getSelectedMessages();
@@ -27,6 +28,18 @@ const SideBar = observer(() => {
 	const [disableSaveSession, setDisableSession] = React.useState(false);
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
+	const [timeChanged, setTimeChanged] = React.useState(false);
+
+	function handleSet() {
+		filterStore.filterUpdated();
+		setTimeChanged(false);
+	}
+
+	function handleClear() {
+		filterStore.setStartTime('');
+		filterStore.setEndTime('');
+		filterStore.filterUpdated();
+	}
 
 	const [openTabFileSelector, { filesContent: tabContent, clear: tabClear }] = useFilePicker({
 		multiple: false,
@@ -236,6 +249,39 @@ const SideBar = observer(() => {
 						</Menu>
 					</div>
 				</div>
+				<div>
+					<div className="side-bar-item">
+						<input className="footer-input form-control"
+							style={getInputStyle(filterStore.getStartTime())}
+							type="text"
+							placeholder="Start Time"
+							value={filterStore.getStartTime()}
+							onChange={(e) => { filterStore.setStartTime(e.target.value); setTimeChanged(e.target.value.length > 0); }}
+						/>
+					</div>
+					<div className="side-bar-item">
+						<input className="footer-input form-control"
+							style={getInputStyle(filterStore.getEndTime())}
+							type="text"
+							placeholder="End Time"
+							value={filterStore.getEndTime()}
+							onChange={(e) => { filterStore.setEndTime(e.target.value); setTimeChanged(e.target.value.length > 0); }}
+						/>
+					</div>
+					<div className="side-bar-item">
+						<button className="btn btn-success" style={{ width: '96px' }}
+							disabled={!timeChanged || !stringToDate(filterStore.getStartTime()).ok || !stringToDate(filterStore.getEndTime()).ok}
+							onClick={handleSet}
+						>
+							Set Time
+						</button>
+						<button className="btn btn-secondary" style={{ marginLeft: '.25rem', width: '96px' }}
+							onClick={handleClear}
+						>
+							Clear Time
+						</button>
+					</div>
+				</div>
 				<div className="side-bar-scroll">
 					<div>
 						<SideBarSettings />
@@ -268,7 +314,7 @@ const SideBar = observer(() => {
 						</div>
 					)}
 
-					{filterStore.getSideBarProtocolIconClasses().length > 0 && (
+					{false && filterStore.getSideBarProtocolIconClasses().length > 0 && (
 						<>
 							<hr className="side-bar-divider"></hr>
 							{
@@ -410,6 +456,23 @@ const SideBar = observer(() => {
 			/>
 		</>
 	);
+
+	function getInputStyle(time: string) {
+		if (time.length === 0) {
+			return {
+				color: 'rgba(232, 230, 227)',
+				backgroundColor: '#444444'
+			};
+		}
+
+		const ok = stringToDate(time).ok;
+		const style = {
+			background: (ok ? (timeChanged ? '#fffac8' : 'lightGreen') : 'lightCoral'),
+			color: 'black'
+		};
+		return style;
+	}
+
 });
 
 export default SideBar;

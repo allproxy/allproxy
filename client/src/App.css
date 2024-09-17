@@ -123,11 +123,6 @@ body {
 	background-color: #444444;
 }
 
-.footer-input {
-	color: rgba(232, 230, 227);
-	background-color: #444444 !important;
-}
-
 .react-tagsinput,
 .react-tagsinput input {
 	color: rgba(232, 230, 227) !important;
@@ -585,7 +580,7 @@ td input {
 }
 
 .footer-input {
-	width: 300px !important;
+	width: 200px !important;
 }
 
 .react-tagsinput {
