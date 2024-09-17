@@ -291,7 +291,7 @@ const SideBar = observer(() => {
 						<SideBarNamedQueries />
 					</div>
 
-					<div>
+					<div hidden>
 						<SideBarSortBy></SideBarSortBy>
 					</div>
 
@@ -342,7 +342,7 @@ const SideBar = observer(() => {
 						</>
 					)}
 
-					{!isJsonLogTab() && filterStore.getSideBarDomains().length > 0 &&
+					{false && !isJsonLogTab() && filterStore.getSideBarDomains().length > 0 &&
 						<div>
 							<div className="side-bar-item">
 								<Select className="side-bar-select"
@@ -370,7 +370,7 @@ const SideBar = observer(() => {
 								</Select>
 							</div>
 						</div>}
-					{!isJsonLogTab() && filterStore.getSideBarUserAgents().length > 0 &&
+					{false && !isJsonLogTab() && filterStore.getSideBarUserAgents().length > 0 &&
 						<div>
 							<div className="side-bar-item">
 								<Select className="side-bar-select"
@@ -399,11 +399,11 @@ const SideBar = observer(() => {
 							</div>
 						</div>}
 
-					{!isJsonLogTab() && (filterStore.getSideBarStatuses().length > 0) && (
+					{false && !isJsonLogTab() && (filterStore.getSideBarStatuses().length > 0) && (
 						<hr className="side-bar-divider"></hr>
 					)}
 
-					{!isJsonLogTab() && (filterStore.getSideBarStatuses().length > 0) && (
+					{false && !isJsonLogTab() && (filterStore.getSideBarStatuses().length > 0) && (
 						<div className="side-bar-item">
 							<div>
 								<div style={{ whiteSpace: 'nowrap' }}>Status:</div>
