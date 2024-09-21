@@ -551,11 +551,12 @@ export default class FilterStore {
         if (this.searchFilter.length === 0 && this.highlightJsonFields.length === 0) return false;
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
-        const operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
-        operands.push(...this.highlightJsonFields);
+        let operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
+        if (this.highlightJsonFields.length > 0) operands = operands.concat(this.highlightJsonFields);
         for (let operand of operands) {
             const operandKeyValues = this.parseKeyValue(operand);
             for (const operandKeyValue of operandKeyValues) {
+                // Check for key:value match
                 if (operandKeyValue.value !== undefined) {
                     let match = false;
                     const operandKeyLower = operandKeyValue.key.toLowerCase();
@@ -575,22 +576,23 @@ export default class FilterStore {
                         }
                     }
                     if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return operandKeyValue.value;
-                } else {
-                    if (operand.startsWith('"') && operand.endsWith('"')) {
-                        operand = operand.substring(1, operand.length - 1);
-                    }
-                    if (operand.length < 3) continue;
-                    const operandLower = operand.toLowerCase();
-                    const tokens = jsonFieldLower.split('.');
-                    const lastField = tokens[tokens.length - 1];
-                    if (jsonFieldLower === operandLower ||
-                        lastField.startsWith(operandLower) ||
-                        jsonFieldLower.endsWith(operandLower)) return operand;
-                    if (jsonValueLower.startsWith(operandLower)) return operand;
-                    if (jsonValueLower.endsWith(operandLower)) return operand;
-                    if (jsonValueLower === operandLower) return operand;
-                    if (jsonValueLower.includes(operandLower)) return operand;
                 }
+
+                // Check for JSON field value match on full operand string
+                if (operand.startsWith('"') && operand.endsWith('"')) {
+                    operand = operand.substring(1, operand.length - 1);
+                }
+                if (operand.length < 3) continue;
+                const operandLower = operand.toLowerCase();
+                const tokens = jsonFieldLower.split('.');
+                const lastField = tokens[tokens.length - 1];
+                if (jsonFieldLower === operandLower ||
+                    lastField.startsWith(operandLower) ||
+                    jsonFieldLower.endsWith(operandLower)) return operand;
+                if (jsonValueLower.startsWith(operandLower)) return operand;
+                if (jsonValueLower.endsWith(operandLower)) return operand;
+                if (jsonValueLower === operandLower) return operand;
+                if (jsonValueLower.includes(operandLower)) return operand;
             }
         }
         return false;
