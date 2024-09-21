@@ -547,12 +547,12 @@ export default class FilterStore {
         return keyValues;
     }
 
-    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string, addionalOperands?: string[]): string | false {
-        if (this.searchFilter.length === 0 && addionalOperands && addionalOperands.length === 0) return false;
+    public isJSONFieldOperandMatch(jsonField: string, jsonValue: string): string | false {
+        if (this.searchFilter.length === 0 && this.highlightJsonFields.length === 0) return false;
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
         let operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
-        if (addionalOperands && addionalOperands.length > 0) operands = operands.concat(addionalOperands);
+        if (this.highlightJsonFields.length > 0) operands = operands.concat(this.highlightJsonFields);
         for (let operand of operands) {
             const operandKeyValues = this.parseKeyValue(operand);
             for (const operandKeyValue of operandKeyValues) {
