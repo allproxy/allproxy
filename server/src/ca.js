@@ -140,6 +140,7 @@ CA.prototype.randomSerialNumber = function () {
   for (let i = 0; i < 4; i++) {
     sn += ('00000000' + Math.floor(Math.random() * Math.pow(256, 4)).toString(16)).slice(-8)
   }
+  sn = '01';
   return sn
 }
 

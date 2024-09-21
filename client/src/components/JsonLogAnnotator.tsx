@@ -123,7 +123,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			for (const key in fieldsMap) {
 				const field = fieldsMap[key];
 				let operand: string | false;
-				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + ''))) {
+				if ((operand = filterStore.isJSONFieldOperandMatch(field.name, field.value + '', filterStore.getHighlightJsonFields()))) {
 
 					const operandLower = operand.toLowerCase();
 					const fieldNameLower = (field.name + '').toLowerCase();
