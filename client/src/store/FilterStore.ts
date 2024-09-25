@@ -370,9 +370,10 @@ export default class FilterStore {
                 }
             }
 
+            operand = operand.trim();
             if (operand.length > 0) {
                 this.boolString += '###' + argNum++;
-                this.boolOperands.push(operand.trim());
+                this.boolOperands.push(operand);
             }
         }
     }
@@ -552,38 +553,39 @@ export default class FilterStore {
         const jsonFieldLower = jsonField.toLowerCase();
         const jsonValueLower = jsonValue.toLowerCase();
         let operands = this.boolOperands.length > 0 ? this.boolOperands : [this.searchFilter];
-        if (this.highlightJsonFields.length > 0) operands = operands.concat(this.highlightJsonFields);
+        if (this.highlightJsonFields.length > 0) operands = this.highlightJsonFields;
         for (let operand of operands) {
+            const operandLower = operand.toLowerCase();
+            const operandArrayIndex = operandLower.indexOf('[]');
             const operandKeyValues = this.parseKeyValue(operand);
             for (const operandKeyValue of operandKeyValues) {
                 // Check for key:value match
-                if (operandKeyValue.value !== undefined) {
-                    let match = false;
-                    const operandKeyLower = operandKeyValue.key.toLowerCase();
-                    if (operandKeyValue.key.substring(0, 1) === '*') {
-                        match = jsonField.endsWith(operandKeyLower.substring(1));
-                    } else {
-                        match = jsonFieldLower === operandKeyLower || jsonFieldLower.endsWith('.' + operandKeyLower);
-                    }
-                    if (match) {
-                        const out = this.parseValue(operandKeyValue.value);
-                        const operator = out.operator;
-                        const value = out.value;
-                        if (this.isKeyValueMatch(operandKeyValue.key, value, operator, jsonValue)) {
-                            return value;
-                        } else {
-                            return false;
-                        }
-                    }
-                    if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return operandKeyValue.value;
+                if (operandKeyValue.value === undefined) operandKeyValue.value = '*';
+                let match = false;
+                const operandKeyLower = operandKeyValue.key.toLowerCase();
+                if (operandKeyValue.key.substring(0, 1) === '*') {
+                    match = jsonField.endsWith(operandKeyLower.substring(1));
+                } else {
+                    match = jsonFieldLower === operandKeyLower || jsonFieldLower.endsWith('.' + operandKeyLower);
                 }
+                if (match) {
+                    const out = this.parseValue(operandKeyValue.value);
+                    const operator = out.operator;
+                    const value = out.value;
+                    if (this.isKeyValueMatch(operandKeyValue.key, value, operator, jsonValue)) {
+                        return value;
+                    } else {
+                        return false;
+                    }
+                }
+                if (operandKeyValue.key === '*' && jsonValueLower === operandKeyValue.value) return operandKeyValue.value;
+
 
                 // Check for JSON field value match on full operand string
                 if (operand.startsWith('"') && operand.endsWith('"')) {
                     operand = operand.substring(1, operand.length - 1);
                 }
                 if (operand.length < 3) continue;
-                const operandLower = operand.toLowerCase();
                 const tokens = jsonFieldLower.split('.');
                 const lastField = tokens[tokens.length - 1];
                 if (jsonFieldLower === operandLower ||
@@ -593,6 +595,21 @@ export default class FilterStore {
                 if (jsonValueLower.endsWith(operandLower)) return operand;
                 if (jsonValueLower === operandLower) return operand;
                 if (jsonValueLower.includes(operandLower)) return operand;
+
+                // array[].xxx 
+                if (operandArrayIndex > -1) {
+                    const fieldIndex1 = jsonFieldLower.indexOf('[');
+                    if (fieldIndex1 >= operandArrayIndex) {
+                        const fieldIndex2 = jsonFieldLower.indexOf(']');
+                        if (fieldIndex2 > fieldIndex1) {
+                            if (operandLower.substring(0, operandArrayIndex) === jsonFieldLower.substring(fieldIndex1 - operandArrayIndex, fieldIndex1)
+                                && operandLower.substring(operandArrayIndex + 1) === jsonFieldLower.substring(fieldIndex2)) {
+                                //console.log(operand, jsonField);
+                                return operand;
+                            }
+                        }
+                    }
+                }
             }
         }
         return false;

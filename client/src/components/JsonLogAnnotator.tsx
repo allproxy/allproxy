@@ -142,7 +142,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 							matchValueMap[fieldValueLower] = true;
 						}
 						continue;
-					} else if (lastName.startsWith(operandLower) || lastName.endsWith(operandLower)) {
+					} else if (operand.indexOf('[]') != -1 || lastName.startsWith(operandLower) || lastName.endsWith(operandLower)) {
 						addElement(field, true);
 					}
 

@@ -18,6 +18,7 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 				overflowY: 'auto'
 			}}>
 				{jsonFields.map((field) => (
+					//field.name.indexOf('[') === -1 &&
 					<span style={{ whiteSpace: "nowrap" }}>
 						<button className={"btn btn-sm " + (field.selected ? "btn-success" : "btn-secondary")}
 							key={field.name}
