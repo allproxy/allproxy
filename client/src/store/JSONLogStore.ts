@@ -676,7 +676,7 @@ function formatValue(_name: string, value: string): string {
 	return value;
 }
 
-export function getJsonFieldValues(fields: string[]): string[] {
+export function getJsonFieldValues(fields: string[], delimitor: 'comma' | 'space' = 'space'): string[] {
 	const outputValues: string[] = [];
 	type Values = string[];
 	const valueArray: Values[] = [];
@@ -706,7 +706,9 @@ export function getJsonFieldValues(fields: string[]): string[] {
 			} else if (field === 'Message') {
 				values.push(messageStore.getLogEntry().message);
 			} else {
-				for (const jsonField of lookupJSONField(json, field)) {
+				const jsonFields = lookupJSONField(json, field);
+				if (jsonFields.length === 0) jsonFields.push({ name: field, value: 'undefined' });
+				for (const jsonField of jsonFields) {
 					values.push(jsonField.value + '');
 				}
 			}
@@ -727,8 +729,13 @@ export function getJsonFieldValues(fields: string[]): string[] {
 		for (const values of valueArray) {
 			let value = '';
 			for (let i = 0; i < values.length; ++i) {
-				if (i > 0) value += ' ';
-				value += values[i] + ' '.repeat(lenOfFields[i] - values[i].length + 1);
+				if (delimitor === 'comma') {
+					if (i > 0) value += ',';
+					value += '"' + values[i] + '"';
+				} else {
+					if (i > 0) value += ' ';
+					value += values[i] + ' '.repeat(lenOfFields[i] - values[i].length + 1);
+				}
 			}
 			outputValues.push(value);
 		}
