@@ -10,6 +10,8 @@ import { isJsonLogTab } from "../components/SideBar";
 import FileReaderStore from "./FileReaderStore";
 import { jsonLogStore, updateJSONRequestLabels } from "./JSONLogStore";
 import { getPluginFunc } from "../Plugins";
+import {Content, Har, Header, PostData, QueryString} from "har-format";
+import {getReasonPhrase} from 'http-status-codes';
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -326,6 +328,84 @@ export default class MainTabStore {
 	}
 
 	public copyAsCurl(message: Message): string {
+		return fetchToCurl({
+			url: message.url,
+			headers: getSafeHeaders(message),
+			method: message.method,
+			body: message.requestBody ? message.requestBody : undefined
+		});
+	}
+
+	public copyAsHAR(message: Message): string {
+		const requestHeaders: Header[] = [];
+		for (const key in message.requestHeaders) {
+			requestHeaders.push({name: key, value: message.requestHeaders[key]});
+		}
+		const url = new URL(message.url as string);
+		const queryString: QueryString[] = [];
+		url.searchParams.forEach((value, key) => {
+			queryString.push({name: key, value: value as string});
+		});
+		const postData: PostData|undefined = message.requestBody ? {
+			mimeType: message.requestHeaders['content-type'],			
+			text: JSON.stringify(message.requestBody),
+		} : undefined;
+		const content: Content = {
+			size: parseInt(message.responseHeaders['content-length'] ? message.responseHeaders['content-length'] : "-1"),
+			mimeType: message.responseHeaders['content-type'],			
+			text: message.responseBody ? JSON.stringify(message.responseBody) : undefined,
+		};
+		
+		const responseHeaders: Header[] = [];
+		for (const key in message.responseHeaders) {
+			responseHeaders.push({name: key, value: message.responseHeaders[key]});
+		}
+								
+		const har: Har = {
+			log: {
+				entries: [
+					{
+						startedDateTime: new Date(message.timestamp).toUTCString(),
+						time: message.elapsedTime,
+						request: {
+							method: message.method as string,
+							url: url.href,
+							httpVersion: "HTTP/1.1",
+							headers: requestHeaders,
+							cookies: [],
+							queryString: queryString,
+							bodySize: -1,
+							headersSize: -1,
+							postData: postData,
+						},
+						response: {
+							status: message.status,
+							statusText: getReasonPhrase(message.status),
+							httpVersion: "HTTP/1.1",
+							headers: responseHeaders,
+							content: content,
+							headersSize: -1,
+							bodySize: -1,
+							cookies: [],
+							redirectURL: ""
+						},
+						cache: {},
+						timings: {
+							wait: message.elapsedTime,
+							receive: 0,
+						},
+					}
+				],
+				version: "",
+				creator: {
+					name: "",
+					version: ""
+				},
+			}
+		  };
+		
+		return JSON.stringify(har, null, "  ");
+
 		return fetchToCurl({
 			url: message.url,
 			headers: getSafeHeaders(message),

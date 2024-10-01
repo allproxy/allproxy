@@ -676,7 +676,7 @@ function formatValue(_name: string, value: string): string {
 	return value;
 }
 
-export function getJsonFieldValues(fields: string[], delimitor: 'comma' | 'space' = 'space'): string[] {
+export function getJsonSpreadsheetLines(fields: string[], delimitor: 'comma' | 'space' = 'space'): string[] {
 	const outputValues: string[] = [];
 	type Values = string[];
 	const valueArray: Values[] = [];

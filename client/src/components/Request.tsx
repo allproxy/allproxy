@@ -136,6 +136,16 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 										cURL
 									</div>
 								</IconButton>
+								<IconButton size="small" hidden={!canResend()}>
+									<div title="Copy HTTP Archive (HAR) to clipboard"
+										className="btn-xs btn-success"
+										style={{ marginRight: '0rem' }}
+										onClick={() => {
+											navigator.clipboard.writeText(mainTabStore.copyAsHAR(message));
+										}}>
+										HAR
+									</div>
+								</IconButton>
 								<IconButton size="small">
 									<div className="header__export fa fa-copy" title="Copy to clipboard"
 										style={{ marginRight: '0rem' }}

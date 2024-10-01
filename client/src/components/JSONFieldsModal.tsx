@@ -6,7 +6,7 @@ import TabContext from '@material-ui/lab/TabContext';
 import TabPanel from '@material-ui/lab/TabPanel';
 import React from 'react';
 import _ from 'lodash';
-import JSONFieldValues from './JSONFieldValues';
+import JSONspreadsheet from './JSONSpreadsheet';
 import { messageQueueStore } from '../store/MessageQueueStore';
 import JSONFieldsMethod from './JSONParsingMethod';
 import JSONSimpleFields from './JSONSimpleFields';
@@ -175,7 +175,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 											}
 										</>
 										: tabValue === SHOW_JSON_FIELD_VALUES ?
-											<JSONFieldValues jsonFields={jsonFields} />
+											<JSONspreadsheet jsonFields={jsonFields} />
 											:
 											<>
 												<button className="btn btn-lg btn-primary"
