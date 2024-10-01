@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import _ from 'lodash';
-import { getJsonFieldValues } from '../store/JSONLogStore';
+import { getJsonSpreadsheetLines } from '../store/JSONLogStore';
 
 export const JSONFieldButtonsHeight = 40;
 
@@ -9,7 +9,7 @@ type Props = {
 	jsonFields: { name: string, count: number, selected: boolean }[]
 };
 let order = 0; // order in FIFO order
-const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => {
+const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => {
 	const [jsonFieldValues, setJsonFieldValues] = React.useState<string[]>([]);
 	return (
 		<>
@@ -18,6 +18,7 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 				overflowY: 'auto'
 			}}>
 				{jsonFields.map((field) => (
+					//field.name.indexOf('[') === -1 &&
 					<span style={{ whiteSpace: "nowrap" }}>
 						<button className={"btn btn-sm " + (field.selected ? "btn-success" : "btn-secondary")}
 							key={field.name}
@@ -28,7 +29,7 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 								const sortedFields = [...jsonFields];
 								sortedFields.sort((a, b) => a.count - b.count);
 								const selectedFields = sortedFields.map(f => f.selected ? f.name : '').filter(f => f !== '');
-								setJsonFieldValues(getJsonFieldValues(selectedFields));
+								setJsonFieldValues(getJsonSpreadsheetLines(selectedFields));
 							}}
 						>
 							{field.name}
@@ -55,4 +56,4 @@ const JSONFieldValues = observer(({ jsonFields }: Props): JSX.Element | null => 
 	);
 });
 
-export default JSONFieldValues;
+export default JSONSpreadsheet;
