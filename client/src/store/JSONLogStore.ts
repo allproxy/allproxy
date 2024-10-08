@@ -6,6 +6,7 @@ import { filterStore } from "./FilterStore";
 import { urlPathStore } from "./UrlPathStore";
 import { getPluginFunc } from "../Plugins";
 import GTag from "../GTag";
+import { DefaultSortBy } from "../components/JSONSpreadsheet";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -676,10 +677,10 @@ function formatValue(_name: string, value: string): string {
 	return value;
 }
 
-export function getJsonSpreadsheetLines(fields: string[], delimitor: 'comma' | 'space' = 'space'): string[] {
+export function getJsonSpreadsheetLines(fields: string[], sortBy: string): string[] {
 	const outputValues: string[] = [];
 	type Values = string[];
-	const valueArray: Values[] = [];
+	let valueArray: Values[] = [];
 	for (const messageStore of messageQueueStore.getMessages()) {
 		if (messageStore.isFiltered()) continue;
 		const message = messageStore.getMessage();
@@ -717,7 +718,12 @@ export function getJsonSpreadsheetLines(fields: string[], delimitor: 'comma' | '
 			valueArray.push(values);
 		}
 	}
+
 	if (valueArray.length > 0) {
+		if (sortBy !== DefaultSortBy) {
+			const i = fields.indexOf(sortBy);
+			valueArray = valueArray.sort((a, b) => (a[i] + '').localeCompare(b[i] + ''));
+		}
 		valueArray.unshift([...fields]);
 		const lenOfFields: number[] = [];
 		for (let i = 0; i < fields.length; ++i)	lenOfFields[i] = 0;
@@ -729,13 +735,8 @@ export function getJsonSpreadsheetLines(fields: string[], delimitor: 'comma' | '
 		for (const values of valueArray) {
 			let value = '';
 			for (let i = 0; i < values.length; ++i) {
-				if (delimitor === 'comma') {
-					if (i > 0) value += ',';
-					value += '"' + values[i] + '"';
-				} else {
-					if (i > 0) value += ' ';
-					value += values[i] + ' '.repeat(lenOfFields[i] - values[i].length + 1);
-				}
+				if (i > 0) value += ' ';
+				value += values[i] + ' '.repeat(lenOfFields[i] - values[i].length + 1);
 			}
 			outputValues.push(value);
 		}
