@@ -164,15 +164,6 @@ td input {
 	margin-left: .5rem;
 }
 
-.MuiTabs-scroller {
-	overflow-x: auto !important;
-}
-
-.MuiTab-root {
-	/*width: 140px !important;*/
-	min-width: 100px !important;
-}
-
 .btn-group-xs>.btn,
 .btn-xs {
 	padding: .25rem .25rem !important;
@@ -671,6 +662,20 @@ td input {
 	width: 600px !important;
 }
 
+/* .MuiTabs-scroller {
+	overflow-x: auto !important;
+} */
+
+/* .MuiTabs-root {
+	overflow: auto;
+} */
+
+.MuiTab-root {
+	flex: 1;
+	width: min-content;
+	min-width: 0px !important;
+}
+
 .maintab__container {
 	margin-top: 3rem;
 	margin-bottom: 2rem;
@@ -682,7 +687,7 @@ td input {
 	top: 3rem;
 	height: 3rem;
 	background-color: rgb(26, 24, 24) !important;
-	width: 100%;
+	width: calc(100vw - 13rem);
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -699,15 +704,17 @@ td input {
 .maintab__tab {
 	display: flex;
 	width: 100%;
-	height: 40px;
-	align-items: center;
+	height: 20px;
+	/*align-items: center;*/
+	overflow: auto;
 }
 
 .maintab__tab-name {
 	font-size: smaller;
-	max-width: 128px;
-	overflow: hidden;
-	max-lines: 2;
+	overflow-x: hidden;
+	width: 100%;
+	/*max-width: 128px;*/
+	/*max-lines: 2;*/
 	/*white-space: nowrap;*/
 }
 
@@ -715,6 +722,7 @@ td input {
 .maintab__folder-plus {
 	font-size: smaller;
 	cursor: pointer;
+	margin-top: 4px;
 }
 
 .maintab__folder-plus {
