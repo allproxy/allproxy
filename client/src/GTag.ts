@@ -1,5 +1,7 @@
 import ReactGA from 'react-ga4';
 
+const ResendPageViewHours = 24;
+
 export default class GTag {
     public static initialize() {
         const path = document.location.pathname;
@@ -13,15 +15,23 @@ export default class GTag {
             ReactGA.initialize('G-H1NDQRZW8J');
         }
 
-        setTimeout(async () => {
-            const { urlPathStore } = await import('./store/UrlPathStore');
-            if (urlPathStore.isGitHubPages()) {
-                this.pageView('Package: Github Pages App');
-            } else {
-                const { socketStore } = await import('./store/SocketStore');
-                const type = await socketStore.emitGetInstallType();
-                this.pageView('Package: ' + type);
-            }
+        setTimeout(() => {
+            const doPageView = async () => {
+                const { urlPathStore } = await import('./store/UrlPathStore');
+                if (urlPathStore.isGitHubPages()) {
+                    this.pageView('Package: Github Pages App');
+                } else {
+                    const { socketStore } = await import('./store/SocketStore');
+                    const type = await socketStore.emitGetInstallType();
+                    this.pageView('Package: ' + type);
+                }
+            };
+
+            setInterval(() => {
+                doPageView();
+            }, ResendPageViewHours * 60 * 60 * 1000); // 24 hours
+
+            doPageView();
         }, 1000);
     }
 

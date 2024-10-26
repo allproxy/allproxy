@@ -422,7 +422,11 @@ export default class JSONLogStore {
 				if (logEntry.category === undefined) logEntry.category = '';
 				if (logEntry.kind === undefined) logEntry.kind = '';
 				if (logEntry.message === undefined) logEntry.message = '';
+				else if (typeof logEntry.message === 'object') {
+					logEntry.message = JSON.stringify(logEntry.message);
+				}
 				if (logEntry.rawLine === undefined) logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
+				if (logEntry.rawLine === undefined) logEntry.rawLine = '';
 				break;
 		}
 		if (typeof logEntry.level === 'number') logEntry.level = logEntry.level + '';
