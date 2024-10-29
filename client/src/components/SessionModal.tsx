@@ -159,16 +159,18 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 												<CloseIcon style={{ color: 'red', opacity: entry.canDelete ? undefined : 0 }} />
 											</IconButton>
 											<button className={`btn btn-success`}
+												title="Restore session"
 												style={{ marginRight: '.25rem' }}
 												onClick={() => handleRestoreSession(i)}
 											>
 												Restore
 											</button>
 											<button className={`btn btn-primary`}
+												title="Export session to zip file"
 												style={{ marginRight: '1rem' }}
 												onClick={() => handleExportSession(i)}
 											>
-												Save
+												Export
 											</button>
 											<div
 												style={{

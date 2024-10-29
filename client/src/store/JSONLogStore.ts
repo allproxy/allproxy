@@ -149,7 +149,7 @@ export default class JSONLogStore {
 	private autoMaxFieldLevel: 1 | 2 = 1;
 	private simpleFields: SimpleFields = { date: '', level: '', category: '', appName: '', kind: '', message: '', rawLine: '' };
 
-	private briefChecked = false;
+	private briefChecked = true;
 	private briefMap: { [key: string]: boolean } = {};
 
 	private rawJsonChecked = false;
