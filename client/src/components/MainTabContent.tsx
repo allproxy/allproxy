@@ -199,7 +199,11 @@ const MainTabContent = observer(({
 					messageQueueStore.getMessages().length > 0 &&
 					<div className={'request__container '
 						+ (selectedReqSeqNum === Number.MAX_SAFE_INTEGER ? 'unselected' : '')}
-						style={{ width: requestContainerLayout.width, height: requestContainerLayout.height }}
+						style={{
+							resize: layout.isVertical() ? 'horizontal' : 'vertical',
+							width: requestContainerLayout.width,
+							height: requestContainerLayout.height
+						}}
 						ref={requestContainerRef} onWheel={handleScroll}>
 						{renderSet.map((messageStore, index) => {
 							const message = messageStore.getMessage();
@@ -256,7 +260,10 @@ const MainTabContent = observer(({
 				{
 					messageQueueStore.getMessages().length > 0 &&
 					<div className="response__container"
-						style={{ width: responseContainerLayout.width, height: responseContainerLayout.height }}
+						style={{
+							width: responseContainerLayout.width,
+							height: responseContainerLayout.height
+						}}
 					>
 						{activeRequestIndex < messageQueueStore.getMessages().length ?
 							<Response
