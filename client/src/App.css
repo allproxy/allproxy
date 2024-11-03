@@ -746,7 +746,6 @@ td input {
 .request__container {
 	padding-right: .5rem;
 	overflow: auto;
-	resize: none;
 	border-right: solid grey;
 	display: flex;
 	flex-direction: column;
