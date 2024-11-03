@@ -1,13 +1,18 @@
 import { observer } from 'mobx-react-lite';
 import { pickCategoryKindStyle as pickCatKindStyle, pickLabelStyle } from '../PickButtonStyle';
 import MessageStore from '../store/MessageStore';
-import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
+import { Accordion, AccordionSummary, AccordionDetails, MenuItem, Menu } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { themeStore } from '../store/ThemeStore';
 import { filterStore } from '../store/FilterStore';
-import { JsonField, jsonLogStore } from '../store/JSONLogStore';
+import { JsonField, jsonLogStore, updateJSONRequestLabels } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
 import { messageQueueStore } from '../store/MessageQueueStore';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import StarIcon from '@mui/icons-material/Star';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+import React from 'react';
+import GTag from '../GTag';
 
 const maxValueSize = 500;
 
@@ -19,10 +24,66 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 	const highlightWidth = 'thin';
 	const layout = mainTabStore.getLayout(mainTabStore.getSelectedTabName());
 
+	const [starField, setStarField] = React.useState<string>('');
+	const [starMenuDiv, setStarMemuDiv] = React.useState<HTMLDivElement | null>(null);
+
+	function doStar(type: 'full' | 'half') {
+		let i = jsonLogStore.getJSONFieldNames().indexOf(starField);
+		//console.log('doStar', starField, i);
+		GTag.selectItem('Star ' + type, starField);
+		if (i === -1) {
+			jsonLogStore.extend();
+			i = 0;
+		}
+
+		const jsonField = jsonLogStore.getJSONFields()[i];
+		jsonField.setNameAndValidate(starField);
+		if (type === 'full' !== jsonField.shouldShowWnenBriefChecked()) {
+			jsonField.toggleBriefChecked();
+		}
+		setTimeout(() => {
+			updateJSONRequestLabels();
+		}, 100);
+	}
+
+	async function unStar() {
+		GTag.selectItem('Un-star', starField);
+		const i = jsonLogStore.getJSONFieldNames().indexOf(starField);
+		//console.log('unStar', starField, i);
+		if (i !== -1) await jsonLogStore.deleteEntry(i);
+		setTimeout(() => {
+			updateJSONRequestLabels();
+		}, 100);
+	}
+
 	return (
-		<div className={'request__json-annotations' + (layout?.isNowrap() ? ' nowrap' : '')}>
-			{
-				jsonLogStore.isRawJsonChecked() ?
+		<>
+			<Menu
+				anchorEl={starMenuDiv}
+				open={Boolean(starMenuDiv)}
+				onClose={() => setStarMemuDiv(null)}
+			>
+				<MenuItem onClick={() => {
+					setStarMemuDiv(null);
+					doStar('full');
+				}} >
+					<StarIcon />Always show field
+				</MenuItem>
+				<MenuItem onClick={() => {
+					setStarMemuDiv(null);
+					doStar('half');
+				}} >
+					<StarHalfIcon />Show when More Detail is checked
+				</MenuItem>
+				<MenuItem onClick={() => {
+					setStarMemuDiv(null);
+					unStar();
+				}} >
+					<StarBorderIcon />Don't show field
+				</MenuItem>
+			</Menu>
+			<div className={'request__json-annotations' + (layout?.isNowrap() ? ' nowrap' : '')}>
+				{jsonLogStore.isRawJsonChecked() ?
 					<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
 						{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().kind)}
 						{mainTabStore.copyMessage(message)}
@@ -31,7 +92,7 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						messageQueueStore.getLayout() === 'Raw Response' ?
 							<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
 								{makeCatAppElement(message.getMessage().status + '', message.getMessage().method + "")}
-								{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2', wordBreak: 'break-all' }}> {message.getUrl()}</div >}
+								{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2', wordBreak: 'break-all' }}> {message.getUrl()}</div>}
 								{JSON.stringify(message.getMessage().responseBody).replace(/\\"/g, '')}
 							</div>
 							:
@@ -41,9 +102,9 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 						:
 						makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().kind).map((element) => {
 							return element;
-						})
-			}
-		</div>
+						})}
+			</div>
+		</>
 	);
 
 	function makeCatAppElement(category: string, kind: string): JSX.Element {
@@ -72,7 +133,6 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 
 	function makeJSONRequestLabels(messageStore: MessageStore, category: string, kind: string): JSX.Element[] {
 		const message = messageStore.getMessage();
-
 		let elements = formatJSONRequestLabels(messageStore);
 		if (elements.length === 0 && messageQueueStore.getLayout() === 'Default' &&
 			(!jsonLogStore.isBriefChecked() || messageStore.getJsonFields().length === 0)) {
@@ -114,6 +174,11 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		const elementsMap: { [key: string]: boolean } = {};
 		let elements: JSX.Element[] = [];
 		const searchMatches: string[] = [];
+
+		const jsonFieldsMap: { [key: string]: true } = {};
+		for (const field of messageStore.getJsonFields()) {
+			jsonFieldsMap[field.name] = true;
+		}
 
 		if (filterStore.getFilter().length > 0 || filterStore.getHighlightJsonFields().length > 0) {
 			const matchValueMap: { [key: string]: boolean } = {};
@@ -198,7 +263,22 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 			const valueBorder = undefined;
 			const filter = highlight ? '' : style.filter;
 			if (elementsMap[field.name] === undefined) {
-				elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, bg, color, filter, field.value));
+				const star =
+					<div onClick={(e) => {
+						setStarField(field.name);
+						setStarMemuDiv(e.currentTarget);
+					}} style={{ display: 'inline-block' }} title="Click star to change visibility" >
+						{
+							jsonFieldsMap[field.name] ?
+								jsonLogStore.getBriefMap()[field.name] ?
+									<StarIcon style={{ fontSize: '1rem' }} /> :
+									<StarHalfIcon style={{ fontSize: '1rem' }} />
+								:
+								<StarBorderIcon style={{ fontSize: '1rem' }} />
+						}
+					</div >;
+
+				elements = elements.concat(makeLabel(field.name, keyBorder, valueBorder, bg, color, filter, field.value, star));
 				elementsMap[field.name] = true;
 			}
 		}
@@ -206,7 +286,8 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 		return elements;
 	}
 
-	function makeLabel(name: string, keyBorder: string, valueBorder: string | undefined, background: string, color: string, filter: string, value: string | number | boolean): JSX.Element[] {
+
+	function makeLabel(name: string, keyBorder: string, valueBorder: string | undefined, background: string, color: string, filter: string, value: string | number | boolean, star?: JSX.Element): JSX.Element[] {
 		if (value === '') value = '""';
 
 		if (typeof value === 'boolean') {
@@ -235,9 +316,10 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				{name.length > 0 &&
 					<div style={{ display: 'inline-block' }}>
 						<div className="json-label"
-							style={{ lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${keyBorder}` }}
+							style={{ textAlign: 'center', lineHeight: '1.2', display: 'inline-block', color: color, background: bg, filter: filter, padding: '0 .25rem', borderRadius: '.25rem', border: `${keyBorder}` }}
 						>
 							{displayName}
+							{star}
 						</div>
 					</div>
 				}

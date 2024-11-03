@@ -6,6 +6,7 @@ import { filterStore } from '../store/FilterStore';
 import { jsonLogStore } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
 import { urlPathStore } from '../store/UrlPathStore';
+import StarHalf from '@mui/icons-material/StarHalf';
 
 const SideBarSettings = observer((): JSX.Element => {
 	return (
@@ -72,10 +73,10 @@ const SideBarSettings = observer((): JSX.Element => {
 						<div style={{ display: 'flex' }}>
 							<Checkbox className="side-bar-checkbox"
 								size="small"
-								defaultChecked={jsonLogStore.isBriefChecked()}
-								value={jsonLogStore.isBriefChecked()}
+								defaultChecked={!jsonLogStore.isBriefChecked()}
+								value={!jsonLogStore.isBriefChecked()}
 								onChange={() => jsonLogStore.toggleBriefChecked()} />
-							<div>Less Detail</div>
+							<div>More Detail (show <StarHalf style={{ fontSize: '1rem' }} />)</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon">

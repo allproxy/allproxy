@@ -214,7 +214,7 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																			size="small"
 																			checked={jsonField.shouldShowWnenBriefChecked()}
 																			onChange={() => jsonField.toggleBriefChecked()} />
-																		<div style={{ lineHeight: '38px' }}>Show when <b>Less Detail</b> is checked</div>
+																		<div style={{ lineHeight: '38px' }}>Always show this field</div>
 																	</div>
 																</div>
 															</div>

@@ -212,7 +212,7 @@ export default class JSONLogStore {
 	@action public toggleBriefChecked() {
 		this.briefChecked = !this.briefChecked;
 		filterStore.filterUpdated();
-		GTag.selectItem('Less Detail Checked', this.briefChecked + '');
+		GTag.selectItem('More Detail Checked', this.briefChecked + '');
 	}
 	public getBriefMap() {
 		return this.briefMap;
@@ -547,10 +547,12 @@ export default class JSONLogStore {
 
 	@action public async deleteEntry(index: number) {
 		const jsonField = this.fields[index];
-		if (jsonField.getName() !== "") {
-			await apFileSystem.deleteFile(jsonField.getDir() + '/' + jsonField.getName());
-		}
 		this.fields.splice(index, 1);
+		if (jsonField.getName() !== "") {
+			if (await apFileSystem.exists(jsonField.getDir() + '/' + jsonField.getName())) {
+				await apFileSystem.deleteFile(jsonField.getDir() + '/' + jsonField.getName());
+			}
+		}
 	}
 }
 
