@@ -7,11 +7,38 @@ import { jsonLogStore } from '../store/JSONLogStore';
 import { mainTabStore } from '../store/MainTabStore';
 import { urlPathStore } from '../store/UrlPathStore';
 import StarHalf from '@mui/icons-material/StarHalf';
+import HorizontalSplitIcon from '@material-ui/icons/HorizontalSplit';
+import VerticalSplitIcon from '@material-ui/icons/VerticalSplit';
+
+const onLayoutClick = (toVertical: boolean) => {
+	if (toVertical !== mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isVertical()) {
+		mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.toggleVertical();
+	}
+};
+
 
 const SideBarSettings = observer((): JSX.Element => {
+	const isVertical = mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isVertical();
 	return (
 		<>
 			{/* <hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}></hr> */}
+			<div className="side-bar-item" hidden={!isJsonLogTab() && urlPathStore.getKind() !== 'jlogviewer'}>
+				<div style={{ lineHeight: '32px', marginRight: '.25rem' }}>
+					{isVertical ? <HorizontalSplitIcon /> : <VerticalSplitIcon />}
+				</div>
+				<Select className="side-bar-select"
+					//IconComponent={""}
+					value={mainTabStore.getLayout(mainTabStore.getSelectedTabName())?.isVertical() ? 'Vertical' : 'Horizontal'}
+					renderValue={() => isVertical ? 'Vertical Layout' : 'Horizontal Layout'}
+				>
+					<MenuItem value="Horizontal" onClick={() => { onLayoutClick(false); }}>
+						<HorizontalSplitIcon />Horizontal Layout
+					</MenuItem>
+					<MenuItem value="Vertical" onClick={() => { onLayoutClick(true); }}>
+						<VerticalSplitIcon />Vertical Layout
+					</MenuItem>
+				</Select>
+			</div >
 			<div className="side-bar-item" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}>
 				<div>
 					<div className="side-bar-item">

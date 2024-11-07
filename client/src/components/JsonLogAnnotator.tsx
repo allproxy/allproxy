@@ -267,14 +267,14 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 					<div onClick={(e) => {
 						setStarField(field.name);
 						setStarMemuDiv(e.currentTarget);
-					}} style={{ display: 'inline-block' }} title="Click star to change visibility" >
+					}} style={{ display: 'inline-block', opacity: highlight ? 1 : .8 }} title="Click star to change visibility" >
 						{
 							jsonFieldsMap[field.name] ?
 								jsonLogStore.getBriefMap()[field.name] ?
-									<StarIcon style={{ fontSize: '1rem' }} /> :
-									<StarHalfIcon style={{ fontSize: '1rem' }} />
+									<StarIcon style={{ fontSize: '.9rem', paddingBottom: '2px' }} /> :
+									<StarHalfIcon style={{ fontSize: '.9rem', paddingBottom: '2px' }} />
 								:
-								<StarBorderIcon style={{ fontSize: '1rem' }} />
+								<StarBorderIcon style={{ fontSize: '.9rem', paddingBottom: '2px' }} />
 						}
 					</div >;
 
