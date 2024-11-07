@@ -79,7 +79,6 @@ export default class MessageQueueStore {
 		this.layout = layout;
 	}
 
-
 	public getShowTooltip() {
 		return this.showTooltip;
 	}
