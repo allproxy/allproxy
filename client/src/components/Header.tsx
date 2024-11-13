@@ -25,6 +25,10 @@ import FilterBar from './FilterBar';
 import NotesModal from './NotesModal';
 import { urlPathStore } from '../store/UrlPathStore';
 import GTag from '../GTag';
+import StarIcon from '@mui/icons-material/Star';
+import { isJsonLogTab } from './SideBar';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import DataObjectIcon from '@mui/icons-material/DataObject';
 
 let filterWasStopped = false;
 
@@ -355,7 +359,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					}
 
 					<MenuItem
-						hidden={urlPathStore.getKind() === 'mitmproxy'}
+						hidden={!isJsonLogTab() && urlPathStore.getKind() !== 'jlogviewer'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
 							await jsonLogStore.init();
@@ -363,14 +367,14 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							setJsonFieldsModalTab('jsonFields');
 							setShowJSONFieldsModal(true);
 						}}>
-						<div className="header__import fa fa-code" title="Theme"
+						<div className="header__import"
 						>
-							&nbsp;JSON Logs: Define JSON Fields
+							<StarIcon style={{ fontSize: '1.25rem' }} />&nbsp;Favorite JSON Fields
 						</div>
 					</MenuItem>
 
 					<MenuItem
-						hidden={urlPathStore.getKind() === 'mitmproxy'}
+						hidden={!isJsonLogTab() && urlPathStore.getKind() !== 'jlogviewer'}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
 							await jsonLogStore.init();
@@ -378,14 +382,14 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							setJsonFieldsModalTab('scripts');
 							setShowJSONFieldsModal(true);
 						}}>
-						<div className="header__import fa fa-code" title="Theme"
+						<div className="header__import"
 						>
-							&nbsp;JSON Logs: Date, Level, Kind, Message...
+							<DataObjectIcon style={{ fontSize: '1.25rem' }} /> Date, Level, Kind, Message
 						</div>
 					</MenuItem>
 
 					<MenuItem
-						hidden={urlPathStore.getKind() === 'mitmproxy'}
+						hidden={!isJsonLogTab()}
 						onClick={async () => {
 							setSettingsMenuIcon(null);
 							await jsonLogStore.init();
@@ -393,9 +397,9 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							setJsonFieldsModalTab('showFields');
 							setShowJSONFieldsModal(true);
 						}}>
-						<div className="header__import fa fa-code" title="Theme"
+						<div className="header__import"
 						>
-							&nbsp;JSON Logs: Spreadsheet
+							<TableChartIcon style={{ fontSize: '1.25rem' }} /> Spreadsheet
 						</div>
 					</MenuItem>
 				</Menu>

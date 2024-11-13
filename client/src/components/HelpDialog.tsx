@@ -208,7 +208,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						</ol>
 					</TabPanel>
 					<TabPanel value="3" key="3">
-						<h3>Define Date, Level, Kind and Message</h3>
+						<h3>Date, Level, Kind and Message JSON Fields</h3>
 						Select method used to define the date, level, kinds and message fields in the JSON log entry.
 						<div style={{ margin: '1rem 3rem 1rem 1rem' }}>
 							<JSONFieldsMethods />
