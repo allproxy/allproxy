@@ -22,7 +22,7 @@ type Props = {
 }
 const SHOW_JSON_FIELD_VALUES = 'showFields';
 const TAB_NAMES: { [key: string]: string } = {};
-TAB_NAMES[JSON_FIELDS_DIR] = 'Define JSON Fields';
+TAB_NAMES[JSON_FIELDS_DIR] = 'Favorite JSON Fields';
 TAB_NAMES[SCRIPTS_DIR] = 'Date, Level, Kind, Message...';
 TAB_NAMES[SHOW_JSON_FIELD_VALUES] = 'Spreadsheet';
 
