@@ -18,6 +18,7 @@ function parseJSON(preJSONString, jsonObject) {
     let rawLine;
     // Copy any JSON fields not defined in jsonObject
     let additionalJSON = {};
+    let ignoreFields = [];
 
     // Set the level
     // level = jsonObject.m_level;
@@ -31,5 +32,5 @@ function parseJSON(preJSONString, jsonObject) {
     // Set message
     //message = jsonObject.my_message;
 
-    return { date, level, category, kind, message, rawLine, additionalJSON };
+    return { date, level, category, kind, message, rawLine, additionalJSON, ignoreFields };
 }

@@ -89,7 +89,7 @@ export const defaultScript =
 	//
 	// @param preJSONString: string - optional non-JSON string proceeding JSON object
 	// @param jsonObject: {} - JSON log data
-	// @returns {date: Date, level: string, category: string, kind: string, message: string, additionalJSON: {} }
+	// @returns {date: Date, level: string, category: string, kind: string, message: string, additionalJSON: {}, ignoreFields: string[] }
 	//
 	// category is the availability zone, processor...
 	// kind is object kind, pod name, process ID...
@@ -104,6 +104,7 @@ export const defaultScript =
         let rawLine;
         // Copy any JSON fields not defined in jsonObject
         let additionalJSON = {};
+		let ignoreFields = [];
 
         // Set the level
         // level = jsonObject.m_level;
@@ -117,7 +118,7 @@ export const defaultScript =
         // Set message
         //message = jsonObject.my_message;
 
-        return { date, level, category, kind, message, rawLine, additionalJSON };
+        return { date, level, category, kind, message, rawLine, additionalJSON, ignoreFields };
 	}
 `;
 
@@ -129,7 +130,8 @@ export type LogEntry = {
 	kind: string,
 	message: string,
 	rawLine: string,
-	additionalJSON: {}
+	additionalJSON: {},
+	ignoreFields: string[],
 };
 
 export type SimpleFields = {
@@ -158,7 +160,7 @@ export default class JSONLogStore {
 	private script = defaultScript;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
-		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {} };
+		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
 	};
 
 	private fields: JSONLogField[] = [];
@@ -352,7 +354,7 @@ export default class JSONLogStore {
 			}
 		};
 
-		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {} };
+		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
 		switch (method) {
 			case 'auto':
 				setAutoField('date');

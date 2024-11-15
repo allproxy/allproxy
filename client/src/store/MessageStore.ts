@@ -21,7 +21,7 @@ export default class MessageStore {
     private note = '';
     private jsonFields: JsonField[] = [];
     private filtered: false | true | undefined = undefined;
-    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {} };
+    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
 
     public constructor(message: Message, auto: boolean = false) {
         let keys = Object.keys(message.requestHeaders);
@@ -157,6 +157,9 @@ export default class MessageStore {
                 ...message.responseHeaders,
                 ...message.responseBody
             };
+            for (const field of this.logEntry.ignoreFields) {
+                if (json[field]) delete json[field];
+            }
         }
 
         const allJsonFieldsMap = getJsonFieldsMap(json);

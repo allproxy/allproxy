@@ -24,7 +24,7 @@ const SideBarSettings = observer((): JSX.Element => {
 			{/* <hr className="side-bar-divider" hidden={isJsonLogTab() || urlPathStore.getKind() === 'jlogviewer'}></hr> */}
 			<div className="side-bar-item" hidden={!isJsonLogTab() && urlPathStore.getKind() !== 'jlogviewer'}>
 				<div style={{ lineHeight: '32px', marginRight: '.25rem' }}>
-					{isVertical ? <HorizontalSplitIcon /> : <VerticalSplitIcon />}
+					{isVertical ? <VerticalSplitIcon /> : <HorizontalSplitIcon />}
 				</div>
 				<Select className="side-bar-select"
 					//IconComponent={""}
