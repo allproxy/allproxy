@@ -10,8 +10,8 @@ import { isJsonLogTab } from "../components/SideBar";
 import FileReaderStore from "./FileReaderStore";
 import { jsonLogStore, updateJSONRequestLabels } from "./JSONLogStore";
 import { getPluginFunc } from "../Plugins";
-import {Content, Har, Header, PostData, QueryString} from "har-format";
-import {getReasonPhrase} from 'http-status-codes';
+import { Content, Har, Header, PostData, QueryString } from "har-format";
+import { getReasonPhrase } from 'http-status-codes';
 
 export const PROXY_TAB_NAME = 'Proxy';
 
@@ -339,28 +339,28 @@ export default class MainTabStore {
 	public copyAsHAR(message: Message): string {
 		const requestHeaders: Header[] = [];
 		for (const key in message.requestHeaders) {
-			requestHeaders.push({name: key, value: message.requestHeaders[key]});
+			requestHeaders.push({ name: key, value: message.requestHeaders[key] });
 		}
 		const url = new URL(message.url as string);
 		const queryString: QueryString[] = [];
 		url.searchParams.forEach((value, key) => {
-			queryString.push({name: key, value: value as string});
+			queryString.push({ name: key, value: value as string });
 		});
-		const postData: PostData|undefined = message.requestBody ? {
-			mimeType: message.requestHeaders['content-type'],			
+		const postData: PostData | undefined = message.requestBody ? {
+			mimeType: message.requestHeaders['content-type'],
 			text: JSON.stringify(message.requestBody),
 		} : undefined;
 		const content: Content = {
 			size: parseInt(message.responseHeaders['content-length'] ? message.responseHeaders['content-length'] : "-1"),
-			mimeType: message.responseHeaders['content-type'],			
+			mimeType: message.responseHeaders['content-type'],
 			text: message.responseBody ? JSON.stringify(message.responseBody) : undefined,
 		};
-		
+
 		const responseHeaders: Header[] = [];
 		for (const key in message.responseHeaders) {
-			responseHeaders.push({name: key, value: message.responseHeaders[key]});
+			responseHeaders.push({ name: key, value: message.responseHeaders[key] });
 		}
-								
+
 		const har: Har = {
 			log: {
 				entries: [
@@ -402,16 +402,16 @@ export default class MainTabStore {
 					version: ""
 				},
 			}
-		  };
-		
+		};
+
 		return JSON.stringify(har, null, "  ");
 
-		return fetchToCurl({
-			url: message.url,
-			headers: getSafeHeaders(message),
-			method: message.method,
-			body: message.requestBody ? message.requestBody : undefined
-		});
+		// return fetchToCurl({
+		// 	url: message.url,
+		// 	headers: getSafeHeaders(message),
+		// 	method: message.method,
+		// 	body: message.requestBody ? message.requestBody : undefined
+		// });
 	}
 
 	public exportSelectedTab(fileName: string) {
@@ -539,11 +539,17 @@ function getSafeHeaders(message: Message) {
 		'accept-encoding',
 		'cookie',
 		'sec-fetch-dest',
-		'proxy-connection'
+		'proxy-connection',
+		'user-agent',
+		'allproxy',
 	];
 	for (const header in message.requestHeaders) {
 		if (unsafeHeaders.indexOf(header) === -1) {
-			headers[header] = message.requestHeaders[header];
+			if (header === 'authorization') {
+				headers[header] = 'Bearer $token';
+			} else {
+				headers[header] = message.requestHeaders[header];
+			}
 		}
 	}
 	return headers;
