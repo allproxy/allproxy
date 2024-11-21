@@ -32,6 +32,7 @@ export default class FileReaderStore {
 	private readStartTime = 0;
 
 	private truncated = false;
+	private invalidJson = false;
 	private lines: string[] = [];
 	private splitArrays = true;
 
@@ -157,6 +158,10 @@ export default class FileReaderStore {
 					for (let offset = 0; offset < this.file.size;) {
 						let chunk = await this.readChunk(offset);
 						const lastNewline = chunk.lastIndexOf('\n');
+						if (lastNewline === -1) {
+							this.invalidJson = true;
+							break;
+						}
 						offset += lastNewline + 1;
 
 						if (!this.isMatch(chunk)) {
@@ -351,6 +356,8 @@ export default class FileReaderStore {
 
 		if (this.truncated) {
 			setTimeout(() => alert(`File ${this.fileName} truncated to ${maxLinesPerTab} lines.  Use time and/or substring filters to select significant lines.`));
+		} else if (this.invalidJson) {
+			setTimeout(() => alert(`File ${this.fileName} has an invalid JSON format.`));
 		}
 	}
 }
