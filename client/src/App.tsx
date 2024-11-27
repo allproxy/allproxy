@@ -9,13 +9,13 @@ import { messageQueueStore } from './store/MessageQueueStore';
 import { mainTabStore } from './store/MainTabStore';
 import Footer from './components/Footer';
 import { breakpointStore } from './store/BreakpointStore';
-import { createTheme, ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/core';
 import SideBar from './components/SideBar';
 import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
 import { themeStore } from './store/ThemeStore';
 import { initApFileSystem } from './store/APFileSystem';
-import { fixCssPrefersColorScheme } from './components/DarkModeDialog';
+import { fixCssPrefersColorScheme, saveDarkMode } from './components/DarkModeDialog';
 
 const theme = localStorage.getItem('allproxy-theme');
 if (theme === 'dark' || theme === 'light') {
@@ -34,7 +34,9 @@ function initTheme() {
   }
 }
 
-function App() {
+type Props = {};
+
+const App = observer(({ }: Props): JSX.Element => {
 
   if (colorSchemeQueryList !== undefined) {
     setTheme(colorSchemeQueryList);
@@ -42,19 +44,13 @@ function App() {
     colorSchemeQueryList = undefined;
   }
 
-  const theme = createTheme({
-    palette: {
-      type: themeStore.getTheme()
-    },
-  });
-
   window
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", setTheme);
 
   function setTheme(e: any) {
     const cs = e.matches ? "dark" : "light";
-    themeStore.setTheme(cs);
+    if (saveDarkMode === 'system') themeStore.setTheme(cs);
     fixCssPrefersColorScheme();
   }
 
@@ -73,7 +69,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeStore.getThemeProvider()}>
       <div className="App">
         <Header
           socketStore={socketStore}
@@ -100,7 +96,7 @@ function App() {
       </div>
     </ThemeProvider>
   );
-}
+});
 
 const Updating = observer(() => {
   if (mainTabStore.getUpdatingMessage().length === 0) return null;
