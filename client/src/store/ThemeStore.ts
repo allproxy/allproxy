@@ -1,3 +1,4 @@
+import { createTheme } from "@material-ui/core";
 import { makeAutoObservable, action } from "mobx";
 
 export default class DarkModeStore {
@@ -14,6 +15,16 @@ export default class DarkModeStore {
 
 	@action public setTheme(theme: 'dark' | 'light') {
 		this.theme = theme;
+	}
+
+	public getThemeProvider() {
+		const p = createTheme({
+			palette: {
+				type: this.theme
+			},
+		});
+		console.log(p);
+		return p;
 	}
 }
 

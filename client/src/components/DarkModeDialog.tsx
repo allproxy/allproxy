@@ -5,7 +5,7 @@ import { themeStore } from '../store/ThemeStore';
 import GTag from '../GTag';
 
 let once = false;
-let saveDarkMode: 'dark' | 'light' | 'system' = 'system';
+export let saveDarkMode: 'dark' | 'light' | 'system' = 'system';
 
 declare global {
 	interface Window {
@@ -58,6 +58,7 @@ const DarkModeDialog = observer(({ open, onClose }: Props) => {
 	}
 	function handleSystem() {
 		if (window.darkMode) window.darkMode.system();
+		themeStore.setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : 'light');
 		setDarkMode('system');
 		saveDarkMode = 'system';
 		fixCssPrefersColorScheme();

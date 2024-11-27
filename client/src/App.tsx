@@ -9,7 +9,7 @@ import { messageQueueStore } from './store/MessageQueueStore';
 import { mainTabStore } from './store/MainTabStore';
 import Footer from './components/Footer';
 import { breakpointStore } from './store/BreakpointStore';
-import { createTheme, ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/core';
 import SideBar from './components/SideBar';
 import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
@@ -34,19 +34,15 @@ function initTheme() {
   }
 }
 
-function App() {
+type Props = {};
+
+const App = observer(({ }: Props): JSX.Element => {
 
   if (colorSchemeQueryList !== undefined) {
     setTheme(colorSchemeQueryList);
     setTimeout(initTheme, 1000);
     colorSchemeQueryList = undefined;
   }
-
-  const theme = createTheme({
-    palette: {
-      type: themeStore.getTheme()
-    },
-  });
 
   window
     .matchMedia("(prefers-color-scheme: dark)")
@@ -73,7 +69,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeStore.getThemeProvider()}>
       <div className="App">
         <Header
           socketStore={socketStore}
@@ -100,7 +96,7 @@ function App() {
       </div>
     </ThemeProvider>
   );
-}
+});
 
 const Updating = observer(() => {
   if (mainTabStore.getUpdatingMessage().length === 0) return null;
