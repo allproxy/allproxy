@@ -15,14 +15,14 @@ import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
 import { themeStore } from './store/ThemeStore';
 import { initApFileSystem } from './store/APFileSystem';
-import { fixCssPrefersColorScheme, saveDarkMode } from './components/DarkModeDialog';
+import { fixCssPrefersColorScheme } from './components/DarkModeDialog';
+
+let colorSchemeQueryList: MediaQueryList | undefined = window.matchMedia('(prefers-color-scheme: dark)');
 
 const theme = localStorage.getItem('allproxy-theme');
 if (theme === 'dark' || theme === 'light') {
   themeStore.setTheme(theme);
 }
-
-let colorSchemeQueryList: MediaQueryList | undefined = window.matchMedia('(prefers-color-scheme: dark)');
 
 function initTheme() {
   const theme = localStorage.getItem('allproxy-theme');
@@ -39,6 +39,8 @@ type Props = {};
 const App = observer(({ }: Props): JSX.Element => {
 
   if (colorSchemeQueryList !== undefined) {
+    const t = localStorage.getItem('allproxy-theme');
+    if (t && t !== 'system') themeStore.setTheme(t as 'light' | 'dark');
     setTheme(colorSchemeQueryList);
     setTimeout(initTheme, 1000);
     colorSchemeQueryList = undefined;
@@ -50,7 +52,8 @@ const App = observer(({ }: Props): JSX.Element => {
 
   function setTheme(e: any) {
     const cs = e.matches ? "dark" : "light";
-    if (saveDarkMode === 'system') themeStore.setTheme(cs);
+    const t = localStorage.getItem('allproxy-theme');
+    if (t === null || t === 'system') themeStore.setTheme(cs);
     fixCssPrefersColorScheme();
   }
 

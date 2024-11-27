@@ -4,6 +4,7 @@ import { mainTabStore } from "./MainTabStore";
 import { importJsonLines, newMessage } from "../ImportJSONFile";
 import MessageStore from "./MessageStore";
 import { jsonToJsonl } from "../components/ImportJSONFileDialog";
+import JSZip from "jszip";
 
 export const maxLinesPerTab = 15000;
 const chunkSize = () => (window as any).chunkSize ? (window as any).chunkSize * 1024 : 1024 * 1024;
@@ -104,6 +105,7 @@ export default class FileReaderStore {
 	}
 
 	public async clientRead(file?: any): Promise<boolean> {
+		console.log('clientRead');
 		this.truncated = false;
 		return new Promise<boolean>(async (resolve) => {
 			this.readStartTime = Date.now();
@@ -116,15 +118,49 @@ export default class FileReaderStore {
 			const reader = new FileReader();
 
 			const isGzip = this.file.type.indexOf('gzip') !== -1;
+			const isZip = this.file.type === 'application/zip';
+
 			if (isGzip) {
 				reader.readAsArrayBuffer(this.file);
 
 				// here we tell the reader what to do when it's done reading...
 				reader.onload = (readerEvent: any) => {
 					let content = readerEvent.target.result; // this is the content!
-					if (isGzip) {
-						content = pako.ungzip(content, { to: 'string' });
+					content = pako.ungzip(content, { to: 'string' });
+
+					try {
+						JSON.parse(content);
+						content = jsonToJsonl(content, this.splitArrays);
+					} catch (e) { }
+
+					const lines = content.split('\n');
+					for (let i = 0; i < lines.length; ++i) {
+						const line = lines[i];
+						if (this.isMatch(line)) {
+							this.lines.push(line);
+						}
 					}
+					if (this.lines.length === 0) {
+						this.alertNoMatch();
+					}
+					logResponseTime('read file time', this.readStartTime);
+					resolve(true);
+				};
+			} if (isZip) {
+				reader.readAsArrayBuffer(this.file);
+
+				// here we tell the reader what to do when it's done reading...
+				reader.onload = async (readerEvent: any) => {
+					let content = readerEvent.target.result; // this is the content!
+					var jsZip = new JSZip();
+					const zip = await jsZip.loadAsync(content);
+					content = await zip.file(Object.keys(zip.files)[0])?.async('string');
+
+					try {
+						JSON.parse(content);
+						content = jsonToJsonl(content, this.splitArrays);
+					} catch (e) { }
+
 					const lines = content.split('\n');
 					for (let i = 0; i < lines.length; ++i) {
 						const line = lines[i];

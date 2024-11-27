@@ -57,6 +57,7 @@
     "fetch-to-curl": "^0.6.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
+    "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "lookpath": "^1.2.2",
     "mkdirp": "^1.0.4",

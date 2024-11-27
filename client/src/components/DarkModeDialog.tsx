@@ -5,7 +5,7 @@ import { themeStore } from '../store/ThemeStore';
 import GTag from '../GTag';
 
 let once = false;
-export let saveDarkMode: 'dark' | 'light' | 'system' = 'system';
+let saveDarkMode: 'dark' | 'light' | 'system' = 'system';
 
 declare global {
 	interface Window {
