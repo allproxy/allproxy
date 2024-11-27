@@ -346,18 +346,16 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 							</MenuItem>
 						</>
 					}
-					{window.darkMode &&
-						<MenuItem onClick={() => {
-							setSettingsMenuIcon(null);
-							setShowDarkModeDialog(true);
-						}}>
-							<div className="header__import fa fa-image" title="Theme"
-							>
-								&nbsp;Appearance
-							</div>
-						</MenuItem>
-					}
 
+					<MenuItem onClick={() => {
+						setSettingsMenuIcon(null);
+						setShowDarkModeDialog(true);
+					}}>
+						<div className="header__import fa fa-image" title="Theme"
+						>
+							&nbsp;Appearance
+						</div>
+					</MenuItem>
 					<MenuItem
 						hidden={!isJsonLogTab() && urlPathStore.getKind() !== 'jlogviewer'}
 						onClick={async () => {
