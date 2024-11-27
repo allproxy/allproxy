@@ -23,7 +23,6 @@ export default class DarkModeStore {
 				type: this.theme
 			},
 		});
-		console.log(p);
 		return p;
 	}
 }

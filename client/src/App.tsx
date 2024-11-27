@@ -15,7 +15,7 @@ import StatusBox from './components/StatusBox';
 import { observer } from 'mobx-react-lite';
 import { themeStore } from './store/ThemeStore';
 import { initApFileSystem } from './store/APFileSystem';
-import { fixCssPrefersColorScheme } from './components/DarkModeDialog';
+import { fixCssPrefersColorScheme, saveDarkMode } from './components/DarkModeDialog';
 
 const theme = localStorage.getItem('allproxy-theme');
 if (theme === 'dark' || theme === 'light') {
@@ -50,7 +50,7 @@ const App = observer(({ }: Props): JSX.Element => {
 
   function setTheme(e: any) {
     const cs = e.matches ? "dark" : "light";
-    themeStore.setTheme(cs);
+    if (saveDarkMode === 'system') themeStore.setTheme(cs);
     fixCssPrefersColorScheme();
   }
 
