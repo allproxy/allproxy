@@ -205,46 +205,48 @@ const MainTabContent = observer(({
 							height: requestContainerLayout.height
 						}}
 						ref={requestContainerRef} onWheel={handleScroll}>
-						{renderSet.map((messageStore, index) => {
-							const message = messageStore.getMessage();
-							const seqNum = message.sequenceNumber;
-							const isSelectedRequest = selectedReqSeqNum === seqNum;
+						<>
+							{renderSet.map((messageStore, index) => {
+								const message = messageStore.getMessage();
+								const seqNum = message.sequenceNumber;
+								const isSelectedRequest = selectedReqSeqNum === seqNum;
 
-							if (isSelectedRequest) {
-								activeRequestIndex = messageStore.getIndex();
-							}
-							return (
-								<Request
-									maxStatusSize={maxStatusSize}
-									maxMethodSize={maxMethodSize}
-									maxEndpointSize={maxEndpointSize}
-									store={messageStore}
-									key={seqNum}
-									isActive={isSelectedRequest}
-									highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
-									onClick={() => setClickPendingSeqNum(seqNum)}
-									onResend={() => handleResend(message)}
-									onDelete={() => messageQueueStore.getMessages().splice(renderSet[index].getIndex(), 1)}
-									vertical={vertical}
-									isFiltered={messageStore.isFiltered()}
-									className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
-									doHighlight={() => {
-										setHighlightSeqNum(seqNum);
-										if (seqNum !== selectedReqSeqNum) {
-											setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+								if (isSelectedRequest) {
+									activeRequestIndex = messageStore.getIndex();
+								}
+								return (
+									<Request
+										maxStatusSize={maxStatusSize}
+										maxMethodSize={maxMethodSize}
+										maxEndpointSize={maxEndpointSize}
+										store={messageStore}
+										key={seqNum}
+										isActive={isSelectedRequest}
+										highlight={seqNum === messageQueueStore.getHighlightSeqNum()}
+										onClick={() => setClickPendingSeqNum(seqNum)}
+										onResend={() => handleResend(message)}
+										onDelete={() => messageQueueStore.getMessages().splice(renderSet[index].getIndex(), 1)}
+										vertical={vertical}
+										isFiltered={messageStore.isFiltered()}
+										className={message.protocol === 'log:' && index % 2 === 0 ? 'request__msg-even' : ''}
+										doHighlight={() => {
+											setHighlightSeqNum(seqNum);
+											if (seqNum !== selectedReqSeqNum) {
+												setSelectedReqSeqNum(Number.MAX_SAFE_INTEGER);
+											}
 										}
-									}
-									}
-								/>
-							);
-						})}
-						{renderSet.length === 0 && (
-							<div className="center">
-								No matching request or response found.  Adjust your filter criteria.
-							</div>
-						)}
-						{restoreScrollTop()}
-						{checkForScrollTo()}
+										}
+									/>
+								);
+							})}
+							{renderSet.length === 0 && (
+								<div className="center">
+									No matching request or response found.  Adjust your filter criteria.
+								</div>
+							)}
+							{restoreScrollTop()}
+							{checkForScrollTo()}
+						</>
 					</div>
 				}
 				{messageQueueStore.getMessages().length === 0 &&
