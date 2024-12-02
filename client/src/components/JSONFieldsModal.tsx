@@ -12,6 +12,7 @@ import JSONFieldsMethod from './JSONParsingMethod';
 import JSONSimpleFields from './JSONSimpleFields';
 import { filterStore } from '../store/FilterStore';
 import GTag from '../GTag';
+import EditorJS from './EditorJS';
 
 type Props = {
 	open: boolean,
@@ -125,14 +126,15 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																</button>
 																<p></p>
 																<div>
-																	<textarea
+																	{/* <textarea
 																		rows={29} cols={80}
 																		value={store.getScript()}
 																		onChange={(e) => {
 																			store.setScript(e.target.value);
 																			setError('');
 																		}}
-																	/>
+																	/> */}
+																	<EditorJS />
 																</div>
 															</div>
 															<div style={{ display: 'inline-block', margin: '2rem 0 0 2rem', verticalAlign: 'top' }}>
@@ -166,7 +168,8 @@ const JSONFieldsModal = observer(({ open, onClose, store, jsonFields, selectTab 
 																	<div>  let message = jsonObject.message;</div>
 																	<div>  let rawLine = JSON.stringify(jsonObject);</div>
 																	<div>  let additionalJSON = {'{}'};</div>
-																	<div>  return {'{date, level, category, kind, message, additionalJSON}'};</div>
+																	<div>  let ignoreFields = [];</div>
+																	<div>  return {'{date, level, category, kind, message, additionalJSON, ignoreFields}'};</div>
 																	<div>{'}'}</div>
 																</pre>
 															</div>
