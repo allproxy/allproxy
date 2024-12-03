@@ -654,7 +654,10 @@ export function lookupJSONField(json: { [key: string]: any }, field: string, exa
 		const fieldLower = field.toLowerCase();
 		//console.log(field);
 		//console.log(jsonFields);
-		const jsonFields = jsonFieldsMap[fieldLower] || exact === 'exact' || jsonFieldsMap['*' + fieldLower];
+		let jsonFields = jsonFieldsMap[fieldLower];
+		if (jsonFields === undefined && exact === 'any') {
+			jsonFields = jsonFieldsMap['*' + fieldLower];
+		}
 		//console.log(jf);
 		if (jsonFields) {
 			return jsonFields;
