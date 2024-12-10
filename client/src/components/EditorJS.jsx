@@ -17,7 +17,8 @@ import { jsonLogStore } from "../store/JSONLogStore";
 export default function EditorJS() {
 
 	return (
-		<Editor language="jsx" value={jsonLogStore.getScript()} onChange={(e) => jsonLogStore.setScript(e.target.value)} style={{ height: '100vh' }}>
+		<Editor language="jsx" value={jsonLogStore.getScript()} onUpdate={(e) => jsonLogStore.setScript(e)}
+			style={{ height: '100vh' }}>
 			{editor => <BasicSetup editor={editor} />}
 		</Editor>
 	);

@@ -436,18 +436,23 @@ export default class JSONLogStore {
 	}
 
 	public evalScript(script: string) {
-		let scriptNoComments = '';
-		for (const line of script.split('\n')) {
-			const lineTrim = line.trim();
-			if (lineTrim.length > 0 && !lineTrim.startsWith('//')) {
-				scriptNoComments += line;
+		try {
+			let scriptNoComments = '';
+			for (const line of script.split('\n')) {
+				const lineTrim = line.trim();
+				if (lineTrim.length > 0 && !lineTrim.startsWith('//')) {
+					scriptNoComments += line;
+				}
 			}
+			const i = scriptNoComments.indexOf('function');
+			const func = scriptNoComments.substring(i);
+			let f = this.scriptFunc;
+			eval('f = ' + func);
+			return f;
+		} catch (e) {
+			console.error(e);
 		}
-		const i = scriptNoComments.indexOf('function');
-		const func = scriptNoComments.substring(i);
-		let f = this.scriptFunc;
-		eval('f = ' + func);
-		return f;
+		return this.scriptFunc;
 	}
 
 	public async init() {
