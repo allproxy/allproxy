@@ -26,6 +26,8 @@ type Props = {
 	setSelectedReqSeqNum: (seqNum: number) => void,
 	scrollTop: number,
 	setScrollTop: (index: number) => void,
+	scrollTopDetails: number,
+	setScrollTopDetails: (index: number) => void,
 	renderSetTopIndex: number,
 	setRenderSetTopIndex: (index: number) => void,
 	highlightSeqNum: number,
@@ -33,7 +35,7 @@ type Props = {
 }
 
 const MainTabContent = observer(({
-	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, renderSetTopIndex, setScrollTop, setRenderSetTopIndex,
+	messageQueueStore, selectedReqSeqNum, setSelectedReqSeqNum, scrollTop, renderSetTopIndex, setScrollTop, scrollTopDetails, setScrollTopDetails, setRenderSetTopIndex,
 	highlightSeqNum, setHighlightSeqNum
 }: Props) => {
 	const [resendStore, setResendStore] = React.useState<ResendStore>();
@@ -42,6 +44,7 @@ const MainTabContent = observer(({
 	const messageStore = breakpointStore.getMessageStore();
 
 	const requestContainerRef = React.useRef<HTMLDivElement>(null);
+	const responseContainerRef = React.useRef<HTMLDivElement>(null);
 
 	React.useLayoutEffect(() => {
 		messageQueueStore.setHighlightSeqNum(highlightSeqNum);
@@ -262,6 +265,7 @@ const MainTabContent = observer(({
 				{
 					messageQueueStore.getMessages().length > 0 &&
 					<div className="response__container"
+						ref={responseContainerRef} onWheel={handleScrollDetails}
 						style={{
 							width: responseContainerLayout.width,
 							height: responseContainerLayout.height
@@ -340,6 +344,11 @@ const MainTabContent = observer(({
 		});
 	}
 
+	function handleScrollDetails() {
+		const parent = (responseContainerRef.current as Element);
+		setScrollTopDetails(parent.scrollTop);
+	}
+
 	function handleScroll(e: any) {
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
@@ -380,6 +389,13 @@ const MainTabContent = observer(({
 		const parent = (requestContainerRef.current as Element);
 		if (parent && parent.childNodes.length > 0) {
 			parent.scrollTop = scrollTop;
+		}
+
+		if (activeRequestIndex < messageQueueStore.getMessages().length) {
+			const parent = (responseContainerRef.current as Element);
+			if (parent) {
+				setTimeout(() => parent.scrollTop = scrollTopDetails);
+			}
 		}
 	}
 
