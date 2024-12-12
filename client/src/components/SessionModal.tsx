@@ -56,7 +56,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	function isFilterValueMatch(sessionName: string) {
 		if (filterValues.length === 0) return true;
 		for (const value of filterValues) {
-			if (sessionName.indexOf(value) !== -1) {
+			if (sessionName.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
 				return true;
 			}
 		}
