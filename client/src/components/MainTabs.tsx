@@ -112,6 +112,10 @@ const MainTabs = observer(({ messageQueueStore, mainTabStore }: Props) => {
 									setScrollTop={
 										(scrollTop) => mainTabStore.getScrollTop()[i] = scrollTop
 									}
+									scrollTopDetails={mainTabStore.getScrollTopDetails()[i]}
+									setScrollTopDetails={
+										(scrollTop) => mainTabStore.getScrollTopDetails()[i] = scrollTop
+									}
 									renderSetTopIndex={mainTabStore.getRenderSetTopIndex()[i]}
 									setRenderSetTopIndex={
 										(scrollTop) => mainTabStore.getRenderSetTopIndex()[i] = scrollTop

@@ -20,6 +20,7 @@ class MainTabs {
 	private names: string[] = [];
 	private selectedReqSeqNumbers: number[] = [];
 	private scrollTop: number[] = [];
+	private scrollTopDetails: number[] = [];
 	private renderSetTopIndex: number[] = [];
 	private highlightSeqNum: number[] = [];
 	private fileNameMap: Map<string, string> = new Map();
@@ -41,6 +42,7 @@ class MainTabs {
 		fileName?: string,
 		selectedReqSeqNumber = Number.MAX_SAFE_INTEGER,
 		scrollTop = 0,
+		scrollTopDetails = 0,
 		jsonSearchFields: string[] = [],
 		layout: LayoutStore = new LayoutStore(),
 		highlightSeqNum = Number.MAX_SAFE_INTEGER,
@@ -50,6 +52,7 @@ class MainTabs {
 		this.names.push(key);
 		this.selectedReqSeqNumbers.push(selectedReqSeqNumber);
 		this.scrollTop.push(scrollTop);
+		this.scrollTopDetails.push(scrollTopDetails);
 		this.renderSetTopIndex.push(renderSetTopIndex);
 		this.highlightSeqNum.push(highlightSeqNum);
 		if (fileName) {
@@ -66,6 +69,7 @@ class MainTabs {
 		this.names.splice(index, 1);
 		this.selectedReqSeqNumbers.splice(index, 1);
 		this.scrollTop.splice(index, 1);
+		this.scrollTopDetails.splice(index, 1);
 		this.renderSetTopIndex.splice(index, 1);
 		this.highlightSeqNum.splice(index, 1);
 		this.fileNameMap.delete(key);
@@ -88,6 +92,10 @@ class MainTabs {
 
 	public getScrollTop(): number[] {
 		return this.scrollTop;
+	}
+
+	public getScrollTopDetails(): number[] {
+		return this.scrollTopDetails;
 	}
 
 	public getRenderSetTopIndex(): number[] {
@@ -176,6 +184,10 @@ export default class MainTabStore {
 		return this.tabs.getScrollTop();
 	}
 
+	public getScrollTopDetails(): number[] {
+		return this.tabs.getScrollTopDetails();
+	}
+
 	public getRenderSetTopIndex(): number[] {
 		return this.tabs.getRenderSetTopIndex();
 	}
@@ -256,7 +268,7 @@ export default class MainTabStore {
 		if (messageStores) {
 			const layoutStore = new LayoutStore();
 			layoutStore.setVertical(messageStores.length === 0 || messageStores[0].getMessage().protocol !== 'log:');
-			this.tabs.set(name, messageStores, fileName, Number.MAX_SAFE_INTEGER, 0, [], layoutStore);
+			this.tabs.set(name, messageStores, fileName, Number.MAX_SAFE_INTEGER, 0, 0, [], layoutStore);
 		} else {
 			// Copy the proxy tab data to new tab
 			const proxyTab = this.tabs.get(PROXY_TAB_NAME);
@@ -268,6 +280,7 @@ export default class MainTabStore {
 				fileName,
 				this.getSelectedReqSeqNumbers()[0],
 				this.getScrollTop()[0],
+				this.getScrollTopDetails()[0],
 				[],
 				this.getLayout(PROXY_TAB_NAME),
 				this.getHightlightSeqNum()[0],
