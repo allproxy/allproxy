@@ -393,7 +393,7 @@ const MainTabContent = observer(({
 
 		if (activeRequestIndex < messageQueueStore.getMessages().length) {
 			const parent = (responseContainerRef.current as Element);
-			if (parent) {
+			if (parent && parent.scrollTop !== scrollTopDetails) {
 				setTimeout(() => parent.scrollTop = scrollTopDetails);
 			}
 		}
