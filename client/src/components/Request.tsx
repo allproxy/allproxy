@@ -36,6 +36,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 	const handleClick = () => {
 		onClick();
 		store.setVisited(true);
+		mainTabStore.getScrollTopDetails()[mainTabStore.getSelectedTabIndex()] = 0;
 	};
 	const message = store.getMessage();
 	const messageDate = new Date(message.timestamp);
