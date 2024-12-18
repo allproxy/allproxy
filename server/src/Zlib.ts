@@ -6,7 +6,7 @@ export function decompressResponse(headers: { [key: string]: any }, data: Buffer
   if (headers['content-encoding'] === 'gzip') {
     //delete headers['content-encoding'];
     //data = zlib.gunzipSync(data);
-    data = pako.deflate(data);
+    data = pako.ungzip(data, { to: 'string' });
   } else if (headers['content-encoding'] === 'br') {
     //delete headers['content-encoding'];
     //data = zlib.brotliDecompressSync(data);
