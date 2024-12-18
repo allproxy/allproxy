@@ -1,0 +1,145 @@
+{
+  "name": "allproxy",
+  "version": "3.53.9",
+  "description": "AllProxy: MITM HTTP Debugging Tool.",
+  "keywords": [
+    "proxy",
+    "debug",
+    "mitm",
+    "fiddler",
+    "charles",
+    "http",
+    "https",
+    "sql",
+    "grpc",
+    "tcp"
+  ],
+  "homepage": "https://github.com/davechri/allproxy",
+  "bugs": {
+    "url": "https://github.com/davechri/allproxy/issues",
+    "email": "davechri58@gmail.com"
+  },
+  "main": "build/main.js",
+  "bin": {
+    "allproxy": "bin/allproxy",
+    "allproxy_win.bat": "bin/allproxy_win.bat"
+  },
+  "scripts": {
+    "install": "npm run install-client",
+    "install-client": "cd ./client && yarpm install",
+    "startdev": "NODE_ENV=development nodemon --config nodemon.json app.ts && tsc --force --project ./tsconfig.json",
+    "build": "npm run build-server && npm run build-client",
+    "build-server": "npm run clean && tsc --project ./tsconfig.json",
+    "build-client": "npm run clean-client && cd ./client && npm run build",
+    "clean": "rimraf ./build",
+    "clean-client": "rimraf ./client/build",
+    "start": "electron-forge start",
+    "start-headless": "node ./headless.js",
+    "headless": "npm run start-headless",
+    "test": "cd ./client && npm run test",
+    "help": "if [ ! -d ./build ]; then npm run build; fi; node ./build/app.js --help; exit 0",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allproxy/allproxy.git"
+  },
+  "author": "Dave Christenson",
+  "license": "MIT",
+  "private": false,
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "dependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron/remote": "^2.0.8",
+    "@httptoolkit/browser-launcher": "^2.0.1",
+    "@vscode/ripgrep": "^1.15.9",
+    "async": "^3.2.4",
+    "bufferutil": "^4.0.3",
+    "decompress-response": "^3.3.0",
+    "electron-find": "^1.0.7",
+    "electron-squirrel-startup": "^1.0.0",
+    "fetch-to-curl": "^0.6.0",
+    "fs": "^0.0.1-security",
+    "https": "^1.0.0",
+    "lodash": "^4.17.21",
+    "lookpath": "^1.2.2",
+    "mkdirp": "^1.0.4",
+    "mockttp": "^3.2.1",
+    "net": "^1.0.2",
+    "node-fetch": "^2.6.7",
+    "node-forge": "^1.3.1",
+    "node-gsettings-wrapper": "^0.5.0",
+    "node-gyp": "^9.1.0",
+    "nodemon": "^2.0.18",
+    "pako": "^2.1.0",
+    "path": "^0.12.7",
+    "protobufjs": "^6.11.2",
+    "socket.io": "^4.0.1",
+    "sql-formatter": "^2.3.3",
+    "tls": "^0.0.1",
+    "url": "^0.11.0",
+    "utf-8-validate": "^5.0.4",
+    "util": "^0.12.4",
+    "yarpm": "^1.1.1"
+  },
+  "devDependencies": {
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@types/jquery": "^3.5.5",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^14.14.35",
+    "@types/rimraf": "^3.0.2",
+    "@types/socket.io": "^2.1.13",
+    "@types/socket.io-client": "^1.4.36",
+    "@types/sql-formatter": "^2.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.31.2",
+    "@typescript-eslint/parser": "^4.31.2",
+    "ava": "^5.3.1",
+    "electron": "<=19.0.3",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-react": "^7.26.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "icons/icon",
+        "ignore": "^/(common|css|icons|intercept|out|packages|proto|replace-responses|scripts|server|.git|client/node_modules|client/src|.gitignore|ca.pem|.http-mitm-proxy)|^/node_modules/(.bin|@electron-forge|electron-notarize|electron-osx-sign|electron-packager|electron-rebuild|electron-winstaller|@types|@typescript-eslint|eslint*|@eslint|nodemon|ts_node|typescript|@babel|.*/README.md|.*/readme.md|.*/CHANGELOG.md|.*/package-lock.json|.*/yarn.lock|.*/.DS_Store|.*/.git|.*/.hg|.*/.svn|.*/CVS|.*/RCS|.*/SCCS|.*/.gitignore|.*/.gitattributes|.*/Dockerfile)|^.+.(tsx|md|jpeg|gif|jpeg|jpg|png|avif|markdown|mkd|zip|tgz|tar.gz|cert|pem|key)$|^/node_modules/(.*/doc|.*/docs)$|^/node_modules/(.*/makefile|.*/gulpfile.js|.*/gruntfile.js|.*/karma.conf.js|.*/.*eslintrc..*)|^/node_modules/+..(h|c|cpp|ts)$"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "allproxy"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  }
+}
