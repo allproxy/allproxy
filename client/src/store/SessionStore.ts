@@ -137,6 +137,35 @@ export default class SessionStore {
 		});
 	}
 
+	public searchSession(sessionDir: string, match: string): Promise<boolean> {
+		return new Promise<boolean>(async (resolve) => {
+			let result = false;
+			const dir = 'sessions/' + sessionDir;
+			const fsType = await apFileSystem.exists(dir, 'browserFs') ? 'browserFs' : 'serverFs';
+			let sessionName = '';
+			const exists = await apFileSystem.exists(dir + '/sessionName.txt', fsType);
+			if (exists) {
+				sessionName = await apFileSystem.readFile(dir + '/sessionName.txt', fsType);
+			}
+			for (let dirEntry of await apFileSystem.readDir(dir, fsType)) {
+				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry === 'notes.txt') continue;
+				if (dirEntry.startsWith('tab')) {
+					let tabName = await apFileSystem.readFile(dir + '/' + dirEntry + '/tabName.txt', fsType);
+					if (tabName === sessionDir && sessionName.length > 0) {
+						tabName = sessionName;
+					}
+					const data = await apFileSystem.readFile(dir + '/' + dirEntry + '/data.txt', fsType);
+					if (data.includes(match)) {
+						result = true;
+						break;
+					}
+				}
+			}
+			resolve(result);
+		});
+	}
+
 	public async exportSession(index: number, zipFileName: string): Promise<number> {
 		return new Promise<number>(async (resolve) => {
 			const zip = new JSZip();

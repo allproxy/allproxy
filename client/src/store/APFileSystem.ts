@@ -2,6 +2,7 @@ import { Socket } from "socket.io-client";
 import FS from '@isomorphic-git/lightning-fs';
 import { urlPathStore } from "./UrlPathStore";
 import { defaultScript, jsonLogStore } from "./JSONLogStore";
+import { sessionStore } from "./SessionStore";
 
 const CHUNKSIZE = 500000;
 
@@ -155,13 +156,21 @@ export default class APFileSystem {
 
     public async grepDir(path: string, match: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
         if (fsType === 'browserFs') {
-            return [];
-        }
-        return new Promise<string[]>((resolve) => {
-            this.socket?.emit('grepDir', path, match, (files: string[]) => {
-                resolve(files);
+            const files: string[] = [];
+
+            for (const sessionName of await this.readDir(path)) {
+                if (await sessionStore.searchSession(sessionName, match)) {
+                    files.push(path + '/' + sessionName);
+                }
+            }
+            return files;
+        } else {
+            return new Promise<string[]>((resolve) => {
+                this.socket?.emit('grepDir', path, match, (files: string[]) => {
+                    resolve(files);
+                });
             });
-        });
+        }
     }
 
     // readFile

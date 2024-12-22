@@ -105,7 +105,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 											value={titleValue} />
 										:
 										<input type="search" className="form-control"
-											placeholder="Hit enter to search"
+											placeholder="Exact match: hit enter to search"
 											disabled={mainTabStore.isUpdating()}
 											onChange={(e) => setSearchValue(e.target.value)}
 											onKeyUp={async (e) => {
@@ -113,13 +113,13 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 													if (searchValue === '') {
 														setFilterValues([]);
 													} else {
-														mainTabStore.setUpdating(true);
+														mainTabStore.setUpdating(true, 'Searching...');
 														//console.log('enter');
 														apFileSystem.grepDir('sessions', searchValue)
 															.then((files) => {
 																//console.log(files);
 																if (Array.isArray(files)) {
-																	const values: string[] = [];
+																	const values: string[] = ['does not match'];
 																	for (const file of files) {
 																		const value = file.split('/')[1];
 																		values.push(value);
