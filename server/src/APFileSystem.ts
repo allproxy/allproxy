@@ -150,7 +150,8 @@ export default class APFileSystem {
                     output = await run(`find ${subDir} -type f -exec ${rgPath} -l -m 1 "${match}" {} +`, Paths.getDataDir());
                 }
 
-                const files = output.toString().split('\n')
+                const files = output.toString().split('\n');
+                files.pop();
 
                 ConsoleLog.debug('ApFileSystem.grepDir', subDir, match, files);
                 callback(files);
