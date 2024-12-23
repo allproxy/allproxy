@@ -1,4 +1,4 @@
-import { IconButton, List, ListItem, Modal } from '@material-ui/core';
+import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
@@ -80,21 +80,19 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 						<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 							<div className="no-capture-modal__scroll-container">
 								<div style={{ display: 'flex', marginTop: '1rem' }}>
-
-									<select className="form-control btn btn-primary"
-										disabled={mainTabStore.isUpdating()}
-										style={{ width: '7rem' }}
-										onChange={e => {
-											setSearchType(e.target.value);
-											if (e.target.value === 'Title') {
-												setFilterValues([titleValue]);
-											}
-										}}
-										value={searchType}
-									>
-										<option selected={searchType === 'Title'}>Title</option>
-										<option selected={searchType === 'Full Text'}>Full Text</option>
-									</select>
+									<div>
+										<RadioGroup
+											row
+											aria-labelledby="theme-radio-button"
+											defaultValue={searchType}
+											value={searchType}
+											name="radio-buttons-group"
+											style={{ display: 'table' }}
+										>
+											<FormControlLabel value="Title" control={<Radio />} label="Title" onClick={() => { setSearchType('Title'); setFilterValues([titleValue]); }} />
+											<FormControlLabel value="Full Text" control={<Radio />} label="Full Text" onClick={() => { setSearchType('Full Text'); }} />
+										</RadioGroup>
+									</div>
 
 									{searchType === 'Title' ?
 										<input type="search" className="form-control"
