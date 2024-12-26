@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { Dialog, Tab, Tabs } from '@material-ui/core';
+import { Checkbox, Dialog, Tab, Tabs } from '@material-ui/core';
 import pickIcon, { getBrowserIconColor } from '../PickIcon';
 import { Browser, browserStore } from '../store/BrowserStore';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
@@ -19,6 +19,8 @@ import BreakpointModal from './BreakpointModal';
 import { breakpointStore } from '../store/BreakpointStore';
 import GTag from '../GTag';
 
+export const DONT_SHOW_HELP = 'allproxy-dont-show-help';
+
 type Props = {
 	open: boolean,
 	onClose: () => void,
@@ -34,6 +36,9 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 	const [jsonFields, setJsonFields] = React.useState<{ name: string, count: number, selected: boolean }[]>([]);
 
 	const [showBreakpointModal, setShowBreakpointModal] = React.useState(false);
+
+	const [dontShowHelpChecked, setDontShowHelpChecked] = React.useState(localStorage.getItem(DONT_SHOW_HELP) !== null);
+
 
 	const handleClose = () => {
 		onClose();
@@ -387,6 +392,12 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						</span>
 					</TabPanel>
 				</TabContext>
+				<Checkbox style={{ paddingTop: 0, paddingBottom: 0 }}
+					size={"small"}
+					defaultChecked={dontShowHelpChecked}
+					value={dontShowHelpChecked}
+					onChange={handleDontShowHelpChange} />
+				Don't show this dialog
 			</div>
 		</Dialog >
 			<ImportJSONFileDialog
@@ -428,6 +439,16 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 			}
 		</>
 	);
+
+	function handleDontShowHelpChange() {
+		if (localStorage.getItem(DONT_SHOW_HELP) === null) {
+			localStorage.setItem(DONT_SHOW_HELP, '1');
+			setDontShowHelpChecked(true);
+		} else {
+			localStorage.removeItem(DONT_SHOW_HELP);
+			setDontShowHelpChecked(false);
+		}
+	}
 });
 
 function browserName(browser: Browser): string {
