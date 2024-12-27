@@ -79,64 +79,66 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 						<h3>Sessions</h3>
 						<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
 							<div className="no-capture-modal__scroll-container">
-								<div style={{ display: 'flex', marginTop: '1rem' }}>
-									<div>
+								<div style={{ marginTop: '1rem' }}>
+									<div style={{ display: 'flex' }}>
+										<h5 style={{ lineHeight: '40px', marginRight: '1rem' }}>Search:</h5>
 										<RadioGroup
 											row
 											aria-labelledby="theme-radio-button"
 											defaultValue={searchType}
 											value={searchType}
 											name="radio-buttons-group"
-											style={{ display: 'table' }}
 										>
 											<FormControlLabel value="Title" control={<Radio />} label="Title" onClick={() => { setSearchType('Title'); setFilterValues([titleValue]); }} />
 											<FormControlLabel value="Full Text" control={<Radio />} label="Full Text" onClick={() => { setSearchType('Full Text'); }} />
 										</RadioGroup>
 									</div>
 
-									{searchType === 'Title' ?
-										<input type="search" className="form-control"
-											onChange={(e) => {
-												setTitleValue(e.target.value);
-												setFilterValues([e.target.value]);
-											}}
-											value={titleValue} />
-										:
-										<input type="search" className="form-control"
-											placeholder="Exact match: hit enter to search"
-											disabled={mainTabStore.isUpdating()}
-											onChange={(e) => setSearchValue(e.target.value)}
-											onKeyUp={async (e) => {
-												if (e.keyCode === 13) {
-													if (searchValue === '') {
-														setFilterValues([]);
-													} else {
-														mainTabStore.setUpdating(true, 'Searching...');
-														//console.log('enter');
-														apFileSystem.grepDir('sessions', searchValue)
-															.then((files) => {
-																//console.log(files);
-																if (Array.isArray(files)) {
-																	const values: string[] = ['does not match'];
-																	for (const file of files) {
-																		const value = file.split('/')[1];
-																		values.push(value);
+									<div>
+										{searchType === 'Title' ?
+											<input type="search" className="form-control"
+												onChange={(e) => {
+													setTitleValue(e.target.value);
+													setFilterValues([e.target.value]);
+												}}
+												value={titleValue} />
+											:
+											<input type="search" className="form-control"
+												placeholder="Exact match: hit enter to search"
+												disabled={mainTabStore.isUpdating()}
+												onChange={(e) => setSearchValue(e.target.value)}
+												onKeyUp={async (e) => {
+													if (e.keyCode === 13) {
+														if (searchValue === '') {
+															setFilterValues([]);
+														} else {
+															mainTabStore.setUpdating(true, 'Searching...');
+															//console.log('enter');
+															apFileSystem.grepDir('sessions', searchValue)
+																.then((files) => {
+																	//console.log(files);
+																	if (Array.isArray(files)) {
+																		const values: string[] = ['does not match'];
+																		for (const file of files) {
+																			const value = file.split('/')[1];
+																			values.push(value);
+																		}
+																		setFilterValues(values);
+																	} else {
+																		console.error(files);
 																	}
-																	setFilterValues(values);
-																} else {
-																	console.error(files);
-																}
-																mainTabStore.setUpdating(false);
-															})
-															.catch((e) => {
-																mainTabStore.setUpdating(false);
-																console.error(e);
-															});
+																	mainTabStore.setUpdating(false);
+																})
+																.catch((e) => {
+																	mainTabStore.setUpdating(false);
+																	console.error(e);
+																});
+														}
 													}
-												}
-											}}
-											value={searchValue} />
-									}
+												}}
+												value={searchValue} />
+										}
+									</div>
 
 								</div>
 								<List>
