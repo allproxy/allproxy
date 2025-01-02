@@ -83,7 +83,11 @@ export class JSONLogField {
 	}
 }
 
-export const defaultScript =
+export function setDefaultScript(script: string) {
+	defaultScript = script;
+}
+
+export let defaultScript =
 	`
 	// Function called to extract date, level, kind and message
 	//
