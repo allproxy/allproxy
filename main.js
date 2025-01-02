@@ -11,8 +11,12 @@ console.log('Starting main.js', appName);
 process.env.NODE_ENV = 'production';
 const dirName = __dirname;
 const home = process.env.HOME ? process.env.HOME : process.env.USERPROFILE;
-const dataDir = `${home + path.sep}.allproxy`;
-process.env.ALLPROXY_DATA_DIR = dataDir;
+let dataDir = `${home + path.sep}.allproxy`;
+if (process.env.ALLPROXY_DATA_DIR) {
+  dataDir = process.env.ALLPROXY_DATA_DIR;
+} else {
+  process.env.ALLPROXY_DATA_DIR = dataDir;
+}
 
 console.log(`Data directory: ${dataDir}`)
 
