@@ -16,7 +16,7 @@ import { useFilePicker } from "use-file-picker";
 import { ListItemText, Menu, MenuItem, Select } from '@material-ui/core';
 import ExportDialog from './ExportDialog';
 import MainTabStore from '../store/MainTabStore';
-import HelpDialog from './HelpDialog';
+import HelpDialog, { DONT_SHOW_HELP } from './HelpDialog';
 import DarkModeDialog from './DarkModeDialog';
 import ImportJSONFileDialog from './ImportJSONFileDialog';
 import JSONFieldsModal, { getJSONFields } from './JSONFieldsModal';
@@ -50,7 +50,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
-	const [showHelp, setShowHelp] = React.useState(true);
+	const [showHelp, setShowHelp] = React.useState(localStorage.getItem(DONT_SHOW_HELP) === null);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
 	const [showJSONFieldsModal, setShowJSONFieldsModal] = React.useState(false);
