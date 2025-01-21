@@ -5,7 +5,6 @@ import { messageQueueStore } from "../store/MessageQueueStore";
 import SideBarSortBy from "./SideBarSortBy";
 import SessionModal from './SessionModal';
 import { sessionStore } from '../store/SessionStore';
-import ExportDialog from "./ExportDialog";
 import React from "react";
 import MessageStore from "../store/MessageStore";
 import { mainTabStore } from "../store/MainTabStore";
@@ -16,6 +15,7 @@ import SideBarNamedQueries from "./SideBarQueries";
 import SideBarSettings from "./SideBarSettings";
 import SideBarJsonSettings from "./SideBarJsonSettings";
 import { stringToDate } from "./Footer";
+import SessionDialog from "./SessionDialog";
 
 export const isJsonLogTab = () => {
 	const messages = mainTabStore.getSelectedMessages();
@@ -187,7 +187,7 @@ const SideBar = observer(() => {
 						<button className="btn btn-success"
 							style={{ width: buttonWidth }}
 							disabled={disableSaveSession}
-							onClick={() => { setOpenSaveSessionDialog(true); setDisableSession(true); }}>
+							onClick={() => { sessionStore.init(); setOpenSaveSessionDialog(true); setDisableSession(true); }}>
 							Save Session
 						</button>
 						{disableSaveSession &&
@@ -432,14 +432,13 @@ const SideBar = observer(() => {
 
 				</div >
 			</div >
-			<ExportDialog
+			<SessionDialog
 				open={openSaveSessionDialog}
-				heading={"Enter Session Name"}
-				buttonLabel={'Save'}
-				onClose={async (fileName) => {
+				title="Enter Session Name"
+				onClose={async (fileName, category) => {
 					setOpenSaveSessionDialog(false);
 					if (fileName.length > 0) {
-						await sessionStore.saveSession(fileName);
+						await sessionStore.saveSession(fileName, category);
 					}
 					setDisableSession(false);
 				}} />

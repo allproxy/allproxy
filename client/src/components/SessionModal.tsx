@@ -1,4 +1,4 @@
-import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup } from '@material-ui/core';
+import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
@@ -8,6 +8,8 @@ import DeleteDialog from './DeleteDialog';
 import { apFileSystem } from '../store/APFileSystem';
 import ExportDialog from './ExportDialog';
 import GTag from '../GTag';
+import { TabContext, TabPanel } from '@material-ui/lab';
+import SessionDialog from './SessionDialog';
 
 type Props = {
 	open: boolean,
@@ -15,6 +17,7 @@ type Props = {
 	store: SessionStore,
 };
 const SessionModal = observer(({ open, onClose, store }: Props) => {
+	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
 	const [filterValues, setFilterValues] = React.useState<string[]>([]);
 	const [titleValue, setTitleValue] = React.useState('');
 	const [searchValue, setSearchValue] = React.useState('');
@@ -22,6 +25,8 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [pendingDeleteIndex, setPendingDeleteIndex] = React.useState(-1);
 	const [searchType, setSearchType] = React.useState<string>('Title');
+	const [tabValue, setTabValue] = React.useState('default');
+	const [sessionIndex, setSessionIndex] = React.useState(0);
 
 	useEffect(() => {
 		setTitleValue('');
@@ -29,6 +34,16 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		setSearchType('Title');
 		filterValues.splice(0, filterValues.length);
 	}, [open]);
+
+	React.useLayoutEffect(() => {
+		if (tabValue === 'default' && !store.getCategories().includes('default') && store.getCategories().length > 0) {
+			setTabValue(store.getCategories()[0]);
+		}
+	});
+
+	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
+		setTabValue(value);
+	}
 
 	function close() {
 		mainTabStore.setUpdating(false);
@@ -49,8 +64,13 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	}
 
 	async function handleExportSession(i: number) {
-		sessionIndex = i;
+		setSessionIndex(i);
 		setOpenExportDialog(true);
+	}
+
+	async function handleChangeCategory(i: number) {
+		setSessionIndex(i);
+		setOpenSaveSessionDialog(true);
 	}
 
 	function isFilterValueMatch(sessionName: string) {
@@ -63,7 +83,13 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		return false;
 	}
 
-	let sessionIndex = 0;
+	function getCategoryCount(category: string) {
+		let count = 0;
+		for (const entry of store.getSessionList()) {
+			if (entry.category === category) ++count;
+		}
+		return count;
+	}
 
 	return (
 		<>
@@ -139,50 +165,87 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 												value={searchValue} />
 										}
 									</div>
-
 								</div>
-								<List>
-									{store.getSessionList().length === 0 &&
-										<div className="center"
-											style={{ marginTop: 'calc( 50vh - 72px' }}>
-											No saved sessions found
-										</div>}
-									{store.getSessionList().map((entry, i) => (
-										(isFilterValueMatch(entry.name)) &&
-										<ListItem key={i}
-											style={{
-												display: 'flex', alignItems: 'center',
-											}}>
-											<IconButton
-												disabled={!entry.canDelete}
-												onClick={() => handleDeleteSession(i)} title="Delete session">
-												<CloseIcon style={{ color: 'red', opacity: entry.canDelete ? undefined : 0 }} />
-											</IconButton>
-											<button className={`btn btn-success`}
-												title="Restore session"
-												style={{ marginRight: '.25rem' }}
-												onClick={() => handleRestoreSession(i)}
-											>
-												Restore
-											</button>
-											<button className={`btn btn-primary`}
-												title="Export session to zip file"
-												style={{ marginRight: '1rem' }}
-												onClick={() => handleExportSession(i)}
-											>
-												Export
-											</button>
-											<div
-												style={{
-													display: 'flex', alignItems: 'center',
-													width: '100%',
-												}}
-											>
-												{entry.name}
-											</div>
-										</ListItem>
-									))}
-								</List>
+								<TabContext value={tabValue}>
+									<Tabs
+										value={tabValue}
+										onChange={handleTabChange}
+										indicatorColor="primary"
+										textColor="primary"
+										aria-label="SessionTabs">
+										{store.getCategories().map((tabValue) => (
+											getCategoryCount(tabValue) > 0 &&
+											< Tab
+												key={tabValue}
+												value={tabValue}
+												label={
+													< div className={'maintab__tab'} title={tabValue} >
+														<div className="maintab__tab-name">
+															{tabValue + ' (' + getCategoryCount(tabValue) + ')'}
+														</div>
+													</div>
+												}>
+											</Tab>
+										))}
+									</Tabs>
+									{
+										store.getCategories().map((catValue) => (
+											<TabPanel
+												key={catValue}
+												value={catValue}>
+												<List>
+													{store.getSessionList().length === 0 &&
+														<div className="center"
+															style={{ marginTop: 'calc( 50vh - 72px' }}>
+															No saved sessions found
+														</div>}
+													{store.getSessionList().map((entry, i) => (
+														(entry.category === catValue && isFilterValueMatch(entry.name)) &&
+														<ListItem key={entry.name + entry.category}
+															style={{
+																display: 'flex', alignItems: 'center',
+															}}>
+															<IconButton
+																disabled={!entry.canDelete}
+																onClick={() => handleDeleteSession(i)} title="Delete session">
+																<CloseIcon style={{ color: 'red', opacity: entry.canDelete ? undefined : 0 }} />
+															</IconButton>
+															<button className={`btn btn-success`}
+																title="Restore session"
+																style={{ marginRight: '.25rem' }}
+																onClick={() => handleRestoreSession(i)}
+															>
+																Restore
+															</button>
+															<button className={`btn btn-primary`}
+																title="Export session to zip file"
+																style={{ marginRight: '.25rem' }}
+																onClick={() => handleExportSession(i)}
+															>
+																Export
+															</button>
+															<button className={`btn btn-danger`}
+																title="Move this session to different category"
+																style={{ marginRight: '1rem', whiteSpace: 'nowrap' }}
+																onClick={() => handleChangeCategory(i)}
+															>
+																Move
+															</button>
+															<div
+																style={{
+																	display: 'flex', alignItems: 'center',
+																	width: '100%',
+																}}
+															>
+																{entry.name}
+															</div>
+														</ListItem>
+													))}
+												</List>
+											</TabPanel>
+										))
+									}
+								</TabContext >
 							</div>
 						</div>
 						<div className="modal-footer">
@@ -193,8 +256,8 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 							</button>
 						</div>
 					</div>
-				</div>
-			</Modal><DeleteDialog
+				</div >
+			</Modal ><DeleteDialog
 				open={openDeleteDialog}
 				onClose={(doDelete: boolean) => {
 					setOpenDeleteDialog(false);
@@ -212,6 +275,14 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 					if (fileName.length > 0) {
 						await store.exportSession(sessionIndex, fileName);
 					}
+				}} />
+			<SessionDialog
+				open={openSaveSessionDialog}
+				title="Move Session"
+				onClose={async (_fileName, category) => {
+					setOpenSaveSessionDialog(false);
+					await store.changeCategory(sessionIndex, category);
+					setTabValue(category);
 				}} />
 		</>
 	);
