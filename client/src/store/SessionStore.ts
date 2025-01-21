@@ -7,17 +7,19 @@ import { saveAs } from "file-saver";
 import { urlPathStore } from "./UrlPathStore";
 
 export default class SessionStore {
+	private categories: string[] = ['default'];
 	private sessionFileNameList: string[] = [];
-	private sessionList: { name: string, canDelete: boolean }[] = [];
+	private sessionList: { name: string, category: string, canDelete: boolean }[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
 	}
 
 	public async init() {
+		this.categories = [];
 		this.sessionFileNameList.splice(0, this.sessionFileNameList.length);
 		this.sessionList.splice(0, this.sessionList.length);
-
+		let addDefault = false;
 		for (const fsTypeStr of ['browserFs', 'serverFs']) {
 			const fsType = fsTypeStr as 'browserFs' | 'serverFs';
 			if (fsType === 'serverFs' && !apFileSystem.isConnected()) continue;
@@ -28,6 +30,20 @@ export default class SessionStore {
 				return new Date(b).getTime() - new Date(a).getTime();
 			});
 			for (const fileName of fileNames) {
+				let category = 'default';
+				const catExists = await apFileSystem.exists(`sessions/${fileName}/category.txt`, fsType);
+				if (catExists) {
+					const catName = await apFileSystem.readFile(`sessions/${fileName}/category.txt`, fsType);
+					if (!this.categories.includes(catName) && catName !== 'default') {
+						this.categories.push(catName);
+					}
+					category = catName;
+				}
+
+				if (category !== 'default') {
+					addDefault = true;
+				}
+
 				this.sessionFileNameList.push(fileName);
 				const exists = await apFileSystem.exists(`sessions/${fileName}/sessionName.txt`, fsType);
 				let sessionName = '';
@@ -35,9 +51,17 @@ export default class SessionStore {
 					sessionName = await apFileSystem.readFile(`sessions/${fileName}/sessionName.txt`, fsType);
 				}
 				const sn = sessionName.length > 0 ? ' - ' + sessionName : '';
-				this.sessionList.push({ name: fileName + sn, canDelete: urlPathStore.isLocalhost() || fsType === 'browserFs' });
+				this.sessionList.push({ name: fileName + sn, category, canDelete: urlPathStore.isLocalhost() || fsType === 'browserFs' });
 			}
 		}
+		this.categories.sort();
+		if (addDefault) {
+			this.categories.unshift('default');
+		}
+	}
+
+	public getCategories() {
+		return this.categories;
 	}
 
 	public getSessionList() {
@@ -56,6 +80,7 @@ export default class SessionStore {
 			if (await apFileSystem.exists(dir, fsType)) {
 				for (let dirEntry of await apFileSystem.readDir(dir, fsType)) {
 					if (dirEntry === 'sessionName.txt') await apFileSystem.deleteFile(dir + '/sessionName.txt', fsType);
+					if (dirEntry === 'category.txt') await apFileSystem.deleteFile(dir + '/category.txt', fsType);
 					if (dirEntry === 'notes.txt') await apFileSystem.deleteFile(dir + '/notes.txt', fsType);
 					if (dirEntry.startsWith('tab')) {
 						await apFileSystem.deleteFile(dir + '/' + dirEntry + '/tabName.txt', fsType);
@@ -71,12 +96,13 @@ export default class SessionStore {
 		}
 	}
 
-	public async saveSession(sessionName: string): Promise<void> {
+	public async saveSession(sessionName: string, category: string): Promise<void> {
 		return new Promise<void>(async (resolve) => {
 			const date = new Date().toLocaleString().replaceAll('/', '-');
 			const dir = 'sessions/' + date;
 			await apFileSystem.mkdir(dir);
 			await apFileSystem.writeFile(dir + '/sessionName.txt', sessionName);
+			await apFileSystem.writeFile(dir + '/category.txt', category);
 			let i = 1;
 			for (const key of mainTabStore.getTabNames()) {
 				let messages: Message[] = [];
@@ -101,6 +127,19 @@ export default class SessionStore {
 		});
 	}
 
+	public async changeCategory(index: number, category: string): Promise<void> {
+		return new Promise<void>(async (resolve) => {
+			const sessionDir = this.sessionFileNameList[index];
+			const dir = 'sessions/' + sessionDir;
+			this.sessionList[index].category = category;
+			if (!this.categories.includes(category)) {
+				this.categories.push(category);
+			}
+			await apFileSystem.writeFile(dir + '/category.txt', category);
+			resolve();
+		});
+	}
+
 	public async restoreSession(index: number): Promise<number> {
 		return new Promise<number>(async (resolve) => {
 			const sessionDir = this.sessionFileNameList[index];
@@ -113,6 +152,7 @@ export default class SessionStore {
 			}
 			for (let dirEntry of await apFileSystem.readDir(dir, fsType)) {
 				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry === 'category.txt') continue;
 				if (dirEntry === 'notes.txt') continue;
 				if (dirEntry.startsWith('tab')) {
 					let tabName = await apFileSystem.readFile(dir + '/' + dirEntry + '/tabName.txt', fsType);
@@ -149,6 +189,7 @@ export default class SessionStore {
 			}
 			for (let dirEntry of await apFileSystem.readDir(dir, fsType)) {
 				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry === 'category.txt') continue;
 				if (dirEntry === 'notes.txt') continue;
 				if (dirEntry.startsWith('tab')) {
 					let tabName = await apFileSystem.readFile(dir + '/' + dirEntry + '/tabName.txt', fsType);
@@ -180,6 +221,7 @@ export default class SessionStore {
 			}
 			for (let dirEntry of await apFileSystem.readDir(dir, fsType)) {
 				if (dirEntry === 'sessionName.txt') continue;
+				if (dirEntry === 'category.txt') continue;
 				if (dirEntry === 'notes.txt') continue;
 				if (dirEntry.startsWith('tab')) {
 					const tab = zip.folder(dirEntry);
