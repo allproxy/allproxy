@@ -38,9 +38,11 @@ export default class SessionStore {
 						this.categories.push(catName);
 					}
 					category = catName;
+				} else {
+					await apFileSystem.writeFile(`sessions/${fileName}/category.txt`, 'default', fsType);
 				}
 
-				if (category !== 'default') {
+				if (category === 'default') {
 					addDefault = true;
 				}
 
