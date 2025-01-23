@@ -9,7 +9,7 @@ import { urlPathStore } from "./UrlPathStore";
 export default class SessionStore {
 	private categories: string[] = ['default'];
 	private sessionFileNameList: string[] = [];
-	private sessionList: { name: string, category: string, canDelete: boolean }[] = [];
+	private sessionList: { fileName: string, name: string, category: string, canDelete: boolean }[] = [];
 
 	public constructor() {
 		makeAutoObservable(this);
@@ -20,6 +20,7 @@ export default class SessionStore {
 		this.sessionFileNameList.splice(0, this.sessionFileNameList.length);
 		this.sessionList.splice(0, this.sessionList.length);
 		let addDefault = false;
+		const categories: string[] = [];
 		for (const fsTypeStr of ['browserFs', 'serverFs']) {
 			const fsType = fsTypeStr as 'browserFs' | 'serverFs';
 			if (fsType === 'serverFs' && !apFileSystem.isConnected()) continue;
@@ -34,13 +35,15 @@ export default class SessionStore {
 				const catExists = await apFileSystem.exists(`sessions/${fileName}/category.txt`, fsType);
 				if (catExists) {
 					const catName = await apFileSystem.readFile(`sessions/${fileName}/category.txt`, fsType);
-					if (!this.categories.includes(catName) && catName !== 'default') {
-						this.categories.push(catName);
+					if (!categories.includes(catName) && catName !== 'default') {
+						categories.push(catName);
 					}
 					category = catName;
+				} else {
+					await apFileSystem.writeFile(`sessions/${fileName}/category.txt`, 'default', fsType);
 				}
 
-				if (category !== 'default') {
+				if (category === 'default') {
 					addDefault = true;
 				}
 
@@ -51,13 +54,14 @@ export default class SessionStore {
 					sessionName = await apFileSystem.readFile(`sessions/${fileName}/sessionName.txt`, fsType);
 				}
 				const sn = sessionName.length > 0 ? ' - ' + sessionName : '';
-				this.sessionList.push({ name: fileName + sn, category, canDelete: urlPathStore.isLocalhost() || fsType === 'browserFs' });
+				this.sessionList.push({ fileName: fileName, name: fileName + sn, category, canDelete: urlPathStore.isLocalhost() || fsType === 'browserFs' });
 			}
 		}
-		this.categories.sort();
+		categories.sort();
 		if (addDefault) {
-			this.categories.unshift('default');
+			categories.unshift('default');
 		}
+		this.categories = categories;
 	}
 
 	public getCategories() {
@@ -177,9 +181,9 @@ export default class SessionStore {
 		});
 	}
 
-	public searchSession(sessionDir: string, match: string): Promise<boolean> {
-		return new Promise<boolean>(async (resolve) => {
-			let result = false;
+	public searchSession(sessionDir: string, match: string): Promise<string> {
+		return new Promise<string>(async (resolve) => {
+			let result = '';
 			const dir = 'sessions/' + sessionDir;
 			const fsType = await apFileSystem.exists(dir, 'browserFs') ? 'browserFs' : 'serverFs';
 			let sessionName = '';
@@ -197,8 +201,41 @@ export default class SessionStore {
 						tabName = sessionName;
 					}
 					const data = await apFileSystem.readFile(dir + '/' + dirEntry + '/data.txt', fsType);
-					if (data.includes(match)) {
-						result = true;
+					const i = data.indexOf(match);
+					if (i !== -1) {
+						let left = 0;
+						let right = 0;
+						let s = i;
+						for (; s >= 0; --s) {
+							if (data[s] === '{') {
+								if (left === right) break;
+								++left;
+							}
+							if (data[s] === '}') ++right;
+						}
+
+						left = right = 0;
+						let e = i;
+						for (; e < data.length; ++e) {
+							if (data[e] === '}') {
+								if (left === right) break;
+								++right;
+							}
+							if (data[e] === '{') ++left;
+						}
+
+						if (s === -1 || e === data.length) {
+							s = i - 100;
+							if (s < 0) s = 0;
+							result = data.substring(s);
+						} else {
+							const str = data.substring(s, e + 1);
+							try {
+								result = JSON.stringify(JSON.parse(str), null, 2);
+							} catch (e) {
+								result = str;
+							}
+						}
 						break;
 					}
 				}

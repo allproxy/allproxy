@@ -154,20 +154,23 @@ export default class APFileSystem {
         });
     }
 
-    public async grepDir(path: string, match: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<string[]> {
+    public async grepDir(path: string, match: string, fsType: 'browserFs' | 'serverFs' = defaultFsType): Promise<{ file: string, match: string }[]> {
+        const result: { file: string, match: string }[] = [];
         if (fsType === 'browserFs') {
-            const files: string[] = [];
-
             for (const sessionName of await this.readDir(path)) {
-                if (await sessionStore.searchSession(sessionName, match)) {
-                    files.push(path + '/' + sessionName);
+                const matchString = await sessionStore.searchSession(sessionName, match);
+                if (matchString !== '') {
+                    result.push({ file: path + '/' + sessionName, match: matchString });
                 }
             }
-            return files;
+            return result;
         } else {
-            return new Promise<string[]>((resolve) => {
+            return new Promise<{ file: string, match: string }[]>((resolve) => {
                 this.socket?.emit('grepDir', path, match, (files: string[]) => {
-                    resolve(files);
+                    for (const file of files) {
+                        result.push({ file, match: '' });
+                    }
+                    resolve(result);
                 });
             });
         }

@@ -187,7 +187,7 @@ const SideBar = observer(() => {
 						<button className="btn btn-success"
 							style={{ width: buttonWidth }}
 							disabled={disableSaveSession}
-							onClick={() => { sessionStore.init(); setOpenSaveSessionDialog(true); setDisableSession(true); }}>
+							onClick={async () => { await sessionStore.init(); setOpenSaveSessionDialog(true); setDisableSession(true); }}>
 							Save Session
 						</button>
 						{disableSaveSession &&
