@@ -1,4 +1,4 @@
-import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs } from '@material-ui/core';
+import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs, Tooltip } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
@@ -10,6 +10,7 @@ import ExportDialog from './ExportDialog';
 import GTag from '../GTag';
 import { TabContext, TabPanel } from '@material-ui/lab';
 import SessionDialog from './SessionDialog';
+import InfoIcon from '@mui/icons-material/Info';
 
 type Props = {
 	open: boolean,
@@ -19,6 +20,7 @@ type Props = {
 const SessionModal = observer(({ open, onClose, store }: Props) => {
 	const [openSaveSessionDialog, setOpenSaveSessionDialog] = React.useState(false);
 	const [filterValues, setFilterValues] = React.useState<string[]>([]);
+	const [filterMatches, setFilterMatches] = React.useState<{ [key: string]: string }>({});
 	const [titleValue, setTitleValue] = React.useState('');
 	const [searchValue, setSearchValue] = React.useState('');
 	const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
@@ -33,10 +35,12 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		setSearchValue('');
 		setSearchType('Title');
 		filterValues.splice(0, filterValues.length);
+		setFilterMatches({});
+		setTabValue('default');
 	}, [open]);
 
 	React.useLayoutEffect(() => {
-		if (tabValue === 'default' && !store.getCategories().includes('default') && store.getCategories().length > 0) {
+		if (!store.getCategories().includes('default') && store.getCategories().length > 0) {
 			setTabValue(store.getCategories()[0]);
 		}
 	});
@@ -86,7 +90,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	function getCategoryCount(category: string) {
 		let count = 0;
 		for (const entry of store.getSessionList()) {
-			if (entry.category === category) ++count;
+			if (entry.category === category && isFilterValueMatch(entry.name)) ++count;
 		}
 		return count;
 	}
@@ -141,17 +145,20 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 															mainTabStore.setUpdating(true, 'Searching...');
 															//console.log('enter');
 															apFileSystem.grepDir('sessions', searchValue)
-																.then((files) => {
+																.then((results) => {
 																	//console.log(files);
-																	if (Array.isArray(files)) {
+																	if (Array.isArray(results)) {
 																		const values: string[] = ['does not match'];
-																		for (const file of files) {
-																			const value = file.split('/')[1];
+																		const matches: { [key: string]: string } = {};
+																		for (const result of results) {
+																			const value = result.file.split('/')[1];
 																			values.push(value);
+																			matches[value] = result.match;
 																		}
 																		setFilterValues(values);
+																		setFilterMatches(matches);
 																	} else {
-																		console.error(files);
+																		console.error(results);
 																	}
 																	mainTabStore.setUpdating(false);
 																})
@@ -226,11 +233,20 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 															</button>
 															<button className={`btn btn-danger`}
 																title="Move this session to different category"
-																style={{ marginRight: '1rem', whiteSpace: 'nowrap' }}
+																style={{ marginRight: '.5rem', whiteSpace: 'nowrap' }}
 																onClick={() => handleChangeCategory(i)}
 															>
 																Move
 															</button>
+															{filterMatches[entry.fileName] &&
+																<Tooltip
+																	title={<pre style={{ width: '50vw' }}>{filterMatches[entry.fileName]}</pre>}
+																>
+																	<IconButton>
+																		<InfoIcon />
+																	</IconButton>
+																</Tooltip>
+															}
 															<div
 																style={{
 																	display: 'flex', alignItems: 'center',
