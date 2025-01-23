@@ -36,14 +36,10 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		setSearchType('Title');
 		filterValues.splice(0, filterValues.length);
 		setFilterMatches({});
-		setTabValue('default');
-	}, [open]);
-
-	React.useLayoutEffect(() => {
-		if (!store.getCategories().includes('default') && store.getCategories().length > 0) {
+		if (store.getCategories().length > 0) {
 			setTabValue(store.getCategories()[0]);
 		}
-	});
+	}, [open]);
 
 	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
 		setTabValue(value);
