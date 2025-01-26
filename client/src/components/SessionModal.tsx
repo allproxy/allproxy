@@ -27,7 +27,6 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [pendingDeleteIndex, setPendingDeleteIndex] = React.useState(-1);
 	const [searchType, setSearchType] = React.useState<string>('Title');
-	const [tabValue, setTabValue] = React.useState('default');
 	const [sessionIndex, setSessionIndex] = React.useState(0);
 
 	useEffect(() => {
@@ -36,17 +35,10 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 		setSearchType('Title');
 		filterValues.splice(0, filterValues.length);
 		setFilterMatches({});
-		setTabValue('default');
 	}, [open]);
 
-	React.useLayoutEffect(() => {
-		if (!store.getCategories().includes('default') && store.getCategories().length > 0) {
-			setTabValue(store.getCategories()[0]);
-		}
-	});
-
 	function handleTabChange(_e: React.ChangeEvent<{}>, value: string) {
-		setTabValue(value);
+		store.setSelectedTab(value);
 	}
 
 	function close() {
@@ -173,9 +165,9 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										}
 									</div>
 								</div>
-								<TabContext value={tabValue}>
+								<TabContext value={store.getSelectedTab()}>
 									<Tabs
-										value={tabValue}
+										value={store.getSelectedTab()}
 										onChange={handleTabChange}
 										indicatorColor="primary"
 										textColor="primary"
@@ -298,7 +290,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 				onClose={async (_fileName, category) => {
 					setOpenSaveSessionDialog(false);
 					await store.changeCategory(sessionIndex, category);
-					setTabValue(category);
+					store.setSelectedTab(category);
 				}} />
 		</>
 	);
