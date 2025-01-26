@@ -7,6 +7,7 @@ import { saveAs } from "file-saver";
 import { urlPathStore } from "./UrlPathStore";
 
 export default class SessionStore {
+	private selectedTab = 'default';
 	private categories: string[] = ['default'];
 	private sessionFileNameList: string[] = [];
 	private sessionList: { fileName: string, name: string, category: string, canDelete: boolean }[] = [];
@@ -62,6 +63,15 @@ export default class SessionStore {
 			categories.unshift('default');
 		}
 		this.categories = categories;
+		this.selectedTab = categories[0];
+	}
+
+	public getSelectedTab() {
+		return this.selectedTab;
+	}
+
+	@action public setSelectedTab(tab: string) {
+		this.selectedTab = tab;
 	}
 
 	public getCategories() {
