@@ -1,4 +1,4 @@
-import { FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs, Tooltip } from '@material-ui/core';
+import { Checkbox, FormControlLabel, IconButton, List, ListItem, Modal, Radio, RadioGroup, Tab, Tabs, Tooltip } from '@material-ui/core';
 import { observer } from 'mobx-react-lite';
 import CloseIcon from "@material-ui/icons/Close";
 import SessionStore from '../store/SessionStore';
@@ -26,13 +26,14 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [pendingDeleteIndex, setPendingDeleteIndex] = React.useState(-1);
-	const [searchType, setSearchType] = React.useState<string>('Title');
+	const [searchType, setSearchType] = React.useState<'Title' | 'Full Text'>('Full Text');
 	const [sessionIndex, setSessionIndex] = React.useState(0);
+	const [flatten, setFlatten] = React.useState(false);
 
 	useEffect(() => {
 		setTitleValue('');
 		setSearchValue('');
-		setSearchType('Title');
+		setSearchType('Full Text');
 		filterValues.splice(0, filterValues.length);
 		setFilterMatches({});
 	}, [open]);
@@ -82,9 +83,22 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	function getCategoryCount(category: string) {
 		let count = 0;
 		for (const entry of store.getSessionList()) {
-			if (entry.category === category && isFilterValueMatch(entry.name)) ++count;
+			if ((flatten || entry.category === category) && isFilterValueMatch(entry.name)) ++count;
 		}
 		return count;
+	}
+
+	function getTabs() {
+		return flatten ? ['default'] : store.getCategories();
+	}
+
+	function handleFlattenChange() {
+		if (flatten) {
+			store.setSelectedTab(store.getCategories()[0]);
+		} else {
+			store.setSelectedTab('default');
+		}
+		setFlatten(!flatten);
 	}
 
 	return (
@@ -165,6 +179,16 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										}
 									</div>
 								</div>
+								{store.getCategories().length > 1 &&
+									<>
+										<Checkbox style={{ paddingTop: 0, paddingBottom: 0 }}
+											size={"small"}
+											defaultChecked={flatten}
+											value={flatten}
+											onChange={handleFlattenChange} />
+										Single List
+									</>
+								}
 								<TabContext value={store.getSelectedTab()}>
 									<Tabs
 										value={store.getSelectedTab()}
@@ -172,7 +196,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										indicatorColor="primary"
 										textColor="primary"
 										aria-label="SessionTabs">
-										{store.getCategories().map((tabValue) => (
+										{getTabs().map((tabValue) => (
 											getCategoryCount(tabValue) > 0 &&
 											< Tab
 												key={tabValue}
@@ -188,7 +212,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										))}
 									</Tabs>
 									{
-										store.getCategories().map((catValue) => (
+										getTabs().map((catValue) => (
 											<TabPanel
 												key={catValue}
 												value={catValue}>
@@ -199,7 +223,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 															No saved sessions found
 														</div>}
 													{store.getSessionList().map((entry, i) => (
-														(entry.category === catValue && isFilterValueMatch(entry.name)) &&
+														((flatten || entry.category === catValue) && isFilterValueMatch(entry.name)) &&
 														<ListItem key={entry.name + entry.category}
 															style={{
 																display: 'flex', alignItems: 'center',
