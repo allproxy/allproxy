@@ -114,8 +114,18 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 					<div>
 						<h3>Sessions</h3>
 						<div style={{ borderTop: 'solid steelblue', paddingTop: '.5rem' }}>
+							{store.getCategories().length > 1 &&
+								<>
+									<Checkbox style={{ paddingTop: 0, paddingBottom: 0 }}
+										size={"small"}
+										defaultChecked={flatten}
+										value={flatten}
+										onChange={handleFlattenChange} />
+									Show one list
+								</>
+							}
 							<div className="no-capture-modal__scroll-container">
-								<div style={{ marginTop: '1rem' }}>
+								<div>
 									<div style={{ display: 'flex' }}>
 										<h5 style={{ lineHeight: '40px', marginRight: '1rem' }}>Search:</h5>
 										<RadioGroup
@@ -179,16 +189,6 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 										}
 									</div>
 								</div>
-								{store.getCategories().length > 1 &&
-									<>
-										<Checkbox style={{ paddingTop: 0, paddingBottom: 0 }}
-											size={"small"}
-											defaultChecked={flatten}
-											value={flatten}
-											onChange={handleFlattenChange} />
-										Single List
-									</>
-								}
 								<TabContext value={store.getSelectedTab()}>
 									<Tabs
 										value={store.getSelectedTab()}
