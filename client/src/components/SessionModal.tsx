@@ -171,6 +171,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 																			values.push(value);
 																			matches[value] = result.match;
 																		}
+																		values.push(searchValue);
 																		setFilterValues(values);
 																		setFilterMatches(matches);
 																	} else {
