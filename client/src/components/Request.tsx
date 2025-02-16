@@ -197,7 +197,7 @@ const Request = observer(({ isActive, highlight, onClick, onDelete, store, onRes
 								{messageQueueStore.getShowUserAgent() && message.protocol !== 'log:' && <div className="request__msg-client request__msg-highlight">{store.getRequestClient()}</div>
 								}
 								{message.protocol === 'log:' || messageQueueStore.getLayout() !== 'Default' ?
-									<JsonLogAnnotator message={store} />
+									<JsonLogAnnotator message={store} className={className} />
 									:
 									<RequestURL message={store} />
 								}

@@ -113,7 +113,7 @@ const SideBarSettings = observer((): JSX.Element => {
 								defaultChecked={false}
 								value={jsonLogStore.isRawJsonChecked()}
 								onChange={() => jsonLogStore.toggleRawJsonChecked()} />
-							<div>Show Raw JSON</div>
+							<div>Show JSON</div>
 						</div>
 					</div>
 					<div className="side-bar-checkbox-icon">

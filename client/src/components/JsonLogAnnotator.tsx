@@ -18,8 +18,9 @@ const maxValueSize = 500;
 
 type Props = {
 	message: MessageStore,
+	className: string,
 };
-const JsonLogAnnotator = observer(({ message }: Props) => {
+const JsonLogAnnotator = observer(({ message, className }: Props) => {
 	const highlightColor = 'red';
 	const highlightWidth = 'thin';
 	const layout = mainTabStore.getLayout(mainTabStore.getSelectedTabName());
@@ -83,29 +84,44 @@ const JsonLogAnnotator = observer(({ message }: Props) => {
 				</MenuItem>
 			</Menu>
 			<div className={'request__json-annotations' + (layout?.isNowrap() ? ' nowrap' : '')}>
-				{jsonLogStore.isRawJsonChecked() ?
-					<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
-						{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().kind)}
-						{mainTabStore.copyMessage(message)}
-					</div>
-					: messageQueueStore.getLayout() !== 'Default' ?
-						messageQueueStore.getLayout() === 'Raw Response' ?
-							<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
-								{makeCatAppElement(message.getMessage().status + '', message.getMessage().method + "")}
-								{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2', wordBreak: 'break-all' }}> {message.getUrl()}</div>}
-								{JSON.stringify(message.getMessage().responseBody).replace(/\\"/g, '')}
-							</div>
+				{
+					jsonLogStore.isRawJsonChecked()
+						? <div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
+							{makeCatAppElement(message.getLogEntry().category, message.getLogEntry().kind)}
+							{ }
+							<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2', wordBreak: 'break-all' }}>
+								{message.getLogEntry().message}
+							</div >
+							<pre className={className}>
+								{formatJSON(mainTabStore.copyMessage(message))}
+							</pre>
+						</div>
+						:
+						messageQueueStore.getLayout() !== 'Default' ?
+							messageQueueStore.getLayout() === 'Raw Response' ?
+								<div style={{ display: 'inline-block', paddingLeft: '.25rem', wordBreak: 'break-all' }}>
+									{makeCatAppElement(message.getMessage().status + '', message.getMessage().method + "")}
+									{<div className="request__msg-highlight" style={{ display: 'inline-block', paddingLeft: '.25rem', paddingRight: '2rem', lineHeight: '1.2', wordBreak: 'break-all' }}> {message.getUrl()}</div>}
+									{JSON.stringify(message.getMessage().responseBody).replace(/\\"/g, '')}
+								</div>
+								:
+								makeJSONRequestLabels(message, message.getMessage().status + '', message.getMessage().method + '').map((element) => {
+									return element;
+								})
 							:
-							makeJSONRequestLabels(message, message.getMessage().status + '', message.getMessage().method + '').map((element) => {
+							makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().kind).map((element) => {
 								return element;
 							})
-						:
-						makeJSONRequestLabels(message, message.getLogEntry().category, message.getLogEntry().kind).map((element) => {
-							return element;
-						})}
+				}
 			</div>
 		</>
 	);
+
+	function formatJSON(jsonString: string): string {
+		//return jsonString;
+		const j = JSON.parse(jsonString);
+		return JSON.stringify(j, null, 2);
+	}
 
 	function makeCatAppElement(category: string, kind: string): JSX.Element {
 		let catKinds: JSX.Element[] = [];
