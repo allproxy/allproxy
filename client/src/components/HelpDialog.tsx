@@ -102,6 +102,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 				width: "70vw",
 				height: "90vh"
 			}}>
+				<div className="primary-text-color" style={{ fontSize: 'small' }}>Version: {process.env.REACT_APP_VERSION}</div>
 				<TabContext value={tabValue}>
 					<Tabs
 						variant='scrollable'
