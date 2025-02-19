@@ -49,7 +49,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 		setShowQueries(false);
 		setFilter(query);
 		filterStore.setFilterNoDebounce(query);
-		if (query.length > 0) {
+		if (query.length > 0 && queryStore.canDelete(query)) {
 			const i = queries.indexOf(query);
 			if (i !== -1)
 				queries.splice(i, 1);
@@ -152,7 +152,9 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 									style={{ paddingLeft: 0 }}
 									hidden={query.indexOf(filter) === -1 || !showQueries}
 								>
-									<div className="filter-bar__menu-item-links">
+									<div className="filter-bar__menu-item-links"
+										hidden={!queryStore.canDelete(query)}
+									>
 										<Link href="#" style={{ color: 'red' }}
 											onClick={() => {
 												setQueryToDelete(query);
