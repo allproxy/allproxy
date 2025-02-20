@@ -12,6 +12,7 @@ type Query = {
 
 export default class QueryStore {
 	private queries: Query[] = [];
+	private additionalQueries: string[] = [];
 	private applyFilter: string = '';
 
 	public constructor() {
@@ -30,6 +31,9 @@ export default class QueryStore {
 			this.queries.push({ query, dirName });
 		}
 		this.queries.sort();
+		for (const q of this.additionalQueries) {
+			this.queries.push({ query: q, dirName: "" });
+		}
 
 		if (this.queries.length === 0) {
 			if (fsType !== 'serverFs' && !urlPathStore.isLocalhost() && !urlPathStore.isGitHubPages()) {
@@ -57,6 +61,10 @@ export default class QueryStore {
 		return this.queries.map(q => q.dirName);
 	}
 
+	public setAddionalQueries(queries: string[]) {
+		this.additionalQueries = queries.sort();
+	}
+
 	private makeSubDirName() {
 		return new Date().toLocaleString().replaceAll('/', '-');
 	}
@@ -74,13 +82,20 @@ export default class QueryStore {
 		return -1;
 	}
 
+	@action public canDelete(query: string) {
+		const index = this.queriesIndexOf(query);
+		return index === -1 || this.queries[index].dirName !== "";
+	}
+
 	@action public async deleteEntry(query: string) {
 		const index = this.queriesIndexOf(query);
 		if (index !== -1) {
 			const dirName = this.queries[index].dirName;
-			if (await apFileSystem.exists(QUERIES_DIR + '/' + dirName)) {
-				await apFileSystem.deleteFile(QUERIES_DIR + '/' + dirName + '/' + QUERY_FILE);
-				await apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
+			if (dirName !== "") {
+				if (await apFileSystem.exists(QUERIES_DIR + '/' + dirName)) {
+					await apFileSystem.deleteFile(QUERIES_DIR + '/' + dirName + '/' + QUERY_FILE);
+					await apFileSystem.rmdir(QUERIES_DIR + '/' + dirName);
+				}
 			}
 			this.queries.splice(index, 1);
 		}

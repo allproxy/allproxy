@@ -14,6 +14,7 @@ import { mainTabStore } from '../store/MainTabStore';
 import CloseIcon from "@material-ui/icons/Close";
 import LayoutStore from '../store/LayoutStore';
 import MessageStore from '../store/MessageStore';
+import { queryStore } from '../store/QueryStore';
 
 const minEntryHeight = 26;
 export const minRenderCount = 100;
@@ -217,6 +218,21 @@ const MainTabContent = observer(({
 								if (isSelectedRequest) {
 									activeRequestIndex = messageStore.getIndex();
 								}
+
+								if (message.protocol === 'log:' &&
+									(index === 1 || seqNum === messageQueueStore.getHighlightSeqNum())
+								) {
+									const jsonFields: string[] = [];
+									const jsonFieldsMap = messageStore.getAllJsonFieldsMap();
+									for (const key in jsonFieldsMap) {
+										const name = jsonFieldsMap[key].name;
+										if (!name.includes(" ")) {
+											jsonFields.push(name);
+										}
+									}
+									queryStore.setAddionalQueries(jsonFields);
+								}
+
 								return (
 									<Request
 										maxStatusSize={maxStatusSize}

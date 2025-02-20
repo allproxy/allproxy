@@ -590,11 +590,10 @@ td input {
 }
 
 .header__filter-input-queries {
+	max-height: calc(100vh - 100px);
+	overflow-y: auto;
 	position: absolute;
 	margin: 0 0 0 1rem;
-}
-
-.header__filter-input-queries {
 	border-left: rgba(128, 128, 128, 0.801) solid thin;
 	border-right: rgba(128, 128, 128, 0.801) solid thin;
 	border-bottom: rgba(128, 128, 128, 0.801) solid thin;
