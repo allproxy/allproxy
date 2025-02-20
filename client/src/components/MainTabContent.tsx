@@ -220,7 +220,7 @@ const MainTabContent = observer(({
 								}
 
 								if (message.protocol === 'log:' &&
-									(index === 1 || seqNum === messageQueueStore.getHighlightSeqNum())
+									(index === 0 || seqNum === messageQueueStore.getHighlightSeqNum())
 								) {
 									const jsonFields: string[] = [];
 									const jsonFieldsMap = messageStore.getAllJsonFieldsMap();
