@@ -42,7 +42,7 @@ export default class UrlPathStore {
 				return 'https://github.com/allproxy/mitmproxy-ui';
 			case 'jlogviewer':
 				if (this.isGitHubPages()) {
-					return document.location.pathname.replace('pages.', '');
+					return 'https://' + document.location.hostname.replace('pages.', '') + '/' + document.location.pathname;
 				} else {
 					return 'https://github.com/allproxy/json-log-viewer';
 				}

@@ -300,7 +300,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						<div
 						>
 							<div>Version: {process.env.REACT_APP_VERSION}</div>
-							<div>Project: <a href="https://github.com/allproxy/" target="_blank" rel="noopener nofollow">
+							<div>Project: <a href={urlPathStore.getGitHubUrl()} target="_blank" rel="noopener nofollow">
 								{urlPathStore.getGitHubUrl()}
 							</a></div>
 
