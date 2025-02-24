@@ -34,6 +34,21 @@ export default class UrlPathStore {
 		return this.app;
 	}
 
+	public getGitHubUrl() {
+		switch (this.app) {
+			case 'allproxy':
+				return 'https://github.com/allproxy/allproxy';
+			case 'mitmproxy':
+				return 'https://github.com/allproxy/mitmproxy-ui';
+			case 'jlogviewer':
+				if (this.isGitHubPages()) {
+					return document.location.pathname.replace('pages.', '');
+				} else {
+					return 'https://github.com/allproxy/json-log-viewer';
+				}
+		}
+	}
+
 	public setApp(app: 'allproxy' | 'mitmproxy' | 'jlogviewer') {
 		switch (app) {
 			case 'jlogviewer':

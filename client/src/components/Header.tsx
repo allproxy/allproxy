@@ -47,6 +47,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [showReachableHostsModal, setShowReachableHostsModal] = React.useState(false);
 	const [showMetricsModal, setShowMetricsModal] = React.useState(false);
 	const [moreMenuIcon, setMoreMenuIcon] = React.useState<HTMLDivElement | null>(null);
+	const [infoMenuIcon, setInfoMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
@@ -284,6 +285,29 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					title="Delete filtered messages" onClick={() => filterStore.toggleDeleteFiltered()}>X</div>
 			</div >
 			<div>
+				<div className={'header__settings fa fa-info-circle'} title="Info"
+					onClick={(e) => setInfoMenuIcon(e.currentTarget)}
+				/>
+				<Menu
+					anchorEl={infoMenuIcon}
+					open={Boolean(infoMenuIcon)}
+					onClose={() => setInfoMenuIcon(null)}
+				>
+					<MenuItem
+						onClick={async () => {
+							setInfoMenuIcon(null);
+						}}>
+						<div
+						>
+							<div>Version: {process.env.REACT_APP_VERSION}</div>
+							<div>Project: <a href="https://github.com/allproxy/" target="_blank" rel="noopener nofollow">
+								{urlPathStore.getGitHubUrl()}
+							</a></div>
+
+						</div>
+					</MenuItem>
+				</Menu>
+
 				<div className="header__settings fa fa-question" title="Help"
 					onClick={() => { setShowHelp(true); }}>
 				</div>

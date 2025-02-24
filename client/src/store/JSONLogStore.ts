@@ -11,6 +11,7 @@ import { DefaultSortBy } from "../components/JSONSpreadsheet";
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
 const jsonLogScriptFileName = 'jsonLogScript';
+const jsonLogScriptDefaultFileName = 'jsonLogScriptDefault';
 const BRIEF_JSON_FIELDS_FILE = 'briefJsonFields.json';
 
 export type JsonField = { name: string; value: string | number | boolean }
@@ -162,6 +163,7 @@ export default class JSONLogStore {
 	private showUtcChecked = false;
 
 	private script = defaultScript;
+	private rerenderEditor = 0;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
 		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
@@ -246,9 +248,16 @@ export default class JSONLogStore {
 	}
 
 	@action public async resetScriptToDefault() {
-		this.script = defaultScript;
+		this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptDefaultFileName);
+		jsonLogStore.setScript(this.script);
 		await apFileSystem.deleteFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
+		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
+		this.rerenderEditor++;
 	}
+	@action public getRerenderEditor() {
+		return this.rerenderEditor;
+	}
+
 	public getScript() {
 		return this.script;
 	}
@@ -445,7 +454,11 @@ export default class JSONLogStore {
 			for (const line of script.split('\n')) {
 				const lineTrim = line.trim();
 				if (lineTrim.length > 0 && !lineTrim.startsWith('//')) {
-					scriptNoComments += line;
+					if (lineTrim.includes('//')) {
+						scriptNoComments += line.split('//')[0];
+					} else {
+						scriptNoComments += line;
+					}
 				}
 			}
 			const i = scriptNoComments.indexOf('function');
@@ -500,6 +513,9 @@ export default class JSONLogStore {
 					this.script = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, 'serverFs');
 					await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
 				}
+			}
+			if (!await apFileSystem.exists(SCRIPTS_DIR + '/' + jsonLogScriptDefaultFileName)) {
+				await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptDefaultFileName, this.script);
 			}
 
 			const initSimpleField = async (field: 'date' | 'level' | 'category' | 'appName' | 'kind' | 'message' | 'rawLine') => {
