@@ -5,7 +5,8 @@ module.exports = function override(config, env) {
       alias: {
         "react/jsx-dev-runtime": "react/jsx-dev-runtime.js",
         "react/jsx-runtime": "react/jsx-runtime.js"
-      }
+      },
+      fallback: { "assert": false }
     }
   }
   ]

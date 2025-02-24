@@ -157,8 +157,11 @@ export default class MessageStore {
                 ...message.responseHeaders,
                 ...message.responseBody
             };
-            for (const field of this.logEntry.ignoreFields) {
-                if (json[field]) delete json[field];
+
+            if (Array.isArray(this.logEntry.ignoreFields)) {
+                for (const field of this.logEntry.ignoreFields) {
+                    if (json[field]) delete json[field];
+                }
             }
         }
 

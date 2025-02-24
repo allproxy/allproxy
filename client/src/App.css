@@ -898,11 +898,6 @@ td input {
 	cursor: pointer;
 }
 
-.modal-full-screen-scroll {
-	height: calc(100vh - 200px);
-	overflow-y: auto;
-}
-
 .resend-modal__field {
 	margin-bottom: 1rem;
 	margin-right: .5rem;
@@ -955,7 +950,7 @@ td input {
 .reachable-modal,
 .settings-modal {
 	background-color: #333333;
-	width: 90vw;
+	width: 95vw;
 	padding: 1rem 1rem;
 }
 
@@ -1000,7 +995,7 @@ td input {
 
 .json-fields-modal__scroll-container {
 	overflow-y: auto;
-	height: calc(100vh - 300px);
+	height: calc(100vh - 100px);
 }
 
 .no-capture-modal__scroll-container,
