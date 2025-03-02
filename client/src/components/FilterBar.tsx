@@ -44,8 +44,6 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 	}
 
 	async function applyFilter(query: string, updateHistory: boolean = true) {
-		GTag.search(query);
-
 		setShowQueries(false);
 		setFilter(query);
 		filterStore.setFilterNoDebounce(query);
@@ -63,6 +61,11 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 			}
 			filterHistoryList.push(query);
 			setFilterHistoryIndex(filterHistoryList.length - 1);
+		}
+
+		if (query.length > 0) {
+			GTag.search(query);
+			GTag.pageView('Filter: ' + query);
 		}
 	}
 

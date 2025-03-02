@@ -108,7 +108,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 						value={tabValue}
 						onChange={(_, v) => {
 							setTabValue(v);
-							GTag.selectItem('HelpDialog Tab', v);
+							GTag.pageView('HelpDialog Tab: ' + v);
 						}}
 						textColor="primary"
 						indicatorColor="primary"
@@ -132,7 +132,7 @@ const HelpDialog = observer(({ open, onClose }: Props) => {
 									<button className="btn btn-lg btn-secondary"
 										style={{ marginBottom: "1rem", background: getBrowserIconColor(browserName(browser)) }}
 										onClick={() => {
-											GTag.selectItem('Launch Browser', browser.name);
+											GTag.pageView('Launch Browser: ' + browser.name);
 											browserStore.launchBrowser(browser);
 											handleClose();
 										}}>

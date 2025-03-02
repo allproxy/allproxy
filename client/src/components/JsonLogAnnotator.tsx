@@ -31,7 +31,7 @@ const JsonLogAnnotator = observer(({ message, className }: Props) => {
 	function doStar(type: 'full' | 'half') {
 		let i = jsonLogStore.getJSONFieldNames().indexOf(starField);
 		//console.log('doStar', starField, i);
-		GTag.selectItem('Star ' + type, starField);
+		GTag.pageView('Star ' + type + ': ' + starField);
 		if (i === -1) {
 			jsonLogStore.extend();
 			i = 0;
@@ -48,7 +48,7 @@ const JsonLogAnnotator = observer(({ message, className }: Props) => {
 	}
 
 	async function unStar() {
-		GTag.selectItem('Un-star', starField);
+		GTag.pageView('Un-star: ' + starField);
 		const i = jsonLogStore.getJSONFieldNames().indexOf(starField);
 		//console.log('unStar', starField, i);
 		if (i !== -1) await jsonLogStore.deleteEntry(i);

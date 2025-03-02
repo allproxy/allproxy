@@ -101,7 +101,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						}
 						onChange={(e) => {
 							urlPathStore.setApp(e.target.value as 'allproxy' | 'mitmproxy' | 'jlogviewer');
-							GTag.selectItem('Select App', e.target.value as string);
+							GTag.pageView('Select App: ' + e.target.value as string);
 						}}
 					>
 						<MenuItem

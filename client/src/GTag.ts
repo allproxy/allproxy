@@ -42,28 +42,14 @@ export default class GTag {
     }
 
     public static search(searchTerm: string) {
-        ReactGA.event('search', {
+        setTimeout(() => ReactGA.event('search', {
             search_term: searchTerm
-        });
+        }));
     }
 
     public static exception(description: string, fatal: boolean) {
-        ReactGA.event('exception', {
+        setTimeout(() => ReactGA.event('exception', {
             description, fatal
-        });
-    }
-
-    public static selectContent(type: string, id: string) {
-        ReactGA.event('select_content', {
-            content_type: type,
-            content_id: id
-        });
-    }
-
-    public static selectItem(name: string, value: string) {
-        ReactGA.event('select_item', {
-            item_list_name: name,
-            items: [value]
-        });
+        }));
     }
 }
