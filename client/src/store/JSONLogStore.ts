@@ -411,7 +411,7 @@ export default class JSONLogStore {
 				try {
 					logEntry = this.scriptFunc(nonJson, jsonData);
 					// Deprecated kind is specified?
-					if (logEntry.appName.length > 0) {
+					if (typeof logEntry.appName === 'string' && logEntry.appName.length > 0) {
 						logEntry.kind = logEntry.appName;
 					}
 				} catch (e) {
@@ -440,8 +440,8 @@ export default class JSONLogStore {
 				else if (typeof logEntry.message === 'object') {
 					logEntry.message = JSON.stringify(logEntry.message);
 				}
-				if (logEntry.rawLine === undefined) logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
 				if (logEntry.rawLine === undefined) logEntry.rawLine = '';
+				if (logEntry.rawLine === '') logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
 				break;
 		}
 		if (typeof logEntry.level === 'number') logEntry.level = logEntry.level + '';
