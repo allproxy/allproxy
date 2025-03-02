@@ -129,7 +129,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						pointerEvents: mainTabStore.isProxyTabSelected() ? undefined : 'none',
 					}}>
 					<div className="header__trash fa fa-trash-alt" title="Clear log"
-						hidden={urlPathStore.getKind() === 'jlogviewer'}
+						hidden={true || urlPathStore.getKind() === 'jlogviewer'}
 						onClick={() => {
 							messageQueueStore.clear();
 							// filterStore.setFilter('');

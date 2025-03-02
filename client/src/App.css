@@ -926,11 +926,12 @@ td input {
 
 .resend-modal__body-container {
 	height: 400px;
+	overflow-y: auto;
 }
 
-.resend-modal__body {
+/* .resend-modal__body {
 	height: 90vh;
-}
+} */
 
 .resend-modal__url,
 .resend-modal__body {
