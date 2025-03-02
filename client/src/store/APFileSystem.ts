@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import FS from '@isomorphic-git/lightning-fs';
 import { urlPathStore } from "./UrlPathStore";
-import { defaultScript, jsonLogStore, setDefaultScript } from "./JSONLogStore";
+import { jsonLogStore, setDefaultScript } from "./JSONLogStore";
 import { sessionStore } from "./SessionStore";
 
 const CHUNKSIZE = 500000;
@@ -220,9 +220,11 @@ async function fetchApFileSystem() {
 
         // scripts
         if (!await apFileSystem.exists('/scripts/method')) await apFileSystem.writeFile('/scripts/method', json.method);
-        if (!await apFileSystem.exists('/scripts/jsonLogScript') || await apFileSystem.readFile('/scripts/jsonLogScript') === defaultScript) {
+
+        setDefaultScript(json.jsonLogScript);
+        await apFileSystem.writeFile('/scripts/jsonLogScriptDefault', json.jsonLogScript);
+        if (!await apFileSystem.exists('/scripts/jsonLogScript')) {
             await apFileSystem.writeFile('/scripts/jsonLogScript', json.jsonLogScript);
-            setDefaultScript(json.jsonLogScript);
         }
 
         // Queries

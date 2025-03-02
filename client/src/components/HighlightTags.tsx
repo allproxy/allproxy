@@ -10,7 +10,7 @@ export default function HighlightTags() {
 	function handleChange(tags: string[]) {
 		setTags(tags);
 		filterStore.setHighlightJsonFields(tags);
-		GTag.search(tags.toString());
+		GTag.pageView('Highlight Tag: ' + tags.toString());
 	}
 
 	return (

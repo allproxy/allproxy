@@ -14,7 +14,7 @@ export default class LayoutStore {
 	}
 	@action toggleNowrap() {
 		this.nowrap = !this.nowrap;
-		GTag.selectItem('No Wrap Checked', this.nowrap + '');
+		GTag.pageView('No Wrap Checked: ' + this.nowrap + '');
 	}
 
 	public isVertical() {
@@ -26,7 +26,7 @@ export default class LayoutStore {
 
 	@action public toggleVertical() {
 		this.verticalLayout = !this.verticalLayout;
-		GTag.selectItem('Layout', this.verticalLayout ? 'vertical' : 'horizontal');
+		GTag.pageView('Layout: ' + this.verticalLayout ? 'vertical' : 'horizontal');
 	}
 
 	public flexDirection() {

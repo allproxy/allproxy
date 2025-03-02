@@ -1,36 +1,133 @@
-"use strict";
-// Function called to extract date, level, kind and message
+// Function called to extract date, level, app name and message
 //
 // @param preJSONString: string - optional non-JSON string proceeding JSON object
 // @param jsonObject: {} - JSON log data
-// @returns {date: Date, level: string, category: string, kind: string, message: string, additionalJSON: {} }
+// @returns {date: Date, level: string, category: string, appName: string, message: string, rawLine: string, additionalJSON: {} }
 //
-// category is the availability zone, processor...
-// kind could be a pod name, object kind, process ID...
+// category is the availability zone
+// appName is the pod name
 //
 function parseJSON(preJSONString, jsonObject) {
     let level = 'info';
     let date = new Date();
     let category = '';
-    let kind = 'Kind_is_not_set';
-    let message = 'Message is not set - edit or replace client/public/parsejson/plugin.js';
-    // return raw JSON (optional)
-    let rawLine;
-    // Copy any JSON fields not defined in jsonObject
+    let kind = 'Kind_is_not_defined';
+    let message = `Message field not defined - click '?'`;
     let additionalJSON = {};
-    let ignoreFields = [];
+    const ignoreFields = [];
+    // Kube object?
+    if (jsonObject.kind && jsonObject.metadata) {
+        kind = jsonObject.kind;
+        message = jsonObject.metadata.name;
+        if (jsonObject.metadata.creationTimestamp) {
+            date = new Date(jsonObject.metadata.creationTimestamp);
+        }
+        level = '';
+        additionalJSON['level'] = undefined;
+        // Errors detected by the parseJson plugin?
+        if (jsonObject['errors']) {
+            level = 'error';
+            additionalJSON['level'] = level;
+        }
+    }
+    else { // Try to dynamically find fields
+        let dateSet, levelSet, kindSet, messageSet = false;
 
-    // Set the level
-    // level = jsonObject.m_level;
+        const fieldValues = []; // array of {field, value} pairs  
 
-    // Set the date
-    // date = jsonObject.my_date;
+        // Recursively traverse JSON and build fieldValues array
+        function traverseJson(obj) {
+            for (let field in obj) {
+                const value = obj[field];
+                if (typeof field === 'string' && (typeof value === 'string' || typeof value === 'number')) {
+                    field = field.toLowerCase();
+                    fieldValues.push({ field, value });
+                } else if (typeof value === 'object' && !Array.isArray(value)) {
+                    traverseJson(value);
+                }
+            }
+        }
+        traverseJson(jsonObject);
 
-    // Set the kind
-    //kind = jsonObject.my_kind;
+        // Check each JSON field,value pair looking for date, info, kind and message
+        for (const fieldValue of fieldValues) {
+            const field = fieldValue.field;
+            const value = fieldValue.value;
 
-    // Set message
-    //message = jsonObject.my_message;
+            checkForDateLevelKindMessage(field, value);
 
-    return { date, level, category, kind, message, rawLine, additionalJSON, ignoreFields };
-}
+            if (dateSet && levelSet && kindSet && messageSet) break;
+        }
+
+        // Check for data, level, kind and message fields
+        function checkForDateLevelKindMessage(field, value) {
+            if (!dateSet) {
+                if ((field.includes('time') || field.includes('date')) && isValidDate(value)) {
+                    dateSet = true;
+                    date = new Date(value);
+                    return;
+                }
+            }
+
+            if (typeof value !== 'string') return;
+
+            if (!levelSet) {
+                if (field === 'level') {
+                    levelSet = true;
+                    level = value;
+                    return;
+                } else if (field === 'severity') {
+                    level = value;
+                    return;
+                } else if (field === 'error') {
+                    level = 'error';
+                    return;
+                }
+            }
+
+            if (!kindSet) {
+                if (field === 'kind' || field === 'app' || field === 'appname') {
+                    kindSet = true;
+                    kind = value;
+                    return;
+                } else if (field.length <= 64 && (field.startsWith("thread") ||
+                    field.startsWith('app') || field.endsWith('app'))) {
+                    kind = value;
+                    return;
+                }
+            }
+
+            if (!messageSet) {
+                if (field === 'message' || field === 'msg' || field === 'error') {
+                    messageSet = true;
+                    message = value;
+                    return;
+                } else if (field.startsWith('message')) {
+                    message = value;
+                    return;
+                }
+            }
+
+        }
+
+        // Returns true, if this is a valid date
+        function isValidDate(value) {
+            try {
+                let date = new Date(value);
+                if (date.toString() === 'Invalid Date' && typeof value === 'string') {
+                    const tokens = value.split(':', 2);
+                    if (tokens.length === 2) {
+                        let d = new Date(tokens[0]);
+                        date = new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ':' + tokens[1]);
+                    }
+                }
+                if (date.toString() === 'Invalid Date') return false;
+            } catch (e) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    return { date, level, category, kind, message, rawLine: undefined, additionalJSON, ignoreFields };
+};
