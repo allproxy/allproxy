@@ -41,6 +41,10 @@ export default class FileReaderStore {
 		makeAutoObservable(this);
 	}
 
+	public getLines() {
+		return this.lines;
+	}
+
 	public getFileName() {
 		return this.fileName;
 	}

@@ -10,6 +10,7 @@ import { DefaultSortBy } from "../components/JSONSpreadsheet";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
+const jsonLogScriptFileVersion = 'jsonLogScriptVersion';
 const jsonLogScriptFileName = 'jsonLogScript';
 const jsonLogScriptDefaultFileName = 'jsonLogScriptDefault';
 const BRIEF_JSON_FIELDS_FILE = 'briefJsonFields.json';
@@ -107,6 +108,7 @@ const extractDateLevelCategoryAppNameMessage = function (preJSONString, jsonObje
     let message = "Message field not defined - click '?'";
     let additionalJSON = {};
     const ignoreFields = [];
+    const typeahead = [];
     // Kube object?
     if (jsonObject.kind && jsonObject.metadata) {
         kind = jsonObject.kind;
@@ -167,6 +169,7 @@ const extractDateLevelCategoryAppNameMessage = function (preJSONString, jsonObje
                 if (field === 'level') {
                     levelSet = true;
                     level = value;
+                    if (value.startsWith('err')) typeahead.push(field + ':' + value);
                     return;
                 } else if (field === 'severity') {
                     level = value;
@@ -176,6 +179,8 @@ const extractDateLevelCategoryAppNameMessage = function (preJSONString, jsonObje
                     return;
                 }
             }
+
+            if (field === 'error' && value.length > 0) typeahead.push(field + ':*');
 
             if (!kindSet) {
                 if (field === 'kind' || field === 'app' || field === 'appname') {
@@ -221,7 +226,7 @@ const extractDateLevelCategoryAppNameMessage = function (preJSONString, jsonObje
         }
     }
 
-    return { date, level, category, kind, message, rawLine: undefined, additionalJSON, ignoreFields };
+    return { date, level, category, kind, message, rawLine: undefined, additionalJSON, ignoreFields, typeahead };
 };
 `;
 
@@ -235,6 +240,7 @@ export type LogEntry = {
 	rawLine: string,
 	additionalJSON: {},
 	ignoreFields: string[],
+	typeahead: string[],
 };
 
 export type SimpleFields = {
@@ -264,8 +270,10 @@ export default class JSONLogStore {
 	private rerenderEditor = 0;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
-		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
+		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
 	};
+
+	private typeaheadMap: { [key: string]: boolean } = {};
 
 	private fields: JSONLogField[] = [];
 
@@ -273,6 +281,13 @@ export default class JSONLogStore {
 
 	public constructor() {
 		makeAutoObservable(this);
+	}
+
+	public getTypeahead() {
+		return Object.keys(this.typeaheadMap).sort();
+	}
+	public setTypeahead(ta: string) {
+		this.typeaheadMap[ta] = true;
 	}
 
 	public getParsingMethod() { return this.method; }
@@ -298,6 +313,7 @@ export default class JSONLogStore {
 			await apFileSystem.deleteFile(SCRIPTS_DIR + '/' + field);
 		}
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + field, value);
+		GTag.pageView('setSimpleFields ' + field + ' ' + value);
 	}
 
 	public isFieldHidden(field: string): boolean {
@@ -351,6 +367,8 @@ export default class JSONLogStore {
 		await apFileSystem.deleteFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
 		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
 		this.rerenderEditor++;
+		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileVersion, '0');
+		GTag.pageView('resetScriptToDefault');
 	}
 	@action public getRerenderEditor() {
 		return this.rerenderEditor;
@@ -363,7 +381,15 @@ export default class JSONLogStore {
 		this.script = script;
 	}
 	@action public async saveScript() {
-		await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
+		const defaultScript = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptDefaultFileName);
+		const currentScript = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName);
+		if (this.script !== currentScript && this.script !== defaultScript) {
+			await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileName, this.script);
+			const version = await apFileSystem.readFile(SCRIPTS_DIR + '/' + jsonLogScriptFileVersion);
+			const newVersion = parseInt(version) + 1;
+			await apFileSystem.writeFile(SCRIPTS_DIR + '/' + jsonLogScriptFileVersion, newVersion + '');
+			GTag.pageView('saveScript ' + newVersion);
+		}
 	}
 	@action public async updateScriptFunc() {
 		if (this.method === 'plugin') {
@@ -465,7 +491,7 @@ export default class JSONLogStore {
 			}
 		};
 
-		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
+		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
 		switch (method) {
 			case 'auto':
 				setAutoField('date');
@@ -540,6 +566,7 @@ export default class JSONLogStore {
 				}
 				if (logEntry.rawLine === undefined) logEntry.rawLine = '';
 				if (logEntry.rawLine === '') logEntry.rawLine = Object.keys(jsonData).length === 0 ? nonJson : JSON.stringify(jsonData);
+				if (logEntry.typeahead === undefined) logEntry.typeahead = [];
 				break;
 		}
 		if (typeof logEntry.level === 'number') logEntry.level = logEntry.level + '';

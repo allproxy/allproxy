@@ -1,6 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import { apFileSystem } from "./APFileSystem";
 import { urlPathStore } from "./UrlPathStore";
+import { jsonLogStore } from "./JSONLogStore";
 
 const QUERIES_DIR = 'queries';
 const QUERY_FILE = 'query.txt';
@@ -12,7 +13,6 @@ type Query = {
 
 export default class QueryStore {
 	private queries: Query[] = [];
-	private additionalQueries: string[] = [];
 	private applyFilter: string = '';
 
 	public constructor() {
@@ -31,8 +31,9 @@ export default class QueryStore {
 			this.queries.push({ query, dirName });
 		}
 		this.queries.sort();
-		for (const q of this.additionalQueries) {
-			this.queries.push({ query: q, dirName: "" });
+
+		for (const ta of jsonLogStore.getTypeahead()) {
+			this.queries.push({ query: ta, dirName: "" });
 		}
 
 		if (this.queries.length === 0) {
@@ -59,10 +60,6 @@ export default class QueryStore {
 	public async getQueriesAsync() {
 		await this.init();
 		return this.queries.map(q => q.dirName);
-	}
-
-	public setAddionalQueries(queries: string[]) {
-		this.additionalQueries = queries.sort();
 	}
 
 	private makeSubDirName() {

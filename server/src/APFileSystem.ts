@@ -113,7 +113,7 @@ export default class APFileSystem {
 
         // exists
         this.socket.on('exists', (path: string, callback: (exists: boolean) => void) => {
-            //this.log('exists', path);
+            this.log('exists', path);
             try {
                 const platformPath = this.toPlatformPath(path);
                 ConsoleLog.debug('ApFileSystem.exists', platformPath);
