@@ -21,7 +21,7 @@ export default class MessageStore {
     private note = '';
     private jsonFields: JsonField[] = [];
     private filtered: false | true | undefined = undefined;
-    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [] };
+    private logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
 
     public constructor(message: Message, auto: boolean = false) {
         let keys = Object.keys(message.requestHeaders);
@@ -343,6 +343,11 @@ export default class MessageStore {
                 ...message.responseBody
             };
         }
+
+        for (const ta of this.logEntry.typeahead) {
+            jsonLogStore.setTypeahead(ta);
+        }
+
         this.updateJsonLog2(json, method);
     }
 

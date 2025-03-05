@@ -61,7 +61,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	};
 
 	if (submit) {
-		GTag.pageView('ImportJSONFileDialog + ' + (pastedJSON.length > 0 ? 'pasted' : 'file'));
 		setSubmit(false);
 		onClose();
 		setTimeout(async () => {
@@ -71,6 +70,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				const lines = jsonLines.split('\n');
 				setPastedJSON('');
 				mainTabStore.importTab(tabName, importJsonLines(tabName, lines), 'sort');
+				GTag.pageView('ImportJSONFileDialog pasted ' + lines.length);
 			} else {
 				fileReaderStore.setOperator(operator);
 				fileReaderStore.setFilters(includeFilter);
@@ -86,6 +86,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					}
 				}
 
+				GTag.pageView('ImportJSONFileDialog file ' + fileReaderStore.getLines().length);
 				fileReaderStore.addTab(tabName, serverReadSupported ? undefined : 'sort');
 				setFileReaderStore(new FileReaderStore());
 			}

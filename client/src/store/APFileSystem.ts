@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import FS from '@isomorphic-git/lightning-fs';
 import { urlPathStore } from "./UrlPathStore";
-import { jsonLogStore, setDefaultScript } from "./JSONLogStore";
+import { defaultScript, jsonLogStore, setDefaultScript } from "./JSONLogStore";
 import { sessionStore } from "./SessionStore";
 
 const CHUNKSIZE = 500000;
@@ -18,8 +18,11 @@ export async function initApFileSystem() {
     await mkdirIfRequired('/jsonFields');
     await mkdirIfRequired('/scripts');
     await mkdirIfRequired('/queries');
-    if (urlPathStore.isLocalhost()) return;
-    if (urlPathStore.isGitHubPages()) await fetchApFileSystem();
+    if (urlPathStore.isGitHubPages() && !urlPathStore.isLocalhost()) {
+        await fetchApFileSystem();
+    } else {
+        updateScript();
+    }
 }
 
 async function mkdirIfRequired(dir: string) {
@@ -203,6 +206,17 @@ export default class APFileSystem {
     }
 }
 
+async function updateScript() {
+    await apFileSystem.writeFile('/scripts/jsonLogScriptDefault', defaultScript);
+    if (!await apFileSystem.exists('/scripts/jsonLogScriptVersion')) {
+        await apFileSystem.writeFile('/scripts/jsonLogScriptVersion', '0');
+    }
+    const version = await apFileSystem.readFile('/scripts/jsonLogScriptVersion');
+    if (!await apFileSystem.exists('/scripts/jsonLogScript') || version === '0') {
+        await apFileSystem.writeFile('/scripts/jsonLogScript', defaultScript);
+    }
+}
+
 async function fetchApFileSystem() {
     const url = document.location.href.split('#')[0] + 'apFileSystem.json';
     const response = await fetch(url);
@@ -222,10 +236,7 @@ async function fetchApFileSystem() {
         if (!await apFileSystem.exists('/scripts/method')) await apFileSystem.writeFile('/scripts/method', json.method);
 
         setDefaultScript(json.jsonLogScript);
-        await apFileSystem.writeFile('/scripts/jsonLogScriptDefault', json.jsonLogScript);
-        if (!await apFileSystem.exists('/scripts/jsonLogScript')) {
-            await apFileSystem.writeFile('/scripts/jsonLogScript', json.jsonLogScript);
-        }
+        updateScript();
 
         // Queries
         const queries = await apFileSystem.readDir('/queries');

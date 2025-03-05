@@ -12,9 +12,10 @@ function parseJSON(preJSONString, jsonObject) {
     let date = new Date();
     let category = '';
     let kind = 'Kind_is_not_defined';
-    let message = `Message field not defined - click '?'`;
+    let message = "Message field not defined - click '?'";
     let additionalJSON = {};
     const ignoreFields = [];
+    const typeahead = [];
     // Kube object?
     if (jsonObject.kind && jsonObject.metadata) {
         kind = jsonObject.kind;
@@ -75,6 +76,7 @@ function parseJSON(preJSONString, jsonObject) {
                 if (field === 'level') {
                     levelSet = true;
                     level = value;
+                    if (value.startsWith('err')) typeahead.push(field + ':' + value);
                     return;
                 } else if (field === 'severity') {
                     level = value;
@@ -84,6 +86,8 @@ function parseJSON(preJSONString, jsonObject) {
                     return;
                 }
             }
+
+            if (field === 'error' && value.length > 0) typeahead.push(field + ':*');
 
             if (!kindSet) {
                 if (field === 'kind' || field === 'app' || field === 'appname') {
@@ -129,5 +133,5 @@ function parseJSON(preJSONString, jsonObject) {
         }
     }
 
-    return { date, level, category, kind, message, rawLine: undefined, additionalJSON, ignoreFields };
+    return { date, level, category, kind, message, rawLine: undefined, additionalJSON, ignoreFields, typeahead };
 };
