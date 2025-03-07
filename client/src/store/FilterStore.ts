@@ -522,8 +522,11 @@ export default class FilterStore {
 
     private parseKeyValue(operand: string): { key: string, value: string | undefined }[] {
         const keyValues: { key: string, value: string | undefined }[] = [];
-        const firstColon = operand.indexOf(':');
-        const lastColon = operand.lastIndexOf(':');
+        let firstColon = operand.indexOf(':');
+        let lastColon = operand.lastIndexOf(':');
+        if (firstColon === -1) {
+            firstColon = lastColon = operand.indexOf('=');
+        }
         let colon = firstColon;
         if (firstColon !== lastColon) {
             const firstPeriod = operand.indexOf('.');
