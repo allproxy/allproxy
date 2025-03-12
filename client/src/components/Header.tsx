@@ -29,6 +29,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { isJsonLogTab } from './SideBar';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import DataObjectIcon from '@mui/icons-material/DataObject';
+import MergeTabsDialog from './MergeTabsDialog';
 
 let filterWasStopped = false;
 
@@ -51,6 +52,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 	const [settingsMenuIcon, setSettingsMenuIcon] = React.useState<HTMLDivElement | null>(null);
 	const [openExportDialog, setOpenExportDialog] = React.useState(false);
 	const [openImportJSONFileDialog, setOpenImportJSONFileDialog] = React.useState(false);
+	const [openMergeTabsDialog, setOpenMergeTabsDialog] = React.useState(false);
 	const [showHelp, setShowHelp] = React.useState(localStorage.getItem(DONT_SHOW_HELP) === null);
 	const [showDarkModeDialog, setShowDarkModeDialog] = React.useState(false);
 	const [showNotesModal, setShowNotesModal] = React.useState(false);
@@ -242,6 +244,20 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						<div className="header__import fa fa-file" title="Import JSON"
 						>
 							&nbsp;Import JSON/JSON Lines
+						</div>
+					</MenuItem>
+					<MenuItem style={{
+						opacity: mainTabStore.getTabCount() > 1 ? undefined : 0.3,
+						pointerEvents: mainTabStore.getTabCount() > 1 ? undefined : 'none'
+					}}
+						hidden={urlPathStore.getKind() !== 'jlogviewer'}
+						onClick={() => {
+							setOpenMergeTabsDialog(true);
+							setMoreMenuIcon(null);
+						}}>
+						<div className="header__import fa fa-columns" title="Merge Tabs"
+						>
+							&nbsp;Merge Tabs
 						</div>
 					</MenuItem>
 					<MenuItem style={{
@@ -475,6 +491,12 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					if (fileName.length > 0) {
 						mainTabStore.exportSelectedTab(fileName);
 					}
+				}}
+			/>
+			<MergeTabsDialog
+				open={openMergeTabsDialog}
+				onClose={() => {
+					setOpenMergeTabsDialog(false);
 				}}
 			/>
 			<ImportJSONFileDialog

@@ -119,14 +119,14 @@ body {
 
 .header__filter-input,
 .header__filter-input input {
-	color: rgba(232, 230, 227);
-	background-color: #444444;
+	color: black;
+	background-color: white;
 }
 
 .react-tagsinput,
 .react-tagsinput input {
-	color: rgba(232, 230, 227) !important;
-	background-color: #444444 !important;
+	color: black !important;
+	background-color: white !important;
 }
 
 .react-tagsinput {
@@ -576,7 +576,7 @@ td input {
 
 .react-tagsinput {
 	width: calc(100vw - 300px) !important;
-	height: 42px;
+	height: 30px !important;
 	overflow-y: auto !important;
 }
 
