@@ -17,6 +17,10 @@ export default function HighlightTags() {
 		<TagsInput
 			value={tags}
 			onChange={handleChange}
+			inputProps={{
+				className: 'react-tagsinput-input',
+				placeholder: 'Tags input...',
+			}}
 		/>
 	);
 }

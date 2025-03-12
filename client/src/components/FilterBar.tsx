@@ -122,7 +122,7 @@ const FilterBar = observer(({ }: Props): JSX.Element => {
 							applyFilter(filter);
 						}
 					}}
-					placeholder={filter !== filterStore.getFilter() ? "Press enter to apply filter..." : "Boolean/Regex Filter: (a || b.*) && !c"} />
+					placeholder={filter !== filterStore.getFilter() ? "Press enter to apply filter..." : "(field1:value OR field2:value) AND string to match"} />
 				<ClickAwayListener onClickAway={(e) => e.target !== inputRef.current && setShowQueries(false)}>
 					<div className="header__filter-input-queries">
 						<MenuItem
