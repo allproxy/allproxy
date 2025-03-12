@@ -62,14 +62,21 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 
 	function gtagJsonFields(lines: string[]) {
 		if (lines.length > 0) {
-			const json = JSON.parse(lines[0]);
+			let json = {};
+			let line = '';
+			for (line of lines) {
+				try {
+					json = JSON.parse(line);
+					break;
+				} catch (e) { }
+			}
 			const redact = (obj: { [key: string]: any }) => {
 				for (const field in obj) {
 					if (typeof obj[field] === 'string') {
 						obj[field] = '';
-					} if (typeof obj[field] === 'number') {
+					} else if (typeof obj[field] === 'number') {
 						delete obj[field];
-					} if (typeof obj[field] === 'boolean') {
+					} else if (typeof obj[field] === 'boolean') {
 						delete obj[field];
 					} else if (typeof obj[field] === 'object') {
 						redact(obj[field]);
@@ -93,6 +100,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 				const lines = jsonLines.split('\n');
 				setPastedJSON('');
 				mainTabStore.importTab(tabName, importJsonLines(tabName, lines), 'sort');
+				mainTabStore.setUpdating(false);
 
 				GTag.pageView('ImportJSONFileDialog pasted ' + lines.length);
 				gtagJsonFields(lines);
@@ -116,9 +124,8 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 
 				fileReaderStore.addTab(tabName, serverReadSupported ? undefined : 'sort');
 				setFileReaderStore(new FileReaderStore());
+				mainTabStore.setUpdating(false);
 			}
-
-			mainTabStore.setUpdating(false);
 
 			//setSelectedFile(undefined);
 			setTabName('');
