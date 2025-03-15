@@ -1,7 +1,5 @@
 import ReactGA from 'react-ga4';
 
-const ResendPageViewHours = 24;
-
 export default class GTag {
     public static initialize() {
         const path = document.location.pathname;
