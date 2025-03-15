@@ -838,7 +838,7 @@ function formatValue(_name: string, value: string): string {
 	return value;
 }
 
-export function getJsonSpreadsheetLines(fields: string[], sortBy: string): string[] {
+export function getJsonSpreadsheetLines(fields: string[], sortBy: string): { lines: string[], dupCountMap: { [key: string]: number } } {
 	const outputValues: string[] = [];
 	type Values = string[];
 	let valueArray: Values[] = [];
@@ -903,10 +903,19 @@ export function getJsonSpreadsheetLines(fields: string[], sortBy: string): strin
 		}
 	}
 
+	const dupCountMap: { [key: string]: number } = {};
+	for (const line of outputValues) {
+		if (dupCountMap[line]) {
+			dupCountMap[line]++;
+		} else {
+			dupCountMap[line] = 1;
+		}
+	}
+
 	if (outputValues.length === 0) {
 		outputValues.push('No matching JSON field found.');
 	}
-	return outputValues;
+	return { lines: outputValues, dupCountMap };
 }
 
 export const jsonLogStore = new JSONLogStore();
