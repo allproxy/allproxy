@@ -65,6 +65,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 			let json = {};
 			let line = '';
 			for (line of lines) {
+				if (line.length > 4096) return;
 				try {
 					json = JSON.parse(line);
 					break;
