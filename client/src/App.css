@@ -252,12 +252,14 @@ td input {
 }
 
 .visited-color {
-	color: #007bff;
+	/* color: #007bff; */
+	color: undefined;
 }
 
 @media screen and (prefers-color-scheme: light) {
 	.visited-color {
-		color: #1a0dab;
+		/* color: #1a0dab; */
+		color: undefined;
 	}
 }
 
