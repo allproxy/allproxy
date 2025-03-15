@@ -26,28 +26,26 @@ export default class GTag {
                     this.pageView('Package: ' + type);
                 }
             };
-
-            setInterval(() => {
-                doPageView();
-            }, ResendPageViewHours * 60 * 60 * 1000); // 24 hours
-
             doPageView();
         }, 1000);
     }
 
     public static pageView(title: string) {
+        if (!ReactGA.isInitialized) this.initialize();
         ReactGA.event('page_view', {
             page_title: title
         });
     }
 
     public static search(searchTerm: string) {
+        if (!ReactGA.isInitialized) this.initialize();
         setTimeout(() => ReactGA.event('search', {
             search_term: searchTerm
         }));
     }
 
     public static exception(description: string, fatal: boolean) {
+        if (!ReactGA.isInitialized) this.initialize();
         setTimeout(() => ReactGA.event('exception', {
             description, fatal
         }));
