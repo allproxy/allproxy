@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import _ from 'lodash';
 import { getJsonSpreadsheetLines as getJsonSpreadsheetRows } from '../store/JSONLogStore';
-import { ListItemText, MenuItem, Select, Tooltip } from '@material-ui/core';
+import { ListItemText, MenuItem, Select } from '@material-ui/core';
 
 export const JSONFieldButtonsHeight = 40;
 
@@ -10,7 +10,7 @@ type Props = {
 	jsonFields: { name: string, count: number, selected: boolean }[]
 };
 
-export const DefaultSortBy = 'Default';
+export const SortByDefault = 'Default';
 
 let order = 0; // order in FIFO order
 
@@ -18,8 +18,9 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 	const [rows, setRows] = React.useState<string[]>([]);
 	const [dupCountMap, setDupCountMap] = React.useState<{ [key: string]: number }>({});
 	const [selectedFields, setSelectedFields] = React.useState<string[]>([]);
-	const [sortBy, setSortBy] = React.useState(DefaultSortBy);
+	const [sortBy, setSortBy] = React.useState(SortByDefault);
 	const [filter, setFilter] = React.useState('');
+	const [noDups, setNoDups] = React.useState(false);
 
 	return (
 		<>
@@ -43,7 +44,8 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 								setRows(output.lines);
 								setDupCountMap(output.dupCountMap);
 								setSelectedFields(s);
-								if (s.indexOf(sortBy) === -1) setSortBy(DefaultSortBy);
+								if (s.indexOf(sortBy) === -1) setSortBy(SortByDefault);
+								setNoDups(false);
 							}}
 						>
 							{field.name}
@@ -54,7 +56,12 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 			<div style={{ display: 'flex' }}>
 				<button className="btn btn-sm btn-primary" style={{ margin: '.5rem 0' }}
 					onClick={() => {
-						setRows(_.uniq(rows));
+						setNoDups(true);
+						const rows2 = _.uniq(rows);
+						const heading = rows2.shift();
+						rows2.sort((a, b) => dupCountMap[b] - dupCountMap[a]);
+						if (heading) rows2.unshift(heading);
+						setRows(rows2);
 					}}
 					disabled={rows.length === 0}
 				>
@@ -78,9 +85,9 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 					}}
 				>
 					<MenuItem
-						value={DefaultSortBy}
+						value={SortByDefault}
 					>
-						<ListItemText primary={DefaultSortBy} />
+						<ListItemText primary={SortByDefault} />
 					</MenuItem>
 					{selectedFields.map(field =>
 						<MenuItem
@@ -97,19 +104,27 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 			<pre>
 				{rows.map((value, i) =>
 					value.toLowerCase().indexOf(filter.toLowerCase()) !== -1 &&
-					<Tooltip
-						title={<span>
-							{'Duplicate count ' + dupCountMap[value]}
-						</span>}>
-						<div style={{ fontFamily: "'Courier New', Courier, monospace", pointerEvents: dupCountMap[value] === 1 ? "none" : undefined }}>
-							<span className="primary-text-color">
-								{(i === 0 ? ' ' : i) + ' '.repeat(rows.length.toString().length - i.toString().length + 1)}</span>{value}
-						</div>
-					</Tooltip>
+					<div style={{
+						fontFamily: "'Courier New', Courier, monospace"
+					}}>
+						<span className="primary-text-color">
+							{formatCount(i > 0 && noDups ? dupCountMap[value] : i)}
+						</span>{value}
+					</div>
 				)}
 			</pre >
 		</>
 	);
+
+	function formatCount(i: number) {
+		let count = '';
+		if (i === 0) {
+			count = ' ';
+		} else {
+			count = i + '';
+		}
+		return count + ' '.repeat(5 - count.length);
+	}
 });
 
 export default JSONSpreadsheet;
