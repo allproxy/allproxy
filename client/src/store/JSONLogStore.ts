@@ -6,7 +6,7 @@ import { filterStore } from "./FilterStore";
 import { urlPathStore } from "./UrlPathStore";
 import { getPluginFunc } from "../Plugins";
 import GTag from "../GTag";
-import { DefaultSortBy } from "../components/JSONSpreadsheet";
+import { SortByDefault } from "../components/JSONSpreadsheet";
 
 export const JSON_FIELDS_DIR = 'jsonFields';
 export const SCRIPTS_DIR = 'scripts';
@@ -881,7 +881,7 @@ export function getJsonSpreadsheetLines(fields: string[], sortBy: string): { lin
 	}
 
 	if (valueArray.length > 0) {
-		if (sortBy !== DefaultSortBy) {
+		if (sortBy !== SortByDefault) {
 			const i = fields.indexOf(sortBy);
 			valueArray = valueArray.sort((a, b) => (a[i] + '').localeCompare(b[i] + ''));
 		}
