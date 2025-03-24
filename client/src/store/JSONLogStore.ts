@@ -751,15 +751,15 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 			const value = json[curField];
 			let name = prevField === '' ? curField : prevField + '.' + curField;
 			if (typeof value === 'object') {
-				const compressed = compressJSON(value);
-				jsonFieldsMap[name.toLowerCase()] = [{ name, value: compressed }];
-				const unqualified = '*' + curField.toLowerCase();
-				if (jsonFieldsMap[unqualified] === undefined) {
-					jsonFieldsMap[unqualified] = [{ name, value: compressed }];
-				} else {
-					jsonFieldsMap[unqualified].push({ name, value: compressed });
-				}
 				if (!Array.isArray(value)) {
+					const compressed = compressJSON(value);
+					jsonFieldsMap[name.toLowerCase()] = [{ name, value: compressed }];
+					const unqualified = '*' + curField.toLowerCase();
+					if (jsonFieldsMap[unqualified] === undefined) {
+						jsonFieldsMap[unqualified] = [{ name, value: compressed }];
+					} else {
+						jsonFieldsMap[unqualified].push({ name, value: compressed });
+					}
 					addJsonFields(name, value);
 				} else {
 					const a = value as any;
