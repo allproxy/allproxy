@@ -272,7 +272,7 @@ const JsonLogAnnotator = observer(({ message, className }: Props) => {
 		}
 
 		function addElement(field: JsonField, highlight: boolean) {
-			const style = pickLabelStyle(field.name);
+			const style = pickLabelStyle(field.name.split('[')[0]); // Use same color for all array elements
 			const bg = highlight ? '#FFFF00' : style.background;
 			const color = highlight ? 'black' : style.color;
 			const keyBorder = highlight ? `${highlightColor} ${highlightWidth} solid` : `${bg} thin solid`;

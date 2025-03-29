@@ -30,6 +30,7 @@ import { isJsonLogTab } from './SideBar';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import DataObjectIcon from '@mui/icons-material/DataObject';
 import MergeTabsDialog from './MergeTabsDialog';
+import { getPluginFunc } from '../Plugins';
 
 let filterWasStopped = false;
 
@@ -145,7 +146,7 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 					/>
 				</div>
 
-				<div hidden className={'header__sort-req-res fa-solid fa-arrow-down fas'}
+				<div hidden className={'header__sort-req-res ffa-cloud-uploada-solid fa-arrow-down fas'}
 					onClick={() => messageQueueStore.toggleSortBy()}
 					title={(messageQueueStore.getSortByReq() ? 'Change to sort by response' : 'Change to sort by request')}
 				>
@@ -258,6 +259,29 @@ const Header = observer(({ socketStore, messageQueueStore, mainTabStore, filterS
 						<div className="header__import fa fa-columns" title="Merge Tabs"
 						>
 							&nbsp;Merge Tabs
+						</div>
+					</MenuItem>
+					<MenuItem style={{
+						opacity: !mainTabStore.isProxyTabSelected() ? undefined : 0.3,
+						pointerEvents: !mainTabStore.isProxyTabSelected() ? undefined : 'none'
+					}}
+						hidden={urlPathStore.getKind() !== 'jlogviewer'}
+						onClick={() => {
+							const jsonObjects: {}[] = [];
+							for (const messageStore of messageQueueStore.getMessages()) {
+								const message = messageStore.getMessage();
+								if (message.protocol === 'log:' && typeof message.responseBody === 'object') {
+									jsonObjects.push(message.responseBody);
+								}
+							}
+							if (jsonObjects.length > 0) {
+								getPluginFunc("importJSON")(jsonObjects);
+							}
+							setMoreMenuIcon(null);
+						}}>
+						<div className="header__import fa fa-upload" title="Rerun Import Plugin"
+						>
+							&nbsp;Rerun Import Plugin
 						</div>
 					</MenuItem>
 					<MenuItem style={{

@@ -764,7 +764,7 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 				} else {
 					const a = value as any;
 					for (let i = 0; i < a.length; ++i) {
-						const name2 = name + '[' + i + ']';
+						const name2 = name + '[' + i + ']'; // array element
 						if (typeof a[i] === 'object') {
 							addJsonFields(name2, a[i]);
 						} else {
@@ -805,7 +805,7 @@ export function lookupJSONField(json: { [key: string]: any }, field: string, exa
 		//console.log(field);
 		//console.log(jsonFields);
 		let jsonFields = jsonFieldsMap[fieldLower];
-		if (jsonFields === undefined && exact === 'any') {
+		if (!jsonFields && exact === 'any') {
 			jsonFields = jsonFieldsMap['*' + fieldLower];
 		}
 		//console.log(jf);
