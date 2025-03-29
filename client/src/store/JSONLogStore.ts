@@ -751,20 +751,20 @@ export function getJsonFieldsMap(json: { [key: string]: string }): { [key: strin
 			const value = json[curField];
 			let name = prevField === '' ? curField : prevField + '.' + curField;
 			if (typeof value === 'object') {
-				const compressed = compressJSON(value);
-				jsonFieldsMap[name.toLowerCase()] = [{ name, value: compressed }];
-				const unqualified = '*' + curField.toLowerCase();
-				if (jsonFieldsMap[unqualified] === undefined) {
-					jsonFieldsMap[unqualified] = [{ name, value: compressed }];
-				} else {
-					jsonFieldsMap[unqualified].push({ name, value: compressed });
-				}
 				if (!Array.isArray(value)) {
+					const compressed = compressJSON(value);
+					jsonFieldsMap[name.toLowerCase()] = [{ name, value: compressed }];
+					const unqualified = '*' + curField.toLowerCase();
+					if (jsonFieldsMap[unqualified] === undefined) {
+						jsonFieldsMap[unqualified] = [{ name, value: compressed }];
+					} else {
+						jsonFieldsMap[unqualified].push({ name, value: compressed });
+					}
 					addJsonFields(name, value);
 				} else {
 					const a = value as any;
 					for (let i = 0; i < a.length; ++i) {
-						const name2 = name + '[' + i + ']';
+						const name2 = name + '[' + i + ']'; // array element
 						if (typeof a[i] === 'object') {
 							addJsonFields(name2, a[i]);
 						} else {
@@ -805,7 +805,7 @@ export function lookupJSONField(json: { [key: string]: any }, field: string, exa
 		//console.log(field);
 		//console.log(jsonFields);
 		let jsonFields = jsonFieldsMap[fieldLower];
-		if (jsonFields === undefined && exact === 'any') {
+		if (!jsonFields && exact === 'any') {
 			jsonFields = jsonFieldsMap['*' + fieldLower];
 		}
 		//console.log(jf);

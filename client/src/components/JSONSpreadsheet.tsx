@@ -3,6 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 import { getJsonSpreadsheetLines as getJsonSpreadsheetRows } from '../store/JSONLogStore';
 import { ListItemText, MenuItem, Select } from '@material-ui/core';
+import GTag from '../GTag';
 
 export const JSONFieldButtonsHeight = 40;
 
@@ -46,6 +47,7 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 								setSelectedFields(s);
 								if (s.indexOf(sortBy) === -1) setSortBy(SortByDefault);
 								setNoDups(false);
+								GTag.pageView('Spreadsheet click ' + field.name);
 							}}
 						>
 							{field.name}
@@ -62,6 +64,7 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 						rows2.sort((a, b) => dupCountMap[b] - dupCountMap[a]);
 						if (heading) rows2.unshift(heading);
 						setRows(rows2);
+						GTag.pageView('Spreadsheet remove duplicates');
 					}}
 					disabled={rows.length === 0}
 				>
@@ -82,6 +85,7 @@ const JSONSpreadsheet = observer(({ jsonFields }: Props): JSX.Element | null => 
 						const output = getJsonSpreadsheetRows(selectedFields, v);
 						setRows(output.lines);
 						setDupCountMap(output.dupCountMap);
+						GTag.pageView('Spreadsheet sort by ' + v);
 					}}
 				>
 					<MenuItem
