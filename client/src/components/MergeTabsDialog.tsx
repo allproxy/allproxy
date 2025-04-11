@@ -11,44 +11,47 @@ type Props = {
 };
 const SessionDialog = observer(({ open, onClose }: Props) => {
 	const [tabName, setTabName] = React.useState('');
-	const [tabChecked, setTabChecked] = React.useState<boolean[]>(new Array(mainTabStore.getTabNames().length));
+	const [tabChecked, setTabChecked] = React.useState<{ [key: string]: number }>({});
 
 	const handleMerge = () => {
 		mainTabStore.setUpdating(true, 'Merging tabs...');
 		const messages: Message[] = [];
-		for (let i = 0; i < tabChecked.length; ++i) {
-			if (tabChecked[i]) {
-				const tabName = mainTabStore.getTabNames()[i];
-				const messageStores = mainTabStore.getTabs().get(tabName);
-				for (const messageStore of messageStores) {
-					messages.push(messageStore.getMessage());
-				}
+		for (const key in tabChecked) {
+			const i = tabChecked[key];
+			const tabName = mainTabStore.getTabNames()[i];
+			const messageStores = mainTabStore.getTabs().get(tabName);
+			for (const messageStore of messageStores) {
+				messages.push(messageStore.getMessage());
 			}
 		}
 		mainTabStore.importTab(tabName, messages, 'sort');
 		mainTabStore.setUpdating(false);
 
-		onClose();
+		handleClose();
 		GTag.pageView('MergeTabsDialog');
 	};
 
-	const handleCheck = (i: number) => {
-		const t = tabChecked.slice();
-		if (t[i]) t[i] = false;
-		else t[i] = true;
-		setTabChecked(t);
+	const handleClose = () => {
+		setTabName('');
+		setTabChecked({});
+		onClose();
+	};
+
+	const handleCheck = (tabName: string, i: number) => {
+		if (tabChecked[tabName] === undefined) {
+			tabChecked[tabName] = i;
+		} else {
+			delete tabChecked[tabName];
+		}
+		setTabChecked(tabChecked);
 	};
 
 	const isReadyToSubmit = () => {
-		let tabsCheckedCount = 0;
-		for (let i = 0; i < tabChecked.length; ++i) {
-			if (tabChecked[i]) ++tabsCheckedCount;
-		}
-		return tabName.length > 0 && tabsCheckedCount >= 2;
+		return tabName !== '' && Object.keys(tabChecked).length >= 2;
 	};
 
 	return (
-		<Dialog onClose={onClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>
+		<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open} maxWidth={'lg'}>
 			<DialogTitle id="simple-dialog-title">Merge Tabs</DialogTitle>
 			<DialogContent>
 				<div style={{ marginLeft: '1rem', minWidth: '50vw' }}>
@@ -69,7 +72,7 @@ const SessionDialog = observer(({ open, onClose }: Props) => {
 									size={"small"}
 									defaultChecked={false}
 									value={tabChecked[i]}
-									onChange={() => handleCheck(i)} />
+									onChange={() => handleCheck(mainTabStore.getTabNames()[i], i)} />
 								{mainTabStore.getTabName(value) + ' (' + mainTabStore.getTabMessageCount(value) + ')'}
 							</MenuItem>
 						)
