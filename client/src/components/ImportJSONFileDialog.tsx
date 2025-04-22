@@ -29,7 +29,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 	const [startTime, setStartTime] = React.useState<string>("");
 	const [endTime, setEndTime] = React.useState<string>("");
 	const [tabValue, setTabValue] = React.useState<'1' | '2'>('1');
-	const [splitArrays, setSplitArrays] = React.useState(true);
+	const [splitArrays, setSplitArrays] = React.useState(false);
 
 	var input = document.createElement('input');
 	input.type = 'file';
@@ -155,7 +155,6 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 					<div style={{ display: 'flex' }}>
 						<Checkbox style={{ paddingTop: 0, paddingBottom: 0 }}
 							size={"small"}
-							defaultChecked
 							value={splitArrays}
 							onChange={() => setSplitArrays(!splitArrays)} />
 						Split JSON into multiple array elements when one large JSON object is imported
@@ -301,6 +300,10 @@ export function jsonToJsonl(jsonString: string, splitArrays: boolean): string {
 		}
 
 		const json = JSON.parse(jsonString);
+		if (json.kind && json.items && Array.isArray(json.items)) {
+			splitArrays = true;
+		}
+
 		if (splitArrays) {
 			if (Array.isArray(json)) {
 				jsonLines = "";
