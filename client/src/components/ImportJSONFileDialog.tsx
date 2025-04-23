@@ -134,7 +134,7 @@ const ImportJSONFileDialog = observer(({ open, onClose }: Props) => {
 			setEndTime('');
 			setIncludeFilter('');
 			setSelectedFiles([]);
-			setSplitArrays(true);
+			setSplitArrays(false);
 		}, 1000);
 	}
 
@@ -300,7 +300,10 @@ export function jsonToJsonl(jsonString: string, splitArrays: boolean): string {
 		}
 
 		const json = JSON.parse(jsonString);
+
 		if (json.kind && json.items && Array.isArray(json.items)) {
+			splitArrays = true;
+		} else if (Array.isArray(json)) {
 			splitArrays = true;
 		}
 
