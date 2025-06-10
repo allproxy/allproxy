@@ -584,7 +584,7 @@ td input {
 
 .header__filter-input,
 .header__filter-input-queries {
-	width: calc(100vw - 732px) !important;
+	width: calc(100vw - 824px) !important;
 }
 
 .header__filter-input.active {
