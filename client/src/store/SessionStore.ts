@@ -63,7 +63,7 @@ export default class SessionStore {
 			categories.unshift('default');
 		}
 		this.categories = categories;
-		this.selectedTab = categories[0];
+		//this.selectedTab = categories[0];
 	}
 
 	public getSelectedTab() {

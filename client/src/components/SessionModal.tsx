@@ -28,7 +28,7 @@ const SessionModal = observer(({ open, onClose, store }: Props) => {
 	const [pendingDeleteIndex, setPendingDeleteIndex] = React.useState(-1);
 	const [searchType, setSearchType] = React.useState<'Title' | 'Full Text'>('Full Text');
 	const [sessionIndex, setSessionIndex] = React.useState(0);
-	const [flatten, setFlatten] = React.useState(false);
+	const [flatten, setFlatten] = React.useState(true);
 
 	useEffect(() => {
 		setTitleValue('');
