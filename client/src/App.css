@@ -539,7 +539,7 @@ td input {
 .header__save-restore,
 .header__more-menu {
 	float: left;
-	margin: 0 0 0 1rem;
+	margin: 0 0 0 0;
 	cursor: pointer;
 	color: whitesmoke;
 	font-size: large !important;
@@ -584,7 +584,7 @@ td input {
 
 .header__filter-input,
 .header__filter-input-queries {
-	width: calc(100vw - 824px) !important;
+	width: calc(100vw - 732px) !important;
 }
 
 .header__filter-input.active {
