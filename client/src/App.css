@@ -539,7 +539,7 @@ td input {
 .header__save-restore,
 .header__more-menu {
 	float: left;
-	margin: 0 0 0 0;
+	margin: 0 0 0 .5rem;
 	cursor: pointer;
 	color: whitesmoke;
 	font-size: large !important;
