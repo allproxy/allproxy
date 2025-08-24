@@ -279,6 +279,9 @@ export function dateToHHMMSS(d: Date) {
 	if (isNaN(d.getMonth()) || isNaN(d.getDate())) {
 		return "Invalid Date";
 	}
+	if (isJsonLogTab() && d <= new Date(0)) {
+		return '';
+	}
 	if (isJsonLogTab() && jsonLogStore.isShowUtcChecked()) {
 		return d.toISOString();
 	} else {

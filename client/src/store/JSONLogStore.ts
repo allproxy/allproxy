@@ -101,11 +101,11 @@ export let defaultScript =
 // appName is the pod name
 //
 const extractDateLevelCategoryAppNameMessage = function (preJSONString, jsonObject) {
-    let level = 'info';
-    let date = new Date();
+    let level = '';
+    let date = new Date(0);
     let category = '';
-    let kind = 'Kind_is_not_defined';
-    let message = "Message field not defined - click '?'";
+    let kind = '';
+    let message = "";
     let additionalJSON = {};
     const ignoreFields = [];
     const typeahead = [];
@@ -270,7 +270,7 @@ export default class JSONLogStore {
 	private rerenderEditor = 0;
 
 	private scriptFunc = (_logEntry: string, _logentryJson: object) => {
-		return { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
+		return { date: new Date(0), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
 	};
 
 	private typeaheadMap: { [key: string]: boolean } = {};
@@ -491,7 +491,7 @@ export default class JSONLogStore {
 			}
 		};
 
-		let logEntry: LogEntry = { date: new Date(), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
+		let logEntry: LogEntry = { date: new Date(0), level: '', category: '', appName: '', kind: '', message: '', rawLine: '', additionalJSON: {}, ignoreFields: [], typeahead: [] };
 		switch (method) {
 			case 'auto':
 				setAutoField('date');
@@ -545,7 +545,7 @@ export default class JSONLogStore {
 				if (logEntry.date === undefined ||
 					!(logEntry.date instanceof Date) ||
 					logEntry.date.toString() === 'Invalid Date') {
-					logEntry.date = new Date();
+					logEntry.date = new Date(0);
 					for (const field in jsonData) {
 						const value = jsonData[field];
 						if (typeof value === 'string' || typeof value === 'number') {

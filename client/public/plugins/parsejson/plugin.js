@@ -8,11 +8,11 @@
 // appName is the pod name
 //
 function parseJSON(preJSONString, jsonObject) {
-    let level = 'info';
-    let date = new Date();
+    let level = '';
+    let date = new Date(0);
     let category = '';
-    let kind = 'Kind_is_not_defined';
-    let message = "Message field not defined - click '?'";
+    let kind = '';
+    let message = "";
     let additionalJSON = {};
     const ignoreFields = [];
     const typeahead = [];
