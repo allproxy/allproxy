@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { getJsonSpreadsheetLines as getJsonSpreadsheetRows } from '../store/JSONLogStore';
 import { ListItemText, MenuItem, Select } from '@material-ui/core';
 import GTag from '../GTag';
+import { JSX } from 'react/jsx-runtime';
 
 export const JSONFieldButtonsHeight = 40;
 

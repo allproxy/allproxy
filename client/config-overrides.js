@@ -6,7 +6,10 @@ module.exports = function override(config, env) {
         "react/jsx-dev-runtime": "react/jsx-dev-runtime.js",
         "react/jsx-runtime": "react/jsx-runtime.js"
       },
-      fallback: { "assert": false }
+      fallback: { 
+        "assert": false,
+        "util": require.resolve("util/")
+       }
     }
   }
   ]
